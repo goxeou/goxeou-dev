@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>订单管理</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	.orderdetail{background:#f7f7f8;width: 94%;box-sizing:border-box;margin:0 10px;display:flex;flex-direction:column;}
+	.orderdetail *{box-sizing:border-box;}
+	.address{ display:flex;align-items:center;width: 100%; padding:10px 0; background: #FFF;color:#222}
+	.address .img{width:45px;padding:0 10px}
+	.address img{width:25px; height:25px;}
+	.address .info{flex:1;display:flex;flex-direction:column;}
+	.address .info .t1{ font-weight:bold}
+
+	.express { width:100%;background: #fff; padding:10px;display:flex;align-items:center;margin-top:5px;color:#333}
+	.express .f1{ width:40px;font-size:20px;color:#999}
+	.express .f2{display:flex;flex-direction:column;flex:auto}
+
+	.product{width:100%; padding:5px;background: #FFF;margin-top:5px;}
+	.product .content{display:flex;position:relative;width: 100%; padding:5px 0px;border-bottom: 1px #e5e5e5 dashed;position:relative}
+	.product .content:last-child{ border-bottom: 0; }
+	.product .content img{ width: 70px; height: 70px;}
+	.product .content .detail{display:flex;flex-direction:column;margin-left:7px;flex:1}
+	.product .content .detail .t1{height: 30px;line-height: 15px;color: #000;}
+	.product .content .detail .t2{height: 23px;line-height: 23px;color: #999;overflow: hidden;font-size:13px;}
+	.product .content .detail .t3{display:flex;height:15px;line-height:15px;color: #ff4246;}
+	.product .content .detail .x1{ flex:1}
+	.product .content .detail .x2{ width:50px;font-size:16px;text-align:right;margin-right:4px}
+	.product .content .comment{position:absolute;top:32px;right:5px;border: 1px #ffc702 solid; border-radius:5px;background:#fff; color: #ffc702;  padding: 0 5px; height: 23px; line-height: 23px;}
+
+	.orderinfo{ width:100%;margin-top:5px;padding: 5px;background: #FFF;}
+	.orderinfo .item{display:flex;width:100%;padding:10px 0;border-bottom:1px dashed #ededed;}
+	.orderinfo .item:last-child{ border-bottom: 0;}
+	.orderinfo .item .t1{width:100px;}
+	.orderinfo .item .t2{flex:1;text-align:right}
+	.orderinfo .item .red{color:red}
+
+	.logistics{ width: 94%;  background: #fff; padding: 0 10px;display:flex;flex-direction:column;color: #979797;}
+	.logistics .on{color: #23aa5e;}
+	.logistics .item{display:flex;width: 96%;  margin: 0 2%;/*border-left: 1px #dadada solid;*/padding:0 0}
+	.logistics .item .f1{ width:30px;position:relative}
+	/*.logistics img{width: 15px; height: 15px; position: absolute; left: -8px; top:11px;}*/
+	.logistics .item .f1 img{ width: 15px; height: 100%;}
+
+	.logistics .item .f2{display:flex;flex-direction:column;flex:auto;padding:5px 0}
+	.logistics .item .f2 .t1{font-size: 15px;}
+	.logistics .item .f2 .t1{font-size: 13px;}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header">
+			点餐订单
+			{if input('param.isopen')==1}<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>{/if}
+          </div>
+          <div class="layui-card-body" pad15>
+			<div class="layui-col-md12">
+				<div class="layui-col-md3" style="padding-bottom:10px">
+					<button class="layui-btn layui-btn-primary layuiadmin-btn-list" data-form-export="{:url('excel')}">导出</button>
+					<!-- <button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="plfh()">批量发货</button> -->
+				</div>
+				<div class="layui-col-md9 layui-form layui-form-search">
+					<div class="layui-inline layuiadmin-input-useradmin" style="display:none">
+						<label class="layui-form-label">{:t('会员')}ID</label>
+						<div class="layui-input-inline">
+							<input type="text" name="mid" value="{$Request.param.mid}" autocomplete="off" class="layui-input">
+						</div>
+					</div>
+					<div class="layui-inline layuiadmin-input-useradmin">
+						<label class="layui-form-label">订单号</label>
+						<div class="layui-input-inline">
+							<input type="text" name="ordernum" autocomplete="off" class="layui-input">
+						</div>
+					</div>
+					<div class="layui-inline">
+						<label class="layui-form-label">下单时间</label>
+						<div class="layui-input-inline" style="width:290px">
+							<input type="text" name="ctime" id="ctime" autocomplete="off" class="layui-input">
+						</div>
+					</div>
+					<div class="layui-inline">
+						<label class="layui-form-label">状态</label>
+						<div class="layui-input-inline">
+							<select name="status">
+								<option value="">全部</option>
+								<option value="0" {if input('param.status')==='0'}selected{/if}>未支付</option>
+								<option value="1" {if input('param.status')==='1'}selected{/if}>已支付</option>
+								<option value="3" {if input('param.status')==='3'}selected{/if}>已完成</option>
+								<option value="4" {if input('param.status')==='4'}selected{/if}>已关闭</option>
+								<option value="5" {if input('param.status')==='5'}selected{/if}>退款待审核</option>
+								<option value="6" {if input('param.status')==='6'}selected{/if}>已退款</option>
+								<option value="7" {if input('param.status')==='7'}selected{/if}>退款驳回</option>
+							</select>
+						</div>
+					</div>
+					<div class="layui-inline">
+						<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+							<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+						</button>
+					</div>
+				</div>
+			</div>
+			<div class="layui-col-md12">
+				<table id="tabledata" lay-filter="tabledata"></table>
+			</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+  var table = layui.table;
+	var datawhere = {};
+	{if input('?param.status') && input('param.status')!==''}
+	datawhere['status'] = "{$Request.param.status}";
+	{/if}
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{$Request.url}" //数据接口
+    ,page: true //开启分页
+		//,size:'sm'
+    ,cols: [[ //表头
+			//{type:"checkbox"},
+      {field: 'id', title: 'ID',  sort: true,width:60},
+		{if input('param.showtype')==2}
+      {field: 'bname', title: '所属商户',width:160},
+		{/if}
+      {field: 'tablename', title: '餐桌'},
+      {field: 'goodsdata', title: '商品信息',width:240},
+	  {field: 'renshu', title: '用餐人数',templet:function(d){
+			  if(d.renshu > 0) return d.renshu+'人';
+			  return '';
+		  }, width: 80},
+	  {field: 'message', title: '客户备注',width:90},
+      {field: 'ordernum', title: '订单号/下单时间',sort: true,width:160,templet:function(d){ return d.ordernum +'<div style="color:#080">'+ date('Y年m月d日 H:i',d.createtime)+'</div>'}},
+	  {field: 'product_price', title: '商品总价/实付款',templet:function(d){
+			  var text = '实付';
+			  if(d.status ==0) text = '应付';
+			  var html='';
+			  html +='<div>总价：￥'+d.product_price+'</div>';
+			  html +='<div style="font-weight:bold">'+text+'：￥'+d.totalprice+'</div>';
+			  return html;
+		  }},
+	  {field: 'nickname', title: '下单人',templet:function(d){
+		  if(d.nickname && d.headimg){
+			  return '<img src="'+d.headimg+'" style="width:40px;height:40px"> '+d.nickname;
+		  }
+		  return '';
+	  }, width: 150},
+      {field: 'paytype', title: '支付方式',width:90},
+      {field: 'status', title: '状态',templet:function(d){
+			var html = '';
+			if(d.paytypeid == 4) html+='<div style="color:#ff8758">线下支付</div>';
+			if(d.status==0) html+='<div style="color:#ff8758">未支付</div>';
+			if(d.status==1) html+='<div style="color:#008000">已支付</div>';
+			if(d.status==3) html+='<div style="color:#999">已完成</div>';
+			if(d.status==4) html+='<div style="color:#bbb">已关闭</div>';
+			if(d.refund_status == 1) html+='<div style="color:red">退款待审核,￥'+d.refund_money+'</div>';
+			if(d.refund_status == 2) html+='<div style="color:red">已退款,￥'+d.refund_money+'</div>';
+			if(d.refund_status == 3) html+='<div style="color:red">退款驳回,￥'+d.refund_money+'</div>';
+			return html;
+		}},
+      //{field: 'createtime', title: '下单时间',sort: true,templet:function(d){ return date('Y-m-d H:i',d.createtime)},width:150},
+      {field: 'operation', title: '操作',templet:function(d){
+		var html = '';
+		html += '<button class="table-btn" onclick="showdetail('+d.id+')">详情</button>';
+		if(d.status==0){
+			html += '<button class="table-btn" onclick="doOperation('+d.id+',\'改价\')">改价</button>';
+		}
+		if(d.status==0 || d.status==3 || d.status==4){
+			html += '<button class="table-btn" onclick="datadel('+d.id+')">删除</button>';
+		}
+		if(d.refund_status==1){ //退款待审核
+			html += '<button class="table-btn" onclick="doOperation('+d.id+',\'退款审核\')">退款审核</button>';
+		}
+		if(d.status==0){ //未支付
+			html += '<button class="table-btn" onclick="doOperation('+d.id+',\'关闭订单\')">关闭订单</button>';
+			html += '<button class="table-btn" onclick="doOperation('+d.id+',\'已支付\')">改为已支付</button>';
+		}
+		if(d.status==1){ //已支付
+			html += '<button class="table-btn" onclick="doOperation('+d.id+',\'退款\')">退款</button>';
+			html += '<button class="table-btn" onclick="doOperation('+d.id+',\'完成\')">完成</button>';
+		}
+	  	html += '<button class="table-btn" onclick="wifiprint('+d.id+')">打印小票</button>';
+		return html;
+      }}
+    ]]
+  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//日期范围选择
+	layui.laydate.render({ 
+		elem: '#ctime',
+		trigger: 'click',
+		range: '~', //或 range: '~' 来自定义分割字符
+		type:'datetime'
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	//打印小票
+	function wifiprint(id){
+		layer.confirm('确定要打印小票吗?',{icon: 7, title:'操作确认'}, function(index){
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('wifiprint')}",{id:id},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+			})
+		})
+	}
+	//删除
+	function datadel(id){
+		layer.confirm('确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('del')}",{id:id},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	var detailLayer;
+	function showdetail(orderid){
+		var index = layer.load();
+		$.post("{:url('getdetail')}",{orderid:orderid},function(data){
+			layer.close(index);
+			var html = '';
+			//var data = { //数据
+			//	"title":"Layui常用模块",
+			//	"list":[{"modname":"弹层","alias":"layer","site":"layer.layui.com"},{"modname":"表单","alias":"form"}]
+			//}
+			layui.laytpl(detailtpl.innerHTML).render(data, function(html){
+				//view.innerHTML = html;
+				var detailBtn = [];
+				if(data.order.refund_status==1){ //退款待审核
+					detailBtn.push('退款审核');
+				}
+				if(data.order.status==0){ //未支付
+					detailBtn.push('关闭订单');
+					detailBtn.push('改价');
+				}
+				if(data.order.status==1){ //已支付
+					detailBtn.push('退款');
+					detailBtn.push('完成');
+				}
+				if(data.order.status==0 || data.order.status==3 || data.order.status==4){
+					detailBtn.push('删除');
+				}
+				detailBtn.push('设置备注');
+				detailLayer = layer.open({type:1,title:'订单详情',area:'500px',content:html,resize:true,shadeClose:true,maxmin:true,btn:detailBtn,
+					yes:function(){
+						return btnOperation(detailBtn[0],data);
+					},
+					btn2:function(){
+						return btnOperation(detailBtn[1],data);
+					},
+					btn3:function(){
+						return btnOperation(detailBtn[2],data);
+					},
+					btn4:function(){
+						return btnOperation(detailBtn[3],data);
+					},
+					btn5:function(){
+						return btnOperation(detailBtn[4],data);
+					}
+				});
+			});
+			//layer.open({type:1,area:['600px','600px'],title:false,shadeClose:true,btn: ['发货', '退款审核', '设置备注']});
+		})
+	}
+	function doOperation(orderid,type){
+		$.post("{:url('getdetail')}",{orderid:orderid},function(data){
+			btnOperation(type,data);
+		})
+	}
+	function btnOperation(type,data){
+		var orderid = data.order.id;
+		if(type == '接单'){
+			layer.confirm('确定要接单吗?',{icon: 7, title:'操作确认'}, function(index){
+				layer.close(index);
+				var index = layer.load();
+				$.post("{:url('jiedan')}",{orderid:orderid},function(res){
+					layer.close(index);
+					dialog(res.msg,res.status);
+					layer.close(detailLayer);
+					tableIns.reload()
+				})
+			})
+		}else if(type=='退款审核'){
+			layui.laytpl(refundCheckTpl.innerHTML).render(data.order, function(html){
+				var refundCheckLayer = layer.open({type:1,title:false,content:html,shadeClose:true,btn: ['同意并退款', '驳回退款申请'],
+					yes:function(){
+						var index = layer.load();
+						$.post("{:url('refundCheck')}",{orderid:orderid,st:1,remark:$('input[name=refund_checkremark]').val()},function(res){
+							layer.close(index);
+							dialog(res.msg,res.status);
+							layer.close(refundCheckLayer);
+							layer.close(detailLayer);
+							tableIns.reload()
+						})
+					},
+					btn2:function(){
+						var index = layer.load();
+						$.post("{:url('refundCheck')}",{orderid:orderid,st:2,remark:$('input[name=refund_checkremark]').val()},function(res){
+							layer.close(index);
+							dialog(res.msg,res.status);
+							layer.close(refundCheckLayer);
+							layer.close(detailLayer);
+							tableIns.reload()
+						})
+					}
+				})
+			})
+		}else if(type == '发货'){
+			layui.laytpl(sendExpressTpl.innerHTML).render({}, function(html){
+				var sendExpressLayer = layer.open({type:1,title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+					yes:function(){
+						var index = layer.load();
+						$.post("{:url('sendExpress')}",{orderid:orderid,express_com:$('#send_express').val(),express_no:$('#send_express_no').val()},function(res){
+							layer.close(index);
+							dialog(res.msg,res.status);
+							layer.close(sendExpressLayer);
+							layer.close(detailLayer);
+							tableIns.reload()
+						})
+					}
+				})
+			});
+		}else if(type == '退款'){
+			var html = '';
+			html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+			html+='		<label class="layui-form-label" style="width:80px">退款原因</label>';
+			html+='		<div class="layui-input-inline" style="width:350px">';
+			html+='			<textarea type="text" id="tuireason" class="layui-textarea"></textarea>';
+			html+='		</div>';
+			html+='	</div>';
+			var refundLayer = layer.open({type:1,area:['500px','250px'],title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+				yes:function(){
+					var index = layer.load();
+					$.post("{:url('refund')}",{orderid:orderid,reason:$('#tuireason').val()},function(res){
+						layer.close(index);
+						dialog(res.msg,res.status);
+						layer.close(refundLayer);
+						layer.close(detailLayer);
+						tableIns.reload()
+					})
+				}
+			})
+		}else if(type == '查物流'){
+			var index = layer.load();
+			$.post("{:url('getExpress')}",{orderid:orderid},function(data){
+				layer.close(index);
+				layui.laytpl(logisticsTpl.innerHTML).render(data, function(html){
+					var logisticsLayer = layer.open({type:1,title:false,content:html,area:"800px",shadeClose:true,btn: ['关闭']})
+				})
+			});
+		}else if(type == '设置备注'){
+			layui.laytpl(remarktpl.innerHTML).render({remark:data.order.remark}, function(html){
+				var remarkLayer = layer.open({type:1,title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+					yes:function(){
+						var index = layer.load();
+						$.post("{:url('setremark')}",{orderid:orderid,content:$('#remarkcontent').val()},function(res){
+							layer.close(index);
+							dialog(res.msg,res.status);
+							layer.close(remarkLayer);
+							layer.close(detailLayer);
+						})
+					}
+				})
+			});
+		}else if(type == '已支付'){
+			layer.confirm('确定要改为已支付吗?',{icon: 7, title:'操作确认'}, function(index){
+				layer.close(index);
+				var index = layer.load();
+				$.post("{:url('ispay')}",{orderid:orderid},function(res){
+					layer.close(index);
+					dialog(res.msg,res.status);
+					layer.close(detailLayer);
+					tableIns.reload()
+				})
+			})
+		}else if(type == '改价'){
+			layui.laytpl(changepricetpl.innerHTML).render({totalprice:data.order.totalprice}, function(html){
+				var changepriceLayer = layer.open({type:1,title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+					yes:function(){
+						var index = layer.load();
+						$.post("{:url('changeprice')}",{orderid:orderid,newprice:$('#changepricecontent').val()},function(res){
+							layer.close(index);
+							dialog(res.msg,res.status);
+							layer.close(changepriceLayer);
+							layer.close(detailLayer);
+							tableIns.reload()
+						})
+					}
+				})
+			});
+		}else if(type == '关闭订单'){
+			layer.confirm('确定要关闭该订单吗?',{icon: 7, title:'操作确认'}, function(index){
+				layer.close(index);
+				var index = layer.load();
+				$.post("{:url('closeOrder')}",{orderid:orderid},function(res){
+					layer.close(index);
+					dialog(res.msg,res.status);
+					layer.close(detailLayer);
+					tableIns.reload()
+				})
+			})
+		}else if(type == '删除'){
+			layer.confirm('确定要删除该订单吗?',{icon: 7, title:'操作确认'}, function(index){
+				layer.close(index);
+				var index = layer.load();
+				$.post("{:url('del')}",{id:orderid},function(res){
+					layer.close(index);
+					dialog(res.msg,res.status);
+					layer.close(detailLayer);
+					tableIns.reload()
+				})
+			})
+		}else if(type == '完成'){
+			var confirmText = '确定要改为已完成状态吗?';
+			if(data.order.paytypeid == 4) {
+				confirmText = '当前支付方式为线下支付，确定已收款并修改订单为已完成吗？';
+			}
+			layer.confirm(confirmText,{icon: 7, title:'操作确认'}, function(index){
+				layer.close(index);
+				var index = layer.load();
+				$.post("{:url('orderCollect')}",{orderid:orderid},function(res){
+					layer.close(index);
+					dialog(res.msg,res.status);
+					layer.close(detailLayer);
+					tableIns.reload()
+				})
+			})
+		}
+		return false
+	}
+	</script>
+	<script id="refundCheckTpl" type="text/html">
+	<div class="orderdetail">
+	<div class="orderinfo">
+			<div class="item">
+				<span class="t1">申请退款金额</span>
+				<span class="t2 red">￥{{d.refund_money}}</span>
+			</div>
+			<div class="item">
+				<span class="t1">申请退款原因</span>
+				<span class="t2 red">{{d.refund_reason}}</span>
+			</div>
+			<div class="item">
+				<span class="t1">申请退款时间</span>
+				<span class="t2">{{date('Y-m-d H:i:s',d.refund_time)}}</span>
+			</div>
+			<div class="item">
+				<span class="t1">审核备注</span>
+				<span class="t2"><input type="text" name="refund_checkremark" value="{{d.refund_checkremark ? d.refund_checkremark : ''}}" style="height:30px"/></span>
+			</div>
+	</div>
+	</div>
+	</script>
+	<script id="logisticsTpl" type="text/html">
+	<div style="padding:5px"></div>
+	{{# if(d.data.length==0){ }}<div style="font-size:14px;color:#f05555;padding:10px;"><i class="fa fa-info-circle"></i> 暂未查到物流信息</div>{{# } }}
+	{{#  layui.each(d.data, function(index, item){ }}
+	<div class="logistics">
+		<div class="item {{index==0?'on':''}}">
+			<div class="f1"><img src="__STATIC__/admin/img/dot{{index==0?'2':'1'}}.png"></div>
+			<div class="f2">
+				<span class="t2">{{item.time}}</span>
+				<span class="t1">{{item.context}}</span>
+			</div>
+		</div>
+	</div>
+	{{# }); }}
+	</script>
+
+	<script id="sendExpressTpl" type="text/html">
+	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">
+		<label class="layui-form-label" style="width:60px">快递公司</label>
+		<div class="layui-input-inline" style="width:180px">
+			<select id="send_express" style="width:100%;height: 38px;line-height: 38px;border:1px solid #e6e6e6;background-color: #fff;border-radius: 2px;">
+				{foreach $express_data as $k=>$v}
+				<option>{$k}</option>
+				{/foreach}
+			</select>
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<label class="layui-form-label" style="width:60px">快递单号</label>
+		<div class="layui-input-inline" style="width:180px">
+			<input type="text" id="send_express_no" class="layui-input" value="">
+		</div>
+	</div>
+	</script>
+
+	<script id="remarktpl" type="text/html">
+	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">
+		<label class="layui-form-label" style="width:40px">备注</label>
+		<div class="layui-input-inline" style="width:180px">
+			<input type="text" id="remarkcontent" class="layui-input" value="{{d.remark?d.remark : ''}}">
+		</div>
+	</div>
+	</script>
+	<script id="changepricetpl" type="text/html">
+	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">
+		<label class="layui-form-label" style="width:40px">价格</label>
+		<div class="layui-input-inline" style="width:180px">
+			<input type="text" id="changepricecontent" class="layui-input" value="{{d.totalprice?d.totalprice : ''}}">
+		</div>
+	</div>
+	</script>
+
+	<script id="detailtpl" type="text/html">
+	<div class="orderdetail">
+		<div class="address">
+			<div class="info">
+				<span class="t1">{{#  if(d.order.linkman){ }}{{d.order.linkman}}{{# } }} {{#  if(d.order.tel){ }}{{d.order.tel}}{{# } }}</span>
+				{{#  if(d.order.tablename){ }}
+				<span class="t2">桌号：{{d.order.tablename}}</span>
+				{{# } }}
+				
+				{{#  if(d.order.pickup_number){ }}
+				<span class="t2">取餐号：{{d.order.pickup_number}}</span>
+				{{# } }}
+			</div>
+		</div>
+
+		<div class="product">
+			{{#  layui.each(d.oglist, function(index, item){ }}
+			<div class="content">
+				<div>
+					<img src="{{item.pic}}"/>
+				</div>
+				<div class="detail">
+					<span class="t1">{{item.name}}</span>
+					<span class="">{{item.ggname}}</span>
+					<div class="t3"><span class="x1 flex1">￥{{item.sell_price}}</span><span class="x2">×{{item.num}}</span></div>
+				</div>
+			</div>
+			{{# }); }}
+		</div>
+		
+		{{#  if(d.order.message || d.order.remark || d.order.field1 || d.order.field2 || d.order.field3 || d.order.field4 || d.order.field5){ }}
+		<div class="orderinfo">
+			{{#  if(d.order.message){ }}
+			<div class="item">
+				<span class="t1">客户备注</span>
+				<span class="t2 red">{{d.order.message ? d.order.message : '无'}}</span>
+			</div>
+			{{# } }}
+			{{#  if(d.order.field1){ }}
+			<div class="item">
+				<span class="t1">{{d.order.field1data[0]}}</span>
+				<span class="t2 red">{{d.order.field1data[1]}}</span>
+			</div>
+			{{# } }}
+			{{#  if(d.order.field2){ }}
+			<div class="item">
+				<span class="t1">{{d.order.field2data[0]}}</span>
+				<span class="t2 red">{{d.order.field2data[1]}}</span>
+			</div>
+			{{# } }}
+			{{#  if(d.order.field3){ }}
+			<div class="item">
+				<span class="t1">{{d.order.field3data[0]}}</span>
+				<span class="t2 red">{{d.order.field3data[1]}}</span>
+			</div>
+			{{# } }}
+			{{#  if(d.order.field4){ }}
+			<div class="item">
+				<span class="t1">{{d.order.field4data[0]}}</span>
+				<span class="t2 red">{{d.order.field4data[1]}}</span>
+			</div>
+			{{# } }}
+			{{#  if(d.order.field5){ }}
+			<div class="item">
+				<span class="t1">{{d.order.field5data[0]}}</span>
+				<span class="t2 red">{{d.order.field5data[1]}}</span>
+			</div>
+			{{# } }}
+			{{#  if(d.order.remark){ }}
+			<div class="item">
+				<span class="t1">后台备注</span>
+				<span class="t2 red">{{d.order.remark ? d.order.remark : '无'}}</span>
+			</div>
+			{{# } }}
+		</div>
+		{{# } }}
+		<div class="orderinfo">
+			<div class="item">
+				<span class="t1">下单人</span>
+				<span class="t2"><img src="{{d.member.headimg}}" style="width:40px"/> {{d.member.nickname}} {{# if(d.member.realname){ }}[{{d.member.realname}} {{d.member.tel}}]{{#} }}</span>
+			</div>
+			<div class="item">
+				<span class="t1">{:t('会员')}ID</span>
+				<span class="t2">{{d.member.id}}</span>
+			</div>
+		</div>
+		<div class="orderinfo">
+			<div class="item">
+				<span class="t1">订单编号</span>
+				<span class="t2">{{d.order.ordernum}}</span>
+			</div>
+			<div class="item">
+				<span class="t1">下单时间</span>
+				<span class="t2">{{date('Y-m-d H:i:s',d.order.createtime)}}</span>
+			</div>
+			{{#  if(d.order.status>0 && d.order.paytime){ }}
+			<div class="item">
+				<span class="t1">支付时间</span>
+				<span class="t2">{{date('Y-m-d H:i:s',d.order.paytime)}}</span>
+			</div>
+			<div class="item">
+				<span class="t1">支付方式</span>
+				<span class="t2">{{d.order.paytype}}</span>
+			</div>
+			{{# } }}
+			{{#  if(d.order.status>1 && d.order.send_time){ }}
+			<div class="item">
+				<span class="t1">发货时间</span>
+				<span class="t2">{{date('Y-m-d H:i:s',d.order.send_time)}}</span>
+			</div>
+			{{# } }}
+			{{#  if(d.order.status==3 && d.order.collect_time){ }}
+			<div class="item">
+				<span class="t1">收货时间</span>
+				<span class="t2">{{date('Y-m-d H:i:s',d.order.collect_time)}}</span>
+			</div>
+			{{# } }}
+		</div>
+		<div class="orderinfo">
+			<div class="item">
+				<span class="t1">商品金额</span>
+				<span class="t2 red">¥{{d.order.product_price}}</span>
+			</div>
+			{{#  if(d.order.tea_fee > 0){ }}
+			<div class="item">
+				<span class="t1">{{d.shopset.tea_fee_text}}</span>
+				<span class="t2">¥{{d.order.tea_fee}}</span>
+			</div>
+			{{# } }}
+			{{#  if(d.order.leveldk_money > 0){ }}
+			<div class="item">
+				<span class="t1">{:t('会员')}折扣</span>
+				<span class="t2 red">-¥{{d.order.leveldk_money}}</span>
+			</div>
+			{{# } }}
+			{{#  if(d.order.manjian_money > 0){ }}
+			<div class="item">
+				<span class="t1">满减活动</span>
+				<span class="t2 red">-¥{{d.order.manjian_money}}</span>
+			</div>
+			{{# } }}
+			{{#  if(d.order.coupon_money > 0){ }}
+			<div class="item">
+				<span class="t1">{:t('优惠券')}抵扣</span>
+				<span class="t2 red">-¥{{d.order.coupon_money}}</span>
+			</div>
+			{{#  if(d.couponrecord){ }}
+			<div class="item">
+				<span class="t1">{:t('优惠券')}名称</span>
+				<span class="t2">{{d.couponrecord.couponname}}</span>
+			</div>
+			{{# } }}
+			{{# } }}
+			{{#  if(d.order.scoredk_money > 0){ }}
+			<div class="item">
+				<span class="t1">{:t('积分')}抵扣</span>
+				<span class="t2 red">-¥{{d.order.scoredk_money}}</span>
+			</div>
+			{{# } }}
+			{{#  if(d.order.discount_money > 0){ }}
+			<div class="item">
+				<span class="t1">优惠</span>
+				<span class="t2 red">-¥{{d.order.discount_money}}</span>
+			</div>
+			{{# } }}
+			
+			<div class="item">
+				<span class="t1">实付款</span>
+				<span class="t2 red">¥{{d.order.totalprice}}</span>
+			</div>
+
+
+			<div class="item">
+				<span class="t1">订单状态</span>
+				{{#  if(d.order.status==0){ }}
+				<span class="t2" style="color:#ff8758">未付款 {{#  if(d.order.paytypeid=='4'){ }}线下支付{{# } }}</span>
+				{{# } }}
+				{{#  if(d.order.status==1 && d.order.paytypeid=='4'){ }}
+				<span class="t2" style="color:#008000">用餐中 线下支付</span>
+				{{# } }}
+				{{#  if(d.order.status==1 && d.order.paytypeid!='4'){ }}
+				<span class="t2" style="color:#008000">已支付</span>
+				{{# } }}
+				{{#  if(d.order.status==2){ }}
+				<span class="t2" style="color:#ff4246">已完成</span>
+				{{# } }}
+				{{#  if(d.order.status==3){ }}
+				<span class="t2" style="color:#999">已完成</span>
+				{{# } }}
+				{{#  if(d.order.status==4){ }}
+				<span class="t2" style="color:#bbb">已关闭</span>
+				{{# } }}
+			</div>
+			{{#  if(d.order.refund_status>0){ }}
+			<div class="item">
+				<span class="t1">退款状态</span>
+				{{#  if(d.order.refund_status==1){ }}
+				<span class="t2 red">审核中,¥{{d.order.refund_money}}</span>
+				{{# } }}
+				{{#  if(d.order.refund_status==2){ }}
+				<span class="t2 red">已退款,¥{{d.order.refund_money}}</span>
+				{{# } }}
+				{{#  if(d.order.refund_status==3){ }}
+				<span class="t2 red">已驳回,¥{{d.order.refund_money}}</span>
+				{{# } }}
+			</div>
+			{{# } }}
+			{{#  if(d.order.refund_checkremark){ }}
+			<div class="item">
+				<span class="t1">审核备注</span>
+				<span class="t2 red">{{d.order.refund_checkremark}}</span>
+			</div>
+			{{# } }}
+		</div>
+		{{#  if(d.comdata.parent1.mid){ }}
+		<div class="orderinfo">
+			<div class="item">
+				<span class="t1">一级{:t('佣金')}</span>
+				<span class="t2"><img src="{{d.comdata.parent1.headimg}}" style="width:30px"/> {{d.comdata.parent1.nickname}} <span style="color:#ff8758">{{d.comdata.parent1.money}}元 {{#  if(d.comdata.parent1.score){ }}+{{d.comdata.parent1.score}}{:t('积分')}{{# } }}</span></span>
+			</div>
+			<div class="item">
+				<span class="t1">二级{:t('佣金')}</span>
+				<span class="t2"><img src="{{d.comdata.parent2.headimg}}" style="width:30px"/> {{d.comdata.parent2.nickname}}  <span style="color:#ff8758">{{d.comdata.parent2.money}}元 {{#  if(d.comdata.parent2.score){ }}+{{d.comdata.parent2.score}}{:t('积分')}{{# } }}</span></span>
+			</div>
+			<div class="item">
+				<span class="t1">三级{:t('佣金')}</span>
+				<span class="t2"><img src="{{d.comdata.parent3.headimg}}" style="width:30px"/> {{d.comdata.parent3.nickname}}  <span style="color:#ff8758">{{d.comdata.parent3.money}}元  {{#  if(d.comdata.parent3.score){ }}+{{d.comdata.parent3.score}}{:t('积分')}{{# } }}</span></span>
+			</div>
+		</div>
+		{{# } }}
+	</div>
+	</script>
+	{include file="public/copyright"/}
+</body>
+</html>

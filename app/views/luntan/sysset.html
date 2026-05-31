@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>系统设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header"><i class="fa fa-cog"></i> 系统设置</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w6" lay-filter="">
+						<div class="layui-form-item">
+							<label class="layui-form-label">论坛状态：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[status]" value="1" title="开启" {if $info['status']==1}checked{/if}/>
+								<input type="radio" name="info[status]" value="0" title="关闭" {if $info['status']==0}checked{/if}/>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">论坛标题：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[title]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info['title']}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">banner图：</label>
+							<input type="hidden" name="info[pic]" id="pic" class="layui-input" value="{$info['pic']}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="pic" upload-preview="logoPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：690×260像素</div>
+							<div id="logoPreview" style="float:left;padding-top:10px;margin-left:130px;clear: both;">
+								<div class="layui-imgbox" style="width:200px;height:75px"><div class="layui-imgbox-img"><img src="{$info['pic']}"/></div></div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">banner图链接：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[picurl]" id="picurl" class="layui-input" value="{$info.picurl}">
+							</div>
+							<div class="layui-btn layui-btn-primary" style="float:left" onclick="chooseUrl2('picurl')">选择链接</div>
+						</div>
+
+
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>发帖条件：</label>
+							<div class="layui-input-inline" style="width:600px">
+								<input type="checkbox" name="info[sendtj][]" value="-1" title="所有人" {if in_array('-1',$info['sendtj'])}checked{/if}/>
+								{foreach $memberlevel as $v}
+								<input type="checkbox" name="info[sendtj][]" value="{$v.id}" title="{$v.name}" {if in_array($v['id'],$info['sendtj'])}checked{/if}/>
+								{/foreach}
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">发帖审核：</label>
+							<div class="layui-input-inline" style="width: 50%">
+								<input type="radio" name="info[sendcheck]" value="1" title="开启" {if $info['sendcheck']==1}checked{/if}/>
+								<input type="radio" name="info[sendcheck]" value="0" title="关闭" {if $info['sendcheck']==0}checked{/if}/>
+								
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">评论审核：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[pingluncheck]" value="1" title="开启" {if $info['pingluncheck']==1}checked{/if}/>
+								<input type="radio" name="info[pingluncheck]" value="0" title="关闭" {if $info['pingluncheck']==0}checked{/if}/>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">保存文案：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[cansave]" value="1" title="开启" {if $info['cansave']==1}checked{/if}/>
+								<input type="radio" name="info[cansave]" value="0" title="关闭" {if $info['cansave']==0}checked{/if}/>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">默认浏览：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[readcount]"  class="layui-input" value="{$info['readcount']}">
+							</div>
+						</div>
+                    	<div class="layui-form-item">
+							<label class="layui-form-label">随机浏览最小：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[readmin]"  class="layui-input" value="{$info['readmin']}">
+							</div>
+						</div>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">随机浏览最大：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[readmax]"  class="layui-input" value="{$info['readmax']}">
+							</div>
+						</div>
+						
+						
+						
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		$.post("",field,function(data){
+			dialog(data.msg,data.status,data.url);
+		})
+	})
+	
+	var chooseUrlField = '';
+	function chooseUrl2(field){
+		chooseUrlField = field;
+		layer.open({type:2,shadeClose:true,area:['1200px', '650px'],'title':'选择链接',content:"{:url('DesignerPage/chooseurl')}&callback=chooseLink2"});
+	}
+	function chooseLink2(urlname,url){
+		$("#"+chooseUrlField).val(url);
+	}
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

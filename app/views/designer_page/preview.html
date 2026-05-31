@@ -1,0 +1,196 @@
+<html ng-app="myApp">
+<head>
+<meta charset="utf-8">
+<title>{$info['name']}</title>
+<meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" id="viewport" name="viewport">
+<meta name="format-detection" content="telephone=no" />
+<link rel="stylesheet" href="__STATIC__/admin/layui/css/layui.css" media="all">
+<link rel="stylesheet" href="__STATIC__/admin/css/designer.css?v=20230422">
+<link rel="stylesheet" href="__STATIC__/admin/css/font-awesome.min.css" media="all">
+<link rel="stylesheet" type="text/css" href="__STATIC__/fonts/iconfont.css?v=20201218" media="all">
+<style>
+*{box-sizing:border-box}
+body{zoom:72.8%;margin:0px; background:#f7f7f8;box-sizing:border-box;}
+body::-webkit-scrollbar {width: 0px;height: 0px;}
+body::-webkit-scrollbar-thumb {border-radius: 0px;-webkit-box-shadow: inset 0 0 0px rgba(0,0,0,0.1);background: rgba(0,0,0,0.2);}
+body::-webkit-scrollbar-track {-webkit-box-shadow: inset 0 0 0px rgba(0,0,0,0.5);border-radius: 0;background: rgba(0,0,0,0);}
+.dsn-mod,.dsn-mod:hover{border:0px;cursor:default;}
+.dsn-cube td {height:auto;}
+
+.flex {display: -webkit-box;display: -webkit-flex;display: flex;}
+.flex1 {flex-grow: 1;flex-shrink: 1;}
+.flex0 {flex-grow: 0;flex-shrink: 0;}
+.flex-row {display: -webkit-box;display: -webkit-flex;display: flex;-webkit-box-orient: horizontal;-webkit-flex-direction: row;flex-direction: row;}
+.flex-col{display: -webkit-box;display: -webkit-flex;display: flex;-webkit-box-orient: vertical;-webkit-flex-direction: column;flex-direction: column;}
+.flex-x-center{display: -webkit-box;display: -webkit-flex;display: flex;-webkit-box-pack: center;-webkit-justify-content: center;-ms-flex-pack: center;justify-content: center;}
+.flex-y-center{display: -webkit-box;display: -webkit-flex;display: flex;-webkit-box-align: center;-webkit-align-items: center;-ms-flex-align: center;-ms-grid-row-align: center;align-items: center;}
+.flex-y-bottom{display: -webkit-box;display: -webkit-flex;display: flex;-webkit-box-align: end;-webkit-align-items: flex-end;-ms-flex-align: end;-ms-grid-row-align: flex-end;align-items: flex-end;}
+</style>
+</head>
+<body>
+<div ng-controller="MainCtrl">
+	<div ng-repeat="Item in Items" class="dsn-repeat">
+		<div ng-include="'show-'+Item.temp+'.html'" class="dsn-parent" id="{{Item.id}}" mid="{{Item.id}}" on-finish-render-filters></div>
+	</div>
+	<div style="height: 50px;" ng-show="pages[0].params.footer==2"></div>
+
+	<script type="text/ng-template" id="show-topbar.html">{include file="designer_page/temp/show-topbar"}</script>
+	<script type="text/ng-template" id="show-shop.html">{include file="designer_page/temp/show-shop"}</script>
+	<script type="text/ng-template" id="show-notice.html">{include file="designer_page/temp/show-notice"}</script>
+	<script type="text/ng-template" id="show-menu.html">{include file="designer_page/temp/show-menu"}</script>
+	<script type="text/ng-template" id="show-banner.html">{include file="designer_page/temp/show-banner"}</script>
+	<script type="text/ng-template" id="show-picture.html">{include file="designer_page/temp/show-picture"}</script>
+	<script type="text/ng-template" id="show-pictures.html">{include file="designer_page/temp/show-pictures"}</script>
+	<script type="text/ng-template" id="show-title.html">{include file="designer_page/temp/show-title"}</script>
+	<script type="text/ng-template" id="show-dhlist.html">{include file="designer_page/temp/show-dhlist"}</script>
+	<script type="text/ng-template" id="show-text.html">{include file="designer_page/temp/show-text"}</script>
+	<script type="text/ng-template" id="show-search.html">{include file="designer_page/temp/show-search"}</script>
+	<script type="text/ng-template" id="show-lbssearch.html">{include file="designer_page/temp/show-lbssearch"}</script>
+	<script type="text/ng-template" id="show-line.html">{include file="designer_page/temp/show-line"}</script>
+	<script type="text/ng-template" id="show-blank.html">{include file="designer_page/temp/show-blank"}</script>
+	<script type="text/ng-template" id="show-product.html">{include file="designer_page/temp/show-product"}</script>
+	<script type="text/ng-template" id="show-cycle.html">{include file="designer_page/temp/show-cycle"}</script>
+	<script type="text/ng-template" id="show-collage.html">{include file="designer_page/temp/show-collage"}</script>
+	<script type="text/ng-template" id="show-kanjia.html">{include file="designer_page/temp/show-kanjia"}</script>
+	<script type="text/ng-template" id="show-seckill.html">{include file="designer_page/temp/show-seckill"}</script>
+	<script type="text/ng-template" id="show-scoreshop.html">{include file="designer_page/temp/show-scoreshop"}</script>
+	<script type="text/ng-template" id="show-coupon.html">{include file="designer_page/temp/show-coupon"}</script>
+	<script type="text/ng-template" id="show-richtext.html">{include file="designer_page/temp/show-richtext"}</script>
+	<script type="text/ng-template" id="show-cube.html">{include file="designer_page/temp/show-cube"}</script>
+	<script type="text/ng-template" id="show-video.html">{include file="designer_page/temp/show-video"}</script>
+	<script type="text/ng-template" id="show-article.html">{include file="designer_page/temp/show-article"}</script>
+	<script type="text/ng-template" id="show-form.html">{include file="designer_page/temp/show-form"}</script>
+	<script type="text/ng-template" id="show-map.html">{include file="designer_page/temp/show-map"}</script>
+	<script type="text/ng-template" id="show-button.html">{include file="designer_page/temp/show-button"}</script>
+	<script type="text/ng-template" id="show-cover.html">{include file="designer_page/temp/show-cover"}</script>
+	<script type="text/ng-template" id="show-business.html">{include file="designer_page/temp/show-business"}</script>
+	<script type="text/ng-template" id="show-shortvideo.html">{include file="designer_page/temp/show-shortvideo"}</script>
+	<script type="text/ng-template" id="show-liveroom.html">{include file="designer_page/temp/show-liveroom"}</script>
+	<script type="text/ng-template" id="show-channelslive.html">{include file="designer_page/temp/show-channelslive"}</script>
+	<script type="text/ng-template" id="show-hotspot.html">{include file="designer_page/temp/show-hotspot"}</script>
+	<script type="text/ng-template" id="show-userinfo.html">{include file="designer_page/temp/show-userinfo"}</script>
+	<!--预约服务-->
+	<script type="text/ng-template" id="show-yuyue.html">{include file="designer_page/temp/show-yuyue"}</script>
+	<script type="text/ng-template" id="show-tuangou.html">{include file="designer_page/temp/show-tuangou"}</script>
+	<script type="text/ng-template" id="show-luckycollage.html">{include file="designer_page/temp/show-luckycollage"}</script>
+	<script type="text/ng-template" id="show-kecheng.html">{include file="designer_page/temp/show-kecheng"}</script>
+
+	<script type="text/ng-template" id="show-zhaopin.html">{include file="designer_page/temp/show-zhaopin"}</script>
+	<script type="text/ng-template" id="edit-zhaopin.html">{include file="designer_page/temp/edit-zhaopin"}</script>
+	<script type="text/ng-template" id="show-qiuzhi.html">{include file="designer_page/temp/show-qiuzhi"}</script>
+	<script type="text/ng-template" id="edit-qiuzhi.html">{include file="designer_page/temp/edit-qiuzhi"}</script>
+
+	<script type="text/ng-template" id="show-wxad.html">{include file="designer_page/temp/show-wxad"}</script>
+	<script type="text/ng-template" id="show-restaurant_product.html">{include file="designer_page/temp/show-restaurant_product"}</script>
+	<script type="text/ng-template" id="show-jidian.html">{include file="designer_page/temp/show-jidian"}</script>
+	<script type="text/ng-template" id="show-tab.html">{include file="designer_page/temp/show-tab"}</script>
+	<script type="text/ng-template" id="show-form-log.html">{include file="designer_page/temp/show-form-log"}</script>
+	{if getcustom('show_location') && ($sysset.mode==2 || $sysset.mode==3)}
+	<script type="text/ng-template" id="edit-location.html">{include file="designer_page/temp/edit-location"}</script>
+	<script type="text/ng-template" id="show-location.html">{include file="designer_page/temp/show-location"}</script>
+	{/if}
+	
+		<script type="text/ng-template" id="show-luntan.html">{include file="designer_page/temp/show-luntan"}</script>
+	
+	
+	
+</div>
+<script src="__STATIC__/admin/layui/layui.all.js"></script>
+<script type="text/javascript" src="__STATIC__/admin/js/angular.min.js"></script>
+
+<script type="text/javascript" src="__STATIC__/admin/js/hhSwipe.js?v=2024722"></script>
+<script charset="utf-8" src="https://map.qq.com/api/js?v=2.exp&key={$sysset_webinfo.map_key_qq}"></script>
+<script type="text/javascript">
+function initswipe(jobj){
+	var bullets = jobj.next().get(0).getElementsByTagName('a');
+	var banner = Swipe(jobj.get(0), {
+		auto: 4000,
+		continuous: true,
+		disableScroll:false,
+		callback: function(pos) {
+			var i = bullets.length;
+			while (i--) {
+				$(bullets[i]).css("opacity",0.4);
+			}
+			$(bullets[pos]).css("opacity",0.6);
+		}
+	})
+}
+var app = angular.module('myApp', []);
+app.filter('price', function() {
+	return function(text){
+		return parseFloat(text).toString().split('.')[0];
+	}
+});
+app.filter('price_dot', function() {
+	return function(text){
+		var pricearr = parseFloat(text).toString().split('.');
+		if(pricearr[1]) return '.'+pricearr[1];
+		else return '';
+	}
+});
+app.controller('MainCtrl', ['$scope', function($scope){
+	$scope.cols = [0,1,2,3];
+	$scope.size = $(document.body).width()/4;
+	$scope.pages = {$pageinfo};
+	$scope.system = {name:'{$sysset['name']}',logo:'{$sysset['logo']}'};
+	$scope.Items = {$pagedata};   //初始数据
+	$scope.show = '1';
+	$scope.hasCube = function(Item){
+		var has = false;
+		var row=0,col = 0;
+		for(var i=row;i<4;i++){
+			for(var j=col;j<4;j++){
+				if (Item.params.layout[i][j] && !Item.params.layout[i][j].isempty) {
+					has = true;
+					break;
+				}
+			}
+		}
+		return has;
+	}
+	$scope.$on('ngRepeatFinished',function(ngRepeatFinishedEvent){
+		$('.dsn-banner .swipe').each(function(){
+			initswipe($(this));
+		});
+		$('.dsn-cube table  tr').each(function(){
+			if( $(this).children().length<=0){
+				$(this).html('<td></td>');
+			}
+		});
+		angular.forEach($scope.Items, function(m, index1) {
+			if(m.temp == 'map'){
+				var center = new qq.maps.LatLng(m.params.latitude,m.params.longitude);
+				var map = new qq.maps.Map(document.getElementById("showmp_"+m.id), {
+					center: center,      // 地图的中心地理坐标。
+					zoom:15              // 地图的中心地理坐标。
+				});
+				var marker = new qq.maps.Marker({ position:center, map: map});
+			}
+		})
+	});
+}]);
+app.directive('stringHtml' , function(){
+	return function(scope , el , attr){
+		if(attr.stringHtml){
+			scope.$watch(attr.stringHtml , function(html){
+				el.html(html || '');
+			});
+		}
+	};
+});
+app.directive("onFinishRenderFilters",function($timeout){
+	return{
+		restrict: 'A',
+		link: function(scope,element,attr){
+			if(scope.$last === true){
+				$timeout(function(){
+					scope.$emit('ngRepeatFinished');
+				});
+			}
+		}
+	};
+});
+</script>
+
+</html>

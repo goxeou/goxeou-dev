@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>批量替换数据库文本</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">批量替换数据库文本</div>
+				<div class="layui-card-body" pad15>
+					<blockquote class="layui-elem-quote">用于域名更换后数据库保存了一些原域名内容如图片路径等进行批量替换，如果数据量较大批量替换耗时较长，请先设置服务器超时时间在600秒以上<br/>如果替换失败请手动导出数据库文件用文本编辑器批量替换后再导入数据库</blockquote>
+					<div class="layui-form" lay-filter="">
+						<div class="layui-form-item">
+							<label class="layui-form-label">原文本内容</label>
+							<div class="layui-input-inline">
+								<input type="text" name="fromstr" lay-verify="required" lay-verType="tips" class="layui-input">
+							</div>
+							<div class="layui-form-mid layui-word-aux">要替换的文本内容</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">新文本内容</label>
+							<div class="layui-input-inline">
+								<input type="text" name="tostr" value="{$Request.host}" lay-verify="required" lay-verType="tips" class="layui-input">
+							</div>
+							<div class="layui-form-mid layui-word-aux">替换成的文本内容</div>
+						</div>
+						<div class="layui-form-item">
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="setmypass">开始替换</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.form.on('submit(setmypass)', function(obj){
+		layer.confirm('替换可能耗时较长，确定要替换吗？',function(){
+			var field = obj.field
+			var index = layer.load();
+			$.ajax({
+				url:"",
+				type:'POST',
+				data:obj.field,
+				success:function(data){
+					layer.close(index)
+					dialog(data.msg,data.status,data.url);
+				},
+				error:function(res){
+					layer.close(index)
+					layer.open({id:'printcontent',type:1,title:'替换失败',area:['auto','80%'],content:res.responseText})
+					console.log(res.responseText)
+				}
+			})
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

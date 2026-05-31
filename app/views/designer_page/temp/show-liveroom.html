@@ -1,0 +1,16 @@
+<div class="dsn-mod dsn-livelist" ng-class="{'dsn-mod-select':Item.id == focus}" ng-style="{'background-color':Item.params.bgcolor,'margin':Item.params.margin_y+'px '+Item.params.margin_x+'px 0','padding':Item.params.padding_y+'px '+Item.params.padding_x+'px'}">
+	<div style="line-height: 170px; text-align: center; color: #999; font-size: 16px;width:100%" ng-show="Item.data == ''">一个直播间都没有...</div>
+	<div class="livelist">
+		<div class="livebox" ng-repeat="item in Item.data" ng-init="idx = $index" style="margin-right:{{idx%2==0?'2%':'0'}};">
+			<div class="bgpic">
+				<img ng-src="{{item.coverImg}}"/>
+			</div>
+			<div class="f1" ng-if="item.status=='0'"><div class="t1">预告</div><div class="t2">{{item.showtime}}</div></div>
+			<div class="f2" ng-if="item.status=='1'"><img src="__STATIC__/img/liveing.gif" class="t1"/><div class="t2">直播中</div></div>
+			<div class="f3" ng-if="item.status=='2'"><div class="t1">已结束</div></div>
+			<div class="f10">
+				 <div class="title">{{item.name}}</div>
+			</div>
+		</div>
+	</div>
+</div>

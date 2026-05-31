@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>工单数据</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+
+
+	.logistics{ width: 94%;  background: #fff; padding: 0 10px;display:flex;flex-direction:column;color: #979797;}
+	.logistics .on{color: #23aa5e;}
+	.logistics .item{display:flex;width: 96%;  margin: 0 2%;/*border-left: 1px #dadada solid;*/padding:0 0}
+	.logistics .item .f1{ width:30px;position:relative}
+	/*.logistics img{width: 15px; height: 15px; position: absolute; left: -8px; top:11px;}*/
+	.logistics .item .f1 img{ width: 15px; height: 100%;}
+
+	.logistics .item .f2{display:flex;flex-direction:column;flex:auto;padding:5px 0}
+	.logistics .item .f2 .t1{font-size: 15px;}
+	.logistics .item .f2 .t1{font-size: 13px;}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header">
+						<i class="fa fa-list"></i> 工单数据
+						<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+					</div>
+          <div class="layui-card-body" pad15>
+						<div class="layui-col-md2" style="padding-bottom:10px">
+							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="setst(0,1)">确认</button>
+							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="setst(0,2)">驳回</button>
+							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="datadel(0)">删除</button>
+							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="location.href='{:url('recordexcel')}/formid/{$Request.param.formid}'+urlEncode(datawhere)">导出</button>
+						</div>
+						<div class="layui-form layui-col-md10" style="text-align:right;padding-bottom:10px">
+							<div class="layui-inline">
+								<label class="layui-form-label" style="width:60px;">内容</label>
+								<div class="layui-input-block" style="width:180px;margin-left:90px">
+									<input type="text" name="keyword" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label" style="width:60px;">员工</label>
+								<div class="layui-input-block" style="width:180px;margin-left:90px">
+									<select name="user_id">
+										<option value="">全部</option>
+										{foreach $user as $item}
+										<option value="{$item.id}" {if input('param.user_id')==$item.id}selected{/if}>{$item.un}</option>
+										{/foreach}
+									</select>
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label" style="width:60px;">提交时间</label>
+								<div class="layui-input-block" style="width:180px;margin-left:90px">
+									<input type="text" name="ctime" id="ctime" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label" style="width:30px">状态</label>
+								<div class="layui-input-block" style="width:120px;margin-left:60px;text-align:left">
+									<select name="status">
+										<option value="">全部</option>
+										<option value="0">待处理</option>
+										<option value="1">处理中</option>
+										<option value="2">已完成</option>
+										<option value="-1">已驳回</option>
+									</select>
+								</div>
+								</div>
+							<div class="layui-inline">
+								<label class="layui-form-label" style="width:50px">满意度</label>
+								<div class="layui-input-block" style="width:120px;">
+									<select name="comment_status">
+										<option value="">全部</option>
+										<option value="1">不满意</option>
+										<option value="2">一般</option>
+										<option value="3">满意</option>
+									</select>
+								</div>
+							</div>
+							<div class="layui-inline">
+								<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+									<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+								</button>
+							</div>
+						</div>
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+  	<script id="logisticsTpl" type="text/html">
+	<div style="padding:5px"></div>
+	{{# if(d.data.length==0){ }}<div style="font-size:14px;color:#f05555;padding:10px;"><i class="fa fa-info-circle"></i> 等待处理</div>{{# } }}
+	{{#  layui.each(d.data, function(index, item){ }}
+	<div class="logistics">
+		<div class="item {{index==0?'on':''}}">
+			<div class="f1"><img src="__STATIC__/admin/img/dot{{index==0?'2':'1'}}.png"></div>
+			<div class="f2">
+				<span class="t2">{{item.time}}</span>
+				<span class="t1">{{item.desc}} {{item.remark}}</span>
+			</div>
+		</div>
+	</div>
+	{{# }); }}
+	</script>
+	{include file="public/js"/}
+	<script type="text/html" id="operationTpl">
+		{{# if(d.status==0 || d.status==1){ }}
+		<button class="table-btn" onclick="setst({{d.id}},-1)">驳回</button>
+		{{# } }}
+		<button class="table-btn" onclick="datadel({{d.id}})">删除</button></div>
+	</script>
+	<script>
+	layui.laydate.render({ 
+		elem: '#ctime',
+		trigger: 'click',
+		range: '~' //或 range: '~' 来自定义分割字符
+	});
+  var table = layui.table;
+	var datawhere = {};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{$Request.url}" //数据接口
+    ,page: true //开启分页
+    ,cols: [[ //表头
+			{type:"checkbox"},
+      {field: 'id', title: 'ID',  width:80},
+      {field: 'id', title: '头像昵称',width:180,templet:function(d){
+				if(d.headimg){
+					return '<img src="'+d.headimg+'" style="height:30px"> ' + d.nickname + '(ID:'+ d.mid +')';
+				}
+				return '';
+      }},
+			{foreach $formcontent as $k=>$field}
+      { field: 'form{$k}', title: "{$field['val1']}"
+				{if $field['key']=='upload'}
+				,templet:function(d){
+					var html='';
+					for(var i=0;i<d.pics.length;i++){
+						html+='<img src="'+d.pics[i]+'" style="width:50px" onclick="preview(this)"/>';
+					}
+					return html;
+				}
+				{/if}
+			},
+			{/foreach}
+	{if $form['isglorder']>0}
+      {field: 'paystatus', title: '关联订单号',templet:function(d){ 
+		  var html="";
+		  if(d.ordertype == 1 && d.orderid>0){
+			html+='<div>关联商城订单</div><a href="javascript:void(0)" onclick="openmax(\'{:url('ShopOrder/index')}&ordernum='+d.glordernum+'\')"><span style="color:red">'+d.glordernum+'</span></a>';
+		  }
+		  if(d.ordertype == 2 && d.orderid>0){
+			html+='<div>关联预约订单</div><a href="javascript:void(0)" onclick="openmax(\'{:url('YuyueOrder/index')}&ordernum='+d.glordernum+'\')"><span style="color:red">'+d.glordernum+'</span></a>';
+		  }
+			return html;
+		}},
+	{/if}
+			{if $form['payset']==1}
+      {field: 'paystatus', title: '支付状态',templet:function(d){ 
+				if(d.paystatus==1) return (d.isrefund == 1 ? '<span style="color:red">已退款</span>' : '<span style="color:green">已支付</span>');
+				else return '<span style="color:red">未支付</span>'}
+			},
+      {field: 'money', title: '支付金额'},
+      {field: 'paynum', title: '支付单号'},
+      {field: 'paytime', title: '支付时间',templet:function(d){ return date('Y-m-d H:i:s',d.paytime)},width:180},
+			{/if}
+      {field: 'createtime', title: '提交时间',templet:function(d){ return date('Y-m-d H:i',d.createtime)},width:150},
+      {field: 'status', title: '状态',width:150,templet:function(d){ 
+		  		var html = '';
+				if(d.status==0){
+					if(d.userid){
+						html+='<span style="color:#888">' +(d.userid?'已分配 '+d.username+'':'')+'</span>';
+					}else{
+						html+='<span style="color:#888">待处理'+(d.isudel==1?',用户已删除':'')+'</span>';
+					}
+					return html;
+				} 
+				if(d.status==1) return '<span style="color:green">'+d.username+' 处理中'+(d.isudel==1?',用户已删除':'')+'</span>';
+				if(d.status==2) return '<span style="color:red">'+d.username+' 已处理'+(d.isudel==1?',用户已删除':'') + '<br></span>';
+				if(d.status==-1) return '<span style="color:red">已驳回'+(d.isudel==1?',用户已删除':'') + '<br></span>';}
+			},
+			{field: 'comment_status', title: '满意度',width:150,templet:function(d){ 
+		  		var html = '';
+				if(d.comment_status==1){
+					html+='<span style="color:red">不满意</span>';
+				} 
+				if(d.comment_status==3){
+					html+='<span style="color:green">满意</span>';
+				} 
+				if(d.comment_status==2){
+					html+='<span style="color:#888">一般</span>';
+				} 
+				return html;
+				}
+			},
+      {field: 'operation', title: '操作',templet:function(d){
+				var html = '';
+				
+				if(d.status==0 && !d.userid){
+					html += '<button class="table-btn" onclick="doOperation('+d.id+',\'分配\')">分配</button>';
+				}
+				if(d.status==0 || d.status==1){
+					html += '<button class="table-btn" onclick="setst('+d.id+',-1)">驳回</button>';
+				}
+				if(d.status>0){ //查看进度
+					html += '<button class="table-btn" onclick="doOperation('+d.id+',\'查进度\')">查进度</button>';
+				}
+				if(d.pics){
+					html += '<br><button class="table-btn" onclick="previewImages(\''+d.pics+'\')">查看图片</button>';
+				}
+				html += '<button class="table-btn" onclick="datadel('+d.id+')">删除</button></div>';
+				return html;
+      },width:250}
+    ]]
+  });
+  	function doOperation(recordid,type){
+		$.post("{:url('formdetail')}",{id:recordid},function(data){
+			console.log(data.data);
+			btnOperation(type,data.data);
+		})
+	}
+	function btnOperation(type,data){
+		var orderid = data.detail.id;
+		 if(type == '分配'){
+			var index = layer.load();
+			$.post("{:url('WorkorderCategory/getuser')}",{type:'workorder_order',id:orderid},function(res){
+				layer.close(index);
+				var peisonguser = res.user
+				var html = '';
+				html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+				html+='		<label class="layui-form-label" style="width:100px">选择员工</label>';
+				html+='		<div class="layui-input-inline" style="width:300px">';
+				html+='			<select id="peisonguser" style="width:100%;height: 38px;line-height: 38px;border:1px solid #e6e6e6;background-color: #fff;border-radius: 2px;">';
+				for(var i in peisonguser){
+					if(peisonguser[i].status==-1){
+						html+='			<option disabled value="'+peisonguser[i].id+'">'+peisonguser[i].title+'</option>';
+					}else{
+						html+='			<option value="'+peisonguser[i].id+'">'+peisonguser[i].title+'</option>';	
+					}
+				}
+				html+='			</select>';
+				html+='		</div>';
+				html+='	</div>';
+				var peisongLayer = layer.open({type:1,area:['500px','250px'],title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+					yes:function(){
+						var index = layer.load();
+						var userid = $('#peisonguser').val();
+						$.post("{:url('WorkorderCategory/paidan')}",{orderid:orderid,userid:userid},function(res){
+							layer.close(index);
+							dialog(res.msg,res.status);
+							layer.close(peisongLayer);
+							tableIns.reload()
+						})
+					}
+				})
+				layui.form.render();
+			})
+		}else if(type == '查进度'){
+			var index = layer.load();
+			$.post("{:url('getjindu')}",{orderid:orderid},function(res){
+				var expressdata = res.data
+				layer.close(index);
+				layui.laytpl(logisticsTpl.innerHTML).render(res, function(html){
+					var logisticsLayer = layer.open({type:1,title:false,content:html,area:"800px",shadeClose:true,btn: ['修改', '关闭'],
+						yes:function(){
+							layer.close(logisticsLayer);
+							doOperation(orderid,'派单');
+						}
+					})
+				})
+			});
+		}
+
+	}
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	function previewImages(pics){
+		var pics = pics.split(',');
+		var html = '';
+		html += '<div class="layui-carousel" id="test1">';
+		html += '  <div carousel-item>';
+		for(var i in pics){
+			html += '    <div><img src="'+pics[i]+'" style="max-width:100%;max-height:100%" onclick="window.open(\''+pics[i]+'\')"/></div>';
+		}
+		html += '  </div>';
+		html += '</div>';
+		layer.open({type:1,area:['500px','500px'],content:html,title:false,shadeClose:true})
+		layui.carousel.render({
+			elem: '#test1'
+			,width: '100%' //设置容器宽度
+			,height:'100%'
+			,arrow: 'always' //始终显示箭头
+			,autoplay: false
+			//,anim: 'updown' //切换动画方式
+		});
+		//layer.open({type:1,area:'500px',content:'<div style="margin:auto auto;text-align:center"><img src="'+url+'" style="max-width:100%;max-height:100%" onclick="window.open(\''+url+'\')"/></div>',title:false,shadeClose:true})
+	}
+	//删除
+	function datadel(id){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			var ids = [];
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id)
+		}
+		layer.confirm('确定要删除吗?',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('recorddel')}",{ids:ids},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	//改状态
+	function setst(id,st){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			var ids = [];
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id)
+		}
+		if(st==2){
+			var html = '<div class="layui-form" style="width:100%">';
+			html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+			html+='		<label class="layui-form-label" style="width:80px">驳回原因：</label>';
+			html+='		<div class="layui-input-inline" style="width:300px">';
+			html+='			<input type="text" id="reason" class="layui-input"/>';
+			html+='		</div>';
+			html+='	</div>';
+			{if $form['payset']==1}
+			html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+			html+='		<label class="layui-form-label" style="width:80px">退款：</label>';
+			html+='		<div class="layui-input-inline" style="width:300px">';
+			html+='			<input type="radio" name="tuikuan" value="1" title="是" lay-skin="primary" checked>';
+			html+='			<input type="radio" name="tuikuan" value="0" title="否" lay-skin="primary">';
+			html+='		</div>';
+			html+='	</div>';
+			{/if}
+			html+='	</div>';
+			var bohuiLayer = layer.open({type:1,area:['500px','250px'],title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+				yes:function(){
+					var index = layer.load();
+					var istuikuan = $('input[name=tuikuan]:checked').val();
+					if(!istuikuan) istuikuan = 0;
+					$.post("{:url('recordsetst')}",{ids:ids,st:st,reason:$('#reason').val(),istuikuan:istuikuan},function(res){
+						layer.close(index);
+						dialog(res.msg,res.status);
+						layer.close(bohuiLayer);
+						tableIns.reload()
+					})
+				}
+			})
+			layui.form.render();
+			return;
+		}
+		layer.confirm('确定要'+(st==2?'驳回':'确认')+'吗?',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('recordsetst')}",{ids:ids,st:st},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	//日期范围选择
+	layui.laydate.render({ 
+		elem: '#ctime',
+		trigger: 'click',
+		range: '~' //或 range: '~' 来自定义分割字符
+	});
+	</script>
+	{include file="public/copyright"/}
+</body>
+</html>

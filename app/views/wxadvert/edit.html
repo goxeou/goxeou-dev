@@ -1,0 +1,253 @@
+<!DOCTYPE html> <!--custom_file(wx_fws_liuliangzhu)-->
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>创建广告</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	.product{width:500px; padding:5px;background: #FFF;margin-top:5px;border:1px solid #f1f1f1}
+	.product .content{display:flex;position:relative;width: 100%; padding:15px 10px;border-bottom: 1px #e5e5e5 dashed;position:relative;box-sizing:border-box;}
+	.product .content:last-child{ border-bottom: 0; }
+	.product .content img{ width: 70px; height: 70px;}
+	.product .content .detail{display:flex;flex-direction:column;margin-left:7px;flex:1}
+	.product .content .detail .t1{height: 30px;line-height: 15px;color: #000;}
+	.product .content .detail .t2{height: 23px;line-height: 23px;color: #999;overflow: hidden;font-size:13px;}
+	.product .content .detail .t3{display:flex;height:15px;line-height:15px;color: #ff4246;}
+	.product .content .detail .x1{ flex:1}
+	.product .content .detail .x2{ width:50px;font-size:16px;text-align:right;margin-right:4px}
+	.product .content .comment{position:absolute;top:32px;right:5px;border: 1px #ffc702 solid; border-radius:5px;background:#fff; color: #ffc702;  padding: 0 5px; height: 23px; line-height: 23px;}
+	#ggnamediv .layui-input,#ggvaldiv .layui-input{ display:inline;height:30px}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if $info.id}编辑广告{else}添加广告{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w6" lay-filter="">
+						<input type="hidden" name="info[id]" value="{$info.id}"/>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>广告名称：</label>
+							<div class="layui-input-inline" style="width:300px">
+								<input type="text" class="layui-input" name="info[name]" value="{$info.name}" lay-verify="required" lay-verType="tips"/>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>类型：</label>
+							<div class="layui-input-inline">
+								<select name="info[type]" lay-filter="changetype">
+									<option value="">--请选择--</option>
+									{foreach $clist as $cv}
+									<option value="{$cv['value']}" {if $cv['value']==$info['type']}selected{/if}>{$cv.name}</option>
+									{/foreach}
+								</select>
+							</div>
+							<!-- <div class="layui-form-mid layui-word-aux"><a href="{:url('ArticleCategory/edit')}">创建分类</a></div> -->
+						</div>
+						<div class="layui-form-item" id="tmpl_id" {if $info['tmpl_id'] !='SLOT_ID_WEAPP_TEMPLATE'}style="display:none"{/if}>
+							<label class="layui-form-label"><span class="redstar">*</span>模板类型：</label>
+							<div class="layui-input-inline" >
+								<select name="info[tmpl_id]" >
+									<option value="">--请选择--</option>
+									{foreach $template_type as $tt}
+									<option value="{$tt['value']}" {if $tt['value']==$info['tmpl_id']}selected{/if}>{$tt.name}</option>
+									{/foreach}
+								</select>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>状 态：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[status]" value="1" title="开启" {if !$info['id'] || $info['status']==1}checked{/if}/>
+								<input type="radio" name="info[status]" value="0" title="关闭" {if $info['id'] && $info['status']==0}checked{/if}/>
+							</div>
+						</div>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	//日期时间选择器
+	layui.laydate.render({ 
+		elem: '#starttime',
+		type: 'datetime',
+		trigger: 'click'
+	});
+	layui.laydate.render({ 
+		elem: '#endtime',
+		type: 'datetime',
+		trigger: 'click'
+	});
+
+	layui.form.on('select(changetype)',function(data){
+		if(data.value == 'SLOT_ID_WEAPP_TEMPLATE'){
+			$('#tmpl_id').show();
+		}else{
+			$('#tmpl_id').hide();
+		}
+	})
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.closeAll();
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+
+
+	var chooseProductLayer;
+	function showChooseProduct(){
+		chooseProductLayer = layer.open({type:2,title:'选择商品',content:"{:url('shop_product/chooseproduct')}",area:['900px','600px'],shadeClose:true});
+	}
+	function choosepro(data){
+		showgg(data.product,data.guigedata,data.gglist);
+	}
+	var buydata = {:jsonEncode($prodatalist)};
+	var buydatastr = '';
+	$(function(){
+		showproinfo();
+	})
+	function showgg(product,specs,gglist){
+		var len = specs.length;
+		var newlen = 1; 
+		var h = new Array(len); 
+		var rowspans = new Array(len); 
+		var html = '<div style="margin:10px"><table id="ggvaldiv" class="layui-table"><thead><tr>';
+		for(var i=0;i<len;i++){
+			html+="<th>" + specs[i].title + "</th>";
+			var itemlen = specs[i].items.length;
+			if(itemlen<=0) { itemlen = 1 };
+			newlen*=itemlen;
+			h[i] = new Array(newlen);
+			for(var j=0;j<newlen;j++){
+				h[i][j] = new Array();
+			}
+			var l = specs[i].items.length;
+			rowspans[i] = 1;
+			for(j=i+1;j<len;j++){
+				rowspans[i]*= specs[j].items.length;
+			}
+		}
+		html += '<th>库存</th>';
+		html += '<th>市场价</th>';
+		html += '<th>销售价</th>';
+		html += '<th>兑换数量</th>';
+		html += '</tr></thead>';
+		
+		for(var m=0;m<len;m++){
+			var k = 0,kid = 0,n=0;
+			for(var j=0;j<newlen;j++){
+				var rowspan = rowspans[m]; 
+				if( j % rowspan==0){
+					h[m][j]={ k:specs[m].items[kid].k,title: specs[m].items[kid].title, html: "<td rowspan='" +rowspan + "'>"+ specs[m].items[kid].title+"</td>\r\n",id: specs[m].items[kid].id};
+				}else{
+					h[m][j]={ k:specs[m].items[kid].k,title:specs[m].items[kid].title, html: "",id: specs[m].items[kid].id};	
+				}
+				n++;
+				if(n==rowspan){
+					kid++; if(kid>specs[m].items.length-1) { kid=0; }
+					n=0;
+				}
+			}
+		}
+		var hh = "";
+		for(var i=0;i<newlen;i++){
+			hh+="<tr>";
+			var ks = [];
+			var titles = [];
+			for(var j=0;j<len;j++){
+				hh+=h[j][i].html; 
+				ks.push( h[j][i].k);
+				titles.push( h[j][i].title);
+			}
+			ks =ks.join(',');
+			titles =titles.join(',');
+			if(typeof(gglist[ks])!='undefined'){
+				var val = gglist[ks];
+			}else{
+				var val = { procode:'',market_price:'',cost_price:'',sell_price:'',weight:'',stock:'1000',pic:''};
+			}
+			hh += '<td>'+val.stock+'</td>';
+			hh += '<td>'+val.market_price+'</td>';
+			hh += '<td>'+val.sell_price+'</td>';
+			hh += '<td>';
+			hh += ' <input name="buynum" ggid="'+val['id']+'" sellprice="'+val['sell_price']+'" ggname="'+val['name']+'" type="num" style="width:80px" value="0" class="layui-input"/>';
+			hh += '</td>';
+			hh += "</tr>";
+		}
+		html+=hh;
+		html+='</table></div>';
+		layer.open({type:1,title:product.name,content:html,area:['900px','600px'],shadeClose:true,btn:['确定','取消'],
+			yes:function(index){
+				layer.close(index);
+				$('input[name=buynum]').each(function(){
+					var ggid = $(this).attr('ggid');
+					var ggname = $(this).attr('ggname');
+					var sell_price = $(this).attr('sellprice');
+					var buynum = $(this).val();
+					if(buynum > 0){
+						var thisdata = {'name':product.name,'pic':product.pic,'id':product.id,'ggname':ggname,'ggid':ggid,'sell_price':sell_price,'buynum':buynum}
+						buydata.push(thisdata);
+					}
+				});
+				showproinfo()
+			}
+		});
+	}
+	function showproinfo(){
+		var html = '';
+		var totalgoodsprice = 0;
+		buydatastr = '';
+		buydatastrArr = [];
+		for(var i in buydata){
+			var m = buydata[i]
+			html += '<div class="content">';
+			html += '	<div>';
+			html += '		<img src="'+m.pic+'"/>';
+			html += '	</div>';
+			html += '	<div class="detail">';
+			html += '		<span class="t1">'+m.name+'</span>';
+			html += '		<span class="t2">'+m.ggname+'</span>';
+			html += '		<div class="t3"><span class="x1 flex1">￥'+m.sell_price+'</span><span class="x2">×'+m.buynum+'</span></div>';
+			html += '	</div>';
+			html += '	<div style="position:absolute;top:0px;right:0px;font-size:16px;width:20px;height:20px;text-align:center;cursor:pointer" onclick="removepro('+i+')">×</div>';
+			html += '</div>';
+			totalgoodsprice += m.sell_price * m.buynum
+			buydatastrArr.push(m.id + ',' + m.ggid + ',' + m.buynum);
+		}
+		buydatastr = buydatastrArr.join('-');
+		$('#prolistinfo').html(html);
+	}
+	function removepro(i){
+		buydata.splice(i,1)
+		showproinfo();
+	}
+
+	</script>
+	{include file="public/copyright"/}
+</body>
+</html>

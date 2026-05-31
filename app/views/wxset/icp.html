@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>小程序备案</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<script src="/static/admin/js/address3Wechat.js?v=2023"></script>
+	<style>
+		.layui-form-item .layui-input-inline {width: 300px}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header"><i class="fa fa-cog"></i> 小程序备案<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i></div>
+				<div class="layui-card-body" pad15>
+
+					<div>
+						<span style="font-size: 20px;">当前备案状态：<span style="{if $icp_status.data.status_code == 6}color: #53d78e;{else}color: orange{/if}">{$icp_status.data.status_text|default='查询无结果'}</span></span>
+						{if in_array($info.beian_status, [3,5])}<a href="javascript:;" onclick="showReason()">查看驳回原因</a>{/if}
+						<br>
+						<br>
+						{if !in_array($info.beian_status, [2,4,6]) }
+						<div style="margin-bottom: 10px;">
+							人脸核身进度：
+							<div class="layui-progress" lay-showPercent="true" lay-filter="face_percent" style="display: inline-block; width: 200px;">
+								<div class="layui-progress-bar layui-bg-orange"  lay-percent="{$face_percent}">{$face_percent}</div>
+							</div>
+							<button class="layui-btn {if $info.face_status==3}layui-bg-green{/if}" type="button" {if !in_array($info.face_status, [2,3,4])} onclick="checkFace()" {/if}>
+								<span id="face_text">{$face_status_text[$info.face_status]|default=''}</span>
+								{if !in_array($info.face_status, [2,3,4])}
+								<i class="layui-icon layui-icon-refresh" style="font-size: 16px; margin: 0 10px;"></i>
+								{/if}
+							</button>
+							{if $info.face_status neq 3}
+							<button type="button" id="check_btn" class="layui-btn layui-btn-primary" onclick="openCheck()">发起核验</button>
+							{/if}
+						</div>
+						{/if}
+					</div>
+					<blockquote class="layui-elem-quote" style="color:#333">
+						申请小程序备案之前，请确保前置条件已经完成：<br>
+						1.小程序名称、图标、描述等小程序基本信息已填写完成。<br>
+						2.小程序至少存在一个审核通过的类目。<br>
+						3.开放平台权限集需要授权18、156，权限集修改后需要重新绑定小程序<br>
+						4.提交备案之前，请先完成小程序负责人人脸核身，核身流程：发起核验->等待管理员开始->等待核验结果->核验结束。
+					</blockquote>
+
+					<div class="layui-form form-label-w8" lay-filter="">
+						备案主体信息<hr/>
+<!--						<div class="layui-form-item">-->
+<!--							<label class="layui-form-label">主体类型：</label>-->
+<!--							<div class="layui-input-inline">-->
+<!--								<input type="radio" name="info[style]" value="1" title="样式1" {if !$info['id'] || $info['style']==1}checked{/if} lay-filter="diandaSwitchMulti">-->
+<!--								<input type="radio" name="info[style]" value="2" title="样式2" {if $info['style']==2}checked{/if} lay-filter="diandaSwitchMulti">-->
+<!--							</div>-->
+<!--						</div>-->
+<!--						<div diandaSwitchMulti="info[style]" data-val="1" {if $info['style'] != 1} style="display:none"{/if}>-->
+<!--							<img src="/static/img/sign-1.png" width="200">-->
+<!--						</div>-->
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>选择地区：</label>
+							<div class="layui-input-inline" style="width:150px">
+								<select name="subject[province]" id="province" lay-filter="province"></select>
+							</div>
+							<div class="layui-input-inline" style="width:150px">
+								<select name="subject[city]" id="city" lay-filter="city"></select>
+							</div>
+							<div class="layui-input-inline" style="width:150px">
+								<select name="subject[district]" id="district" ></select>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>通讯地址：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="subject[address]" value="{$info['subject_address']}" class="layui-input"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">
+								通讯地址需要精确到具体房间号，省、市、区无需重复填写。若所填写地址无门牌号且已是最详细地址，请在下方“备注”位置说明情况，如“通讯地址已是最详细地址“。若未填写最详细通讯地址，将无法通过备案审核。
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">备注 (选填)：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="subject[comment]" value="{$info['subject_comment']}" class="layui-input"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux"></div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>主办者性质：</label>
+							<div class="layui-input-inline" style="width:300px">
+								<select name="subject[type]" lay-filter="subject_type" lay-search>
+									<option value="">请选择</option>
+									{foreach $SubjectTypes as $item}
+									<option value="{$item.type}" {if $info && $item.type eq $info.subject_type}selected{/if}>{$item.name}</option>
+									{/foreach}
+								</select>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">企业名称：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="subject[name]" value="{$info['subject_name']}" class="layui-input"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">
+								居民身份证类型请填写个人姓名，企业性质填写企业名称（名称需与证件上名称一致）
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>证件类型：</label>
+							<div class="layui-input-inline" style="width:300px">
+								<select name="subject[certificate_type]" lay-filter="certificate_type" lay-search id="certificate_type">
+									<option value="">请选择</option>
+									{foreach $subject_certificate_types as $sct}
+									<option value="{$sct.type}" {if $info.subject_certificate_type eq $sct.type}selected{/if}>{$sct.name}</option>
+									{/foreach}
+								</select>
+							</div>
+						</div>
+						<div class="certificate_detail {if !$info || $info.subject_certificate_type==0}layui-hide{/if}">
+							<div class="layui-form-item certificate_img {if !$info || $info.subject_type==5}layui-hide{/if}">
+								<label class="layui-form-label"><span class="redstar">*</span>上传证件：</label>
+								<input type="hidden" name="subject[certificate_photo]" id="certificate_photo" lay-verType="tips" class="layui-input" value="{$info.subject_certificate_photo}">
+								<div style="line-height: 38px;">
+									<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="certificate_photo" upload-preview="certificate_photoPreview" onclick="uploader(this)">上传证件</button>
+								</div>
+								<div>
+									<label class="layui-form-label"></label>
+									<div class="layui-form-mid layui-word-aux">大小不超过2M，分辨率不低于720*1280，必须为最新的纸质证件原件拍照或彩色扫描件，若未使用最新证件照，将无法通过备案审核；须证件四周圆角及卡证边缘清晰<br>若添加水印，须添加在证件空白位置不遮挡文字、图像信息，水印内容符合小程序备案且不添加有效期。<div class="layui-popover layui-default-link layui-inline" style="margin-left: 10px;" onclick="window.open('__STATIC__/admin/img/icp3.png')">
+										示例
+										<div class="layui-popover-div">
+											<img src="__STATIC__/admin/img/icp3.png" style="width: 600px" />
+										</div>
+									</div>
+									</div>
+								</div>
+								<div id="certificate_photoPreview" class="picsList-class-padding">
+									<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.subject_certificate_photo}"/></div></div>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>证件住所：</label>
+								<div class="layui-input-inline">
+									<input type="text" name="subject[certificate_address]" value="{$info['subject_certificate_address']}" class="layui-input"/>
+								</div>
+								<div class="layui-form-mid layui-word-aux">证件住所参照证件上住所填写完整内容，包含省、市、区等信息。</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>证件编号：</label>
+								<div class="layui-input-inline">
+									<input type="text" name="subject[certificate_number]" value="{$info['subject_certificate_number']}" class="layui-input"/>
+								</div>
+								<div class="layui-form-mid layui-word-aux"></div>
+							</div>
+							<div class="layui-form-item personal_info {if $info.subject_type neq 5}layui-hide{/if}">
+								<label class="layui-form-label">临时居住证明：</label>
+								<input type="hidden" name="subject[residence_permit]" id="residence_permit" lay-verType="tips" class="layui-input" value="{$info.subject_residence_permit}">
+								<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="residence_permit" upload-preview="residence_permitPreview" onclick="uploader(this)">上传临时居住证</button>
+								<div class="layui-form-mid layui-word-aux" style="margin-left:10px">大小不超过2M，个人备案且非本省人员，需要提供居住证、暂住证、社保证明、房产证等临时居住证明</div>
+								<div id="residence_permitPreview" class="picsList-class-padding">
+									<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.subject_residence_permit}"/></div></div>
+								</div>
+							</div>
+						</div>
+
+						主体负责人信息<hr/>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>负责人姓名：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="principal[name]" value="{$info['principal_name']}" class="layui-input" lay-verify="required"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux"></div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>负责人联系方式：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="principal[mobile]" value="{$info['principal_mobile']}" class="layui-input" lay-verify="required"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">需填写本人使用的有效手机号码，且没有给其他人使用过进行备案的；并在备案申请期间，注意需由本人接听平台、管局的核实电话，当收到由工信部发送的核验短信通知时，需在24小时内登录所在省市的管局网站完成短信核验。若联系方式存在多人重复使用、未及时完成短信核验，将无法通过备案审核。</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>应急手机号：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="principal[emergency_contact]" value="{$info['principal_emergency_contact']}" class="layui-input" lay-verify="required"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">需填写除主体负责人、小程序负责人以外的有效手机号码，且没有给其他人使用过进行备案的。若应急手机号存在多人重复使用，将无法通过备案审核。</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>负责人邮箱：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="principal[email]" value="{$info['principal_email']}" class="layui-input" lay-verify="required"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">需填写负责人本人使用的邮箱地址，且没有给其他人使用过进行备案的。</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>证件类型：</label>
+							<div class="layui-input-inline" style="width:300px">
+								<select name="principal[certificate_type]" lay-filter="" lay-search>
+									<option value="">请选择</option>
+									{foreach $CertificateTypes as $item}
+									{if $item.subject_type == 5}
+									<option value="{$item.type}" {if $info && $info.principal_certificate_type == $item.type}selected{/if}>{$item.name}</option>
+									{/if}
+									{/foreach}
+								</select>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>证件正面照：</label>
+							<input type="hidden" name="principal[certificate_photo_front]" id="certificate_photo_front" lay-verType="tips" class="layui-input" value="{$info.principal_certificate_photo_front}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="certificate_photo_front" upload-preview="certificate_photo_frontPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px">大小不超过2M，分辨率不低于720*1280，必须为最新的纸质证件原件拍照或彩色扫描件，若未使用最新证件照，将无法通过备案审核；须证件四周圆角及卡证边缘清晰；<br>若添加水印，须添加在证件空白位置不遮挡文字、图像信息，水印内容符合小程序备案且不添加有效期。（身份证为人像面）
+								<div class="layui-popover layui-default-link layui-inline" style="margin-left: 10px;" onclick="window.open('__STATIC__/admin/img/icp1.png')">
+									示例
+									<div class="layui-popover-div">
+										<img src="__STATIC__/admin/img/icp1.png" style="width: 600px" />
+									</div>
+								</div>
+							</div>
+							<div id="certificate_photo_frontPreview" class="picsList-class-padding">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.principal_certificate_photo_front}"/></div></div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>证件背面照：</label>
+							<input type="hidden" name="principal[certificate_photo_back]" id="certificate_photo_back" lay-verType="tips" class="layui-input" value="{$info.principal_certificate_photo_back}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="certificate_photo_back" upload-preview="certificate_photo_backPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px">大小不超过2M，分辨率不低于720*1280，必须为最新的纸质证件原件拍照或彩色扫描件，若未使用最新证件照，将无法通过备案审核；须证件四周圆角及卡证边缘清晰；<br>若添加水印，须添加在证件空白位置不遮挡文字、图像信息，水印内容符合小程序备案且不添加有效期。（身份证为国徽面）
+								<div class="layui-popover layui-default-link layui-inline" style="margin-left: 10px;" onclick="window.open('__STATIC__/admin/img/icp1.png')">
+									示例
+									<div class="layui-popover-div">
+										<img src="__STATIC__/admin/img/icp1.png" style="width: 600px" />
+									</div>
+								</div>
+							</div>
+							<div id="certificate_photo_backPreview" class="picsList-class-padding">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.principal_certificate_photo_back}" /></div></div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>证件号码：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="principal[certificate_number]" value="{$info['principal_certificate_number']}" class="layui-input" />
+							</div>
+							<div class="layui-form-mid layui-word-aux"></div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>证件有效期：</label>
+							<div class="layui-input-inline" style="width:100px">
+								<input type="text" name="principal[certificate_validity_date_start]" id="certificate_validity_date_start" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info['principal_certificate_validity_date_start']}">
+							</div>
+							<div class="layui-form-mid">至</div>
+							<div class="layui-input-inline" style="width:100px">
+								<input type="text" name="principal[certificate_validity_date_end]" id="certificate_validity_date_end" class="layui-input" value="{$info['principal_certificate_validity_date_end']}" {if $info['principal_certificate_validity_date_cq']==1}style="display:none"{/if}>
+							</div>
+							<input type="checkbox" value="1" title="长期" name="principal[certificate_validity_date_cq]" value="1" {if $info['principal_certificate_validity_date_cq']==1}checked{/if} lay-filter="certificate_validity_date_cq"/>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-form-mid layui-word-aux">
+								温馨提示： 请核对负责人证件有效期，确保所填写身份证有效期与上传证件信息完全一致，若填写不一致，将无法通过备案审核。
+							</div>
+						</div>
+						法人信息<hr/>
+						<div class="layui-form-mid layui-word-aux">主体负责人信息与法人不一致时，需完善法人信息。</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">法人姓名：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="legal_person[name]" value="{$info['legal_person_name']}" class="layui-input" />
+							</div>
+							<div class="layui-form-mid layui-word-aux"></div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">法人身份证号：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="legal_person[certificate_number]" value="{$info['legal_person_certificate_number']}" class="layui-input" />
+							</div>
+							<div class="layui-form-mid layui-word-aux"></div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">法人授权书：</label>
+							<input type="hidden" name="principal[authorization_letter]" id="authorization_letter" lay-verType="tips" class="layui-input" value="{$info.principal_authorization_letter}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="authorization_letter" upload-preview="authorization_letterPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px">大小不超过2M，当主体负责人不是法人时需要主体负责人授权书</div>
+							<div id="authorization_letterPreview" class="picsList-class-padding">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.principal_authorization_letter}" /></div></div>
+							</div>
+						</div>
+
+						微信小程序基础信息<hr/>
+						<div class="layui-form-item">
+							<label class="layui-form-label">服务内容标识：<!--array--></label>
+							<div class="layui-input-inline" style="width:400px">
+								<select name="app[service_content_types]" lay-verify="required" id="cid" xm-select="selectCid" xm-select-max="5" xm-select-search >
+									<option value="">--请选择--</option>
+									{php}
+									$service_content_types = explode(",", $info['service_content_types']);
+									{/php}
+									{foreach $ContentTypes as $cv}
+									<option disabled value="{$cv['type']}" {if in_array($cv['type'],$service_content_types)}selected{/if}>{$cv['name']}</option>
+									{foreach $cv['child'] as $k=>$v}
+									{if $k < count($cv['child'])-1}
+									<option value="{$v['type']}" {if in_array($v['type'],$service_content_types)}selected{/if}>&nbsp;&nbsp;&nbsp;&nbsp;├ {$v['name']}</option>
+									{else}
+									<option value="{$v['type']}" {if in_array($v['type'],$service_content_types)}selected{/if}>&nbsp;&nbsp;&nbsp;&nbsp;└ {$v['name']}</option>
+									{/if}
+									{/foreach}
+									{/foreach}
+								</select>
+							</div>
+							<div class="layui-form-mid layui-word-aux" >按照小程序实际经营情况选择对应内容，建议1-2个，只能填写二级服务内容类型，最多5个，若选择内容与主体性质、经营范围不相符，将无法通过备案审核。</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">互联网信息服务前置审批项：</label>
+							<div class="layui-input-block" style="width:1000px;">
+								<table class="layui-table object_table" style="width:700px" id="object_table">
+									<thead>
+									<tr>
+										<th>前置审批项</th>
+										<th>前置审批号</th>
+										<th>前置审批文件</th>
+										<th>操作</th>
+									</tr>
+									</thead>
+									{if $info['nrlx_details']}
+									{php}
+									$nrlx_details = json_decode($info['nrlx_details'], true);
+									{/php}
+									{foreach $nrlx_details as $k=>$item}
+									<tr class="choose-tr-list">
+										<td class="xuhao">
+											<select name="app[nrlx_details][type][]" class="layui-form-select nrlx_type" lay-filter="nrlx_type">
+												{foreach $NrlxTypes as $v}
+												<option value="{$v.type}" {if $item.type == $v.type}selected{/if}>{$v.name}</option>
+												{/foreach}
+											</select>
+										</td>
+										<td>
+											<input type="text" name="app[nrlx_details][code][]" placeholder="前置审批号" value="{$item.code}" class="layui-input"/>
+										</td>
+										<td>
+											<input type="hidden" name="app[nrlx_details][media][]" id="nrlx_media_{$k}" class="layui-input" value="{$item.media}">
+											<button style="float:left; margin-bottom: 5px;" type="button" class="layui-btn layui-btn-primary" upload-input="nrlx_media_{$k}" upload-preview="nrlx_media_{$k}Preview" onclick="uploader(this)">上传文件</button>
+											<div id="nrlx_media_{$k}Preview" class="">
+												<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$item.media}" /></div></div>
+											</div>
+										</td>
+										<td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delInviteCashbak(this)">删除</button></td>
+									</tr>
+									{/foreach}
+									{else}
+									<tr class="choose-tr-list">
+										<td class="xuhao">
+											<select name="app[nrlx_details][type][]" class="layui-form-select nrlx_type" lay-filter="nrlx_type">
+												<option value="">请选择</option>
+												{foreach $NrlxTypes as $v}
+												<option value="{$v.type}">{$v.name}</option>
+												{/foreach}
+											</select>
+										</td>
+										<td>
+											<input type="text" name="app[nrlx_details][code][]" placeholder="前置审批号" value="" class="layui-input"/>
+										</td>
+										<td>
+											<input type="hidden" name="app[nrlx_details][media][]" id="nrlx_media_0" class="layui-input" value="">
+											<button style="float:left; margin-bottom: 5px;" type="button" class="layui-btn layui-btn-primary" upload-input="nrlx_media_0" upload-preview="nrlx_media_0Preview" onclick="uploader(this)">上传文件</button>
+											<div id="nrlx_media_0Preview" class="">
+												<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="" /></div></div>
+											</div>
+										</td>
+										<td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delInviteCashbak(this)">删除</button></td>
+									</tr>
+									{/if}
+									<tr class="choose-tr-add">
+										<td colspan="7" align="center"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="addInviteCashbak()">添加</button></td>
+									</tr>
+								</table>
+								<script>
+
+									function addInviteCashbak(){
+										upload_index++;
+										var tr = '<tr class="choose-tr-list">\n' +
+											'\t\t\t\t\t\t\t\t\t\t<td class="xuhao">\n' +
+											'\t\t\t\t\t\t\t\t\t\t\t<select name="app[nrlx_details][type][]" class="layui-form-select nrlx_type" lay-filter="nrlx_type">\n' +
+											'\t\t\t\t\t\t\t\t\t\t\t\t<option value="">请选择</option>\n' +
+											// {foreach $NrlxTypes as $v}'
+											'\t\t\t\t\t\t\t\t\t\t\t\t<option value="{$v.type}">{$v.name}</option>\n' +
+											// {/foreach}
+											'\t\t\t\t\t\t\t\t\t\t\t</select>\n' +
+											'\t\t\t\t\t\t\t\t\t\t</td>\n' +
+											'\t\t\t\t\t\t\t\t\t\t<td>\n' +
+											'\t\t\t\t\t\t\t\t\t\t\t<input type="text" name="app[nrlx_details][code][]" placeholder="前置审批号" value="" class="layui-input"/>\n' +
+											'\t\t\t\t\t\t\t\t\t\t</td>\n' +
+											'\t\t\t\t\t\t\t\t\t\t<td>\n' +
+											'\t\t\t\t\t\t\t\t\t\t\t<input type="hidden" name="app[nrlx_details][media][]" id="nrlx_media_'+upload_index+'" class="layui-input" value="">\n' +
+											'\t\t\t\t\t\t\t\t\t\t\t<button style="float:left; margin-bottom: 5px;" type="button" class="layui-btn layui-btn-primary" upload-input="nrlx_media_'+upload_index+'" upload-preview="nrlx_media_'+upload_index+'Preview" onclick="uploader(this)">上传文件</button>\n' +
+											'\t\t\t\t\t\t\t\t\t\t\t<div id="nrlx_media_'+upload_index+'Preview" class="">\n' +
+											'\t\t\t\t\t\t\t\t\t\t\t\t<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="" /></div></div>\n' +
+											'\t\t\t\t\t\t\t\t\t\t\t</div>\n' +
+											'\t\t\t\t\t\t\t\t\t\t</td>\n' +
+											'\t\t\t\t\t\t\t\t\t\t<td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delInviteCashbak(this)">删除</button></td>\n' +
+											'\t\t\t\t\t\t\t\t\t</tr>';
+											$('#object_table').find('.choose-tr-add').before(tr);
+											layui.form.render();
+										}
+										function delInviteCashbak(obj){
+											$(obj).closest('.choose-tr-list').remove();
+										}
+
+								</script>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>备注：</label>
+							<div class="layui-input-inline">
+								<textarea name="app[comment]" maxlength="200" class="layui-textarea" lay-verify="required">{$info['app_comment']}</textarea>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-form-mid layui-word-aux">
+								<style>
+									ol{list-style-type:demical!important;}
+									ol li{ list-style:decimal}
+								</style>
+								<ol type="1">
+									<li>
+										天津市个人主体备案小程序请按以下格式补充备注：应急联系电话手机号使用人为XXX，与小程序主办者关系为XX （注：应急联系方式必须为小程序主办者的直系亲属）;<br>
+										天津市非个人主体备案小程序请按以下格式补充备注：应急联系电话手机号使用人为XXX公司员工XXX。
+									</li>
+									<li>
+										福建省个人主体备案小程序请按以下格式补充备注：请具体描述小程序实际经营内容、主要服务内容，该信息为主管部门审核重要依据，备注内容字数限制20-200字，请认真填写。且不能出现“**公司官网，**单位旗下产品”。
+									</li>
+									<li>
+										广东省备案小程序如果是非纯中文小程序昵称，要求在小程序备注位置注明中文名称以及小程序主要服务内容，并且在备注文案文末加上“承诺遵守中华人民共和国法律法规。”，备注内容字数限制20-200字，请认真填写。
+									</li>
+								</ol>
+							</div>
+						</div>
+
+						小程序管理员<hr/><!--需扫码完成小程序管理员人脸核身。核验照片背景需白色或接近浅色，核验人不能裸露上半身，不能戴帽子、耳机、口罩等遮挡面部的物品-->
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>负责人姓名：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="manager[name]" value="{$info['manager_name']}" class="layui-input" lay-verify="required"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux"></div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>手机号：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="manager[mobile]" value="{$info['manager_mobile']}" class="layui-input" lay-verify="required"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux"></div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>负责人邮箱：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="manager[email]" value="{$info['manager_email']}" class="layui-input" lay-verify="required"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux"></div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>应急手机号：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="manager[emergency_contact]" value="{$info['manager_emergency_contact']}" class="layui-input" lay-verify="required"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">不能与联系手机相同</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>证件类型：</label>
+							<div class="layui-input-inline" style="width:300px">
+								<select name="manager[certificate_type]" lay-filter="" lay-search>
+									<option value="">请选择</option>
+									{foreach $CertificateTypes as $item}
+									{if $item.subject_type == 5}
+									<option value="{$item.type}" {if $info && $info.manager_certificate_type == $item.type}selected{/if}>{$item.name}</option>
+									{/if}
+									{/foreach}
+								</select>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>证件正面照：</label>
+							<input type="hidden" name="manager[certificate_photo_front]" id="certificate_photo_front2" lay-verType="tips" class="layui-input" value="{$info.manager_certificate_photo_front}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="certificate_photo_front2" upload-preview="certificate_photo_front2Preview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px">大小不超过2M，分辨率不低于720*1280，必须为最新的纸质证件原件拍照或彩色扫描件，若未使用最新证件照，将无法通过备案审核；须证件四周圆角及卡证边缘清晰；<br>若添加水印，须添加在证件空白位置不遮挡文字、图像信息，水印内容符合小程序备案且不添加有效期。（身份证为人像面）
+								<div class="layui-popover layui-default-link layui-inline" style="margin-left: 10px;" onclick="window.open('__STATIC__/admin/img/icp1.png')">
+									示例
+									<div class="layui-popover-div">
+										<img src="__STATIC__/admin/img/icp1.png" style="width: 600px" />
+									</div>
+								</div>
+							</div>
+							<div id="certificate_photo_front2Preview" class="picsList-class-padding">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.manager_certificate_photo_front}"/></div></div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>证件背面照：</label>
+							<input type="hidden" name="manager[certificate_photo_back]" id="certificate_photo_back2" lay-verType="tips" class="layui-input" value="{$info.manager_certificate_photo_back}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="certificate_photo_back2" upload-preview="certificate_photo_back2Preview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px">大小不超过2M，分辨率不低于720*1280，必须为最新的纸质证件原件拍照或彩色扫描件，若未使用最新证件照，将无法通过备案审核；须证件四周圆角及卡证边缘清晰；<br>若添加水印，须添加在证件空白位置不遮挡文字、图像信息，水印内容符合小程序备案且不添加有效期。（身份证为国徽面）
+								<div class="layui-popover layui-default-link layui-inline" style="margin-left: 10px;" onclick="window.open('__STATIC__/admin/img/icp1.png')">
+									示例
+									<div class="layui-popover-div">
+										<img src="__STATIC__/admin/img/icp1.png" style="width: 600px" />
+									</div>
+								</div>
+							</div>
+							<div id="certificate_photo_back2Preview" class="picsList-class-padding">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.manager_certificate_photo_back}" /></div></div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>证件号码：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="manager[certificate_number]" value="{$info['manager_certificate_number']}" class="layui-input" lay-verify="required"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux"></div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>证件有效期：</label>
+							<div class="layui-input-inline" style="width:100px">
+								<input type="text" name="manager[certificate_validity_date_start]" id="certificate_validity_date_start2" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info['manager_certificate_validity_date_start']}">
+							</div>
+							<div class="layui-form-mid">至</div>
+							<div class="layui-input-inline" style="width:100px">
+								<input type="text" name="manager[certificate_validity_date_end]" id="certificate_validity_date_end2" class="layui-input" value="{$info['manager_certificate_validity_date_end']}" {if $info && $info['manager_certificate_validity_date_cq']==1}style="display:none"{/if}>
+							</div>
+							<input type="checkbox" name="manager[certificate_validity_date_cq]" title="长期" value="1" {if $info && $info['manager_certificate_validity_date_cq']=='1'}checked{/if} lay-filter="certificate_validity_date_cq2"/>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">法人授权书：</label>
+							<input type="hidden" name="manager[authorization_letter]" id="manager_authorization_letter" lay-verType="tips" class="layui-input" value="{$info.manager_authorization_letter}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="authorization_letter" upload-preview="manager_authorization_letterPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px">大小不超过2M，当小程序负责人不是法人时需要小程序负责人授权书</div>
+							<div id="manager_authorization_letterPreview" class="picsList-class-padding">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.manager_authorization_letter}" /></div></div>
+							</div>
+						</div>
+
+						其他备案媒体材料<hr/>
+						<div class="layui-form-item">
+							<label class="layui-form-label">互联网信息服务<br>承诺书：</label>
+							<input type="hidden" name="commitment_letter" id="commitment_letter" lay-verType="tips" class="layui-input" value="{$info.commitment_letter}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="commitment_letter" upload-preview="commitment_letterPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px">大小不超过2M，支持 .jpg .jpeg .png 格式。</div>
+							<div id="commitment_letterPreview" class="picsList-class-padding">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.commitment_letter}"/></div></div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">主体更名函：</label>
+							<input type="hidden" name="business_name_change_letter" id="business_name_change_letter" lay-verType="tips" class="layui-input" value="{$info.business_name_change_letter}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="business_name_change_letter" upload-preview="business_name_change_letterPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px">大小不超过2M，支持 .jpg .jpeg .png 格式。</div>
+							<div id="business_name_change_letterPreview" class="picsList-class-padding">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.business_name_change_letter}"/></div></div>
+							</div>
+							<div class="layui-input-inline layui-word-aux">
+								非个人类型，且发生过更名时需要上传。上传授权书、承诺书、情况说明、辅助资质证明等主体其他附件，须图片清晰完整、不遮挡关键信息/图像、边角齐全、在有效期内，签字、单位盖章、填写内容与备案信息相符。若不涉及，直接跳过。
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">小程序其他附件：</label>
+							<input type="hidden" name="applets_other_materials" id="applets_other_materials" lay-verType="tips" class="layui-input" value="{$info.applets_other_materials}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="applets_other_materials" upload-preview="applets_other_materialsPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px">大小不超过2M，支持 .jpg .jpeg .png 格式。</div>
+							<div id="applets_other_materialsPreview" class="picsList-class-padding">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.applets_other_materials}"/></div></div>
+							</div>
+							<div class="layui-input-inline layui-word-aux">
+								上传授权书、承诺书、情况说明、辅助资质证明等主体其他附件，须图片清晰完整、不遮挡关键信息/图像、边角齐全、在有效期内，签字、单位盖章、填写内容与备案信息相符。若不涉及，直接跳过。
+							</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								{if !in_array($icp_status.data.status_code, [2,4,6])}
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+								{else}
+								<button class="layui-btn" type="button" disabled>{$icp_status.data.status_text|default='查询无结果'}</button>
+								{/if}
+							</div>
+						</div>
+					</div>
+				</div>
+      </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script id="fail_reason" type="text/html">
+		{if in_array($info.beian_status, [3,5])}
+		{php}
+		$reason_list = json_decode($info['beian_reason'], true);
+		{/php}
+		<div style="padding: 50px 20px;">
+			<h2 style="margin-bottom: 15px;">驳回原因及解决方案：</h2>
+			<table class="layui-table">
+				<tr>
+					<td>字段</td>
+					<td>错误</td>
+					<td>建议</td>
+				</tr>
+				{foreach $reason_list as $rl}
+				<tr>
+					<td>{$rl.key_name}</td>
+					<td>{$rl.error}</td>
+					<td>{$rl.suggest}</td>
+				</tr>
+				{/foreach}
+			</table>
+		</div>
+		{/if}
+	</script>
+
+
+	<script id="check_tips" type="text/html">
+		<div style="padding: 20px;">
+			<div>
+				<h2 style="margin-bottom: 10px;">核验说明注意事项：</h2>
+				<ol style="margin-left: 20px;">
+					<li>人脸核身视频会用于生成核验照片，背景需白色或接近浅色，核验人不能裸露上半身，不能戴帽子、耳机、口罩等遮挡面部的物品。
+						<div class="layui-popover layui-default-link layui-inline" style="margin-left: 10px;" onclick="window.open('__STATIC__/admin/img/icp2.png')">
+							示例
+							<div class="layui-popover-div">
+								<img src="__STATIC__/admin/img/icp2.png" style="width: 600px" />
+							</div>
+						</div>
+					</li>
+					<li>人脸核身通知有效期为 24 小时，如果在通知有效期内核身未能通过，可以再次点击通知进行重试，无需重新发起，过期后需重新发起。</li>
+					<li>人脸核身有效期为 3 天，为避免申请备案时过期，请确保其余所有备案材料已准备好，以及备案前置条件已完成，再发起人脸核身。</li>
+				</ol>
+			</div>
+			<div>
+				<h2 style="margin-bottom: 10px;">人脸核身常见失败及解决方案：</h2>
+				<table class="layui-table">
+					<thead>
+					<tr>
+						<td>失败原因</td>
+						<td>解决方案</td>
+					</tr>
+					</thead>
+					<tbody>
+					<tr>
+						<td>人脸视频背景非纯白色</td>
+						<td>请尝试在无杂物的白色背景下重新进行人脸核身</td>
+					</tr>
+					<tr>
+						<td>人脸视频人脸占比太大</td>
+						<td>请尽量尝试远离镜头重新进行人脸核身</td>
+					</tr>
+					<tr>
+						<td>人脸视频闭眼占比过多</td>
+						<td>请尽量尝试睁开眼睛重新进行人脸核身</td>
+					</tr>
+					<tr>
+						<td>人脸视频光线过曝</td>
+						<td>请尝试去暗一点的地方重新进行人脸核身</td>
+					</tr>
+					<tr>
+						<td>人脸视频光线过暗</td>
+						<td>请尝试去亮一点的地方重新进行人脸核身</td>
+					</tr>
+					</tbody>
+				</table>
+			</div>
+			<div style="text-align: center;">
+				<button type="button" class="layui-btn layui-btn-primary" onclick="launchCheck()">确认发起核验</button>
+			</div>
+		</div>
+	</script>
+	<script>
+		var upload_index = "{:count(json_decode($info['nrlx_details'], true))}";
+		var CertificateTypes = {:json_encode($CertificateTypes)};
+		var formSelects = layui.formSelects;
+		address3Wechat('province','city','district',"{$info['subject_province']}","{$info['subject_city']}","{$info['subject_district']}", {$province_data});
+		layui.form.on('radio(wxpay_type)', function(data){
+			if(data.value == '0'){
+				$('#wxpay_type1set').hide();
+				$('#wxpay_type0set').show();
+			}else{
+				$('#wxpay_type1set').show();
+				$('#wxpay_type0set').hide();
+			}
+		})
+
+		layui.form.on('select(subject_type)', function (e) {
+			// console.log(e);
+			exchangeCertificateType(e.value);
+			if(e.value == 5){
+				$(".personal_info").removeClass('layui-hide')
+				$(".certificate_img").addClass('layui-hide')
+			}else{
+				$(".personal_info").addClass('layui-hide')
+				$(".certificate_img").removeClass('layui-hide')
+			}
+			$(".certificate_detail").addClass('layui-hide');
+		})
+		layui.form.on('select(certificate_type)', function (e) {
+			var type = e.value;
+			if(type == ""){
+				$(".certificate_detail").addClass('layui-hide');
+				return;
+			}
+			$(".certificate_detail").removeClass('layui-hide');
+		})
+
+		layui.laydate.render({
+			elem: '#certificate_validity_date_start',
+			type: 'date'
+		});
+		layui.laydate.render({
+			elem: '#certificate_validity_date_end',
+			type: 'date'
+		});
+		layui.laydate.render({
+			elem: '#certificate_validity_date_start2',
+			type: 'date'
+		});
+		layui.laydate.render({
+			elem: '#certificate_validity_date_end2',
+			type: 'date'
+		});
+
+		layui.form.on('checkbox(certificate_validity_date_cq)',function(data){
+			if(data.elem.checked){
+				$('#certificate_validity_date_end').hide();
+			}else{
+				$('#certificate_validity_date_end').show();
+			}
+		})
+		layui.form.on('checkbox(certificate_validity_date_cq2)',function(data){
+			if(data.elem.checked){
+				$('#certificate_validity_date_end2').hide();
+			}else{
+				$('#certificate_validity_date_end2').show();
+			}
+		})
+		layui.form.on('submit(formsubmit)', function(obj){
+			var field = obj.field
+			layer.load();
+			$.post('',field,function(data){
+				layer.closeAll()
+				var content = '<div style="padding: 20px;">\n' +
+					'\t\t\t<div>\n' +
+					'\t\t\t\t<p>提交结果：'+data.msg+'</p>\n';
+				if(data.status == 0){
+					$.each(data.hints, function (i,v) {
+						content += '\t\t\t\t<p>'+(i+1)+'.'+v.errmsg+'</p><br>\n';
+					})
+				}else{
+					content += '\t\t\t\t<p style="font-size: 20px;">提交成功，等待微信审核</p><br>\n';
+				}
+					content += '\t\t\t</div>\n' +
+					'\t\t\t<div style="text-align: center;">\n' +
+					'\t\t\t\t<button type="button" class="layui-btn layui-bg-blue" onclick="location.reload()">确定</button>\n' +
+					'\t\t\t</div>\n' +
+					'\t\t</div>';
+				layer.open({
+					type:1,
+					content:content
+				});
+			})
+		})
+
+		function exchangeCertificateType(type) {
+			var options = "<option value=''>请选择</option>";
+			// console.log(CertificateTypes);
+			for (let i = 0; i < CertificateTypes.length; i++) {
+				var item = CertificateTypes[i];
+				if(item.subject_type == type){
+					options += "<option value='"+item.type+"'>"+item.name+"</option>"
+				}
+			}
+			$("#certificate_type").html(options);
+			layui.form.render();
+		}
+		function openCheck() {
+			window.check_index = layer.open({
+				type:1,
+				content:$("#check_tips").html(),
+				area:["800px", "600px"]
+			})
+		}
+
+		function showReason() {
+			window.check_index = layer.open({
+				type:1,
+				content:$("#fail_reason").html(),
+				area:["800px", "600px"]
+			})
+		}
+		function launchCheck() {
+			// layer.load();
+			$.get('{:url("launchCheck")}',function(data){
+				layer.close(window.check_index)
+				layer.alert(data.msg);
+			})
+		}
+		// checkFace();
+		function checkFace(){
+			// setTimeout(function () {
+				$.get("{:url('checkFace')}", function (data) {
+					if(data.status == 3){
+						$("#check_btn").addClass("layui-hide");
+					}
+					if(data.status != 0){
+						layui.element.progress('face_percent', data.percent)
+						$("#face_text").text(data.msg);
+					}else{
+						layer.msg('刷新失败，稍后重试');
+					}
+				})
+			// 	checkFace();
+			// }, 5000)
+		}
+
+
+
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

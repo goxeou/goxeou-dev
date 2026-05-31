@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>帖子分类设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加分类{else}<i class="fa fa-pencil"></i> 编辑分类{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w6" lay-filter="">
+						<input type="hidden" name="info[id]" value="{$info.id}">
+						{if getcustom('luntan_second_category')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">上级分类：</label>
+							<div class="layui-input-inline" >
+								<select name="info[pid]" lay-filter="pidset">
+									<option value="0">--作为顶级分类--</option>
+									{foreach $pcatelist as $pcate}
+										<option value="{$pcate['id']}" {if $pcate['id']==$info['pid']}selected{/if}>{$pcate.name}</option>
+									{/foreach}
+								</select>
+							</div>
+						</div>
+						{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label">分类名称：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[name]" value="{$info.name}" lay-verify="required" lay-verType="tips" autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">分类图标：</label>
+							<input type="hidden" name="info[pic]" id="pic" class="layui-input" value="{$info.pic}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="pic" upload-preview="picPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：400×400像素</div>
+							<div id="picPreview" style="float:left;padding-top:10px;margin-left:130px;clear: both;">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.pic}"/></div></div>
+							</div>
+						</div>
+						
+						<div class="layui-form-item" {if $info['pid']>0}style="display:none"{/if}>
+							<label class="layui-form-label">banner图：</label>
+							<input type="hidden" name="info[banner]" id="banner" class="layui-input" value="{$info['banner']}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="banner" upload-preview="bannerPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：690×260像素</div>
+							<div id="bannerPreview" style="float:left;padding-top:10px;margin-left:130px;clear: both;">
+								<div class="layui-imgbox" style="width:200px;height:75px"><div class="layui-imgbox-img"><img src="{$info['banner']}"/></div></div>
+							</div>
+						</div>
+						{if getcustom('luntan_second_category')}
+						<div id="display_type" class="layui-form-item" {if $info['pid']>0}style="display:none"{/if}>
+							<label class="layui-form-label">显示类型：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[display_type]" value="0" title="横版" {if $info['display_type']==0 || !$info['id']}checked{/if} lay-filter="display_typeset">
+								<input type="radio" name="info[display_type]" value="1" title="竖版" {if $info['id'] && $info['display_type']==1}checked{/if} lay-filter="display_typeset">
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">1、横版：两横排图文显示 2、竖版：一排显示，一级分类加二级列表内容图文显示格式</div>
+						</div>
+						<div id="child_num" class="layui-form-item" {if $info['pid']>0 || $info['display_type']!=1}style="display:none"{/if}>
+							<label class="layui-form-label">二级显示数量：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[child_num]" value="{$info.child_num}" class="layui-input">
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">竖版显示类型时二级分类显示的数量</div>
+						</div>
+						{/if}
+
+						{if getcustom('luntan_category_give_coupon')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">赠送{:t('优惠券')}：</label>
+							<div class="layui-input-inline" style="width:500px">
+								<input type="radio" name="info[give_coupon]" value="0" {if $info['give_coupon']==0}checked{/if} title="关闭" lay-filter="give_coupon"/>
+								<input type="radio" name="info[give_coupon]" value="1" {if $info['give_coupon']==1}checked{/if} title="开启" lay-filter="give_coupon"/>
+							</div>
+							<div class="give_coupon" style="clear:both;{if $info['give_coupon']!=1}display:none{/if}">
+								<label class="layui-form-label"></label>
+								<div class="layui-input-inline" style="width:auto; overflow: hidden;">
+									<table class="layui-table choose-coupon" style="width:500px" id="choose-coupon">
+										<thead>
+										<tr>
+											<th>ID</th>
+											<th>名称</th>
+											<th>库存</th>
+											<th>操作</th>
+										</tr>
+										</thead>
+										{if $couponList}
+										{foreach $couponList as $k=>$ff}
+										<tr class="choose-tr-list"><td>{$ff.id}</td><td>{$ff.name}</td><td>{$ff.stock}</td><td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delChooseTr(this,{$ff.id})">删除</button></td></tr>
+										{/foreach}
+										{/if}
+										<tr class="choose-tr-add">
+											<td colspan="4"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="showChooseCoupon()">添加</button></td>
+										</tr>
+									</table>
+									<div class="layui-form-mid layui-word-aux">请确认{:t('优惠券')}的有效期、库存有效</div>
+									<input type="hidden" name="info[coupon_ids]" value="{$info.coupon_ids}"/>
+								</div>
+							</div>
+
+							<script>
+								var chooseCouponLayer;
+								function showChooseCoupon(){
+									chooseCouponLayer = layer.open({type:2,title:'选择{:t(\'优惠券\')}',content:"{:url('Coupon/choosecoupon')}&type=all&module=payaftergive",area:['1000px','600px'],shadeClose:true});
+								}
+								function choosecoupon(res){
+									var detail = res;
+									var chooseClassName = '.choose-coupon';
+									layer.close(chooseCouponLayer);
+									var objIds = [];
+									var isadd = 0;
+									$(chooseClassName).find('.choose-tr-list').each(function(){
+										var thisfid = $(this).find('td:eq(0)').html();
+										//if(thisfid == detail.id){
+										//	isadd = 1
+										//	dialog('该项已添加过了');
+										//}
+										objIds.push(thisfid)
+									})
+									if(isadd == 0){
+										objIds.push(detail.id)
+										$("input[name='info[coupon_ids]']").val(objIds.join(','));
+										var tr = '<tr class="choose-tr-list"><td>'+detail.id+'</td><td>'+detail.name+'</td><td>'+detail.stock+'</td><td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delChooseTr(this,'+detail.id+')">删除</button></td></tr>';
+										$(chooseClassName).find('.choose-tr-add').before(tr);
+									}
+									// $(chooseClassName).find('.choose-tr-add').hide();
+								}
+								function delChooseTr(obj,fid){
+									$(obj).closest('.choose-tr-list').remove();
+									var objIds = [];
+									$('#choose-coupon').find('.choose-tr-list').each(function(){
+										objIds.push($(this).find('td:eq(0)').html())
+									})
+									console.log(objIds)
+									$("input[name='info[coupon_ids]']").val(objIds.join(','));
+									// $(obj).closest('table').find('.choose-tr-add').show();
+								}
+							</script>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">开始时间：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[starttime]" autocomplete="off" value="{$info.starttime}" lay-verify="required" lay-verType="tips" class="layui-input" id="starttime">
+							</div>
+							<div class="layui-form-mid layui-word-aux">活动开始时间</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">结束时间：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[endtime]" autocomplete="off" value="{$info.endtime}" lay-verify="required" lay-verType="tips" class="layui-input" id="endtime">
+							</div>
+							<div class="layui-form-mid layui-word-aux">活动结束时间</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">限制次数：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[limitnum]" value="{$info['limitnum']}" class="layui-input" >
+							</div>
+							<div class="layui-form-mid layui-word-aux">领取优惠券的次数 0为不限制</div>
+						</div>
+						{/if}
+
+						{if getcustom('luntan_category_phone')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">填写姓名：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[isphone]" value="0" {if $info['isphone']==0}checked{/if} title="关闭" />
+								<input type="radio" name="info[isphone]" value="1" {if $info['isphone']==1}checked{/if} title="开启"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">开启，则发表论坛时需填写姓名、手机号</div>
+						</div>	
+						<div class="layui-form-item">
+							<label class="layui-form-label">显示姓名：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[isshowphone]" value="0" {if $info['isshowphone']==0}checked{/if} title="关闭" />
+								<input type="radio" name="info[isshowphone]" value="1" {if $info['isshowphone']==1}checked{/if} title="开启"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">是否显示姓名、手机号</div>
+						</div>
+						{/if}
+
+				
+						<div class="layui-form-item">
+							<label class="layui-form-label">序号：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[sort]" value="{$info.sort|default=0}" class="layui-input">
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">用于排序,越大越靠前</div>
+						</div>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">状态：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[status]" value="1" title="显示" {if $info['status']==1 || !$info['id']}checked{/if}>
+								<input type="radio" name="info[status]" value="0" title="隐藏" {if $info['id'] && $info['status']==0}checked{/if}>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+					
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.form.on('select(pidset)',function(data){
+		if(data.value>0){
+			$('#banner').hide();
+			$('#display_type').hide();
+			$('#child_num').hide();
+		}else{
+			$('#banner').show();
+			$('#display_type').show();
+			var display_type_val = $("input[name='info[display_type]']:checked").val();
+			if(display_type_val == 1){
+				$('#child_num').show();
+			}
+		}
+	})
+
+	layui.laydate.render({ 
+		elem: '#starttime'
+		,type: 'datetime'
+		,range: false,
+		trigger: 'click'
+	});
+	layui.laydate.render({ 
+		elem: '#endtime'
+		,type: 'datetime'
+		,range: false,
+		trigger: 'click'
+	});
+	layui.form.on('radio(give_coupon)',function(data){
+		if(data.value==1){
+			$('.give_coupon').show();
+		}else{
+			$('.give_coupon').hide();
+		}
+	})
+	layui.form.on('radio(display_typeset)',function(data){
+		if(data.value == 0){
+			$('#child_num').hide();
+		}else{
+			$('#child_num').show();
+		}
+	})
+
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.closeAll();
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

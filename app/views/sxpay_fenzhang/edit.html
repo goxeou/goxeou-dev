@@ -1,0 +1,187 @@
+<!DOCTYPE html><!--custom_file(sxpay_fenzhang)-->
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>分账设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 分账设置{else}<i class="fa fa-pencil"></i> 分账设置{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w8" lay-filter="">
+						<input type="hidden" name="info[id]" value="{$info['id']}">
+						<div class="layui-form-item">
+							<label class="layui-form-label">分账商户号：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[business_code]" value="{$info.business_code}" lay-verify="required" lay-verType="tips" autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">最大分账比例：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[account_ratio]" value="{$info.account_ratio}" lay-verify="required" lay-verType="tips" autocomplete="off" class="layui-input">
+
+								<div class="layui-form-mid">1~100的整数</div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">分账情况说明函：</label>
+							<input type="hidden" name="info[agreement_pic_str]" value="{$info['agreement_pic_str']}" id="agreement_pic_str">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this,true)" maxwidth="1200" maxheight="1200" upload-input="agreement_pic_str" upload-preview="agreement_pic_strList" >上传</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">最多可上传6张照片，图片需小于2MB</div>
+							<div id="agreement_pic_strList" class="picsList-class-padding">
+								{if $info['agreement_pic_str']}{php}$pics = explode(',',$info['agreement_pic_str']);{/php}{foreach $pics as $pic}
+								<div class="layui-imgbox">
+									<a class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().remove();getpicsval('agreement_pic_str','agreement_pic_strList')" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+									<span class="layui-imgbox-img"><img src="{$pic}"></span>
+								</div>
+								{/foreach}{/if}
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">分账场景图片：</label>
+							<input type="hidden" name="info[scenes_pic_str]" value="{$info['scenes_pic_str']}" id="scenes_pic_str">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this,true)" maxwidth="1200" maxheight="1200" upload-input="scenes_pic_str" upload-preview="scenes_pic_strList" >上传</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">最多可上传6张照片，图片需小于2MB</div>
+							<div id="scenes_pic_strList" class="picsList-class-padding">
+								{if $info['scenes_pic_str']}{php}$pics = explode(',',$info['scenes_pic_str']);{/php}{foreach $pics as $pic}
+								<div class="layui-imgbox">
+									<a class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().remove();getpicsval('scenes_pic_str','scenes_pic_strList')" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+									<span class="layui-imgbox-img"><img src="{$pic}"></span>
+								</div>
+								{/foreach}{/if}
+							</div>
+						</div>
+						<div id="giveset_div">
+							{php} $mjdata = json_decode($info['fenzhangdata'],true);{/php}
+							{if $mjdata}
+							{foreach $mjdata as $k=>$give}
+							<div class="layui-form-item">
+								<label class="layui-form-label">{if $k==0}分账接收方：{/if}</label>
+								<div class="layui-form-mid">商户编号</div>
+								<div class="layui-input-inline" style="width:170px"><input type="text" name="business_code[]" value="{$give.business_code}" class="layui-input"></div>
+								<div class="layui-form-mid">分账比例</div>
+								<div class="layui-input-inline" style="width:70px"><input type="text" name="percent[]" value="{$give.percent}" class="layui-input"></div>
+								<div class="layui-form-mid">%</div>
+								<div class="layui-form-mid">分账周期</div>
+								<div class="layui-input-inline" style="width:70px"><input type="text" name="split_cycle[]" value="{$give.split_cycle}" class="layui-input"></div>
+								<div class="layui-form-mid">双方关系</div>
+								<div class="layui-input-inline" style="width:200px"><input type="text" name="relation_ship[]" value="{$give.relation_ship}" class="layui-input"></div>
+								<div class="layui-form-mid">分账场景</div>
+								<div class="layui-input-inline" style="width:200px"><input type="text" name="scenes[]" value="{$give.scenes}" class="layui-input"></div>
+								{if $k==0}
+								<button type="button" class="layui-btn layui-btn-primary" onclick="adddata()">新增</button>
+								{else}
+								<button type="button" class="layui-btn layui-btn-primary" onclick="deldata(this)">删除</button>
+								{/if}
+							</div>
+							{/foreach}
+							{else}
+							<div class="layui-form-item">
+								<label class="layui-form-label">分账接收方：</label>
+								<div class="layui-form-mid">商户编号</div>
+								<div class="layui-input-inline" style="width:170px"><input type="text" name="business_code[]" value="" class="layui-input"></div>
+								<div class="layui-form-mid">分账比例</div>
+								<div class="layui-input-inline" style="width:70px"><input type="text" name="percent[]" value="" class="layui-input"></div>
+								<div class="layui-form-mid">%</div>
+								<div class="layui-form-mid">分账周期</div>
+								<div class="layui-input-inline" style="width:70px"><input type="text" name="split_cycle[]" value="" class="layui-input"></div>
+								<div class="layui-form-mid">双方关系</div>
+								<div class="layui-input-inline" style="width:200px"><input type="text" name="relation_ship[]" value="" class="layui-input"></div>
+								<div class="layui-form-mid">分账场景</div>
+								<div class="layui-input-inline" style="width:200px"><input type="text" name="scenes[]" value="" class="layui-input"></div>
+								<button type="button" class="layui-btn layui-btn-primary" onclick="adddata()">新增</button>
+							</div>
+							{/if}
+						</div>
+						<script>
+						function adddata(){
+							var html = '';
+							html+='<div class="layui-form-item">';
+							html+='	<label class="layui-form-label"></label>';
+							html+='	<div class="layui-form-mid">商户编号</div>';
+							html+='	<div class="layui-input-inline" style="width:170px"><input type="text" name="business_code[]" value="" class="layui-input"></div>';
+							html+='	<div class="layui-form-mid">分账比例</div>';
+							html+='	<div class="layui-input-inline" style="width:70px"><input type="text" name="percent[]" value="" class="layui-input"></div>';
+							html+='	<div class="layui-form-mid">%</div>';
+							html+='<div class="layui-form-mid">分账周期</div>\n' +
+									'\t\t\t\t\t\t\t\t<div class="layui-input-inline" style="width:70px"><input type="text" name="split_cycle[]" value="" class="layui-input"></div>\n' +
+									'\t\t\t\t\t\t\t\t<div class="layui-form-mid">双方关系</div>\n' +
+									'\t\t\t\t\t\t\t\t<div class="layui-input-inline" style="width:200px"><input type="text" name="relation_ship[]" value="" class="layui-input"></div>\n' +
+									'\t\t\t\t\t\t\t\t<div class="layui-form-mid">分账场景</div>\n' +
+									'\t\t\t\t\t\t\t\t<div class="layui-input-inline" style="width:200px"><input type="text" name="scenes[]" value="" class="layui-input"></div>'
+							html+='	<button type="button" class="layui-btn layui-btn-primary" onclick="deldata(this)">删除</button>';
+							html+='</div>';
+							$('#giveset_div').append(html);
+						}
+						function deldata(obj){
+							$(obj).parent().remove();
+						}
+						</script>
+						{if $info['id']}
+						<div class="layui-form-item">
+							<label class="layui-form-label">状态：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[status]" value="1" title="开启" {if !$info['id'] || $info['status']==1}checked{/if}>
+								<input type="radio" name="info[status]" value="0" title="关闭" {if $info['id'] && $info['status']==0}checked{/if}>
+							</div>
+						</div>
+						{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+								<button class="layui-btn" lay-submit lay-filter="formsubmit2">提交并发送商户特殊申请</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.closeAll();
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+
+
+	layui.form.on('submit(formsubmit2)', function(obj){
+		var field = obj.field
+		var index = layer.load();
+		field.apply = 1;
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.closeAll();
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

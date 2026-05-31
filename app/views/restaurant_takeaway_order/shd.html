@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>送货单</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	.table1 th,.table1 td{border:1px solid #666;height:40px;line-height:40px;text-align:center;word-break: break-all;}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					送货单<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form" lay-filter="">
+						<input type="hidden" name="info[id]" value="{$info['id']}">
+						{foreach $order_goods3 as $kkk=>$order_goods}
+						<div class="layui-form-item">
+							<div class="layui-input-inline" style="width:1050px;color:#111;display:flex" id="printcontent_{$kkk}">
+								<div style="width:1000px">
+									<div style="text-align:center;font-weight:bold;font-size:20px">{$set.name}</div>
+									<div style="text-align:center;font-weight:bold;position:relative;"><span style="font-size:20px">送货单</span><span style="position:absolute;right:0;font-weight:normal;font-size:16px">NO:{$info.ordernum}</span></div>
+									<div style="text-align:left;position:relative;font-weight:bold;font-size:16px"><span style="padding-right:">客户名称：{$info.linkman}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;客户电话：{$info.tel} <span style="position:absolute;right:0">送货日期：{:date('Y-m-d')}</span></div>
+									<div style="font-size:16px">客户地址：{$info.area} {$info.address}</div>
+
+									<div style="width:100%;font-size:16px">
+										<table style="width:100%;border-collapse: collapse;border:1px solid #666" class="table1">
+											<tr>
+												<td>序号</td>
+												<td>品名及规格</td>
+												<td>数量</td>
+												<td>单价</td>
+												<td>金额</td>
+												<td style="width:80px">备注</td>
+											</tr>
+											{foreach $order_goods as $k=>$v}
+											{if $v['type']=='yf'}
+											<tr>
+												<td>{$k+1}</td>
+												<td>运费</td>
+												<td>1</td>
+												<td></td>
+												<td>{$info.freight_price}</td>
+												<td></td>
+											</tr>
+											{elseif $v['type']=='totalprice'}
+											<tr>
+												<td colspan="2">合计金额(小写)</td>
+												<td colspan="4">{$info.totalprice}</td>
+											</tr>
+											{elseif $v['type']=='totalprice2'}
+											<tr>
+												<td colspan="2">合计金额(大写)</td>
+												<td colspan="4">{$info.totalprice2}</td>
+											</tr>
+											{else}
+											<tr>
+												<td>{$k+1}</td>
+												<td>{$v.name} {$v.ggname}</td>
+												<td>{$v.num}</td>
+												<td>{$v.sell_price}</td>
+												<td>{if $v['id']}{$v['sell_price']*$v['num']}{/if}</td>
+												<td>{$v.remark}</td>
+											</tr>
+											{/if}
+											{/foreach}
+										</table>
+									</div>
+									<div style="text-align:left;position:relative;font-size:16px"><span style="padding-right:200px">制单人：</span><span style="padding-right:200px">送货人：</span>收货人：</div>
+								</div>
+								<div style="width:30px;display:flex;justify-content:center;-webkit-writing-mode:vertical-rl;writing-mode:vertical-rl;font-size:14px">第一联存根（白） &nbsp;&nbsp;第二联客户（红）</div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<div class="layui-input-block" style="margin-left:130px;">
+								<button class="layui-btn" onclick="printbtn({$kkk})">打 印</button>
+							</div>
+						</div>
+						{/foreach}
+					</div>
+				</div>
+			</div>
+		</div>
+  </div>
+	{include file="public/js"/}
+	<script src="__STATIC__/admin/js/jQuery.print.js"></script>
+	<script>
+	function printbtn(kkk){
+	    $("#printcontent_"+kkk).print({
+		})
+	}
+	layui.form.on('submit(formsubmit)', function(obj){
+		$("#printcontent").print({
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

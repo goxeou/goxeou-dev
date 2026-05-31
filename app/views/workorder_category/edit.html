@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>表单设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	#ggtable .layui-input{ display:inline;height:30px}
+	#ggtable .layui-btn{ margin-top:-3px;margin-left:1px}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加表单{else}<i class="fa fa-pencil"></i> 编辑表单{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form">
+						<input type="hidden" name="info[id]" value="{$info['id']}">
+					
+						<div class="layui-tab" lay-filter="mytab">
+							<ul class="layui-tab-title">
+								<li class="layui-this" lay-id="1">基本信息</li>
+								<li lay-id="2">表单内容</li>
+							</ul>
+							<div class="layui-tab-content">
+								<div class="layui-tab-item layui-show">
+									<div class="layui-form-item">
+										<label class="layui-form-label" style="width:100px">分类名称：</label>
+										<div class="layui-input-inline">
+											<input type="text" name="info[name]" value="{$info.name}" lay-verify="required" lay-verType="tips" autocomplete="off" class="layui-input">
+										</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label" style="width:100px">用户类型：</label>
+										<div class="layui-input-inline">
+											<input type="radio" name="info[usertype]" value="1" title="用户" {if $info['usertype']==1}checked{/if}>
+											<input type="radio" name="info[usertype]" value="2" title="商户" {if $info['usertype']==2}checked{/if} >
+										</div>
+									</div>
+
+									<div class="layui-form-item">
+										<label class="layui-form-label" style="width:100px">总数量限制：</label>
+										<div class="layui-input-inline">
+											<input type="text" name="info[maxlimit]" value="{$info.maxlimit}" class="layui-input">
+										</div>
+										<div class="layui-form-mid layui-word-aux">总收集数量限制，0表示不限制</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label" style="width:100px">每人数量限制：</label>
+										<div class="layui-input-inline">
+											<input type="text" name="info[perlimit]" value="{$info.perlimit}" class="layui-input">
+										</div>
+										<div class="layui-form-mid layui-word-aux">每人提交次数限制，0表示不限制</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label" style="width:100px">处理类型：</label>
+										<div class="layui-input-inline" style="width:300px">
+											<input type="radio" name="info[cltype]" value="1" title="所有人" {if $info['cltype']==1}checked{/if}>
+											<input type="radio" name="info[cltype]" value="2" title="按分类" {if $info['cltype']==2}checked{/if} >
+											<input type="radio" name="info[cltype]" value="3" title="后台指派" {if $info['cltype']==3}checked{/if} >
+										</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label" style="width:100px">在线支付：</label>
+										<div class="layui-input-inline">
+											<input type="radio" name="info[payset]" value="1" title="开启" {if $info['payset']==1}checked{/if} lay-filter="payset">
+											<input type="radio" name="info[payset]" value="0" title="关闭" {if $info['payset']==0}checked{/if} lay-filter="payset">
+										</div>
+									</div>
+									<div id="paysetdata" {if $info['payset']==0}style="display:none"{/if}>
+										<div class="layui-form-item">
+											<label class="layui-form-label" style="width:100px">默认支付金额：</label>
+											<div class="layui-input-inline">
+												<input type="text" name="info[price]" value="{$info.price}" class="layui-input">
+											</div>
+											<div class="layui-form-mid">元</div>
+										</div>
+										<div class="layui-form-item">
+											<label class="layui-form-label" style="width:100px">支付金额可修改：</label>
+											<div class="layui-input-inline">
+												<input type="radio" name="info[priceedit]" value="1" title="开启" {if $info['priceedit']==1}checked{/if}>
+												<input type="radio" name="info[priceedit]" value="0" title="关闭" {if $info['priceedit']==0}checked{/if}>
+											</div>
+											<div class="layui-form-mid layui-word-aux">用户是否可以自己填写支付金额</div>
+										</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label" style="width:100px">关联订单：</label>
+										<div class="layui-input-inline"  style="width:400px">
+											<input type="radio" name="info[isglorder]" value="1" title="关联商城订单" {if $info['isglorder']==1}checked{/if}>
+											<input type="radio" name="info[isglorder]" value="2" title="关联预约订单" {if $info['id'] && $info['isglorder']==2}checked{/if}>
+											<input type="radio" name="info[isglorder]" value="0" title="关闭" {if !$info['id'] || $info['isglorder']==0}checked{/if}>
+										</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label" style="width:100px">序号：</label>
+										<div class="layui-input-inline">
+											<input type="text" name="info[sort]" value="{$info.sort|default=0}" class="layui-input">
+										</div>
+										<div class="layui-form-mid layui-word-aux">用于排序,越大越靠前</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label" style="width:100px">状态：</label>
+										<div class="layui-input-inline">
+											<input type="radio" name="info[status]" value="1" title="开启" {if $info['status']==1}checked{/if} >
+											<input type="radio" name="info[status]" value="0" title="关闭" {if $info['status']==0}checked{/if} >
+										</div>
+									</div>
+									<div class="layui-form-item">
+										<div class="layui-input-block" style="margin-left:130px">
+											<button class="layui-btn layui-btn-normal" onclick="gonext(2)">下一步:编辑表单内容</button>
+											<button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+										</div>
+									</div>
+
+								</div>
+								<div class="layui-tab-item">
+									
+									<div class="layui-form-item">
+										<label class="layui-form-label" style="width:100px">添加表单项：</label>
+										<div class="layui-input-inline" style="width:auto;margin-top:5px">
+											<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="addelement('input','','',1,0,'')"><i class="icon-plus"></i>单行输入</button>
+											<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="addelement('textarea','','',1,0,'')"><i class="icon-plus"></i>多行输入</button>
+											<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="addelement('radio','','',1,0,'')"><i class="icon-plus"></i>单项选择</button>
+											<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="addelement('checkbox','','',1,0,'')"><i class="icon-plus"></i>多项选择</button>
+											<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="addelement('selector','','',1,0,'')"><i class="icon-plus"></i>普通选择</button>
+											<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="addelement('time','','',1,0,'')"><i class="icon-plus"></i>时间选择</button>
+											<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="addelement('date','','',1,0,'')"><i class="icon-plus"></i>日期选择</button>
+											<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="addelement('region','','',1,0,'')"><i class="icon-plus"></i>省市区选择</button>
+											<!-- <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="addelement('switch','','',1,0)"><i class="icon-plus"></i>开关选择</button> -->
+											<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="addelement('upload','','',1,0,'')"><i class="icon-plus"></i>上传图片</button>
+										</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label" style="width:100px">表单项列表：</label>
+										<div class="layui-input-inline" style="width:auto;margin-top:-7px;min-height:100px">
+											<table class="layui-table" style="width:960px" id="ggtable">
+												<thead>
+												<tr>
+													<th style="width:120px">字段类型</th>
+													<th style="width:200px">字段名称</th>
+													<th style="width:300px">字段内容</th>
+													<th style="width:100px">类型</th>
+													
+													<th style="width:80px">是否必填</th>
+													<th style="width:180px">操作</th>
+												</tr>
+												</thead>
+												<tbody id="datatable">
+													
+												</tbody>
+											</table>
+										</div>
+									</div>
+
+									<div class="layui-form-item">
+										<div class="layui-input-block" style="margin-left:130px">
+											<button class="layui-btn layui-btn-normal" onclick="gonext(1)">上一步:编辑基本信息</button>
+											<button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+					</div>
+					
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	
+	layui.form.on('radio(commissionset)', function(data){
+		if(data.value == '1'){
+			$('#commissionset1').show();
+			$('#commissionset2').hide();
+		}else if(data.value == '2'){
+			$('#commissionset1').hide();
+			$('#commissionset2').show();
+		}else{
+			$('#commissionset1').hide();
+			$('#commissionset2').hide();
+		}
+	})
+	function gonext(layid){
+		$(window).scrollTop(0);
+		layui.element.tabChange('mytab', layid);
+	}
+	var dhdata = {$info['content']};
+	$(function(){
+		for(var i=0;i<dhdata.length;i++){
+			addelement(dhdata[i].key,dhdata[i].val1,dhdata[i].val2,dhdata[i].val3,dhdata[i].val4,dhdata[i].val5)
+		}
+	});
+	function toup(obj){
+		var onthis=$(obj).parent().parent();  
+		var getUp=onthis.prev(); 
+		if (getUp.length<=0)  {  
+			layer.msg("到顶了");  
+			return;  
+		}  
+		onthis.after(getUp);  
+	}
+	function todown(obj){
+		var onthis=$(obj).parent().parent();  
+		var getdown=onthis.next();
+		if (getdown.length<=0){  
+			layer.msg("到底了");  
+			return;  
+		}
+		getdown.after(onthis);
+	}
+	var ekey = 0;
+	//添加元素
+	function addelement(type,val1,val2,val3,val4,val5){
+		if(type=='input'){
+			var name = '单行输入';
+		}else if(type=='textarea'){
+			var name = '多行输入';
+		}else if(type=='radio'){
+			var name = '单项选择';
+		}else if(type=='checkbox'){
+			var name = '多项选择';
+		}else if(type=='selector'){
+			var name = '普通选择';
+		}else if(type=='time'){
+			var name = '时间选择';
+		}else if(type=='date'){
+			var name = '日期选择';
+		}else if(type=='region'){
+			var name = '省市区选择';
+		}else if(type=='switch'){
+			var name = '开关选择';
+		}else if(type=='upload'){
+			var name = '上传图片';
+		}
+		var addhtml = '';
+		addhtml += '<tr>'
+		addhtml += '<td>'+name+'<input type="hidden" name="datatype['+ekey+']" value="'+type+'"/></td>'
+		addhtml += '<td><input class="layui-input" type="text" style="width:120px" name="dataval1['+ekey+']" value="'+val1+'" placeholder="请输入字段名称"></td>'
+		addhtml += '<td>'
+		if(type=='input'){
+			addhtml += '<input class="layui-input" type="text" style="width:200px" name="dataval2['+ekey+']" value="'+val2+'" placeholder="请输入提示信息">'
+		}else if(type=='textarea'){
+			addhtml += '<input class="layui-input" type="text" style="width:200px" name="dataval2['+ekey+']" value="'+val2+'" placeholder="请输入提示信息">'
+		}else if(type=='radio' || type=='checkbox' || type=='selector'){
+			if(val2){
+				for(var i=0;i<val2.length;i++){
+					addhtml += '<div><input class="layui-input" type="text" style="width:180px" name="dataval2['+ekey+'][]" value="'+val2[i]+'" placeholder="请输入选项名称">';
+					if(i==0){
+						addhtml += '<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="addxuanxiang(this,'+ekey+')"><i class="fa fa-plus"></i></button></div>'
+					}else{
+						addhtml += '<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="$(this).parent().remove()"><i class="fa fa-minus"></i></button></div>'
+					}
+				}
+			}else{
+				addhtml += '<div><input class="layui-input" type="text" style="width:180px" name="dataval2['+ekey+'][]" value="" placeholder="请输入选项名称">';
+				addhtml += '<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="addxuanxiang(this,'+ekey+')"><i class="fa fa-plus"></i></button></div>'
+			}
+		}else if(type == 'time'){
+
+			addhtml += '<div><input class="layui-input" type="text" style="width:200px" name="dataval2['+ekey+'][0]" value="'+(val2[0]?val2[0]:'00:00')+'" placeholder=\'开始时间，格式为"hh:mm"\'>';
+			addhtml += '<div><input class="layui-input" type="text" style="width:200px" name="dataval2['+ekey+'][1]" value="'+(val2[1]?val2[1]:'23:59')+'" placeholder=\'结束时间，格式为"hh:mm"\'>';
+		}else if(type == 'date'){
+			addhtml += '<div><input class="layui-input" type="text" style="width:200px" name="dataval2['+ekey+'][0]" value="'+(val2[0]?val2[0]:'1970-01-01')+'" placeholder=\'开始日期，格式为"YYYY-MM-DD"\'>';
+			addhtml += '<div><input class="layui-input" type="text" style="width:200px" name="dataval2['+ekey+'][1]" value="'+(val2[1]?val2[1]:'2080-01-01')+'" placeholder=\'结束日期，格式为"YYYY-MM-DD"\'>';
+		}else if(type == 'region'){
+			addhtml += '选择省市区';
+		}else if(type == 'switch'){
+			addhtml += '开启和关闭';
+		}else if(type == 'upload'){
+			addhtml += '<input class="layui-input" type="text" style="width:200px" name="dataval2['+ekey+']" value="'+val2+'" placeholder="请输入提示信息">'
+		}
+		addhtml += '</td>'
+		if(type=='input'){
+			addhtml += '<td><select style="width:60px" name="dataval4['+ekey+']"><option value="0">文本</option><option value="1" '+(val4==1?'selected="selected"':'')+'>数字</option><option value="2" '+(val4==2?'selected="selected"':'')+'>手机号</option><option value="3" '+(val4==3?'selected="selected"':'')+'>身份证号</option><option value="4" '+(val4==4?'selected="selected"':'')+'>邮箱</option></select></td>';
+		}else{
+			addhtml += '<td>&nbsp;<input type="hidden" name="dataval4['+ekey+']" value="0"></td>';
+		}
+		
+		addhtml += '<td><input type="checkbox" name="dataval3['+ekey+']" value="1" lay-skin="switch" lay-text="开启|关闭" '+(val3==1?'checked':'')+'></td>'
+		addhtml += '<td>'
+		addhtml += '	<button title="删除" type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="$(this).parent().parent().remove()"><i class="fa fa-remove"></i></button>'
+		addhtml += '	<button title="上移" type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="toup(this)"><i class="fa fa-arrow-up"></i></button>'
+		addhtml += '	<button title="下移" type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="todown(this)"><i class="fa fa-arrow-down"></i></button>'
+		addhtml += '</td>'
+		addhtml += '</tr>'
+		console.log(addhtml)
+		$('#datatable').append(addhtml);
+		layui.form.render();
+		ekey++;
+	}
+	//添加选项
+	function addxuanxiang(obj,ekey){
+		$(obj).parent().parent().append('<div><input class="layui-input" type="text" style="width:180px" name="dataval2['+ekey+'][]" value="" placeholder="请输入选项名称"><button type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="$(this).parent().remove()"><i class="fa fa-minus"></i></button></div>');
+	}
+	</script>
+
+	<script>
+	layui.form.on('radio(payset)', function(data){
+		if(data.value == '1'){
+			$('#paysetdata').show();
+		}else{
+			$('#paysetdata').hide();
+		}
+	})
+	layui.laydate.render({ 
+		elem: '#starttime'
+		,type: 'datetime'
+		,range: false,
+		trigger: 'click'
+	});
+	layui.laydate.render({ 
+		elem: '#endtime'
+		,type: 'datetime'
+		,range: false,
+		trigger: 'click'
+	});
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.close(parent.layer.getFrameIndex(window.name));
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

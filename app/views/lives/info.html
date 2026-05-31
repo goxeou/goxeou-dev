@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <link rel="shortcut icon" href="favicon.ico"> 
+	<link href="__PUBLIC__/admin/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="__PUBLIC__/admin/css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link href="__PUBLIC__/admin/css/style.css?v=4.1.0" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="__PUBLIC__/uploadify/uploadify.css"/>
+    <script src="__PUBLIC__/admin/js/jquery.min.js?v=2.1.4"></script>
+</head>
+
+
+<body class="gray-bg">
+<style>
+.table1 .xinxiinfo1{
+	width:13%;
+	height:50px;
+	text-align:right;
+	background-color:#F5F5F6;
+}
+.table1 .xinxiinfo2{
+	width:87%;
+	height:50px;
+	text-align:left;
+}
+
+input.error{
+	border:1px solid red;
+}
+span.error{
+	padding-top:10px;
+	color: #f00;
+	font-size:12px;
+}
+</style>
+    <div class="wrapper wrapper-content" style="padding:0px 20px 0px 20px;">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>个人基本信息</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <table class="table table-bordered table1">
+                            <tbody>
+                                <tr><td class="xinxiinfo1">用户昵称：</td><td class="xinxiinfo2">{empty name="info.user_name"}用户没有填写{else/}{$info.user_name}{/empty}</td></tr>
+                                <tr><td class="xinxiinfo1">用户电话：</td><td class="xinxiinfo2">{empty name="info.phone"}用户没有填写{else/}{$info.phone}{/empty}</td></tr>
+                                <tr><td class="xinxiinfo1">用户头像：</td><td class="xinxiinfo2">{empty name="info.headimgurl"}用户没有上传{else/}{$info.headimgurl}{/empty}</td></tr>
+                                <tr>
+                                    <td class="xinxiinfo1">用户性别：</td><td class="xinxiinfo2">
+                                    {switch name="info.sex"}
+                                        {case value="0"}未知{/case}
+                                        {case value="1"}女{/case}
+                                        {case value="2"}男{/case}
+                                    {/switch}
+
+                                </td>
+                                </tr>
+                                <tr><td class="xinxiinfo1">用户邮箱：</td><td class="xinxiinfo2">{empty name="info.email"}用户没有填写{else/}{$info.email}{/empty}</td></tr>
+                                <tr><td class="xinxiinfo1">用户微信号：</td><td class="xinxiinfo2">{empty name="info.wxnum"}用户没有填写{else/}{$info.wxnum}{/empty}</td></tr>
+                                <tr><td class="xinxiinfo1">用户QQ：</td><td class="xinxiinfo2">{empty name="info.qqnum"}用户没有填写{else/}{$info.qqnum}{/empty}</td></tr>
+                                <tr><td class="xinxiinfo1">用户注册时间：</td><td class="xinxiinfo2">{empty name="info.regtime"}用户没有填写{else/}{$info['regtime']|date="Y-m-d H:i:s",###}{/empty}</td></tr>
+                                <tr><td class="xinxiinfo1">用户积分：</td><td class="xinxiinfo2">{$info.integral}</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="wrapper wrapper-content" style="padding:0px 20px 0px 20px;">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>用户直播资料（副本）</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <table class="table table-bordered table1">
+                            <tbody>
+                                <tr><td class="xinxiinfo1">申请时间：</td><td class="xinxiinfo2">{$info.apply_time|date="Y-m-d H:i:s",###}</td></tr>
+                                <tr><td class="xinxiinfo1">账号状态：</td><td class="xinxiinfo2">{if condition="$info['prohibit'] eq 0"}正常{else/}禁用{/if}</td></tr>
+                                <tr><td class="xinxiinfo1">是否热门：</td><td class="xinxiinfo2">{if condition="$info['hot'] eq 0"}否{else/}是{/if}</td></tr>
+                                <tr><td class="xinxiinfo1">是否推荐：</td><td class="xinxiinfo2">{if condition="$info['recommend'] eq 0"}否{else/}是{/if}</td></tr>
+                                <tr><td class="xinxiinfo1">支付宝名称：</td><td class="xinxiinfo2">{empty name="info.alipy_name"}用户没有填写{else/}{$info.alipy_name}{/empty}</td></tr>
+                                <tr><td class="xinxiinfo1">支付宝账号：</td><td class="xinxiinfo2">{empty name="info.alipy_account"}用户没有填写{else/}{$info.alipy_account}{/empty}</td></tr>
+                                <tr><td class="xinxiinfo1">身份证ID：</td><td class="xinxiinfo2">{empty name="info.cardid"}用户没有填写{else/}{$info.cardid}{/empty}</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="wrapper wrapper-content" style="padding:0px 20px 0px 20px;">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>证件信息</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <table class="table table-bordered table1">
+                            <tbody>
+                                <tr><td class="xinxiinfo1">身份证正面：</td><td class="xinxiinfo2"><img src="{$info.card_front}" width="150px" height="100px" /></td></tr>
+                                <tr><td class="xinxiinfo1">身份证背面：</td><td class="xinxiinfo2"><img src="{$info.card_back}" width="150px" height="100px" /></td></tr>
+                                <tr><td class="xinxiinfo1">手持身份证：</td><td class="xinxiinfo2"><img src="{$info.card_hand}" width="150px" height="100px" /></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="wrapper wrapper-content" style="padding:0px 20px 0px 20px;">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>审核信息</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <table class="table table-bordered table1">
+                            <tbody>
+                                <tr><td class="xinxiinfo1">审核状态：</td>
+                                    <td class="xinxiinfo2">
+                                        {switch name="info.status"}
+                                            {case value="-1"}<span style="color:red;font-weight: bold;">失败</span>{/case}
+                                            {case value="1"}<span style="color:green;font-weight: bold;">成功</span>{/case}
+                                            {case value="2"}<span style="color:blue;font-weight: bold;">待审核</span>{/case}
+                                            {default /}default
+                                        {/switch}
+                                    </td>
+                                </tr>
+                                <tr><td class="xinxiinfo1">审核时间：</td><td class="xinxiinfo2">{$info['check_time']|date="Y-m-d H:i:s",###}</td></tr>
+                                <tr><td class="xinxiinfo1">审核人：</td><td class="xinxiinfo2">{$info.checkid}</td></tr>
+                                {if condition="$info['status'] eq -1"}
+                                <tr><td class="xinxiinfo1">审核不通过的原因：</td><td class="xinxiinfo2">{$info.tips}</td></tr>
+                                {/if}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>  
+
+    
+
+    <!-- 全局js -->
+    <script src="__PUBLIC__/admin/js/bootstrap.min.js?v=3.3.6"></script>
+    <!-- 自定义js -->
+    <script type="text/javascript" src="__PUBLIC__/uploadify/jquery.uploadify.min.js"></script>
+    <script src="__PUBLIC__/admin/js/plugins/layer/layer.min.js"></script>
+    <script src="__PUBLIC__/admin/js/plugins/validate/jquery.validate.min.js"></script>	
+    <!-- iCheck -->
+    <script src="__PUBLIC__/admin/js/plugins/iCheck/icheck.min.js"></script>
+
+</body>
+</html>

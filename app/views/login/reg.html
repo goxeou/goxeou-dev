@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{$webname}-用户注册</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <link rel="stylesheet" href="__STATIC__/admin/layui/css/layui.css" media="all">
+  <link rel="stylesheet" href="__STATIC__/admin/css/login.css" media="all">
+	{if $webinfo.ico}<link rel="shortcut icon" type="image/x-icon" href="{$webinfo.ico}" />{/if}
+</head>
+<body>
+<div class="layadmin-user-login layadmin-user-display-show" id="LAY-user-login" style="padding-top:calc(50vh - 250px);{if $webinfo['adminloginbg']}background:url('{$webinfo.adminloginbg}');background-size:100% auto;{else}background:linear-gradient(#2D8CF0,#2D8CF0);{/if}" >
+	<div class="layadmin-user-login-main" bgimg style="position:relative;width:420px">
+		<div class="layadmin-user-login-box layadmin-user-login-header" style="padding-bottom:0;">
+			<div style="color:#0076FE;font-size:26px;;margin:15px 0 10px 0">{$webname}用户注册</div>
+		</div>
+		<div class="layadmin-user-login-box layadmin-user-login-body layui-form">
+			<input type="hidden" name="fromkeyword" value="{$_GET['fromkeyword']}"/>
+			<div class="layui-form-item">
+				<label class="layadmin-user-login-icon layui-icon layui-icon-username" for="LAY-user-login-username"></label>
+				<input type="text" name="username" id="LAY-user-login-username" lay-verify="required|username" placeholder="手机号码" class="layui-input" value="" autocomplete="off">
+			</div>
+			<div class="layui-form-item">
+				<label class="layadmin-user-login-icon layui-icon layui-icon-password" for="LAY-user-login-password"></label>
+				<input type="password" name="password" id="LAY-user-login-password" lay-verify="required|pass" placeholder="登录密码" class="layui-input" value="" autocomplete="off">
+			</div>
+			<div class="layui-form-item">
+				<label class="layadmin-user-login-icon layui-icon layui-icon-password" for="LAY-user-login-repassword"></label>
+				<input type="password" name="repassword" id="LAY-user-login-repassword" lay-verify="required|repassword" placeholder="确认密码" class="layui-input" value="" autocomplete="off">
+			</div>
+			<div class="layui-form-item">
+				<div class="layui-row">
+					<div class="layui-col-xs7">
+						<label class="layadmin-user-login-icon layui-icon layui-icon-vercode" for="LAY-user-login-vercode"></label>
+						<input type="text" name="captcha" id="LAY-user-login-vercode" lay-verify="required" placeholder="图形验证码" class="layui-input">
+					</div>
+					<div class="layui-col-xs5">
+						<div style="margin-left: 10px;">
+							<img src="{:captcha_src()}" class="layadmin-user-login-codeimg" id="LAY-user-get-vercode">
+						</div>
+					</div>
+				</div>
+			</div>
+			{if $sms_open}
+			<div class="layui-form-item">
+				<div class="layui-row">
+					<div class="layui-col-xs7">
+						<label class="layadmin-user-login-icon layui-icon layui-icon-vercode" for="LAY-user-login-smscode"></label>
+						<input type="text" name="smscode" id="LAY-user-login-smscode" lay-verify="required" placeholder="短信验证码" class="layui-input">
+					</div>
+					<div class="layui-col-xs5" style="text-align:right">
+						<button class="layui-btn layui-btn-primary" onclick="sendsms(this)">获取验证码</button>
+					</div>
+				</div>
+			</div>
+			{/if}
+			{if $webinfo.reg_user_agreement_url}
+			<div class="layui-form-item" style="display: flex;">
+					<input type="checkbox" name="xieyi" value="1" lay-skin="primary" title="" checked>
+					<div style="margin-top:8px;color:#888">已阅读并同意<a href="{$webinfo.reg_user_agreement_url}" target="_blank">《用户注册协议》</a></div>
+			</div>
+			{/if}
+			<div class="layui-form-item" style="margin-top:30px">
+					<button class="layui-btn layui-btn-fluid layui-btn-normal" lay-submit lay-filter="LAY-user-login-submit"  style="background:#0076FE;height:44px;line-height:height:44px;font-size:14px" id="regbtn">立即注册
+					</button>
+			</div>
+			<div class="layui-form-item">
+				<a href="{:url('index')}" class="layadmin-user-jump-change layadmin-link" style="margin-top: 7px;">已有账号？点击登录</a>
+			</div>
+		</div>
+	</div>
+	{if $webinfo['copyright'] || $webinfo['beian']}
+	<div class="layui-trans layadmin-user-login-footer" id="slideTest1" style="background:rgba(0,0,0,0.1);color:#eee;height:48px;line-height:48px;padding:0">
+		{$webinfo.copyright}&nbsp;&nbsp;&nbsp;<a href="http://beian.miit.gov.cn/" target="_blank" style="color:#eee">{$webinfo.beian}</a>
+	</div>
+	{/if}
+</div>
+
+{include file="index/public/js"/}
+<script>
+    $(function(){
+        $('#LAY-user-get-vercode').click(function(){
+            this.src = '{:captcha_src()}&t='+ new Date().getTime();
+        })
+    });
+
+    var form = layui.form
+    form.verify({
+        username: [/^1[0-9]{10}$/, '请输入正确的手机号'],
+        pass: [/^[\S]{6,12}$/, '密码必须6到12位，且不能出现空格'],
+        repassword: function (value, item) {
+            if($('input[name=password]').val() !== value)
+                return '两次密码输入不一致！';
+        }
+    })
+    layui.form.on('submit(LAY-user-login-submit)', function (obj) {
+        var field = obj.field;
+        {if $webinfo.reg_user_agreement_url}
+        if (!field.xieyi) {
+            dialog('请阅读并同意注册协议');
+            return;
+        }
+        {/if}
+		var index = layer.load();
+        $.post("{:url('reg')}", obj.field, function (data) {
+			layer.close(index);
+            if(data.status==0){
+                $('#LAY-user-get-vercode').attr('src','{:captcha_src()}&t='+ new Date().getTime());
+            }
+            dialog(data.msg, data.status, data.url)
+        })
+    })
+    var hqing = 0;
+
+    function sendsms(obj) {
+        var tel = $("input[name=username]").val();
+        if (!tel || !(/^1[0-9]{10}$/.test(tel))) {
+            dialog('请输入正确的手机号');
+            return;
+        }
+        var password = $("input[name=password]").val();
+        var captcha = $("input[name=captcha]").val();
+        if (hqing) return;
+        hqing = 1;
+        $.post("{:url('reg')}&op=sendsms", {username: tel, password: password, captcha: captcha}, function (data) {
+            if (data.status != 1) {
+                hqing = 0;
+                dialog(data.msg);
+            } else {
+                var time = 120;
+                var t = setInterval(function () {
+                    time--;
+                    if (time < 0) {
+                        $(obj).html("重新获取");
+                        hqing = 0;
+                        clearInterval(t);
+                    } else if (time >= 0) {
+                        $(obj).html(time + "秒");
+                    }
+                }, 1000);
+            }
+        });
+    }
+</script>
+{include file="public/copyright"/}
+</body>
+</html>

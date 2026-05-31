@@ -1,0 +1,93 @@
+<!DOCTYPE html><!--custom_file(product_weight)-->
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>订单录入</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	.layui-form-label{font-size: 16px;font-weight: bold;width: 130px}
+	.layui-form-item{margin-bottom: 50px}
+	input::placeholder{color: #888;}
+	.xm-select-parent dd > .xm-cz-group .xm-cz{color: #666;}
+	.layui-input:hover, .layui-textarea:hover,.xm-select-parent .xm-input,.layui-table,.layui-table td, .layui-table th,.layui-collapse,.layui-form-checkbox i.layui-icon,.layui-colla-content, .layui-colla-item, .layui-collapse, .layui-form-pane .layui-form-item[pane], .layui-form-pane .layui-form-label, .layui-input{
+		border-color: #bbb !important;
+	}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">选择客户和商品
+					{if $Request.param.isopen==1}<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>{/if}
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form" style="min-height: 400px;">
+						<div class="layui-form-item">
+							<label class="layui-form-label">选择客户：</label>
+							<div class="layui-input-inline" style="width:50%">
+								<select class="layui-select" name="ctmid" xm-select="ctmid" xm-select-search xm-select-radio>
+									{volist name="customerlist" id="item"}
+									<option value="{$item.id}">{$item.name}</option>
+									{/volist}
+								</select>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">选择商品：</label>
+							<div class="layui-input-inline" style="width:50%">
+								<select class="layui-select" id="proids" name="proids" xm-select="proids" xm-select-search>
+									{volist name="prolist" id="item"}
+									<option value="{$item.id}">{$item.name}{if $item.bname} ({$item.bname}){/if}</option>
+									{/volist}
+								</select>
+							</div>
+						</div>
+						<div class="layui-form-item" style="margin-top: 10px">
+							<div class="layui-input-block" style="padding-left: 60px">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">下一步</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+  </div>
+  {include file="public/js"/}
+	<script>
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		if(field.ctmid==''){
+			layer.msg('请选择客户');return;
+		}
+		if(field.proids==''){
+			layer.msg('请选择商品');return;
+		}
+		var ctmid = field.ctmid;
+		var proids = field.proids;
+		openmax('{:url('WeightOrder/edit')}/ctmid/'+ctmid+'/proids/'+proids);
+	})
+
+	//筛选server模式
+	var formSelects = layui.formSelects;
+	formSelects.config('ctmid',{
+		keyName:'name',
+		keyVal:'id',
+		searchUrl:"{:url('searchCustomer')}",
+		searchName: 'keyword',
+		searchVal:''
+	})
+	formSelects.config('proids',{
+		keyName:'name',
+		keyVal:'id',
+		searchUrl:"{:url('searchProduct')}",
+		searchName: 'keyword',
+		searchVal:''
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

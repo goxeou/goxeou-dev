@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>题库管理</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	#ggnamediv .layui-input,#ggvaldiv .layui-input{ display:inline;height:30px}
+	.layui-form-label{width: 130px;}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加题库内容{else}<i class="fa fa-pencil"></i> 编辑题库内容{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					{if $info['ischecked']==2}<blockquote class="layui-elem-quote" style="color:red">题库未审核通过，驳回原因：{$info.check_reason}</blockquote>{/if}
+					<div class="layui-form">
+						<input type="hidden" name="id" value="{$info['id']}"/>
+						<div class="layui-form-item">
+							<label class="layui-form-label">题目：</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[title]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info['title']}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">所属课程：</label>
+							<div class="layui-input-inline" style="width:300px">
+								<select name="info[kcid]" id="kcid" lay-verify="required" lay-filter="selkcid">
+								<option value="">--请选择--</option>
+								{foreach $kclist as $cv}
+									<option value="{$cv['id']}" {if $cv['id']==$info['kcid']}selected{/if}>{$cv['name']}</option>
+								{/foreach}
+								</select>
+							</div>
+						</div>
+
+						
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">题目类型：</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="radio" name="info[type]" value="1" title="选择题" {if !$info['id'] || $info['type']==1}checked{/if} lay-filter="xuanxianset"/>
+								<input type="radio" name="info[type]" value="2" title="填空题" {if $info['id'] && $info['type']==2}checked{/if} lay-filter="xuanxianset"/>
+							</div>
+						</div>
+						{if $info['id'] && $info['type']==1}
+						<div class="layui-form-item" id="xuanxiangdiv">
+							<label class="layui-form-label">选项：</label>
+							<div class="layui-input-inline">
+								<table id="xuanxiang"  class="layui-table" style="width:500px">
+									{foreach $option as $key=>$o}
+									<tr>
+										<td><input type="checkbox" value="1" lay-verify="required"  {in name="$key" value="$info['right_option']"}checked{/in} name="option[{$key}][key]" title="{$optionarr[$key]}" ><div class="layui-unselect layui-form-checkbox"><span>A</span><i class="layui-icon layui-icon-ok"></i></div></td>
+										<td><input type="tel" name="option[{$key}][value]" class="layui-input optionValue" value="{$o}"></td>
+										<td> {if $key==0} <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" style="margin-top:5px;" id="addxuanxian">添加 </button>{else}
+										<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" style="margin-top:5px;" onclick="$(this).parent().parent().remove()">删除 </button>
+										{/if}
+										 </td>
+									</tr>		
+									{/foreach}
+								</table>
+							</div>										
+						</div>
+						{else}
+						<div class="layui-form-item" id="xuanxiangdiv" {if $info['id'] || $info['type']==2}style="display:none"{/if} >
+							<label class="layui-form-label">选项：</label>
+							<div class="layui-input-inline">
+								<table id="xuanxiang"  class="layui-table" style="width:500px">
+									<tr>
+										<td><input type="checkbox" value="1" lay-verify="required" name="option[0][key]" title="A"  ><div class="layui-unselect layui-form-checkbox"><span>A</span><i class="layui-icon layui-icon-ok"></i></div></td>
+										<td><input type="tel" name="option[0][value]" class="layui-input optionValue" placeholder="选项A" value=""></td>
+										<td>  <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" style="margin-top:5px;" id="addxuanxian">添加 </button>
+										 </td>
+									</tr>		
+									
+								</table>
+							</div>										
+						</div>
+						{/if}
+						<div class="layui-form-item" id="tiankong"  {if !$info['type'] || $info['type']==1}style="display:none"{/if}  >
+							<label class="layui-form-label">正确答案：</label>
+							<div class="layui-input-inline" >
+								<input type="text" name="info[right_option]" class="layui-input" value="{$info['right_option']}">
+							</div>
+							<div class="layui-form-mid layui-word-aux"></div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">分值：</label>
+							<div class="layui-input-inline" >
+								<input type="text" name="info[score]" class="layui-input" value="{$info.score}">
+							</div>
+							<div class="layui-form-mid layui-word-aux">分</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">题目解析：</label>
+							<div class="layui-input-inline" style="width:300px">
+								<textarea type="text" name="info[jiexi]" class="layui-textarea">{$info['jiexi']}</textarea>
+							</div>
+							<div class="layui-form-mid layui-word-aux"></div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">状态：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[status]" value="1" title="已开启" {if !$info['id'] || $info['status']==1}checked{/if}/>
+								<input type="radio" name="info[status]" value="0" title="未开启" {if $info['id'] && $info['status']==0}checked{/if}/>
+							</div>
+						</div>
+						
+						<div class="layui-form-item">
+							<div class="layui-input-block">
+								<button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+  </div>
+  {include file="public/js"/}
+	<script>
+	
+	layui.form.on('radio(scoredkmaxset)', function(data){
+		if(data.value == '1'){
+			$('#scoredkmaxset1').show();
+			$('#scoredkmaxunit').html('%');
+		}else if(data.value == '2'){
+			$('#scoredkmaxset1').show();
+			$('#scoredkmaxunit').html('元');
+		}else{
+			$('#scoredkmaxset1').hide();
+		}
+	})
+		function gonext(layid){
+			$(window).scrollTop(0);
+			layui.element.tabChange('mytab', layid);
+		}
+		$(function(){		
+			$("#addxuanxian").click(function(){	
+				var arr=['A','B','C','D','E','F','G','H'];
+				var i = parseInt($('#xuanxiang tr').length);
+				if(i>7){
+					layer.msg('已经够多了哦！');return;
+				}
+				var xhtml='<tr>';
+					xhtml +='<td><input type="checkbox" value="1" name="option['+i+'][key]" title="'+arr[i]+'" lay-filter="rightOption">';
+					xhtml +='	<div class="layui-unselect layui-form-checkbox"><span>'+arr[i]+'</span><i class="layui-icon layui-icon-ok"></i></div>';
+					xhtml +='</td>';
+					xhtml +='<td><input type="text" name="option['+i+'][value]" class="layui-input optionValue" placeholder="选项'+arr[i]+'" value=""></td>';
+					xhtml +='<td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="$(this).parent().parent().remove()">删除</button> </td>';
+					xhtml +=' </tr>';
+				$('#xuanxiang').append(xhtml);
+				layui.form.render('checkbox');
+			})
+		})
+	layui.form.on('radio(xuanxianset)', function(data){
+		if(data.value == '1'){
+			$('#xuanxiangdiv').show();
+			$('#tiankong').hide();
+		}else if(data.value == '2'){
+			$('#xuanxiangdiv').hide();
+			$('#tiankong').show();
+		}
+	});
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.closeAll();
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+	
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

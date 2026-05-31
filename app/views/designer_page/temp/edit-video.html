@@ -1,0 +1,172 @@
+<div class="dsn-panel-editor-title">视频设置</div>
+
+<div class="dsn-panel-editor-content form-label-w6"> 
+	<div class="layui-form-item">
+    <div class="layui-form-label">与上方距离</div>
+    <div class="slider" min="0" max="40" ng-model="Edit.params.margin_y"></div>
+		<span class="slider-span"><input ng-model="Edit.params.margin_y"/> px</span>
+	</div>
+	<div class="layui-form-item">
+	  <div class="layui-form-label">视频高度</div>
+	  <div class="slider" min="30" max="100" ng-model="Edit.params.videoheight"></div>
+		<span class="slider-span"><input ng-model="Edit.params.videoheight"/> %</span>
+	</div>
+	<div class="layui-form-item layui-form-text">
+		<div class="layui-form-label">视频来源</div>
+		<div class="layui-input-inline" style="padding: 3px 0px;">
+			<input class="radio" type="radio" name="{{Edit.id}}_type" value="0" ng-model="Edit.params.type" title="上传视频"/>
+			<input class="radio" type="radio" name="{{Edit.id}}_type" value="1" ng-model="Edit.params.type" title="选择视频"/>
+		</div>
+	</div>
+	<div ng-if="Edit.params.type == 0">
+		<div class="layui-form-item">
+			<div class="layui-form-label">视频链接</div>
+			<div class="layui-input-inline flex-y-center" style="background: #F7F7F7;width: 260px;">
+				<input class="layui-input" ng-model="Edit.params.src" style="margin-right:5px;" />
+				<div class="icon-input" ng-click="uploadImg(Edit.id,'src')">
+					<img src="{$Think.const.PRE_URL}/static/admin/img/diyadd.png"/>
+				</div>
+			</div>
+			<div class="layui-form-mid layui-word-aux" style="float: left;">
+				填写视频链接或上传视频，视频链接必须为mp4格式的原始链接{if getcustom('video_qq_url')}<br>腾讯视频原网页地址仅支持以https://v.qq.com/x/page/开头的网址{/if}
+			</div>
+		</div>
+	</div>
+	<div class="layui-form-item" ng-if="Edit.params.type == 1">
+		<div class="layui-form-label">视频ID</div>
+		<div class="layui-input-inline flex-y-center" style="background: #F7F7F7;width: 260px;">
+			<input class="layui-input" ng-model="Edit.params.src" style="margin-right:5px;" />
+			<div class="icon-input" ng-click="toChooseVideoList('',Edit.id,'')">
+				<img src="{$Think.const.PRE_URL}/static/admin/img/diyadd.png"/>
+			</div>
+		</div>
+		<div class="layui-form-mid layui-word-aux" style="float: left;width: 100%">
+			从视频管理中选择视频
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">封面图片</div>
+		<div class="layui-input-inline">
+			<div class="img-div" ng-click="uploadImg(Edit.id,'pic')">
+				<img width="100%" ng-show="Edit.params.pic" ng-src="{{Edit.params.pic}}">
+				<img ng-show="!Edit.params.pic" src="{$Think.const.PRE_URL}/static/admin/img/uploadimg.png" style="width:88px;height:88px" />
+				<div ng-show="Edit.params.pic" class="editor-goodimg">重新选择图片</div>
+			</div>
+			<!--			<div class="layui-form-mid layui-word-aux">若是选择视频，则该视频封面优先于所选视频的封面</div>-->
+		</div>
+	</div>
+
+	<div class="layui-form-item">
+    <div class="layui-form-label">背景颜色</div>
+    <div class="layui-input-inline">
+			<input class="layui-input" value="{{Edit.params.bgcolor}}" ng-model="Edit.params.bgcolor"/>
+    </div>
+		<span class="colorpicker" ng-model="Edit.params.bgcolor"></span>
+	</div>
+	<div class="layui-form-item layui-form-text">
+    <div class="layui-form-label">播放方式</div>
+    <div class="layui-input-inline">
+      <input class="radio" type="radio" name="{{Edit.id}}_autoplay" value="0" ng-model="Edit.params.autoplay" title="点击播放"/>
+      <input class="radio" type="radio" name="{{Edit.id}}_autoplay" value="1" ng-model="Edit.params.autoplay" title="自动播放"/>
+    </div>
+		{if in_array('mp',$platform)}<div class="layui-form-mid layui-word-aux">公众号不支持自动播放</div>{/if}
+	</div>
+	<div class="layui-form-item">
+	  <div class="layui-form-label">循环播放</div>
+	  <div class="layui-input-inline">
+	    <input class="radio" type="radio" name="{{Edit.id}}_loop" value="0" ng-model="Edit.params.loop" title="关闭">
+	    <input class="radio" type="radio" name="{{Edit.id}}_loop" value="1" ng-model="Edit.params.loop" title="开启">
+	  </div>
+	</div>
+	<div class="layui-form-item">
+	  <div class="layui-form-label">静音播放</div>
+	  <div class="layui-input-inline">
+	    <input class="radio" type="radio" name="{{Edit.id}}_muted" value="0" ng-model="Edit.params.muted" title="关闭">
+	    <input class="radio" type="radio" name="{{Edit.id}}_muted" value="1" ng-model="Edit.params.muted" title="开启">
+	  </div>
+	</div>
+	<div class="layui-form-item">
+	  <div class="layui-form-label">播放控件</div>
+	  <div class="layui-input-inline">
+	    <input class="radio" type="radio" name="{{Edit.id}}_controls" value="1" ng-model="Edit.params.controls" title="显示">
+	    <input class="radio" type="radio" name="{{Edit.id}}_controls" value="0" ng-model="Edit.params.controls" title="隐藏">
+	  </div>
+	</div>
+	<div class="layui-form-item" ng-if="Edit.params.controls == 1">
+	  <div class="layui-form-label">全屏按钮</div>
+	  <div class="layui-input-inline">
+	    <input class="radio" type="radio" name="{{Edit.id}}_fullscreen" value="1" ng-model="Edit.params.fullscreen" title="显示">
+	    <input class="radio" type="radio" name="{{Edit.id}}_fullscreen" value="0" ng-model="Edit.params.fullscreen" title="隐藏">
+	  </div>
+	</div>
+	<div class="layui-form-item layui-form-text">
+	  <div class="layui-form-label">表现形式</div>
+	  <div class="layui-input-inline">
+	    <input class="radio" type="radio" name="{{Edit.id}}_objectfit" ng-model="Edit.params.objectfit" value="contain" title="包含">
+	    <input class="radio" type="radio" name="{{Edit.id}}_objectfit" ng-model="Edit.params.objectfit" value="fill" title="填充">
+			<input class="radio" type="radio" name="{{Edit.id}}_objectfit" ng-model="Edit.params.objectfit" value="cover" title="覆盖">
+	  </div>
+			<div class="layui-form-mid layui-word-aux layui-clear">1、包含：保持原有尺寸比例，内容被缩放。	<br>2、填充：不保证保持原有的比例，内容拉伸填充整个内容容器。<br>3、覆盖：保持原有尺寸比例，但部分内容可能被剪切。</div>
+	</div>
+	<div class="layui-form-item">
+	  <div class="layui-form-label">播放按钮位置</div>
+	  <div class="layui-input-inline">
+	    <input class="radio" type="radio" name="{{Edit.id}}_butposition" ng-model="Edit.params.butposition" value="center" title="居中">
+	    <input class="radio" type="radio" name="{{Edit.id}}_butposition" ng-model="Edit.params.butposition" value="bottom" title="控制栏">
+	  </div>
+		<div class="layui-form-mid layui-word-aux">H5端{if in_array('mp',$platform)}和公众号{/if}不支持选择播放按钮位置</div>
+	</div>
+	<hr>
+	<div class="layui-form-item">
+    <div class="layui-form-label">左右边距</div>
+    <div class="slider" min="0" max="40" ng-model="Edit.params.margin_x"></div>
+		<span class="slider-span"><input ng-model="Edit.params.margin_x"/> px</span>
+	</div>
+	<div class="layui-form-item">
+    <div class="layui-form-label">左右内边距</div>
+    <div class="slider" min="0" max="40" ng-model="Edit.params.padding_x"></div>
+		<span class="slider-span"><input ng-model="Edit.params.padding_x"/> px</span>
+	</div>
+	<div class="layui-form-item">
+    <div class="layui-form-label">上下内边距</div>
+		<div class="slider" min="0" max="40" ng-model="Edit.params.padding_y"></div>
+		<span class="slider-span"><input ng-model="Edit.params.padding_y"/> px</span>
+	</div>
+	{if !$type}
+	{if !$noshow_modules || !in_array('ModulePlatform',$noshow_modules)}
+	<div class="layui-form-item">
+		<div class="layui-form-label">显示平台</div>
+		<div class="layui-input-inline" style="width:500px">
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="所有平台" name="{{Edit.id}}_platform['all']" ng-model="Edit.params.platform['all']"/>
+			{foreach $platform as $pl}
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="{:getplatformname($pl)}" name="{{Edit.id}}_platform['{$pl}']" ng-model="Edit.params.platform['{$pl}']"/>
+			{/foreach}
+
+		</div>
+	</div>
+	{/if}
+	{if !$noshow_modules || !in_array('ModuleQuanxian',$noshow_modules)}
+	<div class="layui-form-item">
+		<div class="layui-form-label">显示范围</div>
+		<div class="layui-input-inline" style="width:500px">
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="所有人" name="{{Edit.id}}_quanxian['all']" ng-model="Edit.params.quanxian['all']"/>
+			{foreach $memberlevelList as $lv}
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="{$lv.name}" name="{{Edit.id}}_quanxian[{$lv.id}]" ng-model="Edit.params.quanxian[{$lv.id}]"/>
+			{/foreach}
+		</div>
+	</div>
+	{/if}
+	{include file="designer_page/temp/edit-plugin-mendian" /}
+	<div class="layui-form-item" ng-show="!Edit.params.quanxian['all']">
+    <div class="layui-form-label">显示用户</div>
+    <div class="layui-input-inline">
+			<input class="layui-input" ng-model="Edit.params.showmids"/>
+    </div>
+		<div class="layui-form-mid layui-word-aux">填写用户ID，多个用英文标点逗号(,)分割
+	</div>
+	{else}
+        <input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有平台" name="{{Edit.id}}_platform['all']" ng-model="Edit.params.platform['all']"/>
+        <input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有人" name="{{Edit.id}}_quanxian['all']" ng-model="Edit.params.quanxian['all']"/>
+        <input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有门店" name="{{Edit.id}}_mendian['all']" ng-model="Edit.params.mendian['all']"/>
+    {/if}
+</div>

@@ -1,0 +1,398 @@
+<!DOCTYPE html><!--custom_file(paotui)-->
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>跑腿记录</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+            <div class="layui-card-header">跑腿记录
+                {if input('param.isopen')==1}
+                <i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+                {/if}
+            </div>
+            <div class="layui-card-body" pad15>
+                    <div class="layui-col-md2" style="padding-bottom:10px">
+                        <button class="layui-btn layui-btn-primary layuiadmin-btn-list" data-form-export="{:url('excel')}">导出EXCEL</button>
+                    </div>
+                    <div class="layui-form layui-col-md10 layui-form-search">
+                        <div class="layui-inline layuiadmin-input-useradmin" style="display:none">
+                            <label class="layui-form-label">订单号</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="ordernum" value="" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <div class="layui-input-inline" style="width:100px;">
+                                <select name="keyword_type">
+                                    <option value="1">订单号</option>
+                                    <option value="2">{:t('会员')}ID</option>
+                                    <option value="3">{:t('会员')}昵称</option>
+                                    <option value="4">{:t('会员')}手机号</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <div class="layui-input-inline" style="width:150px;margin-left:0px">
+                                <input type="text" name="keyword" placeholder="" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        
+                        <div class="layui-inline">
+                            <label class="layui-form-label">类型</label>
+                            <div class="layui-input-inline">
+                                <select name="btntype">
+                                    <option value="">全部</option>
+                                    <option value="1">帮我送</option>
+                                    <option value="2">帮我取</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">配送方式</label>
+                            <div class="layui-input-inline">
+                                <select name="push_type">
+                                    <option value="">全部</option>
+                                    <option value="1">系统配送</option>
+                                    <option value="2">{:t('码科')}配送</option>
+                                    <option value="3">即时配送</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">状态</label>
+                            <div class="layui-input-inline">
+                                <select name="status">
+                                    <option value="">全部</option>
+                                    <option value="0">待支付</option>
+                                    <option value="1">待接单</option>
+                                    <option value="2">已接单</option>
+                                    <option value="3">已到店</option>
+                                    <option value="4">已取货</option>
+                                    <option value="5">已完成</option>
+                                    <option value="-1">已取消</option>
+                                    <option value="-2">退款失败</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+                                <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="layui-col-md12">
+                        <table id="tabledata" lay-filter="tabledata"></table>
+                    </div>
+            </div>
+        </div>
+    </div>
+  </div>
+    {include file="public/js"/}
+    <script>
+  var table = layui.table;
+    var datawhere = {};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{$Request.url}" //数据接口
+    ,page: true //开启分页
+    ,cols: [[ //表头
+      {field: 'id', title: 'ID',  sort: true,width:80},
+      {field: 'ordernum', title: '订单号',width:160},
+      {field: 'nickname', title: '配送员',templet:function(d){
+        var html = '';
+            if(d.pu_id){
+                html += '配送员ID：'+d.pu_id+'<br>';
+            }
+            if(d.pu_name){
+                html += '配送员姓名：'+d.pu_name+'<br>';
+            }
+            if(d.pu_tel){
+                html += '配送员电话：'+d.pu_tel+'<br>';
+            }
+            return html;
+      },width:140},
+      {field: 'nickname', title: '下单人',templet:function(d){
+            if(!d.member) return '';
+            return '<img src="'+d.member.headimg+'" style="width:40px;height:40px"/>'+d.member.nickname+'(ID：'+d.mid+')';
+      },width:140},
+      {field: 'btntype', title: '类型'},
+      {field: 'name', title: '物品信息',templet:function(d){
+            var html = '';
+            html += '名称:'+d.name+'<br><br>';
+            if(d.pic){
+                html += '图片:<a target="__blank" href='+d.pic+'><img  src="'+d.pic+'" style="width:80px;height:80px" /></a>';
+            }
+            return html
+      },width:140},
+      {field: 'take_address', title: '地址',templet:function(d){
+            var html = '';
+            html += '取件地址:<div><div style="font-weight:bold">'+d.take_name+' '+d.take_tel+' </div><div style="line-height:20px;font-size:14px">'+d.take_area+'<div><div style="line-height:20px;font-size:12px">'+d.take_address+'</div></div><br>';
+            html += '收件地址:<div><div style="font-weight:bold">'+d.send_name+' '+d.send_tel+' </div><div style="line-height:20px;font-size:14px">'+d.send_area+'<div><div style="line-height:20px;font-size:12px">'+d.send_address+'</div></div><br>';
+            return html
+      },width:180},
+      {field: 'distance', title: '配送距离',templet:function(d){
+            var html = '';
+            html += d.distance+'公里';
+            return html
+      },width:110},
+      {field: 'take_time', title: '取货时间',width:150},
+      {field: 'weight', title: '重量',templet:function(d){
+            var html = '';
+            html += d.weight+'公斤';
+            return html
+      },width:110},
+      {field: 'remark', title: '备注',width:160},
+      {field: 'totalprice', title: '付款详情',templet:function(d){
+            var html = '';
+            if(d.distance_fee>0){
+                html += '<p>距离费用:￥'+d.distance_fee+'</p>';
+            }
+            if(d.weight_fee>0){
+                html += '<p>重量费用:￥'+d.weight_fee+'</p>';
+            }
+            if(d.tip_fee>0){
+                html += '<p>小费:'+d.tip_fee+'元</p>';
+            }
+            html += '<p>实际支付:￥'+d.totalprice+'</p>';
+            return html
+      },width:120},
+      {field: 'paytype', title: '支付方式',width:110},
+      {field: 'push_type', title: '配送方式',width:110},
+      {field: 'status', title: '状态',templet:function(d){ 
+            var html = '';
+            if(d.status==0){
+                html += '<span style="color:red">待支付</span>';
+            }else if(d.status==1){
+                html += '<span style="color:red">待接单</span>';
+            }else if(d.status==2){
+                html += '<span style="color:green">已接单</span>';
+            }else if(d.status==3){
+                html += '<span style="color:green">已到店</span>';
+            }else if(d.status==4){
+                html += '<span style="color:green">已取货</span>';
+            }else if(d.status==5){
+                html += '<span style="color:#999">已完成</span><br>';
+                if(d.refund_status == 2){
+                    html += '已退款：<span style="color:red">￥'+d.refund_money+'</span><br>';
+                }else if(d.refund_status == -2){
+                    html += '<span style="color:red">退款失败</span><br>';
+                    if(d.cancel_fail_reason){
+                        html += '<span style="color:red">失败原因：</span>'+d.cancel_fail_reason+'<br>';
+                    }
+                }
+            }else if(d.status==-1){
+                html += '<span style="color:#ccc">已取消</span>';
+            }else if(d.status==-2){
+                html += '<span style="color:red">退款失败</span><br>';
+                if(d.cancel_fee){
+                    html += '违约金：<span style="color:red">￥'+d.cancel_fee+'</span><br>';
+                }
+                html += '应退：<span style="color:red">￥'+d.refund_money+'</span><br>';
+            }
+            if(d.status == -2 || d.status>=5){
+                if(d.refund_status == 1 && d.refund_money >0){
+                    html += '<span style="color:red">有退款申请</span><br>';
+                }
+            }
+            return html;
+       },width:130},
+       {field: 'createtime', title: '下单时间',sort: true,width:160},
+       {field: 'operation', title: '操作',templet:function(d){
+            var html = '';
+            if(d.status>=0 && d.status<=4){
+                html += '<button class="table-btn" onclick="cancel('+d.id+',1)">取消</button>';
+            }else if(d.status==5 || d.status==-1){
+                html += '<button class="table-btn" onclick="datadel('+d.id+')">删除</button>';
+            }
+            if(d.status == -2 || d.status>=5){
+                if(d.refund_status == 1 && d.refund_money >0){
+                    html += '<button class="table-btn" onclick="cancel('+d.id+',-21)">驳回退款</button>';
+                    html += '<button class="table-btn" onclick="cancel('+d.id+',2)">通过退款</button>';
+                }else if(d.refund_status !=2){
+                    html += '<button class="table-btn" onclick="cancel('+d.id+',2)">退款</button>';
+                }
+            }
+
+            if(d.status == 1 && d.is_assign == 1){
+                html += '<button class="table-btn" onclick="doOperation('+d.id+',\'配送员配送\')">配送</button>';
+            }
+
+            return html;
+       },width:130}
+    ]]
+  });
+    //排序
+    table.on('sort(tabledata)', function(obj){
+        datawhere.field = obj.field;
+        datawhere.order = obj.type;
+        tableIns.reload({
+            initSort: obj,
+            where: datawhere
+        });
+    });
+    //检索
+    layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+        var field = obj.field
+        var olddatawhere = datawhere
+        datawhere = field
+        datawhere.field = olddatawhere.field
+        datawhere.order = olddatawhere.order
+        tableIns.reload({
+            where: datawhere,
+            page: {curr: 1}
+        });
+    })
+    //删除
+    function datadel(id){
+
+        layer.confirm('确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+            //do something
+            layer.close(index);
+            var index = layer.load();
+            $.post("{:url('del')}",{id:id},function(data){
+                layer.close(index);
+                dialog(data.msg,data.status);
+                tableIns.reload()
+            })
+        });
+    }
+
+    function cancel(id,st){
+
+        if(st == 1){
+            var msg = '确定要取消吗?';
+        }else if(st == 2){
+            var msg = '确定要退款吗?';
+        }else if(st == -21){
+            var msg = '确定要驳回退款吗?';
+        }
+
+        layer.confirm(msg,{icon: 7, title:'操作确认'}, function(index){
+            //do something
+            layer.close(index);
+            var index = layer.load();
+            $.post("{:url('cancel')}",{id:id,st:st},function(data){
+                layer.close(index);
+                dialog(data.msg,data.status);
+                tableIns.reload()
+            })
+        });
+    }
+    function doOperation(orderid,type){
+        var index_load = layer.load();
+        $.post("{:url('getdetail')}",{orderid:orderid},function(data){
+            layer.close(index_load);
+            orderdata = data;
+            console.log(data)
+            btnOperation(type,data);
+        })
+    }
+    var detailLayer;
+    function btnOperation(type,data){
+        var orderid = data.order.id;
+        if(type == '配送员配送'){
+            if(!data.paidantype){
+                layer.confirm('确定配送此订单?确定后此订单将会被推送到指定的配送端',{icon: 7, title:'操作确认'}, function(index){
+                    layer.close(index);
+                    var index = layer.load();
+                    $.post("{:url('PaotuiOrder/peisong')}",{orderid:orderid},function(res){
+                        layer.close(index);
+                        dialog(res.msg,res.status);
+                        layer.close(peisongLayer);
+                        layer.close(detailLayer);
+                        tableIns.reload()
+                    })
+                })
+            }else{
+                var index = layer.load();
+                $.post("{:url('Peisong/getpeisonguser')}",{type:'paotui_order',orderid:orderid},function(res){
+                    layer.close(index);
+                    if(res.status == 0) {
+                        dialog(res.msg,res.status);return;
+                    }
+                    var peisonguser = res.peisonguser
+                    var paidantype = res.paidantype
+                    var psfee = res.psfee
+                    var ticheng = res.ticheng
+                    var html = '';
+                    html+=' <div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+                    if(paidantype == 1){
+                        html+='     <label class="layui-form-label" style="width:80px">选择配送员</label>';
+                        html+='     <div class="layui-input-inline" style="width:350px">';
+                        html+='         <select id="peisonguser" style="width:100%;height: 38px;line-height: 38px;border:1px solid #e6e6e6;background-color: #fff;border-radius: 2px;">';
+                        for(var i in peisonguser){
+                            html+='         <option value="'+peisonguser[i].id+'">'+peisonguser[i].title+'</option>';
+                        }
+                        html+='         </select>';
+                        html+='     </div>';
+                    }else{
+                        if(data.order.bid == 0){
+                            html+='     <div class="layui-form-mid" style="margin:0 20px">确定配送此订单?确定后此订单将会被推送到指定的配送端？</div>';
+                        }else{
+                            html+='     <div class="layui-form-mid" style="margin:0 20px">确定配送此订单?确定后此订单将会被推送到指定的配送端？</div>';
+                        }
+                    }
+                    html+=' </div>';
+                    var peisongLayer = layer.open({type:1,area:['500px','250px'],title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+                        yes:function(){
+                            var index = layer.load();
+                            if(paidantype == 1){
+                                var psid = $('#peisonguser').val();
+                            }else if(paidantype == 2){
+                                var psid = '-1';
+                            }else{
+                                var psid = '0';
+                            }
+                            $.post("{:url('PaotuiOrder/peisong')}",{orderid:orderid,psid:psid},function(res){
+                                layer.close(index);
+                                dialog(res.msg,res.status);
+                                layer.close(peisongLayer);
+                                layer.close(detailLayer);
+                                tableIns.reload()
+                            })
+                        }
+                    })
+                    layui.form.render();
+                })
+            }
+            
+        }else if(type == '即时配送'){
+            var index = layer.load();layer.close(index);
+            var psfee = data.freight_price
+            var html = '';
+            html+=' <div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+            if(data.order.bid == 0){
+                html+='     <div class="layui-form-mid" style="margin:0 20px">选择即时配送，订单将派单到第三方配送平台，并扣除相应费用，确定要派单吗？</div>';
+            }else{
+                html+='     <div class="layui-form-mid" style="margin:0 20px">选择即时配送，订单将派单到第三方配送平台，需扣除配送费￥'+psfee+'，确定要派单吗？</div>';
+            }
+            html+=' </div>';
+            var peisongLayer = layer.open({type:1,area:['500px','250px'],title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+                yes:function(){
+                    var index = layer.load();
+                    var psid = '0';
+                    $.post("{:url('PaotuiOrder/peisong')}",{type:'shop_order',orderid:orderid,psid:psid},function(res){
+                        layer.close(index);
+                        dialog(res.msg,res.status);
+                        layer.close(peisongLayer);
+                        layer.close(detailLayer);
+                        tableIns.reload()
+                    })
+                }
+            })
+            layui.form.render();
+        }
+        return false;
+    }
+    </script>
+    {include file="public/copyright"/}
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>视频管理</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<script src="/static/admin/js/address3.js?v=1"></script>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加{else}<i class="fa fa-pencil"></i> 编辑{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w8" lay-filter="">
+						<input type="hidden" name="info[id]" value="{$info['id']}">
+						<div class="layui-form-item">
+							<label class="layui-form-label">视频名称：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[name]" value="{$info.name}" lay-verify="required" lay-verType="tips" autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">视频封面：</label>
+							<input type="hidden" name="info[pic]" id="pic" lay-verType="tips" class="layui-input" value="{$info.pic}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary"  onclick="uploader(this)" upload-input="pic" upload-preview="picPreview">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+							<div id="picPreview" class="picsList-class-padding">
+								<div class="layui-imgbox" style="max-width:200px;max-height:100px;margin-right:20px"><div class="layui-imgbox-img"><img src="{$info.pic}"/></div></div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">视频类型：</label>
+							<div class="layui-input-block" style="width:700px">
+								{volist name="typelist" id="item"}
+								<input type="radio" name="info[type]" value="{$item.type}" title="{$item.name}" {if $info.type==$item.type}checked{/if} lay-filter="type">
+								{/volist}
+							</div>
+						</div>
+						<div class="typeBox typeBox0" {if $info.type!=0}style="display:none;"{/if}>
+							<div class="layui-form-item">
+								<label class="layui-form-label">视频：</label>
+								<div class="layui-input-inline" style="width:400px">
+									<input type="text" name="info[video_url]" id="video" lay-verType="tips" class="layui-input" value="{$info['video_url']}">
+								</div>
+								<input type="hidden" name="info[video_duration]" id="video_duration" value="{$info.video_duration}">
+								<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="video" onclick="uploader(this)">上传视频</button>
+								<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">填写视频链接或上传视频，视频链接必须为mp4格式的源链接，视频大小须在50MB以内</div>
+							</div>
+						</div>
+						<div class="typeBox typeBox1" {if $info.type!=1}style="display:none;"{/if}>
+							<div class="layui-form-item">
+								<label class="layui-form-label">播放类型：</label>
+								<div class="layui-input-block" style="width:700px">
+									<input type="radio" name="ext[feedtype]" value="0" title="视频号主页" {if $ext.feedtype==0}checked{/if}>
+									<input type="radio" name="ext[feedtype]" value="1" title="内嵌播放" {if $ext.feedtype==1}checked{/if}>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">视频号ID：</label>
+								<div class="layui-input-inline" style="width:400px">
+									<input type="text" name="ext[finderuser]" class="layui-input" value="{$ext['finderuser']}">
+								</div>
+								<div class="layui-form-mid layui-word-aux">sp开头的一串字符，必填。登录视频号助手，在首页可以查看自己的视频号ID，仅微信小程序可用</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">视频ID：</label>
+								<div class="layui-input-inline" style="width:400px">
+									<input type="text" name="ext[feedid]" class="layui-input" value="{$ext['feedid']}">
+								</div>
+								<div class="layui-form-mid layui-word-aux">必填，登录视频号助手，可以查看视频ID，仅微信小程序可用</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">视频Token：</label>
+								<div class="layui-input-inline" style="width:400px">
+									<input type="text" name="ext[feedtoken]" class="layui-input" value="{$ext['feedtoken']}">
+								</div>
+								<div class="layui-form-mid layui-word-aux">feed-token，内嵌播放时必填 <a style="color: #0da0ff;" href="https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/channels-activity.html#feed-token" target="_blank">如何获取</a>，内嵌播放时视频号和小程序必须为同一主体</div>
+							</div>
+<!--							<div class="layui-form-item">-->
+<!--								<label class="layui-form-label">视频feed-token：</label>-->
+<!--								<div class="layui-input-inline" style="width:400px">-->
+<!--									<input type="text" name="info[video_feed_token]" class="layui-input" value="{$info['video_feed_token']}">-->
+<!--								</div>-->
+<!--								<div class="layui-form-mid layui-word-aux">仅内嵌小程序非同主体视频号视频时使用，获取方式参考<a href="https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/channels-activity.html#feed-token" target="_blank">本指引</a>。不支持自动播放</div>-->
+<!--							</div>-->
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+   <video id="myvideo" style="display:none"></video>
+	{include file="public/js"/}
+	<script>
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.close(parent.layer.getFrameIndex(window.name));
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+	$(".layui-form input#video").bind("input change propertychange",function(event){
+		var videourl = $('#video').val();
+		if(videourl){
+			$("#myvideo").prop("src", videourl);
+			$("#myvideo")[0].addEventListener("loadedmetadata", function() {
+				var tol = Math.floor(this.duration); //获取总时长
+				$('#video_duration').val(tol);
+			});
+		}else{
+			$('#video_duration').val(0);
+		}
+	})
+	layui.form.on('radio(type)', function(data){
+		$('.typeBox').hide();
+		$('.typeBox'+data.value).show();
+	})
+  </script>
+</body>
+</html>

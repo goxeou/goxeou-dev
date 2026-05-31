@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>编辑图文素材</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	.newspreview{width:312px}
+	.newspreview *{box-sizing: border-box;}
+	.newscontent{padding:12px;border:1px solid #ddd;}
+
+	.editor_inner{width:700px;margin-left:20px;min-height:615px;border:1px solid #e7e7eb;background:#f4f5f9;padding: 0 20px 5px;position:relative}
+	.editor_inner .head{width:100%;border-bottom:1px solid #e7e7eb;padding: 9px 0;display:flex}
+	.editor_inner .content{width:100%;padding-top:20px}
+
+	.arrow-left{width: 0;height: 0;border:10px solid;border-color: transparent #e7e7eb transparent transparent;position: absolute;top:88px;left:-20px;margin:0 auto}
+	.arrow-left::after{content: '';position:absolute;top:-9px;left: -8px;border:9px solid;border-color: transparent #f4f5f9 transparent transparent;}
+
+	.item1{width:100%;cursor:pointer}
+	.item1 img{width:100%;height:100%}
+	.item1 .title{height:40px;padding:0 10px;width:100%;position:absolute;bottom:0;left:0;color:#fff;background:rgba(100,100,100,0.5);display:flex;align-items:center;word-wrap: break-word;word-break: break-all;overflow:hidden;}
+	.item2{width:100%;cursor:pointer;margin-top:5px;padding-top:5px;border-top:1px solid #ddd;display:flex}
+	.item2 .title{flex:1;display:flex;align-items:center;}
+	.item2 img{width:50px;height:50px}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['media_id']}<i class="fa fa-plus"></i> 添加图文素材{else}<i class="fa fa-pencil"></i> 编辑图文素材{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					{if $info['media_id']}<blockquote class="layui-elem-quote">注意：修改图文数量及评论功能都将重新创建新的图文素材。</blockquote>{/if}
+					<div class="flex">
+						<div class="newspreview">
+							<div class="newscontent">
+								<div id="newscontent_content">
+									{foreach $info['news_item'] as $k=>$item}
+									{if $k==0}
+									<div onclick="changeindex({$k})" class="item1">
+										<div style="position:relative;width: 100%;overflow: hidden;height: 160px;">
+											<img src="{$item.thumb_url}"/>
+											<div class="title">{$item.title}</div>
+										</div>
+									</div>
+									{else}
+									<div onclick="changeindex({$k})" class="item2">
+										<div class="title">{$item.title}</div>
+										<div><img src="{$item.thumb_url}"/></div>
+									</div>
+									{/if}
+									{/foreach}
+								</div>
+								<div id="addbtn" onclick="addsource()" style="width:100%;cursor:pointer;margin-top:5px;padding-top:5px;border-top:1px solid #ddd;{if $k==7}display:none;{else}display:flex;{/if}">
+									<div style="flex:1;display:flex;align-items:center;justify-content:center"><i class="fa fa-plus"></i>添加图文</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="editor_inner">
+							<i class="arrow-left"></i>
+							<div class="head">
+								<div class="flex1 menu_name">编辑素材</div>
+								<div style="color:#666;cursor:pointer;margin-right:5px" onclick="goup()">上移</div>
+								<div style="color:#666;cursor:pointer;margin-right:10px" onclick="godown()">下移</div>
+								<div style="color:#576b95;cursor:pointer" onclick="delsource()">删除</div>
+							</div>
+							<div class="content layui-form" lay-filter="form">
+								<input type="hidden" name="info[media_id]" value="{$info.media_id}"/>
+								<input type="hidden" name="info[show_cover_pic]" value="{$info['news_item'][0]['show_cover_pic']}"/>
+								<div class="layui-form-item">
+									<label class="layui-form-label"><span class="redstar">*</span>标题：</label>
+									<div class="layui-input-inline" style="width:500px">
+										<input type="text" name="info[title]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info['news_item'][0]['title']}">
+									</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label"><span class="redstar">*</span>封面：</label>
+									<input type="hidden" name="info[thumb_url]" id="thumb_url" lay-verType="tips" class="layui-input" value="{$info['news_item'][0]['thumb_url']}">
+									<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="thumb_url" upload-preview="thumb_urlPreview" onclick="uploader(this)">上传图片</button>
+									<!-- <div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：750×750像素</div> -->
+									<div id="thumb_urlPreview" style="float:left;padding-top:10px;padding-left:110px;clear: both;">
+										<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info['news_item'][0]['thumb_url']}"/></div></div>
+									</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label">作者：</label>
+									<div class="layui-input-inline" style="width:500px">
+										<input type="text" name="info[author]" class="layui-input" value="{$info['news_item'][0]['author']}">
+									</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label">摘要：</label>
+									<div class="layui-input-inline" style="width:500px">
+										<textarea class="layui-textarea" name="info[digest]">{$info['news_item'][0]['digest']}</textarea>
+									</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label"><span class="redstar">*</span>内容：</label>
+									<div class="layui-input-inline" style="width:500px">
+										<script id="content" name="info[content]" type="text/plain" style="width:100%;height:500px">{$info['news_item'][0]['content']}</script>
+									</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label">原文链接：</label>
+									<div class="layui-input-inline" style="width:400px">
+										<input type="text" name="info[content_source_url]" autocomplete="off" class="layui-input" value="{$info['news_item'][0]['content_source_url']}">
+									</div>
+									<button class="layui-btn layui-btn-primary" onclick="chooseUrl()" style="float:left">选择链接</button>
+									<div class="layui-form-mid layui-word-aux" style="margin-left:110px">即点击“阅读原文”后的跳转链接地址</div>
+								</div>
+								
+								<div class="layui-form-item">
+									<label class="layui-form-label">评论功能：</label>
+									<div class="layui-input-inline" style="width:500px">
+										<input type="radio" name="info[need_open_comment]" value="1" title="开启" lay-filter="need_open_comment" {if $info['news_item'][0]['need_open_comment']==1}checked{/if}>
+										<input type="radio" name="info[need_open_comment]" value="0" title="关闭" lay-filter="need_open_comment" {if $info['news_item'][0]['need_open_comment']==0}checked{/if}>
+									</div>
+									<div class="layui-form-mid layui-word-aux" style="">公众号已开通留言功能才有效</div>
+								</div>
+								<div class="layui-form-item" id="only_fans_can_comment_set" {if $info['news_item'][0]['need_open_comment']==0}style="display:none"{/if}>
+									<label class="layui-form-label">评论权限：</label>
+									<div class="layui-input-inline" style="width:500px">
+										<input type="radio" name="info[only_fans_can_comment]" value="0" title="所有人可评论" {if $info['news_item'][0]['only_fans_can_comment']==0}checked{/if}>
+										<input type="radio" name="info[only_fans_can_comment]" value="1" title="粉丝才可评论" {if $info['news_item'][0]['only_fans_can_comment']==1}checked{/if}>
+									</div>
+								</div>
+
+								<div class="layui-form-item">
+									<div class="layui-input-block">
+										<button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+      </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	var ueditor = UE.getEditor('content');
+	var media_id = '{$info.media_id}';
+	var old_news_item = {:jsonEncode($info['news_item'])};
+	var news_item = {:jsonEncode($info['news_item'])};
+	var nowindex = 0;
+	var nowitem = news_item[nowindex]
+	function changeindex(index){
+		if(index!=nowindex){
+			setindexdata();
+			nowindex = index
+		}
+		if(nowindex==0){
+			$('.arrow-left').css('top',88)
+		}else if(nowindex==1){
+			$('.arrow-left').css('top',200)
+		}else{
+			$('.arrow-left').css('top',200 + (nowindex-1)*60)
+		}
+		nowitem =  news_item[nowindex];
+		$("input[name='info[title]']").val(nowitem.title);
+		$("input[name='info[author]']").val(nowitem.author);
+		$("textarea[name='info[digest]']").val(nowitem.digest);
+		//$("input[name='info[content]']").val(nowitem.content);
+		$("input[name='info[content_source_url]']").val(nowitem.content_source_url);
+		$("input[name='info[thumb_url]']").val(nowitem.thumb_url);
+		$("#thumb_urlPreview img").attr('src',nowitem.thumb_url);
+		$("input[name='info[need_open_comment]'][value="+nowitem.need_open_comment+"]").prop('checked',true);
+		$("input[name='info[only_fans_can_comment]'][value="+nowitem.only_fans_can_comment+"]").prop('checked',true);
+		if(nowitem.need_open_comment==1){
+			$('#only_fans_can_comment_set').show();
+		}else{
+			$('#only_fans_can_comment_set').hide();
+		}
+		ueditor.setContent(nowitem.content);
+		layui.form.render();
+	}
+	function changeitem(){
+		var html = '';
+		for(var i=0;i<news_item.length;i++){
+			var item = news_item[i]
+			if(i==0){
+				html += '<div onclick="changeindex('+i+')" class="item1">';
+				html += '	<div style="position:relative;width: 100%;overflow: hidden;height: 160px;">';
+				html += '		<img src="'+item.thumb_url+'"/>';
+				html += '		<div class="title">'+item.title+'</div>';
+				html += '	</div>';
+				html += '</div>';
+			}else{
+				html += '<div onclick="changeindex('+i+')" class="item2">';
+				html += '	<div class="title">'+item.title+'</div>';
+				html += '	<div><img src="'+item.thumb_url+'"/></div>';
+				html += '</div>';
+			}
+		}
+		$('#newscontent_content').html(html);
+	}
+	function setindexdata(){
+		var formdata = layui.form.val('form');
+		news_item[nowindex] = {
+			'title':formdata['info[title]'],
+			'author':formdata['info[author]'],
+			'digest':formdata['info[digest]'],
+			'content':formdata['info[content]'],
+			'content_source_url':formdata['info[content_source_url]'],
+			'show_cover_pic':formdata['info[show_cover_pic]'],
+			'thumb_url':formdata['info[thumb_url]'],
+			'need_open_comment':formdata['info[need_open_comment]'],
+			'only_fans_can_comment':formdata['info[only_fans_can_comment]'],
+			'content':ueditor.getContent()
+		};
+		console.log(formdata)
+	}
+	function addsource(){
+		if(news_item.length >=8){
+			dialog('最多只能添加8条图文');
+			return;
+		}
+		news_item.push({'title':'请填写文章标题','author':'','digest':'','content':'','content_source_url':'','show_cover_pic':0,'thumb_url':'{$Think.const.PRE_URL}/static/images/default-pic2.jpg','need_open_comment':0,'only_fans_can_comment':0});
+		if(news_item.length==8){
+			$('#addbtn').css({'display':'none'});
+		}else{
+			$('#addbtn').css({'display':'flex'});
+		}
+		setindexdata();
+		changeitem();
+		changeindex(news_item.length-1);
+	}
+	function delsource(){
+		news_item.splice(nowindex,1);
+		nowindex = nowindex - 1
+		if(nowindex<0) nowindex = 0
+		if(news_item.length == 0){
+			news_item = [{'title':'请填写文章标题','author':'','digest':'','content':'','content_source_url':'','show_cover_pic':0,'thumb_url':'{$Think.const.PRE_URL}/static/images/default-pic2.jpg','need_open_comment':0,'only_fans_can_comment':0}];
+		}
+		changeitem();
+		changeindex(nowindex);
+	}
+	//上移
+	function goup(){
+		if(nowindex == 0){
+			layer.msg('已经到顶了');
+			return;
+		}
+		news_item[nowindex] = news_item.splice(nowindex-1, 1, news_item[nowindex])[0];
+		nowindex = nowindex - 1
+		changeitem();
+		changeindex(nowindex);
+	}
+	//下移
+	function godown(){
+		if(nowindex == news_item.length-1){
+			layer.msg('已经到底了');
+			return;
+		}
+		news_item[nowindex] = news_item.splice(nowindex+1, 1, news_item[nowindex])[0];
+		nowindex = nowindex + 1
+		changeitem();
+		changeindex(nowindex);
+	}
+	$(function(){
+		$("input[name='info[title]']").bind("input change propertychange",function(event){
+			$('#newscontent_content>div').eq(nowindex).find('.title').text($(this).val());
+		})
+		$("input[name='info[thumb_url]']").bind("input change propertychange",function(event){
+			$('#newscontent_content>div').eq(nowindex).find('img').attr('src',$(this).val());
+		})
+	});
+	layui.form.on('radio(need_open_comment)',function(obj){
+		console.log(obj)
+		if(obj.value==1){
+			$('#only_fans_can_comment_set').show();
+		}else{
+			$('#only_fans_can_comment_set').hide();
+		}
+	})
+	layui.form.on('submit(formsubmit)', function(obj){
+		//var field = obj.field
+		//field['info[content]'] = ueditor.getContent();
+		setindexdata();
+		for(var i=0;i<news_item.length;i++){
+			if(news_item[i].title==''){
+				dialog('图文'+(i+1)+' 标题不能为空');
+				return;
+			}
+			if(news_item[i].content==''){
+				dialog('图文'+(i+1)+' 内容不能为空');
+				return;
+			}
+		}
+		var index = layer.load();
+		$.post("{:url('sourcesave')}",{media_id:media_id,news_item:news_item,old_news_item:old_news_item},function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.close(parent.layer.getFrameIndex(window.name));
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+  </script>
+	<script>
+	function chooseUrl(){
+		layer.open({type:2,shadeClose:true,area:['1200px', '650px'],'title':'选择链接',content:"{:url('DesignerPage/chooseurl')}"})
+	}
+	function chooseLink(urlname,url){
+		url = '{$Think.const.PRE_URL2}/h5/{$aid}.html#'+url;
+		$("input[name='info[content_source_url]']").val(url);
+	}
+	</script>
+	{include file="public/copyright"/}
+</body>
+</html>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>寄件列表</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+
+	<style>
+	.orderdetail{background:#f7f7f8;width: 94%;box-sizing:border-box;margin:0 10px;display:flex;flex-direction:column;}
+	.orderdetail *{box-sizing:border-box;}
+	.address{ display:flex;align-items:center;width: 100%; padding:10px 0; background: #FFF;color:#222}
+	.address .img{width:45px;padding:0 10px}
+	.address img{width:25px; height:25px;}
+	.address .info{flex:1;display:flex;flex-direction:column;}
+	.address .info .t1{ font-weight:bold}
+
+	.express { width:100%;background: #fff; padding:10px;display:flex;align-items:center;margin-top:5px;color:#333}
+	.express .f1{ width:40px;font-size:20px;color:#999}
+	.express .f2{display:flex;flex-direction:column;flex:auto}
+
+	.product{width:100%; padding:5px;background: #FFF;margin-top:5px;}
+	.product .content{display:flex;position:relative;width: 100%; padding:5px 0px;border-bottom: 1px #e5e5e5 dashed;position:relative}
+	.product .content:last-child{ border-bottom: 0; }
+	.product .content img{ width: 70px; height: 70px;}
+	.product .content .detail{display:flex;flex-direction:column;margin-left:7px;flex:1}
+	.product .content .detail .t1{height: 30px;line-height: 15px;color: #000;}
+	.product .content .detail .t2{height: 23px;line-height: 23px;color: #999;overflow: hidden;font-size:13px;}
+	.product .content .detail .t3{display:flex;height:15px;line-height:15px;color: #ff4246;}
+	.product .content .detail .x1{ flex:1}
+	.product .content .detail .x2{ width:50px;font-size:16px;text-align:right;margin-right:4px}
+	.product .content .comment{position:absolute;top:32px;right:5px;border: 1px #ffc702 solid; border-radius:5px;background:#fff; color: #ffc702;  padding: 0 5px; height: 23px; line-height: 23px;}
+
+	.orderinfo{ width:100%;margin-top:5px;padding: 5px;background: #FFF;}
+	.orderinfo .item{display:flex;width:100%;padding:10px 0;border-bottom:1px dashed #ededed;}
+	.orderinfo .item:last-child{ border-bottom: 0;}
+	.orderinfo .item .t1{width:100px;}
+	.orderinfo .item .t2{flex:1;text-align:right}
+	.orderinfo .item .red{color:red}
+
+	.logistics{ width: 94%;  background: #fff; padding: 0 10px;display:flex;flex-direction:column;color: #979797;}
+	.logistics .on{color: #23aa5e;}
+	.logistics .item{display:flex;width: 96%;  margin: 0 2%;/*border-left: 1px #dadada solid;*/padding:0 0}
+	.logistics .item .f1{ width:30px;position:relative}
+	/*.logistics img{width: 15px; height: 15px; position: absolute; left: -8px; top:11px;}*/
+	.logistics .item .f1 img{ width: 15px; height: 100%;}
+
+	.logistics .item .f2{display:flex;flex-direction:column;flex:auto;padding:5px 0}
+	.logistics .item .f2 .t1{font-size: 15px;}
+	.logistics .item .f2 .t1{font-size: 13px;}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header">寄件列表</div>
+          <div class="layui-card-body" pad15>
+						<div class="layui-col-md1" style="padding-bottom:10px">
+							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" data-form-export="{:url('index')}">导出</button>
+						</div>
+						<div class="layui-form layui-col-md11 layui-form-search">
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">订单号</label>
+								<div class="layui-input-inline">
+									<input type="text" name="ordernum" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label">寄件人</label>
+								<div class="layui-input-inline">
+									<input type="text" name="linkman" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label">手机号</label>
+								<div class="layui-input-inline">
+									<input type="text" name="tel" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label">下单时间</label>
+								<div class="layui-input-inline" style="width:180px">
+									<input type="text" name="ctime" id="ctime" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							
+							<div class="layui-inline">
+								<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+									<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+								</button>
+							</div>
+						</div>
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+  var table = layui.table;
+	var datawhere = {};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{$Request.url}" //数据接口
+    ,page: true //开启分页
+		//,size:'sm'
+    ,cols: [[ //表头
+			//{type:"checkbox"},
+      {field: 'id', title: 'ID',  sort: true,width:60},
+      {field: 'cargo', title: '货品信息',width:140},
+      {field: 'ordernum', title: '订单号/下单时间',sort: true,width:160,templet:function(d){ return d.ordernum +'<div style="color:#080">'+ date('Y年m月d日 H:i',d.createtime)+'</div>'}},
+      {field: 'company', title: '快递公司',width:150},
+      {field: 'sm_time', title: '期望上门时间'},
+      {field: 'address', title: '寄件地址',templet: '<div><div style="font-weight:bold">{{d.sendManName}} {{d.sendManMobile}} </div><div style="line-height:20px;font-size:12px"> {{d.sendManPrintAddr}}</div></div>'},
+      {field: 'address2', title: '收货地址',templet: '<div><div style="font-weight:bold">{{d.recManName}} {{d.recManMobile}} </div><div style="line-height:20px;font-size:12px">{{d.recManPrintAddr}} </div>'},
+			{field: 'platform', title: '来源',width:100},
+			{field: 'nickname', title: '头像昵称',width:120,templet:function(d){
+				if(!d.headimg) return '';
+				var html = '<img src="'+d.headimg+'" style="height:50px"/> '+d.nickname;
+				if(d.m_remark){
+					html += '<br><span style="color:#f55">'+d.m_remark+'</span>';
+				}
+				return html;
+      }},
+      {field: 'remark', title: '备注'},
+    ]]
+  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	//删除
+	function datadel(id){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id);
+		}
+		layer.confirm('确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('del')}",{ids:ids},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+
+	function doOperation(orderid,type){
+		$.post("{:url('getdetail')}",{orderid:orderid},function(data){
+			btnOperation(type,data);
+		})
+	}
+	</script>
+	
+
+
+	<script id="remarktpl" type="text/html">
+	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">
+		<label class="layui-form-label" style="width:40px">备注</label>
+		<div class="layui-input-inline" style="width:180px">
+			<input type="text" id="remarkcontent" class="layui-input" value="{{d.remark?d.remark : ''}}">
+		</div>
+	</div>
+	</script>
+	</div>
+	</script>
+	{include file="public/copyright"/}
+</body>
+</html>

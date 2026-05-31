@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>自定义菜单设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	.tabBar{ width:342px; height:50px;line-height:50px;padding-left:43px;background:#fff; border-top:1px #dedede solid;position:absolute;bottom:0;background:url('__STATIC__/admin/img/mpmenu_foot.png');display:flex;font-size:14px}
+	.tabitem{flex:1;color:#353535;border-right:1px solid #e7e7eb;text-align:center;cursor:pointer;position:relative}
+	.tabitem.on{border: 1px solid #44b549;background-color: #fff;color: #44b549}
+	.tabitemadd{flex:1;color:#353535;border-right:1px solid #e7e7eb;text-align:center;cursor:pointer}
+	.subbar{position:absolute;bottom:60px;width:100%;border:1px solid #d0d0d0}
+	.subitem{height:45px;line-height:45px;text-align:center;overflow:hidden;border-bottom:1px solid #d8d8d8}
+	.subitem:last-child{border:0}
+	.subitem.on{border: 1px solid #44b549;background-color: #fff;color: #44b549}
+	.subitemadd{height:45px;line-height:45px;text-align:center;overflow:hidden;}
+	.arrow-down{width: 0;height: 0;border:6px solid;border-color: #d0d0d0 transparent transparent transparent;position: absolute;bottom:49px;left:0;right:0;margin:0 auto}
+	.arrow-down::after{content: '';position:absolute;top:-7px;left: -6px;border:6px solid;border-color: #f1f1f2 transparent transparent transparent;}
+
+	.tabset{width:700px;}
+	.editor_inner{min-height:615px;border:1px solid #e7e7eb;background:#f4f5f9;padding: 0 20px 5px;}
+	.editor_inner .head{width:100%;border-bottom:1px solid #e7e7eb;padding: 9px 0;display:flex}
+	.editor_inner .content{width:100%;padding-top:10px}
+
+	.face-layer{position: absolute; top:140px; left:40px;width:430px;background:#fff;border: 2px solid #eee;z-index:666666;display:none}
+	.face-layer-face{position:relative;overflow: auto;font-size: 0;padding:5px;margin:0}
+	.face-layer-face li{cursor: pointer; display: inline-block; vertical-align: bottom; padding:2px 2px; text-align: center;-webkit-box-sizing: border-box !important; -moz-box-sizing: border-box !important; box-sizing: border-box !important;}
+	.face-layer-face li img{width: 22px; height: 22px;}
+	.hide{display:none}
+
+	.fa-navicon{font-size: 11px;margin: 0 2px;}
+	.text-center { text-align: center;}
+	</style>
+</head>
+<body>
+<div class="layui-fluid">
+	<div class="layui-row layui-col-space15">
+		<div class="layui-card layui-col-md12">
+			<div class="layui-card-header"><i class="fa fa-cog"></i> 自定义菜单设置</div>
+			<div class="layui-card-body" pad15>
+
+				<table style='width:100%'>
+				<tr>
+					<td style='width:340px;padding:10px;' valign='top'>
+						<div class="dsn-phone " style="float:right" >
+							<div class="dsn-phone-left"></div>
+							<div class="dsn-phone-center">
+								<div class="dsn-phone-top"></div>
+								<div class="dsn-phone-main">
+									<div id="editor">
+										<div class="dsn-mod dsn-topbar dsn-mod-nohover" style="color:#fff;background:#000;height:60px">
+											<div style="float:left;width:100%;font-size:12px">
+												<div style="float:left;width:30%">&nbsp;<i class="fa fa-signal"></i> wechat <i class="fa fa-wifi"></i></div>
+												<div style="float:left;text-align:center;width:40%">12:00</div>
+												<div style="float:left;text-align:right;width:30%">100% <i class="fa fa-battery-full"></i>&nbsp;</div>
+											</div>
+											<div style="float:left;width:98%;margin:2px 1% 0 1%;">
+												<div style="float:left;width:30%">&nbsp;</div>
+												<div style="float:left;text-align:center;width:40%;font-size:16px;height:27px;line-height:27px">{$mpauthinfo.nickname}</div>
+											</div>
+										</div>
+										<div id="editor-content" style="overflow:hidden">
+											<div class="tabBar">
+												<!-- <div class="tabitem on">+添加菜单</div> -->
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="dsn-phone-bottom"></div>
+							</div>
+							<div class="dsn-phone-right"></div>
+						</div>
+					</td>
+					<td valign='top' style='padding:10px;padding-top:60px'>
+					<div class="tabset">
+						<div class="editor_inner">
+							<div class="head">
+								<div class="flex1 menu_name">菜单名称</div>
+								<div style="color:#666;cursor:pointer;margin-right:5px" onclick="goup()">上移</div>
+								<div style="color:#666;cursor:pointer;margin-right:10px" onclick="godown()">下移</div>
+								<div class="layui-default-link" onclick="delmenu()">删除菜单</div>
+							</div>
+							<div id="menuform" class="content layui-form" lay-filter="form">
+								<div class="layui-form-item">
+									<label class="layui-form-label" style="text-align:left;padding-left:0">菜单名称</label>
+									<div class="layui-input-inline">
+										<input type="text" value="" name="menu_name" class="layui-input">
+									</div>
+									<div class="layui-form-mid layui-word-aux">仅支持中英文和数字，字数不超过4个汉字或8个字母</div>
+								</div>
+								<div id="setmenu_type" class="layui-form-item">
+									<label class="layui-form-label" style="text-align:left;padding-left:0">菜单内容</label>
+									<div class="layui-input-inline" style="width:500px">
+										<input type="radio" value="click" title="发送消息" name="menu_type" checked lay-filter="menu_type">
+										<input type="radio" value="view" title="跳转网页" name="menu_type" lay-filter="menu_type">
+										<input type="radio" value="miniprogram" title="跳转小程序" name="menu_type" lay-filter="menu_type">
+									</div>
+								</div>
+								<div id="menu_click">
+									<div class="layui-form-item">
+										<label class="layui-form-label" style="text-align:left;padding-left:0">消息类型</label>
+										<div class="layui-input-inline" style="width:500px">
+											<input type="radio" value="news" title="图文" name="message_type" checked lay-filter="message_type">
+											<input type="radio" value="text" title="文字" name="message_type" lay-filter="message_type">
+											<input type="radio" value="image" title="图片" name="message_type" lay-filter="message_type">
+											<input type="radio" value="voice" title="音频" name="message_type" lay-filter="message_type">
+											<input type="radio" value="video" title="视频" name="message_type" lay-filter="message_type">
+										</div>
+									</div>
+									<div class="layui-form-item" id="message_news">
+										<label class="layui-form-label" style="text-align:left;padding-left:0">选择图文：</label>
+										<input type="hidden" name="news_content" id="news_content" class="layui-input" value="">
+										<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="selectnews()">选择图文</button>
+										<div id="news_contentPreview" style="float:left;padding-top:10px;margin-left:95px;clear:both;">
+											
+										</div>
+									</div>
+									<div class="layui-form-item hide" id="message_text">
+										<label class="layui-form-label" style="text-align:left;padding-left:0">文字内容：</label>
+										<div class="layui-input-inline" style="width:500px">
+											<textarea id="text_content" name="text_content" style="width:474px;height:140px" class="layui-textarea"></textarea>
+											<div><img src="__STATIC__/admin/img/emojiIcon.png" style="width:40px;height:40px;cursor:pointer" id="get_smile"/></div>
+											<div class="face-layer" id="facedialog" style="">
+												<ul class="face-layer-face">
+													<li title="[微笑]"><img class="face" src="__STATIC__/chat/wxface/0.png"></li><li title="[撇嘴]"><img class="face" src="__STATIC__/chat/wxface/24.png"></li><li title="[色]"><img class="face" src="__STATIC__/chat/wxface/2.png"></li><li title="[发呆]"><img class="face" src="__STATIC__/chat/wxface/3.png"></li><li title="[得意]"><img class="face" src="__STATIC__/chat/wxface/4.png"></li><li title="[流泪]"><img class="face" src="__STATIC__/chat/wxface/5.png"></li><li title="[害羞]"><img class="face" src="__STATIC__/chat/wxface/6.png"></li><li title="[闭嘴]"><img class="face" src="__STATIC__/chat/wxface/7.png"></li><li title="[睡]"><img class="face" src="__STATIC__/chat/wxface/8.png"></li><li title="[大哭]"><img class="face" src="__STATIC__/chat/wxface/9.png"></li><li title="[尴尬]"><img class="face" src="__STATIC__/chat/wxface/10.png"></li><li title="[发怒]"><img class="face" src="__STATIC__/chat/wxface/11.png"></li><li title="[调皮]"><img class="face" src="__STATIC__/chat/wxface/12.png"></li><li title="[呲牙]"><img class="face" src="__STATIC__/chat/wxface/13.png"></li><li title="[惊讶]"><img class="face" src="__STATIC__/chat/wxface/14.png"></li><li title="[难过]"><img class="face" src="__STATIC__/chat/wxface/15.png"></li><li title="[酷]"><img class="face" src="__STATIC__/chat/wxface/16.png"></li><li title="[囧]"><img class="face" src="__STATIC__/chat/wxface/17.png"></li><li title="[抓狂]"><img class="face" src="__STATIC__/chat/wxface/18.png"></li><li title="[吐]"><img class="face" src="__STATIC__/chat/wxface/19.png"></li><li title="[偷笑]"><img class="face" src="__STATIC__/chat/wxface/20.png"></li><li title="[愉快]"><img class="face" src="__STATIC__/chat/wxface/21.png"></li><li title="[白眼]"><img class="face" src="__STATIC__/chat/wxface/22.png"></li><li title="[傲慢]"><img class="face" src="__STATIC__/chat/wxface/23.png"></li><li title="[困]"><img class="face" src="__STATIC__/chat/wxface/25.png"></li><li title="[惊恐]"><img class="face" src="__STATIC__/chat/wxface/26.png"></li><li title="[流汗]"><img class="face" src="__STATIC__/chat/wxface/27.png"></li><li title="[憨笑]"><img class="face" src="__STATIC__/chat/wxface/28.png"></li><li title="[悠闲]"><img class="face" src="__STATIC__/chat/wxface/29.png"></li><li title="[奋斗]"><img class="face" src="__STATIC__/chat/wxface/30.png"></li><li title="[咒骂]"><img class="face" src="__STATIC__/chat/wxface/31.png"></li><li title="[疑问]"><img class="face" src="__STATIC__/chat/wxface/32.png"></li><li title="[嘘]"><img class="face" src="__STATIC__/chat/wxface/33.png"></li><li title="[晕]"><img class="face" src="__STATIC__/chat/wxface/34.png"></li><li title="[衰]"><img class="face" src="__STATIC__/chat/wxface/36.png"></li><li title="[骷髅]"><img class="face" src="__STATIC__/chat/wxface/37.png"></li><li title="[敲打]"><img class="face" src="__STATIC__/chat/wxface/38.png"></li><li title="[再见]"><img class="face" src="__STATIC__/chat/wxface/39.png"></li><li title="[擦汗]"><img class="face" src="__STATIC__/chat/wxface/40.png"></li><li title="[抠鼻]"><img class="face" src="__STATIC__/chat/wxface/41.png"></li><li title="[鼓掌]"><img class="face" src="__STATIC__/chat/wxface/42.png"></li><li title="[糗大了]"><img class="face" src="__STATIC__/chat/wxface/43.png"></li><li title="[坏笑]"><img class="face" src="__STATIC__/chat/wxface/44.png"></li><li title="[左哼哼]"><img class="face" src="__STATIC__/chat/wxface/45.png"></li><li title="[右哼哼]"><img class="face" src="__STATIC__/chat/wxface/46.png"></li><li title="[哈欠]"><img class="face" src="__STATIC__/chat/wxface/47.png"></li><li title="[鄙视]"><img class="face" src="__STATIC__/chat/wxface/48.png"></li><li title="[委屈]"><img class="face" src="__STATIC__/chat/wxface/49.png"></li><li title="[快哭了]"><img class="face" src="__STATIC__/chat/wxface/50.png"></li><li title="[阴险]"><img class="face" src="__STATIC__/chat/wxface/51.png"></li><li title="[亲亲]"><img class="face" src="__STATIC__/chat/wxface/52.png"></li><li title="[吓]"><img class="face" src="__STATIC__/chat/wxface/53.png"></li><li title="[可怜]"><img class="face" src="__STATIC__/chat/wxface/54.png"></li><li title="[菜刀]"><img class="face" src="__STATIC__/chat/wxface/55.png"></li><li title="[西瓜]"><img class="face" src="__STATIC__/chat/wxface/56.png"></li><li title="[啤酒]"><img class="face" src="__STATIC__/chat/wxface/57.png"></li><li title="[篮球]"><img class="face" src="__STATIC__/chat/wxface/58.png"></li><li title="[乒乓]"><img class="face" src="__STATIC__/chat/wxface/59.png"></li><li title="[咖啡]"><img class="face" src="__STATIC__/chat/wxface/60.png"></li><li title="[饭]"><img class="face" src="__STATIC__/chat/wxface/61.png"></li><li title="[猪头]"><img class="face" src="__STATIC__/chat/wxface/62.png"></li><li title="[玫瑰]"><img class="face" src="__STATIC__/chat/wxface/63.png"></li><li title="[凋谢]"><img class="face" src="__STATIC__/chat/wxface/64.png"></li><li title="[嘴唇]"><img class="face" src="__STATIC__/chat/wxface/65.png"></li><li title="[爱心]"><img class="face" src="__STATIC__/chat/wxface/66.png"></li><li title="[心碎]"><img class="face" src="__STATIC__/chat/wxface/67.png"></li><li title="[蛋糕]"><img class="face" src="__STATIC__/chat/wxface/68.png"></li><li title="[闪电]"><img class="face" src="__STATIC__/chat/wxface/69.png"></li><li title="[炸弹]"><img class="face" src="__STATIC__/chat/wxface/70.png"></li><li title="[刀]"><img class="face" src="__STATIC__/chat/wxface/71.png"></li><li title="[足球]"><img class="face" src="__STATIC__/chat/wxface/72.png"></li><li title="[瓢虫]"><img class="face" src="__STATIC__/chat/wxface/73.png"></li><li title="[便便]"><img class="face" src="__STATIC__/chat/wxface/74.png"></li><li title="[月亮]"><img class="face" src="__STATIC__/chat/wxface/75.png"></li><li title="[太阳]"><img class="face" src="__STATIC__/chat/wxface/76.png"></li><li title="[礼物]"><img class="face" src="__STATIC__/chat/wxface/77.png"></li><li title="[拥抱]"><img class="face" src="__STATIC__/chat/wxface/78.png"></li><li title="[强]"><img class="face" src="__STATIC__/chat/wxface/79.png"></li><li title="[弱]"><img class="face" src="__STATIC__/chat/wxface/80.png"></li><li title="[握手]"><img class="face" src="__STATIC__/chat/wxface/81.png"></li><li title="[胜利]"><img class="face" src="__STATIC__/chat/wxface/82.png"></li><li title="[抱拳]"><img class="face" src="__STATIC__/chat/wxface/83.png"></li><li title="[勾引]"><img class="face" src="__STATIC__/chat/wxface/84.png"></li><li title="[拳头]"><img class="face" src="__STATIC__/chat/wxface/85.png"></li><li title="[差劲]"><img class="face" src="__STATIC__/chat/wxface/86.png"></li><li title="[爱你]"><img class="face" src="__STATIC__/chat/wxface/87.png"></li><li title="[NO]"><img class="face" src="__STATIC__/chat/wxface/88.png"></li><li title="[OK]"><img class="face" src="__STATIC__/chat/wxface/89.png"></li><li title="[跳跳]"><img class="face" src="__STATIC__/chat/wxface/90.png"></li><li title="[发抖]"><img class="face" src="__STATIC__/chat/wxface/91.png"></li><li title="[怄火]"><img class="face" src="__STATIC__/chat/wxface/92.png"></li><li title="[转圈]"><img class="face" src="__STATIC__/chat/wxface/93.png"></li>
+												</ul>
+											</div>
+										</div>
+									</div>
+									<div class="layui-form-item hide" id="message_image">
+										<label class="layui-form-label" style="text-align:left;padding-left:0">选择图片：</label>
+										<input type="hidden" name="image_content" id="image_content" class="layui-input" value="">
+										<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="image_content" upload-preview="image_contentPreview" onclick="uploader(this,false,{'browser':'active','wximage':''})">上传图片</button>
+										<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">不大于2M</div>
+										<div id="image_contentPreview" style="float:left;padding-top:10px;margin-left:95px;clear: both;">
+											<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src=""/></div></div>
+										</div>
+									</div>
+									<div class="layui-form-item hide" id="message_voice">
+										<label class="layui-form-label" style="text-align:left;padding-left:0">选择音频：</label>
+										<input type="hidden" name="voice_content" value="" id="voice_content"/>
+										<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="voice_content" upload-preview="voice_contentPreview" onclick="uploader(this,false,{'browser':'active','wxvoice':''})">上传音频</button>
+										<div id="voice_contentPreview" class="layui-form-mid" style="margin-left:20px;"></div>
+										<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">请上传mp3格式的音频，不大于2M</div>
+										<script>
+										function delaudio(){
+											$('#voice_contentPreview').html('');
+											$('#voice_content').val('');
+										}
+										</script>
+									</div>
+									<div id="message_video" class="hide">
+										<div class="layui-form-item">
+											<label class="layui-form-label" style="text-align:left;padding-left:0">选择视频：</label>
+											<input type="hidden" name="video_content" value="" id="video_content"/>
+											<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="video_content" upload-preview="video_contentPreview" onclick="uploader(this,false,{'browser':'active','wxvideo':''})">上传视频</button>
+											<div id="video_contentPreview" class="layui-form-mid" style="margin-left:20px;"></div>
+											<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">请上传mp4格式的视频，不大于10M</div>
+										</div>
+										<div class="layui-form-item">
+											<label class="layui-form-label" style="text-align:left;padding-left:0">视频标题</label>
+											<div class="layui-input-inline" style="width:300px">
+												<input type="text" value="" name="video_title" class="layui-input">
+											</div>
+											<div class="layui-form-mid layui-word-aux"></div>
+										</div>
+										<div class="layui-form-item">
+											<label class="layui-form-label" style="text-align:left;padding-left:0">视频描述</label>
+											<div class="layui-input-inline" style="width:300px">
+												<input type="text" value="" name="video_introduction" class="layui-input">
+											</div>
+											<div class="layui-form-mid layui-word-aux"></div>
+										</div>
+									</div>
+								</div>
+								<div id="menu_view" class="hide">
+									<div class="layui-form-item">
+										<label class="layui-form-label" style="text-align:left;padding-left:0">页面地址</label>
+										<div class="layui-input-inline" style="width:300px">
+											<input type="text" value="" name="menu_url" class="layui-input">
+										</div>
+										<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="chooseUrl(0)">选择链接地址</button>
+										<div class="layui-form-mid layui-word-aux" style="float:left;padding-top:10px;margin-left:110px;clear: both;">请填写http://或https://开头的完整链接地址</div>
+									</div> 
+								</div>
+								<div id="menu_miniprogram" class="hide">
+									<div class="layui-form-item">
+										<label class="layui-form-label" style="text-align:left;padding-left:0;padding-right:0;width: 95px;">小程序AppID</label>
+										<div class="layui-input-inline">
+											<input type="text" value="" name="menu_appid" class="layui-input">
+										</div>
+										<!-- <button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="selectminiprogram()">选择小程序</button> -->
+										<div class="layui-form-mid"> AppID请登录小程序查找</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label" style="text-align:left;padding-left:0">小程序路径</label>
+										<div class="layui-input-inline">
+											<input type="text" value="" name="menu_pagepath" class="layui-input">
+										</div>
+										<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="chooseUrl(1)">选择路径</button>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div style="margin-top:15px;width:700px;text-align:center">
+							<div class="layui-form-mid text-center" style="float: none;color: red">提示：保存提示错误请检查<b>所有的</b>菜单是否设置正确</div>
+							<button class="layui-btn layui-btn-normal" onclick="menusave(1)">保存并发布</button>
+							<button class="layui-btn layui-btn-primary" onclick="menusave(0)">保存</button>
+						</div>
+					</div>
+					</td>
+				</tr>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+{include file="public/js"/}
+<script>
+var menudata = {$menudata};
+var menuindex = 0;
+var submenuindex = -1;
+function initmenudata(){
+	console.log('initmenudata');
+	if(menuindex+1 > menudata.length) menuindex = menudata.length-1
+	if(submenuindex>0 && submenuindex+1 > (menudata[menuindex].sub_button).length) submenuindex = (menudata[menuindex].sub_button).length-1
+	var nowmenudata = menudata[menuindex];
+	if(menudata.length >0){
+		var tabbarhtml = '';
+		for(var i in menudata){
+			var sub_button = menudata[i].sub_button
+			console.log(sub_button)
+			if(i==menuindex){
+				tabbarhtml+='<div class="tabitem '+(submenuindex==-1?'on':'')+'">'
+				if(typeof(sub_button)!='undefined' && sub_button.length > 0){
+					tabbarhtml+='	<div style="width:100%;height:100%" onclick="menuchange('+i+')"><i class="fa fa-navicon"></i>'+menudata[i].menu_name+'</div>';
+				}else{
+					tabbarhtml+='	<div style="width:100%;height:100%" onclick="menuchange('+i+')">'+menudata[i].menu_name+'</div>';
+				}
+				tabbarhtml+='	<div class="subbar">';
+				if(typeof(sub_button)!='undefined' && sub_button.length > 0){
+					for(var j in sub_button){
+						tabbarhtml+='		<div class="subitem '+(j==submenuindex?'on':'')+'" onclick="submenuchange('+j+')"><span style="font-size:14px;color:#555">'+sub_button[j].menu_name+'</span></div>';
+					}
+				}
+				if(typeof(sub_button)=='undefined' || sub_button.length<5){
+					tabbarhtml+='		<div class="subitemadd" onclick="submenuadd()"><span style="font-size:20px;color:#aaa">+</span></div>';
+				}
+				tabbarhtml+='	</div>';
+				tabbarhtml+='	<i class="arrow-down"></i>';
+				tabbarhtml+='</div>';
+			}else{
+				if(typeof(sub_button)!='undefined' && sub_button.length > 0){
+					tabbarhtml+='<div class="tabitem" onclick="menuchange('+i+')"><i class="fa fa-navicon"></i>'+menudata[i].menu_name+'</div>';
+				}else{
+					tabbarhtml+='<div class="tabitem" onclick="menuchange('+i+')">'+menudata[i].menu_name+'</div>';
+				}
+			}
+		}
+		if(menudata.length < 3){
+			tabbarhtml+='<div class="tabitemadd" onclick="menuadd()">+添加菜单</div>';
+		}
+		$('.tabBar').html(tabbarhtml);
+		console.log(nowmenudata)
+		var sub_button = nowmenudata.sub_button
+		if(typeof(sub_button)!='undefined' && sub_button.length > 0 && submenuindex>-1){
+			nowmenudata = sub_button[submenuindex]
+		}
+		$('.menu_name').text(nowmenudata.menu_name);
+		$('input[name=menu_name]').val(nowmenudata.menu_name);
+		$('input[name=menu_type][value='+nowmenudata.menu_type+']').prop('checked','checked');
+		$('input[name=message_type][value='+nowmenudata.message_type+']').prop('checked','checked');
+		$('[id^=message_]').hide();
+		$('#message_'+nowmenudata.message_type).show();
+		$('input[name=news_content]').val(nowmenudata.news_content);
+		$('textarea[name=text_content]').val(nowmenudata.text_content);
+		$('input[name=image_content]').val(nowmenudata.image_content);
+		$('#image_contentPreview img').attr('src',nowmenudata.image_content);
+		$('input[name=voice_content]').val(nowmenudata.voice_content);
+		$('#voice_contentPreview').text(nowmenudata.voice_content?'已上传':'');
+		$('input[name=video_content]').val(nowmenudata.video_content);
+		$('#video_contentPreview').text(nowmenudata.video_content?'已上传':'');
+		$('input[name=video_title]').val(nowmenudata.video_title);
+		$('input[name=video_introduction]').val(nowmenudata.video_introduction);
+		$('input[name=menu_url]').val(nowmenudata.menu_url);
+		$('input[name=menu_appid]').val(nowmenudata.menu_appid);
+		$('input[name=menu_pagepath]').val(nowmenudata.menu_pagepath);
+		layui.form.render();
+		if(nowmenudata.menu_type=='click'&&nowmenudata.message_type=='news'){
+			setmediainfo(nowmenudata.news_content);
+		}
+		$('[id^=menu_]').hide();
+		if(typeof(nowmenudata.sub_button)=='undefined' || (nowmenudata.sub_button).length == 0){
+			$('#setmenu_type').show();
+			$('#menu_'+nowmenudata.menu_type).show();
+		}
+		$('.editor_inner').show();
+	}else{
+		$('.tabBar').html('<div class="tabitemadd on" onclick="menuadd(this)">+添加菜单</div>');
+		$('.editor_inner').hide();
+	}
+	
+	//$('#editor-content .tabitem').removeClass('on')
+	//$('#editor-content .tabitem').eq(menuindex).addClass('on');
+	//var nowindex = $('.tabitem.on').index();
+}
+function setmenudata(){
+	if(typeof(menudata[menuindex]) === 'undefined') return;
+	//var nowindex = $('.tabitem.on').index();
+	var formdata = layui.form.val('form');
+	var sub_button = menudata[menuindex].sub_button
+	if(submenuindex>-1){
+		sub_button[submenuindex] = formdata
+	}else{
+		menudata[menuindex] = formdata
+	}
+	if(typeof(sub_button)!=='undefined'){
+		menudata[menuindex].sub_button = sub_button
+	}
+	//initmenudata()
+}
+//切换菜单
+function menuchange(index){
+	setmenudata();
+	menuindex = index;
+	submenuindex = -1
+	initmenudata()
+}
+//添加菜单
+function menuadd(){
+	menuindex = menudata.length
+	menudata.push({'menu_type':'view','menu_name':'菜单名称','menu_url':''});
+	console.log(menudata)
+	initmenudata()
+}
+//删除菜单
+function delmenu(){
+	console.log(menuindex)
+	console.log(submenuindex)
+	if(submenuindex==-1){
+		menudata.splice(menuindex,1);
+	}else{
+		var sub_button = menudata[menuindex].sub_button
+		console.log(sub_button);
+		sub_button.splice(submenuindex,1);
+		console.log(sub_button);
+		if(sub_button.length == 0){
+			delete menudata[menuindex].sub_button
+			submenuindex = -1
+		}else{
+			menudata[menuindex].sub_button = sub_button
+		}
+	}
+	initmenudata();
+}
+
+//添加子菜单
+function submenuadd(){
+	var nowmenudata = menudata[menuindex];
+	if(typeof(nowmenudata.sub_button) === 'undefined'){
+		var sub_button = [{'menu_type':'view','menu_name':'子菜单名称','menu_url':''}];
+	}else{
+		var sub_button = nowmenudata.sub_button
+		sub_button.push({'menu_type':'view','menu_name':'子菜单名称','menu_url':''});
+	}
+	submenuindex = sub_button.length - 1
+	console.log(submenuindex)
+	nowmenudata.sub_button = sub_button;
+	menudata[menuindex] = nowmenudata
+	console.log(menudata)
+	initmenudata()
+}
+//切换子菜单
+function submenuchange(index){
+	setmenudata();
+	submenuindex = index;
+	initmenudata()
+}
+
+//上移
+function goup(){
+	console.log(menuindex)
+	console.log(submenuindex)
+	if(submenuindex==-1){ //主菜单
+		if(menuindex == 0){
+			layer.msg('已经到顶了');
+			return;
+		}
+		menudata[menuindex] = menudata.splice(menuindex-1, 1, menudata[menuindex])[0];
+		menuindex = menuindex - 1
+	}else{
+		if(submenuindex == 0){
+			layer.msg('已经到顶了');
+			return;
+		}
+		var nowmenudata = menudata[menuindex];
+		var sub_button = menudata[menuindex].sub_button
+		sub_button[submenuindex] = sub_button.splice(submenuindex-1, 1, sub_button[submenuindex])[0];
+		nowmenudata.sub_button = sub_button;
+		menudata[menuindex] = nowmenudata
+		submenuindex = submenuindex - 1
+	}
+	initmenudata();
+	return ;
+}
+//下移
+function godown(){
+	if(submenuindex==-1){ //主菜单
+		if(menuindex == menudata.length-1){
+			layer.msg('已经到底了');
+			return;
+		}
+		menudata[menuindex] = menudata.splice(menuindex+1, 1, menudata[menuindex])[0];
+		menuindex = menuindex + 1
+	}else{
+		var nowmenudata = menudata[menuindex];
+		var sub_button = menudata[menuindex].sub_button
+		if(submenuindex == sub_button.length-1){
+			layer.msg('已经到底了');
+			return;
+		}
+		sub_button[submenuindex] = sub_button.splice(submenuindex+1, 1, sub_button[submenuindex])[0];
+		nowmenudata.sub_button = sub_button;
+		menudata[menuindex] = nowmenudata
+		submenuindex = submenuindex + 1
+	}
+	initmenudata();
+	return ;
+}
+
+//提交发布
+function menusave(type){
+	setmenudata();
+	var index = layer.load();
+	$.post("{:url('save')}",{type:type,menudata:menudata},function(res){
+		layer.close(index)
+		dialog(res.msg,res.status,res.url);
+	})
+}
+$(function(){
+	initmenudata();
+	layui.form.on('radio(menu_type)',function(data){
+		$('[id^=menu_]').hide();
+		$('#menu_'+data.value).show();
+		setmenudata();
+	})
+	layui.form.on('radio(message_type)',function(data){
+		$('[id^=message_]').hide();
+		$('#message_'+data.value).show();
+		setmenudata();
+	})
+	$('#menuform input[name=menu_name]').change(function(){
+		setmenudata();
+		initmenudata()
+	})
+	//表情
+	$('#get_smile').click(function(){
+		$("#facedialog").show();
+	})
+	$(document).click(function (e) {
+    var drag = $("#facedialog"),
+    dragel = $("#facedialog")[0],
+    btnel = $("#get_smile")[0],
+    target = e.target;
+    if(dragel !== target && !$.contains(dragel, target) && btnel !== target && !$.contains(btnel, target)) {
+        drag.hide();
+    }
+	});
+	$('.face-layer-face>li').click(function(){
+		$("#facedialog").hide();
+		var face = $(this).attr('title');
+		$('#text_content').val($('#text_content').val() + face);
+		$('#text_content').keyup();
+	});
+});
+//选择链接
+var urltype = 0
+function chooseUrl(type){
+	urltype = type
+	layer.open({type:2,shadeClose:true,area:['1200px', '650px'],'title':'选择链接',content:"{:url('DesignerPage/chooseurl')}"})
+}
+function chooseLink(urlname,hrefurl){
+	if(urltype==0){
+		hrefurl = '{$Think.const.PRE_URL2}/h5/{$aid}.html#'+hrefurl;
+		$("input[name='menu_url']").val(hrefurl);
+	}else{
+		$("input[name='menu_pagepath']").val(hrefurl.substr(1));
+	}
+}
+//选择素材
+function selectnews(){
+	layer.open({type:2,shadeClose:true,area:['930px', '700px'],'title':'选择素材',content:"{:url('newslist')}"})
+}
+function choosenews(media_id){
+	$("input[name='news_content']").val(media_id);
+	console.log(media_id);
+	setmediainfo(media_id);
+}
+//显示选择的素材
+function setmediainfo(media_id){
+	if(!media_id){
+		$('#news_contentPreview').html('')
+		return;
+	}
+	var index = layer.load();
+	$.post("{:url('getmediainfo')}",{media_id:media_id},function(res){
+		layer.close(index)
+		if(res.status==0){
+			dialog(res.msg)
+		}else{
+			console.log(res)
+			var news_item = res.data;
+			var html ='<div style="width:300px;padding:12px;border:1px solid #ddd">';
+			for(var i in news_item){
+				var m = news_item[i]
+				if(i==0){
+					html+='<div style="width:100%">';
+					html+='<div style="position:relative"><img src="'+m.thumb_url+'" style="width:300px;height:160px;max-width:300px"/><div style="height:40px;padding:0 10px;width:280px;position:absolute;bottom:0;left:0;color:#fff;background:rgba(100,100,100,0.5);display:flex;align-items:center;word-wrap: break-word;word-break: break-all;overflow:hidden;">'+m.title+'</div></div>';
+					html+='';
+					html+='</div>';
+				}else{
+					html+='<div style="width:100%;margin-top:5px;padding-top:5px;border-top:1px solid #ddd;display:flex">';
+					html+='<div style="flex:1;display:flex;align-items:center;">'+m.title+'</div>';
+					html+='<div><img src="'+m.thumb_url+'" style="width:50px;height:50px"/></div>';
+					html+='</div>';
+				}
+			}
+			html+='</div>';
+			$('#news_contentPreview').html(html)
+		}
+	})
+}
+//选择小程序
+var miniprogramlayer
+function selectminiprogram(){
+	var index = layer.load();
+	$.post("{:url('getminiprogram')}",{},function(res){
+		layer.close(index)
+		if(res.status==0){
+			dialog(res.msg)
+		}else{
+			console.log(res)
+			var programlist = res.data
+			var html = '<div style="display:flex;flex-wrap:wrap;padding:20px">';
+			for(var i in programlist){
+				html+='<div style="border:1px solid #f5f5f5;border-radius:5px;width:290px;height:100px;margin:5px;padding:0 10px;display:flex;align-items:center;cursor:pointer" onclick="checkminiprogram(\''+programlist[i].appid+'\',\''+programlist[i].status+'\')">';
+				html+='<img src="'+programlist[i].headimg_url+'" style="width:60px;height:60px"/> ';
+				html+='<div style="display:flex;flex-direction:column">'
+				html+='	<span style="padding-left:10px;font-size:16px">'+programlist[i].nickname+'</span>';
+				if(programlist[i].status==1){
+				html+='	<span style="padding-left:10px;font-size:12px;color:green">已关联</span>';
+				}else if(programlist[i].status==2){
+				html+='	<span style="padding-left:10px;font-size:12px;color:red">等待小程序管理员确认中</span>';
+				}else if(programlist[i].status==3){
+				html+='	<span style="padding-left:10px;font-size:12px;color:red">小程序管理员拒绝关联</span>';
+				}else if(programlist[i].status==12){
+				html+='	<span style="padding-left:10px;font-size:12px;color:red">等到公众号管理员确认中</span>';
+				}
+				if(programlist[i].appid){
+					html+='	<span style="padding-left:10px;font-size:12px;">AppID: '+programlist[i].appid+'</span>';
+				}
+				html+='</div>';
+				html+='</div>';
+			}
+			html+='</div>';
+			if(res.showgl==1){
+				var xcxauthinfo = res.xcxauthinfo
+				html+= '<div style="padding-left:20px">当前授权的小程序尚未关联公众号</div>';
+				html+= '<div style="display:flex;flex-wrap:wrap;padding:20px;padding-top:10px">';
+				html+='<div style="border:1px solid #f5f5f5;border-radius:5px;width:290px;height:100px;margin:5px;padding:0 10px;display:flex;align-items:center;cursor:pointer" onclick="guanlian(\''+xcxauthinfo.appid+'\')">';
+				html+='<img src="'+xcxauthinfo.head_img+'" style="width:60px;height:60px"/> ';
+				html+='<div style="display:flex;flex-direction:column">'
+				html+='	<span style="padding-left:10px;font-size:16px">'+xcxauthinfo.nick_name+'</span>';
+				html+='	<span style="padding-left:10px;font-size:12px;">AppID: '+xcxauthinfo.appid+'</span>';
+				html+='	<span style="padding-left:10px;font-size:14px;color:red;">点击关联</span>';
+				html+='</div>';
+				html+='</div>';
+				html+='</div>';
+			}
+			miniprogramlayer = layer.open({type:1,shadeClose:true,area:['700px', '500px'],'title':'已关联的小程序',content:html})
+		}
+	});
+}
+function checkminiprogram(appid,st){
+	if(st!=1){
+		if(st==2){
+			dialog('关联尚未完成，等待小程序管理员确认中');
+		}
+		if(st==3){
+			dialog('未关联成功，小程序管理员拒绝关联');
+		}
+		if(st==12){
+			dialog('关联尚未完成，等到公众号管理员确认中');
+		}
+	}else{
+		if(appid==''){
+			dialog('请用小程序账号登录公众平台(mp.weixin.qq.com)，在 [开发]-[开发设置] 中查看AppID');
+		}else{
+			layer.close(miniprogramlayer);
+			$('input[name=menu_appid]').val(appid);
+		}
+	}
+}
+//关联小程序
+function guanlian(appid){
+	var index = layer.load();
+	$.post("{:url('guanlian')}",{appid:appid},function(res){
+		layer.close(index)
+		dialog(res.msg,res.status)
+		layer.close(miniprogramlayer);
+		if(res.status==1){
+			$('input[name=menu_appid]').val(appid);
+		}
+	})
+}
+</script>
+</body>
+</html>

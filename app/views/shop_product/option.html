@@ -1,0 +1,476 @@
+	<div class="layui-form-item">
+									<label class="layui-form-label">
+										{if in_array('procode',$requiredField)}<span class="redstar">*</span>{/if}商品编码：</label>
+									<div class="layui-input-inline">
+										<input type="text" name="info[procode]" class="layui-input" value="{$info['procode']}" {if in_array('procode',$requiredField)}lay-verify="required" lay-verType="tips"{/if}>
+									</div>
+								</div>
+
+								<div class="layui-form-item">
+									<label class="layui-form-label">商品条码：</label>
+									<div class="layui-input-inline">
+										<input type="text" name="info[barcode]" class="layui-input" value="{$info['barcode']}">
+									</div>
+								</div>
+
+								{if getcustom('product_unit')}
+								<div class="layui-form-item">
+									<label class="layui-form-label">商品单位：</label>
+									<div class="layui-input-inline">
+										<input type="text" name="info[product_unit]" class="layui-input" value="{$info['product_unit']}">
+									</div>
+									<div class="layui-form-mid layui-word-aux">拼接在价格后展示</div>
+								</div>
+								{/if}
+								{if getcustom('to86yk')}
+								<div class="layui-form-item">
+									<label class="layui-form-label">对应tid：</label>
+									<div class="layui-input-inline">
+										<input type="text" name="info[to86yk_tid]" class="layui-input" value="{$info['to86yk_tid']}">
+									</div>
+								</div>
+								{/if}
+
+								{if getcustom('pay_yuanbao')}
+								<div class="layui-form-item">
+									<label class="layui-form-label">{:t('元宝')}价：</label>
+									<div class="layui-input-inline">
+										<input type="text" name="info[yuanbao]" class="layui-input" value="{$info['yuanbao']}">
+									</div>
+									<div class="layui-form-mid layui-word-aux">大于0时启用，设置后还需要支付{$yuanbao_money_ratio}%比例的现金</div>
+								</div>
+								{/if}
+								{if getcustom('product_extend')}
+								<div class="layui-form-item">
+									<label class="layui-form-label">商品类型：</label>
+									<div class="layui-input-inline" style="width: 50%">
+										<input type="radio" name="info[product_type]" value="0" lay-filter="productType" class="layui-input" {if !$info || $info.product_type==0}checked{/if} title="普通商品">
+										{if getcustom('product_glass')}
+										<input type="radio" name="info[product_type]" value="1" lay-filter="productType" class="layui-input" {if $info && $info.product_type==1}checked{/if} title="眼镜商品">
+										{/if}
+										{if getcustom('product_weight') && ($auth_data=='all' || in_array('ProductWeight',$auth_data))}
+										<input type="radio" name="info[product_type]" value="2" lay-filter="productType" class="layui-input" {if $info && $info.product_type==2}checked{/if} title="称重商品">
+										{/if}
+										{if getcustom('product_handwork')}
+											{if $auth_data=='all' || in_array('ProductHand',$auth_data)}
+											<input type="radio" name="info[product_type]" value="3" lay-filter="productType" class="layui-input" {if $info && $info.product_type==3}checked{/if} title="手工活商品">
+											<input type="hidden" class="product_type" value="{$info.product_type?$info.product_type:'0'}" class="layui-input">
+											{/if}
+										{/if}
+										{if getcustom('product_wholesale')}
+										<input type="radio" name="info[product_type]" value="4" lay-filter="productType" class="layui-input" {if $info && $info.product_type==4}checked{/if} title="批发商品">
+										<input type="hidden" class="product_type" value="{$info.product_type?$info.product_type:'0'}" class="layui-input">
+										{/if}
+										{if getcustom('shop_product_fenqi_pay')}
+										<input type="radio" name="info[product_type]" value="5" lay-filter="productType" class="layui-input" {if $info && $info.product_type==5}checked{/if} title="分期商品">
+										<input type="hidden" class="product_type" value="{$info.product_type?$info.product_type:'0'}" class="layui-input">
+										{/if}
+										{if getcustom('more_productunit_guige')}
+										<input type="radio" name="info[product_type]" value="6" lay-filter="productType" class="layui-input" {if $info && $info.product_type==6}checked{/if} title="启用多单位">
+										<input type="hidden" class="product_type" value="{$info.product_type?$info.product_type:'0'}" class="layui-input">
+										{/if}
+									</div>
+								</div>
+								{/if}
+								{if !getcustom('product_extend')}
+								<input type="hidden" name="info[product_type]" value="0">
+								{/if}
+								{if getcustom('shop_product_fenqi_pay')}
+								<div class="fenqi_pro"  style="{if $info['product_type']!=5}display:none{/if}">
+								<div class="layui-form-item fenqi_pro">
+									<label class="layui-form-label">赠送{:t('优惠券')}：</label>
+									<button class="layui-btn layui-btn-primary selectcoupon" onclick="showChooseCoupon(1)" style="margin-left:5px;padding:0 12px;">选择</button>
+									<div class="layui-input-inline">
+										<input type="text" name="info[fenqigive_couponid]" class="layui-input" value="{$info['fenqigive_couponid']}">
+										
+									</div>							
+								</div>
+								<div class="layui-form-item fenqi_pro">
+									<label class="layui-form-label">分销奖励{:t('优惠券')}：</label>
+									<button class="layui-btn layui-btn-primary selectcoupon" onclick="showChooseCoupon(2)" style="margin-left:5px;padding:0 12px;">选择</button>
+									<div class="layui-input-inline">
+										<input type="text" name="info[fenqigive_fx_couponid]" class="layui-input" value="{$info['fenqigive_fx_couponid']}">
+										
+									</div>							
+								</div>
+								<div >
+									<div class="layui-form-item">
+										<label class="layui-form-label">赠送{:t('优惠券')}数量：</label>
+										<div class="layui-input-inline layui-module-itemL">
+											<div >购买赠送数量</div>
+											<input   type="text" name="info[fenqigive_couponnum]" class="layui-input" value="{$info.fenqigive_couponnum}">
+										</div>
+										<div class="layui-input-inline layui-module-itemL">
+											<div>分销奖励数量：</div>
+											<input   type="text" name="info[fenqigive_couponnum_fenxiao]" class="layui-input" value="{$info.fenqigive_couponnum_fenxiao}">
+										</div>
+										<div class="layui-form-mid layui-word-aux layui-clear">一次购买赠送{:t('优惠券')}数量
+											<br>
+											分销奖励数量 一次购买分销奖励上级{:t('优惠券')}数量
+											</div>
+									</div>
+								</div>	
+								<!-- <div class="layui-form-item fenqi_pro">
+										<label class="layui-form-label">购买赠送数量：</label>
+										<div class="layui-input-inline">
+											<input type="text" name="info[fenqigive_couponnum]" value="{$info['fenqigive_couponnum']}" class="layui-input">
+										</div>
+										<div class="layui-form-mid layui-word-aux">一次购买赠送{:t('优惠券')}数量</div>
+								</div>
+								<div class="layui-form-item fenqi_pro">
+									<label class="layui-form-label">分销奖励数量：</label>
+									<div class="layui-input-inline">
+										<input type="text" name="info[fenqigive_couponnum_fenxiao]" value="{$info['fenqigive_couponnum_fenxiao']}" class="layui-input">
+									</div>			
+									<div class="layui-form-mid layui-word-aux">一次购买分销奖励{:t('优惠券')}数量</div>
+								</div> -->
+								<div class="layui-form-item fenqi_pro">
+									<label class="layui-form-label">分期设置：</label>
+									<div class="layui-input-inline" style="width:auto">
+										<table id="fenqi_data_div"  class="layui-table" style="width:700px">
+											<thead>
+											<tr>
+												<th>分期比例%</th>
+												<th>赠送数量</th>
+												<th>分销奖励数量</th>
+												<th>操作</th>
+											</tr>
+											</thead>
+											{php} $fenqi_data = json_decode($info['fenqi_data']);{/php}
+											{if $fenqi_data}
+											{foreach $fenqi_data as $k=>$jditem}
+											<tr>
+												<td >
+
+														<input type="number" class="layui-input" name="fenqi_num_ratio[]" value="{$jditem->fenqi_num_ratio}" placeholder="期数" style="width:90px">														
+
+												</td>
+												<td >
+
+														<input type="number" class="layui-input" name="fenqi_give_num[]" value="{$jditem->fenqi_give_num}" placeholder="赠送数量" style="width:90px">														
+	
+												</td>
+												<td >
+
+														<input type="number" class="layui-input" name="fenqi_fx_start_num[]" value="{$jditem->fenqi_fx_start_num}" placeholder="第一笔数量" style="width:90px">														
+
+												</td>
+												<!-- <td >
+
+														<input type="number" class="layui-input" name="fenqi_fx_end_num[]" value="{$jditem->fenqi_fx_end_num}" placeholder="最后一笔数量" style="width:90px">														
+												</td> -->
+												{if $k==0}
+												<td width="50"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="addfenqi_data()">添加</button></td>
+												{else}
+												<td width="50"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="$(this).parent().parent().remove()">删除</button></td>
+												{/if}
+											</tr>
+											{/foreach}
+											{else}
+											<tr>
+												<td >
+
+														<input type="number" class="layui-input" name="fenqi_num_ratio[]" value="" placeholder="分期比例" style="width:90px">										
+	
+												</td>
+												<td >
+
+														<input type="number" class="layui-input" name="fenqi_give_num[]" value="" placeholder="赠送数量" style="width:90px">														
+
+												</td>
+												
+												<td >
+
+														<input type="number" class="layui-input" name="fenqi_fx_start_num[]" value="" placeholder="分销奖励数量" style="width:90px">														
+
+												</td>
+												<!-- <td >
+														<input type="number" class="layui-input" name="fenqi_fx_end_num[]" value="" placeholder="最后一笔数量" style="width:90px">														
+												</td> -->
+												<td width="50"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="addfenqi_data()">添加</button></td>
+											</tr>
+											{/if}
+										</table>
+										<div class="layui-word-aux">添加</div>
+									</div>
+								</div>
+								<script>
+									function addfenqi_des(obj){
+				
+										var fenqiobj = $(obj).parent().parent().append('<div class="layui-input-inline layui-module-itemL"><input class="layui-input" name="fenqi_pay_radio[]" type="text" style="width:90px;" value="" placeholder="支付比例">%<input class="layui-input" name="fenqi_give_num[]" type="text" style="width:90px;" value="" placeholder="赠送数量"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="$(this).parent().remove()" style="margin-top:-3px;"><i class="fa fa-remove" style="font-size:14px!important"></i></button></div>');
+									}
+									
+								function addfenqi_data(){
+									var jdhtml = '<tr>';
+
+												jdhtml += '<td>';
+												jdhtml += '<input type="number" class="layui-input" name="fenqi_num_ratio[]" value="" placeholder="分期比例" style="width:90px;">';
+												jdhtml += '</td>';
+
+												jdhtml += '<td>';
+												jdhtml += '<input type="number" class="layui-input" name="fenqi_give_num[]" value="" placeholder="赠送数量" style="width:90px;">';
+												jdhtml += '</td>';
+
+												jdhtml += '<td>';
+												jdhtml += '<input type="number" class="layui-input" name="fenqi_fx_start_num[]" value="" placeholder="第一笔数量" style="width:90px;">';
+												jdhtml += '</td>';
+
+												// jdhtml += '<td>';
+												// jdhtml += '<input type="number" class="layui-input" name="fenqi_fx_end_num[]" value="" placeholder="最后一笔数量" style="width:90px;">';
+												// jdhtml += '</td>';														
+
+												jdhtml += '<td width="50"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="$(this).parent().parent().remove()">删除</button></td>';
+												jdhtml += '</tr>';
+									$('#fenqi_data_div').append(jdhtml);
+									layui.form.render('select');
+									initcolorpicker();
+								}
+								</script>
+								</div>								
+								{/if}
+								
+								{if getcustom('product_wholesale')}
+								<div class="layui-form-item jieti_discount" style="{if $info['product_type']!=4}display:none{/if}">
+									<label class="layui-form-label">批发类型：</label>
+									<div class="layui-input-inline">
+										<input type="radio" name="info[jieti_discount_type]" value="1" title="整批" {if !$info['id'] || $info['jieti_discount_type']==1}checked{/if} lay-filter=""/>
+										<input type="radio" name="info[jieti_discount_type]" value="0" title="混批" {if $info['id'] && $info['jieti_discount_type']==0}checked{/if} lay-filter=""/>
+									</div>
+									<div class="layui-form-mid layui-word-aux">混批:所有规格的商品的数量达标，整批：单个规格的购买数量达标</div>
+								</div>
+								<div class="layui-form-item jieti_discount" style="{if $info['product_type']!=4}display:none{/if}">
+									<label class="layui-form-label">阶梯价格：</label>
+									<div class="layui-input-inline" style="width:auto">
+										<table id="jieti_discountdiv"  class="layui-table" style="width:700px">
+											<thead>
+											<tr>
+												<th>购买数量阶梯设置价格折扣比例</th>
+												<th>操作</th>
+											</tr>
+											</thead>
+											{php} $jieti_discount_data = json_decode($info['jieti_discount_data']);{/php}
+											{if $jieti_discount_data}
+											{foreach $jieti_discount_data as $k=>$jditem}
+											<tr>
+												<td width="550">
+													<div>
+														<input type="number" class="layui-input" name="jd_start_num[]" value="{$jditem->start_num}" placeholder="起始数量" style="width:90px"> ~
+														<input type="number" class="layui-input" name="jd_end_num[]" value="{$jditem->end_num}" style="width:200px" placeholder="数量(最高时可不填写)"/>
+														<input type="number" class="layui-input" name="jd_ratio[]" value="{$jditem->ratio}" style="width:90px" placeholder="比例"/> %
+													</div>	
+												</td>
+												{if $k==0}
+												<td width="50"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="addjieti_discount()">添加</button></td>
+												{else}
+												<td width="50"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="$(this).parent().parent().remove()">删除</button></td>
+												{/if}
+											</tr>
+											{/foreach}
+											{else}
+											<tr>
+												<td width="550">
+													<div>
+														<input type="number" class="layui-input" name="jd_start_num[]" value="" placeholder="起始数量" style="width:90px"> ~
+															<input type="number" class="layui-input" name="jd_end_num[]" value="" style="width:200px" placeholder="结束数量(最高时可不填写)"/>
+															<input type="number" class="layui-input" name="jd_ratio[]" value="" style="width:90px" placeholder="比例"/> %
+				
+												</td>
+												<td width="50"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="addjieti_discount()">添加</button></td>
+											</tr>
+											{/if}
+										</table>
+										<div class="layui-word-aux"></div>
+									</div>
+								</div>
+								<script>
+								function addjieti_discount(){
+									var jdhtml = '<tr>';
+
+										jdhtml += '<td width="550">';
+											jdhtml += '<div>';
+												jdhtml += '<input type="number" class="layui-input" name="jd_start_num[]" value="" placeholder="起始数量" style="width:90px;"> ~';
+												jdhtml += '<input type="number" class="layui-input" name="jd_end_num[]" value="" style="width:200px;margin-left:4px" placeholder="结束数量(最高时可不填写)"/>';
+												jdhtml += '<input type="number" class="layui-input" name="jd_ratio[]" value="" style="width:90px;margin-left:4px" placeholder="比例"/> %';
+												jdhtml += '</div>';
+												jdhtml += '</td>';
+
+												jdhtml += '<td width="50"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="$(this).parent().parent().remove()">删除</button></td>';
+												jdhtml += '</tr>';
+									$('#jieti_discountdiv').append(jdhtml);
+									layui.form.render('select');
+									initcolorpicker();
+								}
+								</script>
+								{/if}
+{if getcustom('product_field_buy')}
+									<div class="layui-form-item">
+										<label class="layui-form-label">规格：</label>
+										<div class="layui-input-inline">
+											<input type="text" name="info[guige]" class="layui-input" value="{$info['guige']}">
+										</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label">品牌：</label>
+										<div class="layui-input-inline">
+											<input type="text" name="info[brand]" class="layui-input" value="{$info['brand']}">
+										</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label">单位：</label>
+										<div class="layui-input-inline">
+											<input type="text" name="info[unit]" class="layui-input" value="{$info['unit']}">
+										</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label">有效期：</label>
+										<div class="layui-input-inline">
+											<input type="text" name="info[valid_time]" class="layui-input" value="{$info['valid_time']}">
+										</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label">备注：</label>
+										<div class="layui-input-inline">
+											<input type="text" name="info[remark]" class="layui-input" value="{$info['remark']}">
+										</div>
+									</div>
+								{/if}
+								{if getcustom('more_productunit_guige')}
+								<div class="layui-form-item prounit_show" style="{if $info['product_type']!=6}display:none{/if}">
+									<label class="layui-form-label">设置单位：</label>
+									<div class="layui-input-inline" id="prounit"  >
+										{php} $prounit = json_decode($info['prounit']);
+										if(empty($info['prounit'])){
+											$prounit = [''];
+										}
+										{/php}
+										{foreach $prounit as $key=>$value}
+										<div style="display:flex;align-items:center;"><input style="width:50%;" type="text" name="info[prounit][]" class="layui-input" value="{$value}"> 
+											{if $key == 0}
+											<button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="addprounit(this)" style="margin-top:-3px;margin-left:5px;"><i class="fa fa-plus" style="font-size:14px!important"></i>添加单位</button>
+											{else}
+											 <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="$(this).parent().remove()" style="margin-top:-3px;margin-left:5px;"><i class="fa fa-remove" style="font-size:14px!important"></i>删除单位</button>
+											{/if}
+										</div>
+										{/foreach}
+									</div>
+									<div class="layui-form-mid layui-word-aux layui-clear">最高支持6级单位，有多单位的，规格第一栏按照单位添加</div>
+								</div>
+								<script>
+									function addprounit(){
+										var html = '<div style="display:flex;align-items:center;"><input style="width:50%;" type="text" name="info[prounit][]" class="layui-input" value=""> <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="$(this).parent().remove()" style="margin-top:-3px;margin-left:5px;"><i class="fa fa-remove" style="font-size:14px!important"></i>删除单位</button></div>';
+										$('#prounit').append(html);
+									}
+								</script>
+								{/if}
+								<div class="layui-form-item" id="setgg">
+									<label class="layui-form-label">设置规格：</label>
+									<div class="layui-input-inline" style="width:auto">
+										<table id="ggnamediv"  class="layui-table" style="width:700px">
+											<thead>
+											<tr>
+												<th>规格分组</th>
+												<th>规格名称</th>
+												<th>操作</th>
+											</tr>
+											</thead>
+											{php} $guigedata = json_decode($info['guigedata']);{/php}
+											{if $guigedata}
+											{foreach $guigedata as $k=>$gg}
+											<tr>
+												<td><input type="text" class="layui-input" name="ggname" value="{$gg->title}" style="width:120px;margin-bottom: 5px;"/></td>
+												<td>
+													{foreach $gg->items as $k2=>$ggitem}
+													<div><input type="text" name="ggnameguige"  class="layui-input"style="width:180px;margin-bottom:5px" value="{$ggitem->title}" placeholder="请输入规格名称">
+														{if $k2==0}
+														<button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="addggname(this)" style="margin-top:-3px;"><i class="fa fa-plus" style="font-size:14px!important"></i></button>
+														{else}
+														<button type="button" class="layui-btn layui-btn-sm layui-btn-primary" data-id="{$gg->k}" id="{$ggitem->k}" onclick="delggname(this,0)" style="margin-top:-3px;"><i class="fa fa-remove" style="font-size:14px!important"></i></button>
+														{/if}
+														{if getcustom('more_productunit_guige')}
+														<button title="上移" type="button" class="layui-btn layui-btn-primary layui-btn-sm prounit_show" style="margin-top:-3px;{if $info['product_type']!=6}display:none{/if}" onclick="toup(this)"><i class="fa fa-arrow-up" style="font-size:14px!important"></i></button>
+														{/if}
+														{if getcustom('product_wholesale')}
+														{if $k==0}
+														<div id="ggpic_wholesale{$k2}" class="jieti_discount" style="{if $info['product_type']!=4}display:none{/if}">
+														<input type="hidden" name="ggpic_wholesale" id="ggpic_wholesale_val{$k2}" value="{$ggitem->ggpic_wholesale}"/>
+														<div class="guigeimg" style="margin-bottom:6px;"><img class="thumb_img" src="{$ggitem->ggpic_wholesale}" style="max-width:50px;"/><a  {if $ggitem->ggpic_wholesale=='' || $ggitem->ggpic_wholesale==null}style="display: none;" {/if}  class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().find('img').attr('src','').hide();$(this).parent().prev('input').val('');getpicsval('pic','picPreview');$(this).hide();" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+														</div> <button class="layui-btn layui-btn-sm layui-btn-primary" style="margin-bottom:6px;" onclick="uploader(this)" upload-input="ggpic_wholesale_val{$k2}" upload-preview="ggpic_wholesale{$k2}" type="button">上传</button>
+														{/if}
+														
+												</div>
+			
+												{/if}
+												
+													</div>
+													{/foreach}
+												</td>
+												
+												{if $k==0}
+												<td>{if $canaddgg}<button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="addggtype()">添加</button>{/if}</td>
+												{else}
+												<td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="$(this).parent().parent().remove()">删除</button></td>
+												{/if}
+											</tr>
+											{/foreach}
+											{else}
+											<tr>
+												<td><input type="text" class="layui-input" name="ggname" value="规格" style="width:120px;margin-bottom: 5px;"/></td>
+												<td><div><input name="ggnameguige" type="text" class="layui-input" style="width:180px;margin-bottom:5px" value="默认规格" placeholder="请输入规格名称"> <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="addggname(this)" style="margin-top:-3px;"><i class="fa fa-plus" style="font-size:14px!important"></i></button>
+													{if getcustom('more_productunit_guige')}
+													<button title="上移" type="button" class="layui-btn layui-btn-primary layui-btn-sm prounit_show" style="margin-top:-3px;{if $info['product_type']!=6}display:none{/if}" onclick="toup(this)"><i class="fa fa-arrow-up" style="font-size:14px!important"></i></button>
+													{/if}
+													{if getcustom('product_wholesale')}
+													<div id="ggpic_wholesale" class="jieti_discount" style="{if $info['product_type']!=4}display:none{/if}">
+														<input type="hidden" name="ggpic_wholesale" id="ggpic_wholesale_val" value=""/>
+														<div class="guigeimg" style="margin-bottom:6px;" ><img class="thumb_img" src="" style="max-width:50px;"/>
+															<a  style="display: none;" class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().find('img').attr('src','').hide();$(this).parent().prev('input').val('');getpicsval('pic','picPreview');$(this).hide();" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+														</div> <button class="layui-btn layui-btn-sm layui-btn-primary" style="margin-bottom:6px;"  onclick="uploader(this)" upload-input="ggpic_wholesale_val" upload-preview="ggpic_wholesale" type="button">上传</button>													
+													</div>
+													{/if}
+													
+													</div></td>				
+												<td>{if $canaddgg}<button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="addggtype()">添加</button>{/if}</td>
+											</tr>
+											{/if}
+										</table>
+										<div class="layui-word-aux">提示：先点击“添加按钮”添加规格分组，如：“颜色”，“尺码”，若只有一种规格则不需要添加规格分组；<br/>然后分别点击"＋"号添加规格名称，如：“红色”，“蓝色”；“大号”，“小号”；<br/>设置完成后点击“刷新规格项目表”按钮进行编辑各个规格的价格、库存等信息<br>
+										{if getcustom('supply_zhenxin')}
+											{if $info['sproid']>0 && $info['source'] == 'supply_zhenxin'}注意：甄新汇选端商品规格不能随意变动，不能添加多余规格{/if}
+		                                {/if}
+										</div>
+										<button type="button"  class="layui-btn layui-btn-sm layui-btn-primary" onclick="refreshgg()"><i class="fa fa-refresh" style="font-size:14px!important"></i>刷新规格项目表</button>
+										{if $bid==0 || $bset['product_showset']==1}<button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="lvpriceset()" id="lvpricebtn">{if $info['lvprice']==1}关闭{else}开启{/if}会员价</button>{/if}
+										{if getcustom('product_service_fee') && ($auth_data == 'all' || in_array('service_fee_switch',$auth_data)) }
+											{if($info['bid']) == 0}
+												<button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="serviceFeeSet()" id="serviceFeeBtn">{if $info['service_fee_switch']==1}关闭{else}开启{/if}{:t('服务费')}</button>
+											{/if}
+										{/if}
+										{if getcustom('member_level_price_rate')}{if $bid==0 || $bset['product_showset']==1}<button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="lvpricesetWithRate()" id="lvpricesetWithRate"{if $info['lvprice'] == 0} style="display:none"{/if}>填充价格</button>{/if}{/if}
+										<input type="hidden" name="info[lvprice]" value="{$info['id']?$info['lvprice']:'0'}"/>
+										{if getcustom('product_service_fee')}
+										<input type="hidden" name="info[service_fee_switch]" value="{$info['id']?$info['service_fee_switch']:'0'}"/>
+										{/if}
+										<table id="ggvaldiv" class="layui-table" style="margin-top:20px;">
+										</table>
+										{if $bid==0}
+										<div class="layui-form-mid layui-word-aux">
+											注：开启会员价可设置不同会员等级显示不同价格；赠{:t('积分')}确认收货才赠送，与系统设置中的消费赠送{:t('积分')}(支付就赠送{:t('积分')})兼得<br>
+											{if $bid==0}
+												{if $ShopSendSilvermoney} 赠{:t('银值')}确认收货才赠送;{/if} {if $ShopSendGoldmoney}赠{:t('金值')}确认收货才赠送; {/if}
+											{/if}
+										</div>
+										{/if}
+										<input type="hidden" name="specs" value=""/>
+									</div>
+								</div>
+								
+	
+	<div class="layui-form-item">
+	<label class="layui-form-label"></label>
+	<div class="layui-input-block">
+		<button class="layui-btn layui-btn-normal" onclick="gonext(7)">下一步:编辑购买参数</button>
+		<button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+	</div>
+</div>
+	
+	

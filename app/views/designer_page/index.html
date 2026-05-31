@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>页面列表</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header"><i class="fa fa-list"></i> 页面列表</div>
+          {if getcustom('design_template')}
+	          {if $template_tip}
+	          	<blockquote class="layui-elem-quote">模板库设置页面时要使用通用选项和参数，否则其他账号或多商户使用后显示页面效果不明显</blockquote>
+	          {/if}
+          {/if}
+          <div class="layui-card-body" pad15>
+          	{if getcustom('design_template')}
+	         		{if $tab}
+	          	<div class="layui-tab layui-tab-brief" style="margin-bottom: 20px">
+								<ul class="layui-tab-title">
+									<li {if !$type}class="layui-this"{/if} onclick="location.href='{:url('index')}/type/0'">页面设计</li>
+									<li {if $type == 1}class="layui-this"{/if} onclick="location.href='{:url('index')}/type/1'">模板库</li>
+									{if getcustom('design_template_cat_create')}
+										{if $template_auth == 2}
+										<li {if $type == 2}class="layui-this"{/if} onclick="location.href='{:url('index')}/type/2'">自己模板库</li>
+										{/if}
+									{/if}
+								</ul>
+							</div>
+							{/if}
+						{/if}
+						<div class="layui-form layui-col-md12 layui-form-search" style="justify-content: flex-start">
+							{if $auth['add']}
+							<a class="layui-btn layuiadmin-btn-list" href="javascript:void(0)" onclick="openmax2('{:url('editnew')}{$typeparam}')" style="margin-left:10px">添加</a>
+							{/if}
+							{if getcustom('design_template_cat_create')}
+								{if $type == 2 && $template_auth == 2}
+								<a class="layui-btn layuiadmin-btn-list" href="javascript:void(0)" onclick="openmax2('{:url('editnew')}{$typeparam}')" style="margin-left:10px">添加</a>
+								{/if}
+							{/if}
+							{if getcustom('design_cat')}
+								<div class="layui-inline layuiadmin-input-useradmin">
+									<label class="layui-form-label">分类</label>
+									<div class="layui-input-inline">
+										<select name="cid">
+											<option value="">全部</option>
+											{foreach $cat_list as $cv}
+												<option value="{$cv['id']}">{$cv['name']}</option>
+											{/foreach}
+										</select>
+									</div>
+								</div>
+							{/if}
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">标题</label>
+								<div class="layui-input-inline" style="width:200px">
+									<input type="text" name="name" autocomplete="off" class="layui-input" value="">
+								</div>
+							</div>
+							
+							<div class="layui-inline">
+								<button class="layui-btn layui-btn-primary layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+									<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+								</button>
+							</div>
+						</div>
+						<div class="layui-col-md12">
+							<div id="datalist">
+								{foreach $datalist as $v}
+								<div style="float: left; margin:9px 10px; padding:12px; width: 250px; background-color: #fff; box-shadow: 0 0 2px #919dab;">
+									<h1 style="width: 250px; height: 20px; line-height: 20px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: normal; font-size:14px; color: #282828;" class="flex-y-center">
+										{if $v['ishome']=='2'}<span style="color:#fb6b5b">[会员中心]</span>{/if}
+										{if $v['ishome']=='1'}<span style="color:#fb6b5b">[首页]</span>{/if}
+										&nbsp;{$v['name']}
+									</h1>
+									<div style="height: 20px; line-height: 20px; margin-bottom: 6px; color: #282828; font-size: 12px;">{:date('Y-m-d H:i',$v['createtime'])}</div>
+									<div style="width: 250px; height:400px;overflow: hidden;">
+										<iframe style="height:400px; width: 248px; overflow-y: hidden;border:1px solid #eee" frameborder="0" src="{:url('preview')}/id/{$v.id}{$typeparam}" width="100%"></iframe>
+									</div>
+									<div class="clearfix" style="border-top:1px solid #e6ebf1; padding:13px 0 5px;height:13px;">
+
+										{if !$v['type']}
+											{if $v['ishome']=='0'}
+												{if $auth['del']}<a href="javascript:void(0)" onclick="datadel({$v.id})" class="fa fa-trash-o" style="text-decoration: none; float: right; font-size: 18px; padding:0 8px; color: #6c707f;" title="删除"></a>{/if}
+											{/if}
+											<a href="javascript:void(0)" onclick="pagecopy({$v.id})" class="fa fa-copy" style="text-decoration: none; float: right; font-size: 18px; padding:0 8px; color: #6c707f;" title="复制"></a>
+											<a class="fa fa-edit" style="text-decoration: none; float: right; font-size: 18px; padding:0 8px; color: #6c707f;" title="编辑" href="javascript:void(0)" onclick="openmax2('{:url('editnew')}/id/{$v.id}{$typeparam}')"></a>
+											{if $v['ishome']=='0'}
+												{if $auth['setHome']}<a href="javascript:void(0)" onclick="sethome({$v.id})" class="fa fa-home" style="text-decoration: none; float: right; font-size: 18px; padding:0 8px; color: #6c707f;" title="设为首页"></a>{/if}
+											{elseif $bid>0}
+												{if $auth['reHome']}<a href="javascript:void(0)" onclick="rehome({$v.id})" class="fa fa-home" style="text-decoration: none; float: right; font-size: 18px; padding:0 8px; color: #6c707f;" title="取消首页"></a>{/if}
+											{/if}
+											<a href="javascript:void(0)" onclick="showqr({$v.id},{$v.ishome})" class="fa fa-qrcode" style="text-decoration: none; float: right; font-size: 18px; padding:0 8px; color: #6c707f;" title="查看"></a>
+										{/if}
+
+										{if getcustom('design_template')}
+											{if $v['type']==1}
+												{if $v['ishome']=='0'}
+													{if $auth['del']}<a href="javascript:void(0)" onclick="datadel({$v.id},'{$typeparam}')" class="fa fa-trash-o" style="text-decoration: none; float: right; font-size: 18px; padding:0 8px; color: #6c707f;" title="删除"></a>{/if}
+												{/if}
+												{if $auth['copy']}
+												<a href="javascript:void(0)" onclick="pagecopy({$v.id},1)" class="fa fa-save" style="text-decoration: none; float: right; font-size: 18px; padding:0 8px; color: #6c707f;" title="创建页面"></a>
+												{/if}
+												{if $auth['edit']}
+												<a class="fa fa-edit" style="text-decoration: none; float: right; font-size: 18px; padding:0 8px; color: #6c707f;" title="编辑" href="javascript:void(0)" onclick="openmax2('{:url('editnew')}/id/{$v.id}{$typeparam}')"></a>
+												{/if}
+												<a href="javascript:void(0)" onclick="showqr({$v.id},{$v.ishome},1)" class="fa fa-qrcode" style="text-decoration: none; float: right; font-size: 18px; padding:0 8px; color: #6c707f;" title="预览"></a>
+											{/if}
+										{/if}
+									</div>
+								</div>
+								{/foreach}
+							</div>
+							<div class="layui-col-md12 layui-col-sm12">
+									<div id="demo0"></div>
+							</div>
+						</div>
+						<!-- <table id="tabledata" lay-filter="tabledata"></table> -->
+					</div>
+          </div>
+        </div>
+    </div>
+
+	{include file="public/js"/}
+	<script>
+	let element = $('#datalist');
+	let width = element.width();
+	let limit = Math.floor(width/305)*2;
+	var wheredata = {op:'getdata',limit:limit,page:1};
+	layui.laypage.render({
+		elem: 'demo0',
+		limit:wheredata.limit,
+		layout:['prev', 'page', 'next'],
+		count: {$count}, //数据总数
+		jump:function(obj,first){
+			if(!first){
+				wheredata.page = obj.curr
+				getdata()
+			}
+		}
+	});
+	getdata();
+	function getdata(){
+		var index =layer.load();
+		$.get('',wheredata,function(res){
+			layer.close(index);
+			var html = '';
+			for(var i in res.data){
+				var item = res.data[i]
+				html+='<div style="float: left; margin:9px 10px; padding:12px; width: 250px; background-color: #fff; box-shadow: 0 0 2px #919dab;">';
+				html+='	<h1 style="width: 250px; height: 20px; line-height: 20px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: normal; font-size:14px; color: #282828;" class="flex-y-center">'
+				if(item.ishome=='2'){
+				html+= '<span style="color:#fb6b5b">[会员中心]</span>'
+				}
+				if(item.ishome=='1'){
+				html+= '<span style="color:#fb6b5b">[首页]</span>'
+				}
+				html+= item.name+'</h1>';
+				html+='	<div style="height: 20px; line-height: 20px; margin-bottom: 6px; color: #282828; font-size: 12px;">'+date("Y-m-d H:i",item.createtime)+'</div>';
+				html+='	<div class="" style="width: 250px; height:400px;overflow: hidden;">';
+				html+='		<iframe style="height:400px; width: 248px; overflow-y: hidden;border:1px solid #eee" frameborder="0" src="{:url('preview')}/id/'+item.id+'{$typeparam}" class="iframe_page" width="100%"></iframe>';
+				html+='	</div>';
+				html+='	<div class="clearfix" style="border-top:1px solid #e6ebf1; padding:13px 0 5px;height:13px;">';
+				
+				if(!item.type){
+					if(item.ishome=='0'){
+						{if $auth['del']}
+							html+='		<a href="javascript:void(0)" onclick="datadel('+item.id+')" class="fa fa-remove" style="text-decoration: none; float: right; font-size: 18px; padding:0 8px; color: #6c707f;" title="删除" rel="nofollow"></a>';
+						{/if}
+					}
+					html+='		<a href="javascript:void(0)" onclick="pagecopy('+item.id+')" class="fa fa-copy" style="text-decoration: none; float: right; font-size: 18px; padding:0 8px; color: #6c707f;" title="复制"></a>';
+					html+='		<a href="javascript:void(0)" onclick="openmax2(\'{:url('editnew')}/id/'+item.id+'\')" class="fa fa-edit" style="text-decoration: none; float: right; font-size: 18px; padding:0 8px; color: #6c707f;" title="编辑"></a>';
+					if(item.ishome=='0'){
+						{if $auth['setHome']}html+='		<a href="javascript:void(0)" onclick="sethome('+item.id+')" class="fa fa-home" style="text-decoration: none; float: right; font-size: 18px; padding:0 8px; color: #6c707f;" title="设为首页"></a>';{/if}
+					}
+					html+='		<a href="javascript:void(0)" onclick="showqr('+item.id+','+item.ishome+')" class="fa fa-qrcode" style="text-decoration: none; float: right; font-size: 18px; padding:0 8px; color: #6c707f;" title="查看"></a>';
+				}
+
+				{if getcustom('design_template')}
+					if(item.type == 1){
+						if(item.ishome=='0'){
+							{if $auth['del']}
+								html+='		<a href="javascript:void(0)" onclick="datadel('+item.id+',\'{$typeparam}\')" class="fa fa-remove" style="text-decoration: none; float: right; font-size: 18px; padding:0 8px; color: #6c707f;" title="删除" rel="nofollow"></a>';
+							{/if}
+						}
+						{if $auth['copy']}
+						html+='		<a href="javascript:void(0)" onclick="pagecopy('+item.id+',1)" class="fa fa-save" style="text-decoration: none; float: right; font-size: 18px; padding:0 8px; color: #6c707f;" title="创建页面"></a>';
+						{/if}
+						{if $auth['edit']}
+							html+='		<a href="javascript:void(0)" onclick="openmax2(\'{:url('editnew')}/id/'+item.id+'{$typeparam}\')" class="fa fa-edit" style="text-decoration: none; float: right; font-size: 18px; padding:0 8px; color: #6c707f;" title="编辑"></a>'
+						{/if}
+						html+='		<a href="javascript:void(0)" onclick="showqr('+item.id+','+item.ishome+',1)" class="fa fa-qrcode" style="text-decoration: none; float: right; font-size: 18px; padding:0 8px; color: #6c707f;" title="预览"></a>';
+					}
+				{/if}
+				html+='	</div>';
+				html+='</div>';
+			}
+			$('#datalist').html(html);
+			layui.laypage.render({
+				elem: 'demo1',
+				curr:wheredata.page,
+				limit:wheredata.limit,
+				layout:['prev', 'page', 'next'],
+				//count: res.count, //数据总数
+				jump:function(obj,first){
+					if(!first){
+						wheredata.page = obj.curr
+						getdata()
+					}
+				}
+			});
+		});
+	}
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		wheredata.page = 1;
+		wheredata.type  = {$type?$type:'0'};
+		wheredata.cid  = field.cid?field.cid:0;
+		wheredata.name = field.name;
+		if(field.remark){
+			wheredata.remark = field.remark;
+		}
+		getdata()
+	})
+	function openedit(id){
+		layer.open({type:2,content:"{:url('edit')}/id/"+id,title:false,area:['100%','100%'],closeBtn:0,scrollbar:false})
+	}
+	function pagecopy(id,type = 0){
+		if(!type){
+			var msg = '确定要复制吗?';
+		}else{
+			var msg = '确定要使用此模板吗?';
+		}
+		layer.confirm(msg,{icon: 7, title:'操作确认'}, function(index){
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('copy')}",{id:id,type:type},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status,location.href);
+			})
+		})
+	}
+	function rehome(id){
+		layer.confirm('确定要取消首页设置吗?',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('rehome')}",{id:id,ishome:1},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				reload()
+			})
+		});
+	}
+	//删除
+	function datadel(id,param=''){
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			var id = [];
+			for(var i=0;i<checkData.length;i++){
+				id.push(checkData[i]['id']);
+			}
+		}
+		if(param){
+			var  go_url = "{:url('del')}{$typeparam}";
+		}else{
+			var  go_url = "{:url('del')}";
+		}
+		layer.confirm('确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post(go_url,{id:id},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status,location.href);
+			})
+		});
+	}
+	//设为首页
+	function sethome(id){
+		layer.open({type:0,content:'是否要将本页面设计为首页?',title:false,btn:['设为首页',{if $bid==0}'设为会员中心',{/if}'取消'],
+			yes:function(){
+				var index = layer.load();
+				$.post("{:url('sethome')}",{id:id,ishome:1},function(data){
+					layer.close(index);
+					dialog(data.msg,data.status);
+					reload()
+				})
+			},
+		{if $bid==0}
+			btn2:function(){
+				var index = layer.load();
+				$.post("{:url('sethome')}",{id:id,ishome:2},function(data){
+					layer.close(index);
+					dialog(data.msg,data.status);
+					reload()
+				})
+			}
+		{/if}
+		});
+	}
+	function openmax2(url){
+		window.open(url)
+		// window.parent.location.href = url;
+		// var index = layer.open({type:2,content:url,title:'111',closeBtn:0,scrollbar:false,moveOut:true,maxmin:true})
+		// layer.full(index);
+	}
+	function showqr(id,ishome,type=0){
+		if(ishome==1){
+			if('{$bid}'==0){
+				var pagepath = 'pages/index/index';
+			}else{
+				var pagepath = 'pagesExt/business/index?id='+ {$bid};
+			}
+		}else if(ishome==2){
+			var pagepath = 'pages/my/usercenter'
+		}else{
+			var pagepath = 'pages/index/main?id='+id
+		}
+		var url = "{:m_url('"+pagepath+"')}"; //拼接 H5 链接
+		if(type == 1){
+			//https://hexiao.com/h5/1.html#/pages/index/main?id=183
+			var before = url.indexOf("h5/")+2;
+			var after  = url.indexOf(".html");
+
+			url = url.substring(0,before)+'/1'+url.substring(after);
+			console.log(url)
+		}
+		viewLink(pagepath,url);
+	}
+	</script>
+	{include file="public/copyright"/}
+</body>
+</html>

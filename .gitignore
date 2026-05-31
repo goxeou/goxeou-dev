@@ -1,0 +1,11 @@
+/vendors/
+/node_modules/
+/upload/
+/uploads/
+/runtime/
+/cache/
+/app/Log/
+*.log
+.env
+.DS_Store
+index.php.bak

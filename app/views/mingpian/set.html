@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>名片系统设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header"><i class="fa fa-cog"></i> 名片系统设置</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w6" lay-filter="">
+						<div class="layui-form-item">
+							<label class="layui-form-label">状态：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[status]" value="1" {if $info['status']==1}checked{/if} title="开启"/>
+								<input type="radio" name="info[status]" value="0" {if $info['status']==0}checked{/if} title="关闭"/>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">系统背景图：</label>
+							<input type="hidden" name="info[bgpics]" value="{$info.bgpics}" id="bgpics">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this,true)" upload-input="bgpics" upload-preview="bgpicList" >批量上传</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：700×480像素</div>
+							<div id="bgpicList" class="picsList-class-padding">
+								{if $info['bgpics']}
+								{php}$pics = explode(',',$info['bgpics']);{/php}
+								{foreach $pics as $pic}
+								<div class="layui-imgbox" style="width:100px;height:50px">
+									<a class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().remove();getpicsval('bgpics','bgpicList')" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+									<span class="layui-imgbox-img"><img src="{$pic}"></span>
+								</div>
+								{/foreach}{/if}
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">创建条件：</label>
+							<div class="layui-input-inline" style="width:600px">
+								<input type="checkbox" name="info[createtj][]" value="-1" title="所有人" {if in_array('-1',$info['createtj'])}checked{/if}/>
+								<!-- <input type="checkbox" name="info[createtj][]" value="0" title="关注用户" {if in_array('0',$info['createtj'])}checked{/if}/> -->
+								{foreach $memberlevel as $v}
+								<input type="checkbox" name="info[createtj][]" value="{$v.id}" title="{$v.name}" {if in_array($v['id'],$info['createtj'])}checked{/if}/>
+								{/foreach}
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">联系信息：</label>
+							<div class="layui-input-inline" style="width:600px !important">
+							<table class="layui-table" id="ggtable">
+								<thead>
+								<tr>
+									<th style="width:100px">状态</th>
+									<th style="width:200px">字段名称</th>
+									<th style="width:200px">图标</th>
+									<th style="width:100px">是否必填</th>
+								</tr>
+								</thead>
+								<tbody>
+									{foreach $info.field_list as $k=>$v}
+									<tr>
+										<td><input type="checkbox" name="field_list[{$k}][isshow]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $v['isshow']==1}checked{/if}></td>
+										{if in_array($k,['tel','weixin','address','email','douyin','weibo','toutiao'])}
+										<td><input type="hidden" name="field_list[{$k}][name]" value="{$v.name}"/>{$v.name}</td>
+										{else}
+										<td><input type="text" class="layui-input" placeholder="请填写字段名称" name="field_list[{$k}][name]" value="{$v.name}"/></td>
+										{/if}
+										<td id="field_icon_preview_{$k}"><input type="hidden" name="field_list[{$k}][icon]" id="field_icon_{$k}" value="{$v.icon}"/><img class="thumb_img" src="{$v.icon}" style="max-width:50px;"/> <button class="layui-btn layui-btn-sm layui-btn-primary" onclick="uploader(this)" upload-input="field_icon_{$k}" upload-preview="field_icon_preview_{$k}" type="button">上传</button></td>
+										<td><input type="checkbox" name="field_list[{$k}][required]" value="1" lay-skin="switch" lay-text="是|否" {if $v['required']==1}checked{/if}></td>
+									</tr>
+									{/foreach}
+								</tbody>
+							</table>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		$.post("",field,function(data){
+			dialog(data.msg,data.status,data.url);
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>多端平台</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" type="text/css" href="/static/admin/layui/css/layui.css?v=20200519" media="all">
+<link rel="stylesheet" type="text/css" href="/static/admin/layui/css/modules/formSelects-v4.css?v=20200516" media="all">
+<link rel="stylesheet" type="text/css" href="/static/admin/css/admin.css?v=20230532" media="all">
+<link rel="stylesheet" type="text/css" href="/static/admin/css/font-awesome.min.css?v=20200516" media="all">
+<link rel="stylesheet" type="text/css" href="/static/admin/webuploader/webuploader.css?v=1711607884" media="all">
+<link rel="stylesheet" type="text/css" href="/static/imgsrc/designer.css?v=20230426" media="all">
+<link rel="stylesheet" type="text/css" href="/static/fonts/iconfont.css?v=20201218" media="all">
+<link rel="stylesheet" type="text/css" href="/static/admin/cssv3/iconfont.css?v=20201222" media="all">
+<link rel="stylesheet" type="text/css" href="/static/admin/cssv3/cssv3/iconfont.css?v=20201222" media="all">
+<link rel="stylesheet" type="text/css" href="/static/admin/cssv3/cssv3/cssv3/iconfont.css?v=20201222" media="all">
+<link rel="stylesheet" href="/static/admin/css/new.css">
+</head>
+<style>
+    .app-list{
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        flex-direction: row;
+    }
+    .app-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #ffffff;
+        border: 1px solid #ebebeb;
+        width: 250px;
+        height: 90px;
+        overflow: hidden;
+        margin: 0 0 16px 16px;
+        padding: 10px;
+        cursor: pointer;
+        border-radius: 10px;
+    }
+    .app-item-icon {
+        width: 60px;
+        height: 60px;
+        display: block;
+    }
+    .app-item-title {
+        font-size: 15px;
+        margin-bottom: 10px;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        line-height: initial;
+        color: black;
+    }
+    .app-item-desc {
+        font-size: 13px;
+        line-height: 20px;
+        color: #999999;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
+<body>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+            <div class="layui-card-header">多端平台
+                            </div>
+
+            <div class="layui-card-body" pad15>
+                <div class="app-list">
+                    
+                    <a href="/?s=/Binding/index" class="app-item">
+                        <img class="app-item-icon" src="/static/APP/WXGZH.png"/>
+                        <div>
+                            <span class="app-item-title">微信公众号</span>
+                            <span class="app-item-desc">在小程序中经营你的店铺</span>
+                        </div>
+                    </a>
+                    
+                    <a href="/?s=/Membercard/record" class="app-item">
+                        <img class="app-item-icon" src="/static/APP/WXHYK.png"/>
+                        <div>
+                            <span class="app-item-title">微信会员卡</span>
+                            <span class="app-item-desc">在小程序中经营你的店铺</span>
+                        </div>
+                    </a>
+                    
+                    <a href="/?s=/Binding/index" class="app-item">
+                        <img class="app-item-icon" src="/static/APP/WXXCX.png"/>
+                        <div>
+                            <span class="app-item-title">微信小程序</span>
+                            <span class="app-item-desc">在小程序中经营你的店铺</span>
+                        </div>
+                    </a>
+                    
+                    <a href="/?s=/Binding/alipay" class="app-item">
+                        <img class="app-item-icon" src="/static/APP/ZFBXCX.png"/>
+                        <div>
+                            <span class="app-item-title">支付宝小程序</span>
+                            <span class="app-item-desc">在小程序中经营你的店铺</span>
+                        </div>
+                    </a>
+                    
+                    <a href="/?s=/Binding/baidu" class="app-item">
+                        <img class="app-item-icon" src="/static/APP/BDXCX.png"/>
+                        <div>
+                            <span class="app-item-title">百度小程序</span>
+                            <span class="app-item-desc">在小程序中经营你的店铺</span>
+                        </div>
+                    </a>
+                    
+                    <a href="/?s=/Binding/toutiao" class="app-item">
+                        <img class="app-item-icon" src="/static/APP/DYXCX.png"/>
+                        <div>
+                            <span class="app-item-title">抖音小程序</span>
+                            <span class="app-item-desc">在小程序中经营你的店铺</span>
+                        </div>
+                    </a>
+                    
+                    <a href="/?s=/Binding/qq" class="app-item">
+                        <img class="app-item-icon" src="/static/APP/QQXCX.png"/>
+                        <div>
+                            <span class="app-item-title">QQ小程序</span>
+                            <span class="app-item-desc">在小程序中经营你的店铺</span>
+                        </div>
+                    </a>
+                    
+                    <a href="/?s=/Binding/h5" class="app-item">
+                        <img class="app-item-icon" src="/static/APP/SJH5.png"/>
+                        <div>
+                            <span class="app-item-title">手机H5</span>
+                            <span class="app-item-desc">在小程序中经营你的店铺</span>
+                        </div>
+                    </a>
+                    
+                    <a href="/?s=/Binding/app" class="app-item">
+                        <img class="app-item-icon" src="/static/APP/SJAPP.png"/>
+                        <div>
+                            <span class="app-item-title">手机APP</span>
+                            <span class="app-item-desc">在小程序中经营你的店铺</span>
+                        </div>
+                    </a>
+                                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="/static/admin/layui/layui.all.js?v=20210226"></script>
+<script type="text/javascript" src="/static/admin/layui/lay/modules/flow.js?v=1"></script>
+<script type="text/javascript" src="/static/admin/layui/lay/modules/formSelects-v4.js"></script>
+<script type="text/javascript" src="/static/admin/js/jquery-ui.min.js?v=20200228"></script>
+<script type="text/javascript" src="/static/admin/ueditor/ueditor.js?v=20220707"></script>
+<script type="text/javascript" src="/static/admin/ueditor/135editor.js?v=20200228"></script>
+<script type="text/javascript" src="/static/admin/webuploader/webuploader.js?v=20230530"></script>
+<script type="text/javascript" src="/static/admin/js/qrcode.min.js?v=20200228"></script>
+<script type="text/javascript" src="/static/admin/js/sutui.js?v=2022"></script>
+
+<div id="NewsToolBox"></div>
+<script type="text/javascript">
+		// 浮层展示
+		$('.layui-popover').mouseenter(function(){
+			let pageHeight = $(window).height() + $(document).scrollTop();
+			let bottom = pageHeight - $(this).offset().top
+			let topNum = ($(this).offset().top - $(document).scrollTop()).toFixed(2);
+			let Height = $(this).find('.layui-popover-div').outerHeight();
+			$(this).find('.layui-popover-div').show()
+			let that = this;
+			setTimeout(function(){
+				if(topNum < (Height/2-15)){
+					$(that).find('.layui-popover-div').css({'top':-topNum+10+'px','opacity':1,'transition':'opacity .3s'})	
+				}else if(bottom < (Height/2-15)){
+					$(that).find('.layui-popover-div').css({'top': bottom-Height-10 +'px','opacity':1,'transition':'opacity .3s'})	
+				}else{
+					$(that).find('.layui-popover-div').css({'top':-(Height/2-15)+'px','opacity':1,'transition':'opacity .3s'})	
+				}
+			},100)
+		}) 
+		$('.layui-popover').mouseleave(function(){
+			$(this).find('.layui-popover-div').css({'opacity':0})	
+			$(this).find('.layui-popover-div').hide()
+		}) 
+    function copyText(text) {
+        var top = document.documentElement.scrollTop;
+        var textarea = document.createElement("textarea"); //创建input对象
+        var currentFocus = document.activeElement; //当前获得焦点的元素
+        var toolBoxwrap = document.getElementById('NewsToolBox'); //将文本框插入到NewsToolBox这个之后
+        toolBoxwrap.appendChild(textarea); //添加元素
+        textarea.value = text;
+        textarea.focus();
+        document.documentElement.scrollTop = top;
+        if (textarea.setSelectionRange) {
+            textarea.setSelectionRange(0, textarea.value.length); //获取光标起始位置到结束位置
+        } else {
+            textarea.select();
+        }
+        try {
+            var flag = document.execCommand("copy"); //执行复制
+        } catch (eo) {
+            var flag = false;
+        }
+        toolBoxwrap.removeChild(textarea); //删除元素
+        currentFocus.focus();
+        if(flag) layer.msg('复制成功');
+        return flag;
+    }
+		// 查看链接
+		function viewLink(path,url=''){
+			var pagepath = path;
+			if(!url){
+				var url = "https://api.myyooo.com/h5/9.html#/"+pagepath+""; //拼接 H5 链接
+			}
+						var html = '';
+			html+='<div style="margin:20px">';
+			html+='	<div style="width:100%;margin:10px 0" id="urlqr"></div>';
+						html+='	<div style="width:100%;text-align:center"><button class="layui-btn layui-btn-sm layui-btn-primary" onclick="showwxqrcode(\''+pagepath+'\')">查看小程序码</button></div>';
+						html+='	<div style="line-height:25px;"><div><span style="width: 80px;display: inline-block;">链接地址：</span><button class="layui-btn layui-btn-xs layui-btn-primary" onclick="copyText(\''+url+'\')">复制</button></div><div>'+url+'</div></div>';
+			html+='	<div style="height:50px;line-height:25px;"><div><span style="width: 80px;display: inline-block;">页面路径：</span><button style="box-sizing: border-box;" class="layui-btn layui-btn-xs layui-btn-primary" onclick="copyText(\'/'+pagepath+'\')">复制</button></div><div>/'+pagepath+'</div></div>';
+			html+='</div>';
+			layer.open({type:1,'title':'查看链接',area:['500px','430px'],shadeClose:true,'content':html})
+			var qrcode = new QRCode('urlqr', {
+					text: 'your content',
+					width: 200,
+					height: 200,
+					colorDark : '#000000',
+					colorLight : '#ffffff',
+					correctLevel : QRCode.CorrectLevel.L
+				});
+				qrcode.clear();
+				qrcode.makeCode(url);
+		}
+		// 查看小程序码
+		function showwxqrcode(pagepath){
+			var index = layer.load();
+			$.post("/?s=/DesignerPage/getwxqrcode",{path:pagepath},function(res){
+				layer.close(index);
+				if(res.status==0){
+					layer.open({type:1,area:['300px','350px'],content:'<div style="margin:auto auto;text-align:center"><div style="color:red;width:280px;height:180px;margin-top:100px">'+res.msg+'</div><div style="height:25px;line-height:25px;">'+'/'+pagepath+'</div></div>',title:false,shadeClose:true})
+				}else{
+					layer.open({type:1,area:['300px','350px'],content:'<div style="margin:auto auto;text-align:center"><img src="'+res.url+'" style="margin-top:20px;max-width:280px;max-height:280px"/><div style="height:25px;line-height:25px;">'+'/'+pagepath+'</div></div>',title:false,shadeClose:true})
+				}
+			})
+		}
+</script>
+<script>
+    $('.app-item').on('click', function(){
+		$(window.parent.document).find('#LAY_app').removeClass('layadmin-side-shrink2').find('.wb-subnav').show();
+        $(window.parent.document).find("a[lay-tips='平台']").trigger('click');
+        $(window.parent.document).find("li.active").removeClass('active');
+
+        let url = $(this).attr('href');
+        $(window.parent.document).find("a[href='"+ url +"']").trigger('click').parent('li').addClass('active');
+        let title = $(this).find('.app-item-title').text()
+
+		console.log(title);
+
+        $(window.parent.document).find(".menu-item:contains('" + title + "')").show().siblings('.menu-item').hide().parents('.subnav-group').show().siblings().hide();
+
+	    $(window.parent.document).find(".menu-item:contains('" + title + "')").trigger('click').find('.multiple').show();
+
+
+    });
+</script>
+
+<script type='text/javascript'>
+
+</script></body>
+</html>

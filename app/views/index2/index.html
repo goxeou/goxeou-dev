@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>{$webinfo.webname}</title>
+	<meta name="keywords" content="{$webinfo.webname},微信公众号,微信公众号商城,小程序商城,小程序分销系统,小程序在线制作,小程序,微信小程序,小程序制作,微信小程序制作,小程序工具,微信小程序工具,小程序开发,微信小程序开发,小程序平台,微信小程序平台" />
+	<meta name="description" content="{$webinfo.webname}-微信公众号微信小程序商城及分销解决方案，致力于为广大商家快速搭建自己的微信公众号微信小程序，围绕会员、营销、效率，助力商家轻松经营店铺。" />
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="Renderer" content="webkit">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta http-equiv="Pragma" content="no-cache">
+	<!-- HTTP 1.0 -->
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+	<!-- Prevent caching at the proxy server -->
+	<meta http-equiv="Expires" content="0">
+	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE9" />
+	<!-- Mobile Metas -->  
+	<meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no,maximum-scale=1.0,minimum-scale=1.0">
+	<meta http-equiv="Cache-Control" content="no-transform" />
+	<meta http-equiv="Cache-Control" content="no-siteapp" />
+	{if $webinfo.ico}<link rel="shortcut icon" type="image/x-icon" href="{$webinfo.ico}" />{/if}
+	<link rel="stylesheet" href="/static/index2/css/index.css?v=1017">
+	<script src="/static/index2/js/jquery.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/static/index2/js/jquery.SuperSlide.2.1.1.js" type="text/javascript" charset="utf-8"></script>
+</head>
+<body>
+<div class="wrap">
+	{include file="index2/public/menu"/}
+	<div class="bannerbox">
+		<div class="bannerbd">
+			<div class="banner1">
+				<div class="text1_box">
+					<div class="t1">海量营销策略供您选择</div> 
+					<div class="t2">分销，秒杀，拼团，砍价，优惠券，积分等营销利器。
+						为您提供数据，产品，运营，流量全方位赋能。
+						助力企业构建私域流量进入品牌营销新时代</div> 
+					<div>
+						<div class="btn_box flex">
+							{if $reg_open}
+							<div class="zixun" onclick="location.href='{:url('Login/reg')}'">免费注册</div>
+							{else}
+							<div class="zixun" onclick="location.href='{:url('lianxi')}'">免费咨询</div>
+							{/if}
+							<div class="login" onclick="location.href='{:url('Backstage/index')}'">立即登录</div>
+						</div>
+					</div> 
+				</div>
+			</div>
+		
+		</div>
+		<!--<div class="bannerhd">
+			<ul>
+				<li></li>
+				<li></li>
+			</ul>
+		</div>-->
+		<div class="bannertip">
+			<div class="bannertip_mid flex" id="bannertip_mid">
+				<div class="item on">
+					<img src="/static/index2/img/icon1.png">
+					<div class="right">
+						<div class="t1">丰富的功能组件</div>
+						<div class="t2">适用多种场景需求</div>
+					</div>
+				</div>
+				<div class="item">
+					<img src="/static/index2/img/icon2.png">
+					<div class="right">
+						<div class="t1">轻松上手</div>
+						<div class="t2">简单3步搭建商城</div>
+					</div>
+				</div>
+				<div class="item">
+					<img src="/static/index2/img/icon3.png">
+					<div class="right">
+						<div class="t1">多终端覆盖</div>
+						<div class="t2">公众号/小程序/APP</div>
+					</div>
+				</div>
+				<div class="item">
+					<img src="/static/index2/img/icon4.png">
+					<div class="right">
+						<div class="t1">售后保障</div>
+						<div class="t2">专业、贴心、及时响应</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="contentbox2">
+		<div class="content2">
+			<div class="title">全面、专业、高效的商城功能</div>
+			<div class="con1">
+				<div class="ti" id="box2items">
+					<div class="item on">常用功能</div>
+					<div class="item">商城系统</div>
+					<div class="item">营销工具</div>
+					<div class="item">个性设置</div>
+					<div class="item">其他功能</div>
+				</div>
+				<div class="co" id="box2itemcontent_0">
+					<div class="f1 flex" id="listtab">
+						<div class="list on">
+							<div class="t1">会员管理</div>
+							<div class="t2">会员等级及分销设置，会员数据统计</div>
+						</div>
+						<div class="list ">
+							<div class="t1">微信会员卡</div>
+							<div class="t2">对接微信会员卡创建设置，领取数据等</div>
+						</div>
+						<div class="list">
+							<div class="t1">积分兑换</div>
+							<div class="t2">商品积分兑换功能，可选择商城商品</div>
+						</div>
+						<div class="list">
+							<div class="t1">抽奖活动</div>
+							<div class="t2">大转盘、刮刮卡等抽奖活动</div>
+						</div>
+						<div class="list">
+							<div class="t1">积分签到</div>
+							<div class="t2">签到设置、签到赠送积分</div>
+						</div>
+						<div class="list">
+							<div class="t1">多人拼团</div>
+							<div class="t2">拼团商品设置、可直接选择商城商品</div>
+						</div>
+						<div class="list">
+							<div class="t1">砍价</div>
+							<div class="t2">砍价商品设置、可直接选择商城商品</div>
+						</div>
+						<div class="list">
+							<div class="t1">整点秒杀</div>
+							<div class="t2">秒杀场次，秒杀时长</div>
+						</div>
+						<div class="list">
+							<div class="t1">充值赠送</div>
+							<div class="t2">账号消费赠送积分、账户充值赠送积分</div>
+						</div>
+						<div class="list">
+							<div class="t1">优惠券</div>
+							<div class="t2">代金券、礼品券、计次券等不同类型设置</div>
+						</div>		
+					</div>
+				</div>
+				<div class="co" id="box2itemcontent_1" style="display:none">
+					<div class="f1">
+						<div class="f1 flex" id="listtab">
+							<div class="list on">
+								<div class="t1">商品管理</div>
+								<div class="t2">商品信息设置、分销设置、运费设置、赠送积分等优惠设置</div>
+							</div>
+							<div class="list ">
+								<div class="t1">商品规格</div>
+								<div class="t2">批量设置不同规格商品库存、销量及价格</div>
+							</div>
+							<div class="list">
+								<div class="t1">分红设置</div>
+								<div class="t2">可独立设置分红规则，根据会员等级设置分红级数</div>
+							</div>
+							<div class="list">
+								<div class="t1">股东分红</div>
+								<div class="t2">可独立开启分红规则，按照会员等级设置金额或比例</div>
+							</div>
+							<div class="list">
+								<div class="t1">配送方式</div>
+								<div class="t2">商家配送、自提门店设置、系统自动发货设置</div>
+							</div>
+							<div class="list">
+								<div class="t1">商品分类、分组</div>
+								<div class="t2">设置多级分类、分组</div>
+							</div>
+							<div class="list">
+								<div class="t1">评价管理</div>
+								<div class="t2">可设置是否显示用户评价内容</div>
+							</div>
+							<div class="list">
+								<div class="t1">商品海报</div>
+								<div class="t2">自定义商品分享海报</div>
+							</div>
+							<div class="list">
+								<div class="t1">商品采集</div>
+								<div class="t2">采集淘宝，天猫，京东，阿里巴巴等商品</div>
+							</div>
+						
+						</div>
+					</div>
+				</div>
+				<div class="co" id="box2itemcontent_2" style="display:none">
+					<div class="f1 flex" id="listtab">
+						<div class="list on">
+							<div class="t1">优惠券</div>
+							<div class="t2">代金券、礼品券、计次券等不同类型设置</div>
+						</div>
+						<div class="list ">
+							<div class="t1">充值赠送</div>
+							<div class="t2">充值赠送规则</div>
+						</div>
+						<div class="list">
+							<div class="t1">购物满减</div>
+							<div class="t2">可设置购物满减</div>
+						</div>
+						<div class="list">
+							<div class="t1">商品促销</div>
+							<div class="t2">满减活动、满赠活动、加价换购活动</div>
+						</div>
+						<div class="list">
+							<div class="t1">拼团活动</div>
+							<div class="t2">拼团商品设置、可直接选择商城商品</div>
+						</div>
+						<div class="list">
+							<div class="t1">砍价活动</div>
+							<div class="t2">砍价商品设置、可直接选择商城商品</div>
+						</div>
+						<div class="list">
+							<div class="t1">秒杀活动</div>
+							<div class="t2">秒杀场次，秒杀时长等</div>
+						</div>
+					
+					
+					</div>
+				</div>
+				
+				<div class="co" id="box2itemcontent_3" style="display:none">
+					<div class="f1 flex" id="listtab">
+						<div class="list on">
+							<div class="t1">自定义表单</div>
+							<div class="t2">自定义表单设置</div>
+						</div>
+						<div class="list ">
+							<div class="t1">礼品卡</div>
+							<div class="t2">制作实体充值卡，线下发卡，线上兑换</div>
+						</div>
+						<div class="list">
+							<div class="t1">界面diy</div>
+							<div class="t2">商城界面自定义设置</div>
+						</div>	
+						<div class="list">
+							<div class="t1">多平台设置</div>
+							<div class="t2">H5、小程序、支付宝、百度、抖音、QQ等</div>
+						</div>	
+					
+					</div>
+					
+				</div>
+				
+				<div class="co" id="box2itemcontent_4" style="display:none">
+					<div class="f1 flex" id="listtab">
+						<div class="list on">
+							<div class="t1">多商户</div>
+							<div class="t2">商户列表、商户订单、打印机设置等</div>
+						</div>
+						<div class="list ">
+							<div class="t1">文章管理</div>
+							<div class="t2">文章列表、文章分类</div>
+						</div>
+						<div class="list">
+							<div class="t1">论坛功能</div>
+							<div class="t2">帖子管理、分类管理、评论列表</div>
+						</div>
+						<div class="list">
+							<div class="t1">同城配送</div>
+							<div class="t2">平台同城配送，配送员管理、签单，数据统计</div>
+						</div>
+						<div class="list">
+							<div class="t1">直播功能</div>
+							<div class="t2">直播列表、直播间信息、商品管理</div>
+						</div>
+						<div class="list">
+							<div class="t1">财务管理</div>
+							<div class="t2">各积分、余额、佣金、分红等统计信息</div>
+						</div>
+						<div class="list">
+							<div class="t1">物流助手</div>
+							<div class="t2">微信官方为小程序提供的免费物流接口</div>
+						</div>
+						
+					
+					</div>
+				</div>
+				
+			</div>
+		</div>
+	</div>
+	<script>
+		$(function(){
+			$('#box2items > .item').click(function(){
+				var index = $(this).index();
+				$(this).addClass('on');
+				$(this).siblings().removeClass('on')
+				$('div[id^=box2itemcontent_]').hide();
+				$('div[id^=box2itemcontent_'+index+']').show();
+			})
+		})
+		$(function(){
+			$('#boxitem  .tab').click(function(){
+				var index = $(this).index();
+				$(this).addClass('on');
+				$(this).siblings().removeClass('on')
+				$('div[id^=tabcon]').hide();
+				$('div[id^=tabcon'+index+']').show();
+			})
+			$("#bannertip_mid .item").hover(function(){
+				$(this).addClass('on');
+				$(this).siblings().removeClass('on');
+			})
+			$("#listtab .list").hover(function(){
+				$(this).addClass('on');
+				$(this).siblings().removeClass('on');
+			})
+		})
+		function box2changebtn(obj,pic){
+			$(obj).addClass('on')
+			$(obj).siblings().removeClass('on')
+			$(obj).parent().parent().parent().find('.f2>img').attr('src',pic)
+		}
+	</script>
+	<div class="box3">
+		<div class="contentbox3">
+			<div class="title">
+				部分功能案例展示
+			</div>
+			<div class="desc">专业解决方案助力各行各业</div>
+			<div class="content3 flex" id="boxitem">
+				<div class="left">
+					<div class="tab on">会员管理及分销</div>
+					<div class="tab">物流配送</div>
+					<div class="tab">营销功能</div>
+					<div class="tab">直播视频号</div>
+					<div class="tab">多商户</div>
+					<div class="tab">消息通知</div>
+					<div class="tab">各平台效果</div>
+					<div class="tab">其他功能</div>
+				</div>
+				<div class="right">
+					<div class="con1" id="tabcon0">
+						<div class="img_box flex">
+							<div class="img1"><img src="/static/index2/img/pic/member_01.png"><span>分销中心</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/member_02.png"><span>分销订单</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/member_03.png"><span>会员卡</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/member_04.png"><span>会员升级</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/member_05.png"> <span>我的团队</span></div>
+							<div class="img1"><img src="/static/index2/img/pic/member_06.png"> <span>会员中心</span></div>
+						</div>
+					</div>
+					<div class="con1 hide" id="tabcon1">
+						<div class="img_box flex">
+							<div class="img1"><img src="/static/index2/img/pic/wuliu_1.png"><span>到店自提</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/wuliu_2.png"><span>快递</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/wuliu_3.png"><span>配送员</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/wuliu_4.png"><span>抢单大厅</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/wuliu_5.png"> <span>同城配送</span></div>
+							<div class="img1"><img src="/static/index2/img/pic/wuliu_6.png"> <span>物流助手</span></div>
+						</div>
+					</div>
+					<div class="con1 hide" id="tabcon2">
+						<div class="img_box flex">
+							<div class="img1"><img src="/static/index2/img/pic/yingxiao_1.png"><span>积分兑换</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/yingxiao_2.png"><span>砍价列表</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/yingxiao_3.png"><span>砍价详情</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/yingxiao_4.png"><span>秒杀列表</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/yingxiao_5.png"> <span>拼团列表</span></div>
+							<div class="img1"><img src="/static/index2/img/pic/yingxiao_6.png"> <span>拼团详情</span></div>
+							<div class="img1"><img src="/static/index2/img/pic/yingxiao_7.png"> <span>拼团详情</span></div>
+							<div class="img1"><img src="/static/index2/img/pic/yingxiao_8.png"> <span>商品促销</span></div>
+							<div class="img1"><img src="/static/index2/img/pic/yingxiao_9.png"> <span>优惠券</span></div>
+						</div>
+					</div>
+					<div class="con1 hide" id="tabcon3">
+						<div class="img_box flex">
+							<div class="img1"><img src="/static/index2/img/pic/zhibo_1.png"><span>开播提醒</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/zhibo_2.png"><span>商品详情</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/zhibo_3.png"><span>商品展示</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/zhibo_4.png"><span>直播间</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/zhibo_5.png"><span>直播列表</span></div>
+							<div class="img1"><img src="/static/index2/img/pic/zhibo_6.png"><span>直播卖货</span></div>
+						</div>
+					</div>
+
+					<div class="con1 hide" id="tabcon4">
+						<div class="img_box flex">
+							<div class="img1"><img src="/static/index2/img/pic/dsh_1.png"><span>店铺装修</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/dsh_2.png"><span>快速购买</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/dsh_3.png"><span>商户列表</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/dsh_4.png"><span>商户入驻</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/dsh_5.png"><span>商家首页</span></div>
+							<div class="img1"><img src="/static/index2/img/pic/dsh_6.png"><span>商品列表</span></div>
+						</div>
+					</div>
+					<div class="con1 hide" id="tabcon5">
+						<div class="img_box flex">
+							<div class="img1"><img src="/static/index2/img/pic/notice_1.png"><span>订阅消息</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/notice_2.png"><span>短信通知</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/notice_3.png"><span>模板消息</span> </div>
+						</div>
+					</div>
+					<div class="con1 hide" id="tabcon6">
+						<div class="img_box flex">
+							<div class="img1"><img src="/static/index2/img/pic/H5.png"><span>H5</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/gpt_1.png"><span>百度</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/gpt_2.png"><span>抖音</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/gpt_3.png"><span>公众号</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/gpt_4.png"><span>头条</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/gpt_5.png"><span>小程序</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/gpt_6.png"><span>支付宝</span> </div>
+						</div>
+					</div>
+					<div class="con1 hide" id="tabcon7">
+						<div class="img_box flex">
+							<div class="img1"><img src="/static/index2/img/pic/qita_1.png"><span>表单</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/qita_2.png"><span>购物车</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/qita_3.png"><span>后台</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/qita_4.png"><span>礼品卡</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/qita_5.png"><span>论坛</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/qita_6.png"><span>签到</span> </div>
+							<div class="img1"><img src="/static/index2/img/pic/qita_7.png"><span>文章</span> </div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="contentbox4">
+		<div class="content4">
+			<div class="title">我们的优势	</div>
+			<div class="desc">站在用户的立场，打造更好的用户操作习惯及满足商家业务需求的电商系统	</div>
+			<div class="itembox flex">
+				<div class="item flex">
+					<div class="left">
+						<img src="/static/index2/img/weicon_1.png">
+					</div>
+					<div class="right">
+						<div class="t1">简单、快速</div>
+						<div class="t2"><span>1 分钟完成注册及直播活动搭建</span><span> 5 分钟搭建自己的企业视频门户</span></div>
+					</div>
+				</div>
+				<div class="item flex">
+					<div class="left">
+						<img src="/static/index2/img/weicon_2.png">
+					</div>
+					<div class="right">
+						<div class="t1">不断更新</div>
+						<div class="t2"><span>免费bug修复及系统优化</span><span> 免费不定期系统功能升级，增加新功能</span></div>
+					</div>
+				</div>
+				<div class="item flex">
+					<div class="left">
+						<img src="/static/index2/img/weicon_3.png">
+					</div>
+					<div class="right">
+						<div class="t1">支持定制开发</div> 
+						<div class="t2"><span>符合企业的电商系统才是好系统，全面满足您的开发定制需求</span></div>
+					</div>
+				</div>
+				<div class="item flex">
+					<div class="left">
+						<img src="/static/index2/img/weicon_4.png">
+					</div>
+					<div class="right">
+						<div class="t1">丰富的功能组件</div>
+						<div class="t2"><span>适用多种场景需求、支持公众号/小程序/APP多终端覆盖</span><span></span></div>
+					</div>
+				</div>
+				<div class="item flex">
+					<div class="left">
+						<img src="/static/index2/img/weicon_5.png">
+					</div>
+					<div class="right">
+						<div class="t1">全场景营销</div>
+						<div class="t2"><span>基于微信社交平台的用户优势，通过分销、 代理、拼团、砍价等多场景营销，快速引 流并推广商品，实现全场景营销</span></div>
+					</div>
+				</div>
+				<div class="item flex">
+					<div class="left">
+						<img src="/static/index2/img/weicon_6.png">
+					</div>
+					<div class="right">
+						<div class="t1">更多扩展功能</div>
+						<div class="t2"><span>多商户支持、文章管理、积分签到、自定义表单、礼品卡、视频号接入等</span><span></span></div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+	<div class="contentbox5">
+		<div class="title">四大核心功能-提供完整行业解决方案</div>
+		<div class="content5 flex">
+			<div class="left"><img src="/static/index2/img/con5_left.png"></div>
+			<div class="right">
+				<div class="item flex">
+					<div class="icon1"><img src="/static/index2/img/icon_1.png"></div>
+					<div>
+						<span>强大的移动商城</span>
+						<span>商家自营+多商户入驻移动商城 <br/>数字化会员管理体系，让您的客户二次复购变得简单</span>
+					</div>
+				</div>
+				<div class="item flex">
+					<div class="icon1"><img src="/static/index2/img/icon_2.png"></div>
+					<div>
+						<span>众多营销策略</span>
+						<span>分销、拼团、秒杀、砍价、会员价、优惠券、<br/>
+							积分等分销、让您的顾客带来更多顾客，帮您实现销量裂变式增长</span>
+					</div>
+				</div>
+				<div class="item flex">
+					<div class="icon1"><img src="/static/index2/img/icon_3.png"></div>
+					<div>
+						<span>可视化自定义搭建</span>
+						<span>可视化搭建，支持自定义换色。<br/>
+							自由拖拽即可搭建个性化商城</span>
+					</div>
+				</div>
+				<div class="item flex">
+					<div class="icon1"><img src="/static/index2/img/icon_4.png"></div>
+					<div>
+						<span>多端覆盖</span>
+						<span>覆盖微信公众号 微信小程序 支付宝小程序<br/>字节跳动小程序 百度小程序</span>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+	<div class="bottombox">
+		<div class="f1">
+			<a href="/">首页</a>
+			<a href="{:url('funshow')}">功能介绍</a>
+			<a href="{:url('lianxi')}">联系我们</a>
+			<a href="{:url('help')}">帮助中心</a>
+			
+		</div>
+		<div class="f2">
+			{$webinfo.copyright}&nbsp;&nbsp;&nbsp;<a href="http://beian.miit.gov.cn/" target="_blank" style="color:#6B798E">{$webinfo.beian}</a>
+		</div>
+		{if $webinfo['copyright2']}
+		<div class="f2">
+			<a href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode={$webinfo.beian2}" target="_blank" style="color:#6B798E">{$webinfo.copyright2}</a>
+		</div>
+		{/if}
+	</div>
+	
+
+
+</div>
+
+<script>
+$(document).ready(function(){
+	$('.bannerbox').slide({titCell:'.bannerhd li',mainCell:'.bannerbd',effect:'left',autoPlay:true});
+})
+</script>
+</body>
+</html>

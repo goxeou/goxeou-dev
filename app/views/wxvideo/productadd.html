@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>商品管理</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	.layui-form-label{width:120px!important}
+	.picsList-class{float:left;padding-top:10px;padding-left:150px;clear: both;}
+	.picsList-class .layui-imgbox{margin-right: 20px;}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加商品{else}<i class="fa fa-pencil"></i> 编辑商品{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					{if $info['edit_status']==3}<blockquote class="layui-elem-quote" style="color:red">商品未审核通过，驳回原因：{$info['audit_info']['reject_reason']}</blockquote>{/if}
+					<div class="layui-form">
+						<div class="layui-form-item">
+							<label class="layui-form-label">商品ID：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[out_product_id]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info['out_product_id']}">
+							</div>
+							<button type="button" class="layui-btn layui-btn-primary" onclick="showChooseProduct()">选择商品</button>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">商品名称：</label>
+							<div class="layui-form-mid" id="proname"></div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">类目ID：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[third_cat_id]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info['third_cat_id']}">
+							</div>
+							<button type="button" class="layui-btn layui-btn-primary" onclick="showChooseCategory()">选择</button>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">品牌：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<select name="info[brand_id]">
+									{foreach $brand_list as $v}
+									<option value="{$v.brand_id}">{$v.brand_wording}</option>
+									{/foreach}
+								</select>
+							</div>
+							<button type="button" class="layui-btn layui-btn-primary" onclick="showChooseCategory()">选择</button>
+						</div>
+						
+						<div class="layui-form-item" id="trademark_registration_certificate_div">
+							<label class="layui-form-label">商品资质图片：</label>
+							<input type="hidden" name="info[qualification_pics]" value="{$info['qualification_pics']}" id="qualification_pics">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this,true)" upload-input="qualification_pics" upload-preview="qualification_picsList" >上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">如所选类目需要商品资质，请在此上传</div>
+							<div id="qualification_picsList" class="picsList-class">
+								{if $info['qualification_pics']}{php}$pics = explode(',',$info['qualification_pics']);{/php}{foreach $pics as $pic}
+								<div class="layui-imgbox">
+									<a class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().remove();getpicsval('qualification_pics','qualification_picsList')" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+									<span class="layui-imgbox-img"><img src="{$pic}"></span>
+								</div>
+								{/foreach}{/if}
+							</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	
+	function showChooseProduct(){
+		layer.open({type:2,title:'选择商品',content:"{:url('ShopProduct/chooseproduct')}",area:['900px','600px'],shadeClose:true});
+	}
+	function choosepro(data){
+		$("input[name='info[out_product_id]']").val(data.product.id);
+		$("#proname").html(data.product.name);
+	}
+
+	function showChooseCategory(){
+		layer.open({type:2,title:'选择类目',content:"{:url('allcategory')}&ischoose=1",area:['900px','600px'],shadeClose:true});
+	}
+	function chooseCategory(data){
+		console.log(data)
+		$("input[name='info[third_cat_id]']").val(data.third_cat_id);
+	}
+
+
+	layui.laydate.render({ 
+		elem: '#seckill_date'
+		,type: 'date'
+		,range: false,
+		trigger: 'click'
+	});
+	
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		var index = layer.load();
+		$.post("",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.closeAll();
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

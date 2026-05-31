@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link href="__PUBLIC__/admin/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="__PUBLIC__/admin/css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link href="__PUBLIC__/admin/css/style.css?v=4.1.0" rel="stylesheet">
+    <link href="__PUBLIC__/admin/css/page.css" rel="stylesheet">
+    <style type="text/css">
+        .bluebtn{
+            background: #017eff;
+            border:1px solid #017eff;
+        }
+        .redbtn{
+            background: #ed5565;
+            border:1px solid #ed5565;
+        }
+    </style>
+</head>
+
+<body class="gray-bg">
+
+
+<div class="wrapper wrapper-content">
+    <div class="row animated fadeInRight">
+        <?php if($list){?>
+        {foreach name="list" item="v"}
+        <div class="col-sm-3">
+            <div class="ibox float-e-margins" style="background-color:white;">
+                <div class="ibox-title">
+                    <div class="row">
+                        <div class="col-sm-12"><i class="fa fa-user" aria-hidden="true"></i>&nbsp;主播：<span class="host-name">{notempty name="v.user_name"}{$v['user_name']}-{/notempty}{$v['phone']}</span></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">{if condition="$v['prohibit'] eq 1"}<i class="fa fa-eye-slash" aria-hidden="true"></i>{else/}<i class="fa fa-eye" aria-hidden="true"></i>{/if}&nbsp;状态：{if condition="$v['status'] eq 2"}禁播{else/}正常{/if}</div>
+                    </div>
+                </div>
+                <div class="ibox-content live-cover no-padding border-left-right" id="id_test_video_{$v.id}">
+                    <!--<video controls="controls" poster="{$v.cover}"  style="padding:1%;"></video>-->
+                    <!-- <video controls="controls" autoplay="autoplay">
+                        <source src="{$v.address[1]}" type="video/mp4"  width="390px" height="470px"/>
+                    </video> -->
+                    <!-- <img src="{$v.cover}" width="390px" height="470px"/> -->
+                </div>
+
+                <div class="ibox-content profile-content">
+                    <h4><strong>房间号：</strong><span style="font-weight: normal;">{$v['room']}</span></h4>
+                    <h4><strong>开播状态：</strong><span style="font-weight: normal;">直播中</span></h4>
+
+                    <!-- <h4><strong>上次开播时间：</strong><span style="font-weight: normal;">{$v['livetime']}</span></h4> -->
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <h5><strong>是否热门&nbsp;&nbsp;</strong><i class="fa fa-fire" aria-hidden="true" {if condition="$v['hot'] eq 1"}style="color:red;"{/if}></i></h5>
+                        </div>
+                        <div class="col-sm-6">
+                            <h5><strong>是否推荐&nbsp;&nbsp;</strong><i class="fa fa-hand-pointer-o" aria-hidden="true" {if condition="$v['recommend'] eq 1"}style="color:red;"{/if}></i></h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="user-button">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <button type="button" class="btn btn-primary btn-sm btn-block btn-danger closelive{$vo['id']}" onclick="closelive({$v['id']})" {if condition="$vo['isclose'] eq 1"} style="background:#017eff;border:#017eff 1px solid;border:none;"{else/} style="background:#ed5565;border:none;"{/if}><i class="fa fa-ban"></i> 禁播</button>
+                        </div>
+                        <div class="col-sm-6">
+                            <button type="button" class="btn btn-sm btn-block btn-info" onclick="resetlive({$v['id']})"><i class="fa fa-check"></i> 恢复直播</button>
+                        </div>
+                        <div class="col-sm-6">
+                            <button type="button" class="btn btn-default btn-sm btn-block btn-warning" onclick="notice({$v['id']})"><i class="fa fa-exclamation-triangle"></i> 警告</button>
+                        </div>
+                        <div class="col-sm-6">
+                            <button type="button" class="btn btn-default btn-sm btn-block btn-warning" onclick="livestop({$v['id']})"><i class="fa fa-power-off"></i> 断流</button>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        {/foreach}
+        <?php }elseif($data){?>
+        {foreach name="data" item="vo"}
+        <div class="col-sm-3">
+            <div class="ibox float-e-margins" style="background-color:white;">
+                <div class="ibox-title">
+                    <div class="row">
+                        <div class="col-sm-12"><i class="fa fa-user" aria-hidden="true"></i>&nbsp;主播：<span class="host-name">{notempty name="vo.user_name"}{$vo['user_name']}-{/notempty}{$vo['phone']}</span></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">{if condition="$vo['prohibit'] eq 1"}<i class="fa fa-eye-slash" aria-hidden="true"></i>{else/}<i class="fa fa-eye" aria-hidden="true"></i>{/if}&nbsp;状态：{if condition="$vo['status'] eq 2"}禁播{else/}正常{/if}</div>
+                    </div>
+                </div>
+                {if condition="$vo.sataus neq 1"}
+                <div class="ibox-content live-cover no-padding border-left-right">
+                    <img src="{$vo.cover}" style="width:100%;" alt="">
+                </div>
+                {else /}
+                <div class="ibox-content live-cover no-padding border-left-right" id="id_test_video_{$vo.id}">
+                    <!--<video controls="controls" poster="{$v.cover}"  style="padding:1%;"></video>-->
+                    <!-- <video controls="controls" autoplay="autoplay">
+                        <source src="{$v.address[1]}" type="video/mp4"  width="390px" height="470px"/>
+                    </video> -->
+                    <!-- <img src="{$v.cover}" width="390px" height="470px"/> -->
+                </div>
+                {/if}
+                <div class="ibox-content profile-content">
+                    <h4><strong>房间号：</strong><span style="font-weight: normal;">{$vo['room']}</span></h4>
+                    <h4><strong>开播状态：</strong><span style="font-weight: normal;">等待开播</span></h4>
+
+                    <!-- <h4><strong>上次开播时间：</strong><span style="font-weight: normal;">{$v['livetime']}</span></h4> -->
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <h5><strong>是否热门&nbsp;&nbsp;</strong><i class="fa fa-fire" aria-hidden="true" {if condition="$vo['hot'] eq 1"}style="color:red;"{/if}></i></h5>
+                        </div>
+                        <div class="col-sm-6">
+                            <h5><strong>是否推荐&nbsp;&nbsp;</strong><i class="fa fa-hand-pointer-o" aria-hidden="true" {if condition="$vo['recommend'] eq 1"}style="color:red;"{/if}></i></h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="user-button">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <button type="button" class="btn btn-primary btn-sm btn-block btn-danger closelive{$vo['id']}" onclick="closelive({$vo['id']})" {if condition="$vo['isclose'] eq 1"} style="background:#017eff;border:#017eff 1px solid;border:none;"{else/} style="background:#ed5565;border:none;"{/if}><i class="fa fa-ban"></i> 禁播</button>
+                        </div>
+                        <div class="col-sm-6">
+                            <button type="button" class="btn btn-sm btn-block btn-info" onclick="resetlive({$vo['id']})"><i class="fa fa-check"></i> 恢复直播</button>
+                        </div>
+                        <div class="col-sm-6">
+                            <button type="button" class="btn btn-default btn-sm btn-block btn-warning" onclick="notice({$vo['id']})"><i class="fa fa-exclamation-triangle"></i> 警告</button>
+                        </div>
+                        <div class="col-sm-6">
+                            <button type="button" class="btn btn-default btn-sm btn-block btn-warning" onclick="livestop({$vo['id']})"><i class="fa fa-power-off"></i> 断流</button>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        {/foreach}
+        <?php }else{?>
+        暂无开启的直播
+        <?php }?>
+    </div>
+</div>
+
+
+<script src="https://imgcache.qq.com/open/qcloud/video/vcplayer/TcPlayer-2.3.2.js" charset="utf-8"></script>
+
+<!-- 全局js -->
+<script src="__PUBLIC__/admin/js/jquery.min.js?v=2.1.4"></script>
+<script src="__PUBLIC__/admin/js/plugins/layer/layer.min.js"></script>
+<script src="__PUBLIC__/admin/js/bootstrap.min.js?v=3.3.6"></script>
+<script src="__PUBLIC__/admin/js/plugins/validate/jquery.validate.min.js"></script>
+<!-- iCheck -->
+<script src="__PUBLIC__/admin/js/plugins/iCheck/icheck.min.js"></script>
+<script type="text/javascript">
+    var list_res = <?php echo json_encode($list);?>
+
+    console.log(list_res)
+
+    list_res.forEach(function(item, index) {
+        var id = 'id_test_video_' + item.id
+        console.log(id);
+        var player =  new TcPlayer(id, {
+            "m3u8": item.address[1],
+            "flv": item.address[2], //增加了一个 flv 的播放地址，用于PC平台的播放 请替换成实际可用的播放地址
+            "live": true,
+            "flash" : true,
+            //"h5_flv" : true,
+            "autoplay" : true,      //iOS 下 safari 浏览器，以及大部分移动端浏览器是不开放视频自动播放这个能力的
+            "poster" : item.cover,
+            //"width" :  '480',//视频的显示宽度，请尽量使用视频分辨率宽度
+            //"height" : '320',//视频的显示高度，请尽量使用视频分辨率高度
+            "wording": {
+                2032: "请求视频失败，请检查网络",
+                2048: "请求m3u8文件失败，可能是网络错误或者跨域问题"
+            }
+        });
+    })
+    function closelive(id) {
+        $.ajax({
+            type: "POST",
+            url: "{:url('liveclose')}",
+            data: {'id':id},
+            dataType: 'json',
+            success: function(res){
+                console.log(res)
+                layer.msg(res.mess)
+            }
+        });
+    }
+
+    function notice(id){
+        $.ajax({
+            type: "POST",
+            url: "{:url('sendnotice')}",
+            data: {'id':id},
+            dataType: 'json',
+            success: function(res){
+                layer.msg(res.mess)
+            }
+        });
+    }
+
+    function livestop(id){
+        $.ajax({
+            type: "POST",
+            url: "{:url('livestop')}",
+            data: {'id':id},
+            dataType: 'json',
+            success: function(res){
+                layer.msg(res.mess)
+            }
+        });
+    }
+
+    function resetlive(id){
+        $.ajax({
+            type: "POST",
+            url: "{:url('resetlive')}",
+            data: {'id':id},
+            dataType: 'json',
+            success: function(res){
+                layer.msg(res.mess)
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

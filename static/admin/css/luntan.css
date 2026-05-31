@@ -1,0 +1,151 @@
+.datalist {
+		width: 100%;
+		padding: 0 12px;
+	}
+
+	.datalist .item {
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		padding: 12px 0;
+		border-bottom: 1px solid #f1f1f1
+	}
+
+	.datalist .item .top {
+		width: 100%;
+		display: flex;
+		align-items: center
+	}
+
+	.datalist .item .top .f1 {
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		margin-right: 8px
+	}
+
+	.datalist .item .top .f2 .t1 {
+		color: #222;
+		font-weight: bold;
+		font-size: 28rpx
+	}
+
+	.datalist .item .top .f2 .t2 {
+		color: #bbb;
+		font-size: 24rpx
+	}
+
+	.datalist .item .con {
+		width: 100%;
+		padding: 24rpx 0;
+		display: flex;
+		flex-direction: column;
+		color: #000
+	}
+
+	.datalist .item .con .f2 {
+		margin-top: 10rpx;
+		display: flex;
+		flex-wrap: wrap
+	}
+
+	.datalist .item .con .f2 image {
+		width: 31%;
+		margin-right: 2%;
+		margin-bottom: 10rpx;
+		border-radius: 8rpx
+	}
+
+	.datalist .item .con .video {
+		width: 80%;
+		height: 300rpx;
+		margin-top: 20rpx
+	}
+
+	.datalist .item .bot {
+		width: 100%;
+		display: flex;
+		align-items: center;
+		color: #222222;
+		font-size: 28rpx
+	}
+
+	.datalist .item .bot .f1 {
+		display: flex;
+		align-items: center;
+		font-weight: bold
+	}
+
+	.datalist .item .bot .f1 image {
+		width: 36rpx;
+		height: 36rpx;
+		margin-right: 16rpx;
+		margin-top: 2px
+	}
+
+	.datalist .item .bot .f2 {
+		flex: 1;
+	}
+
+	.datalist .item .bot .f3 {
+		display: flex;
+		align-items: center;
+		font-weight: bold
+	}
+
+	.datalist .item .bot .f3 image {
+		width: 40rpx;
+		height: 40rpx;
+		margin-right: 16rpx
+	}
+
+	.datalist .item .bot .f4 {
+		display: flex;
+		align-items: center;
+		margin-right: 30rpx
+	}
+
+	.datalist .item .bot .f4 image {
+		width: 40rpx;
+		height: 40rpx;
+		margin-right: 10rpx
+	}
+
+	.datalist .item .bot .btn2 {
+		color: #fff;
+		background: #FE1A29;
+		border: 1px solid #FE1A29;
+		padding: 6rpx 40rpx;
+		font-size: 24rpx;
+		border-radius: 40rpx;
+		margin-left: 16rpx
+	}
+
+	.covermy {
+		position: fixed;
+		z-index: 99999;
+		bottom: 0;
+		right: 0;
+		width: 130rpx;
+		height: 130rpx;
+		box-sizing: content-box
+	}
+
+	.covermy image {
+		width: 100%;
+		height: 100%
+	}
+
+	.nomore-footer-tips {
+		background: #fff !important
+	}
+
+	.phone .f1 {
+		line-height: 60rpx;
+		display: flex;
+	}
+
+	.phone .f1 label {
+		color: #999;
+		width: 120rpx;
+	}

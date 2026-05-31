@@ -1,0 +1,11 @@
+<div class="dsn-mod dsn-dhlist" ng-class="{'dsn-mod-select':Item.id == focus}" ng-style="{'color':Item.params.color,'background-color':Item.params.bgcolor,'margin':Item.params.margin_y+'px '+Item.params.margin_x+'px 0'}">
+	<div style="line-height: 40px; text-align: center; color: #999; font-size: 16px;" ng-show="Item.data == ''">一个导航都没有...</div>
+	<div class="dsn-dhlist-item" ng-repeat="d in Item.data" ng-style="{'padding':Item.params.padding_y+'px '+Item.params.padding_x+'px'}">
+		<div class="dsn-dhlist-text1" ng-style="{'font-size':Item.params.fontsize1+'px','color':Item.params.color1}">
+			<img ng-src="{{d.imgurl}}" ng-show="d.showicon==1" style="width:{{d.iconsize}}px"/>
+			<span class="dsn-dhlist-title1" ng-show="d.title1!=''" ng-style="{'margin-left':Item.params.titlemarginleft+'px'}">{{d.title1}}</span>
+		</div>
+		<div class="dsn-dhlist-text2" ng-style="{'font-size':Item.params.fontsize2+'px','color':Item.params.color2}">{{d.title2}}</div>
+		<img src="__STATIC__/img/arrowright.png" style="width:16px;height:16px" ng-show="Item.params.arrowshow==1"/>
+	</div>
+</div>

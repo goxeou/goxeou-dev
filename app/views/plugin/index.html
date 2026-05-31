@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>应用管理</title>
+	<meta name="renderer" content="webkit">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	<link rel="stylesheet" type="text/css" href="/static/admin/layui/css/layui.css?v=20200519" media="all">
+<link rel="stylesheet" type="text/css" href="/static/admin/layui/css/modules/formSelects-v4.css?v=20200516" media="all">
+<link rel="stylesheet" type="text/css" href="/static/admin/css/admin.css?v=20230532" media="all">
+<link rel="stylesheet" type="text/css" href="/static/admin/css/font-awesome.min.css?v=20200516" media="all">
+<link rel="stylesheet" type="text/css" href="/static/admin/webuploader/webuploader.css?v=1711608641" media="all">
+<link rel="stylesheet" type="text/css" href="/static/imgsrc/designer.css?v=20230426" media="all">
+<link rel="stylesheet" type="text/css" href="/static/fonts/iconfont.css?v=20201218" media="all">
+<link rel="stylesheet" type="text/css" href="/static/admin/cssv3/iconfont.css?v=20201222" media="all">
+<link rel="stylesheet" type="text/css" href="/static/admin/cssv3/cssv3/iconfont.css?v=20201222" media="all">
+<link rel="stylesheet" type="text/css" href="/static/admin/cssv3/cssv3/cssv3/iconfont.css?v=20201222" media="all">
+<link rel="stylesheet" href="/static/admin/css/new.css">
+</head>
+<style>
+    .app-list {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        flex-direction: row;
+    }
+
+    .app-item {
+        display: flex;
+        justify-content: start;
+        align-items: center;
+        background: #ffffff;
+        border: 1px solid #ebebeb;
+        width: 250px;
+        height: 90px;
+        overflow: hidden;
+        margin: 0 0 16px 16px;
+        padding: 10px;
+        cursor: pointer;
+        border-radius: 10px;
+    }
+
+    .app-item-icon {
+        width: 60px;
+        height: 60px;
+        display: block;
+        margin-right: 20px;
+    }
+
+    .app-item-title {
+        font-size: 15px;
+        margin-bottom: 10px;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        line-height: initial;
+        color: black;
+    }
+
+    .app-item-desc {
+        font-size: 13px;
+        line-height: 20px;
+        color: #999999;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
+<body>
+<div class="layui-fluid">
+	<div class="layui-row layui-col-space15">
+		<div class="layui-card layui-col-md12">
+			<div class="layui-card-header">应用管理 			</div>
+			<div class="layui-card-body" pad15>
+				<div class="app-list">
+					
+					<a href="/?s=/Article/index" class="app-item">
+						<img class="app-item-icon" src="/static/images/APP/WZGL.png"/>
+						<div>
+							<span class="app-item-title">文章管理</span>
+							<span class="app-item-desc">文章管理</span>
+						</div>
+					</a> 
+					<a href="/?s=/Luntan/index" class="app-item">
+						<img class="app-item-icon" src="/static/images/APP/YHLT.png"/>
+						<div>
+							<span class="app-item-title">用户论坛</span>
+							<span class="app-item-desc">用户论坛</span>
+						</div>
+					</a> 
+					<a href="/?s=/Sign/record" class="app-item">
+						<img class="app-item-icon" src="/static/images/APP/JFQD.png"/>
+						<div>
+							<span class="app-item-title">积分签到</span>
+							<span class="app-item-desc">积分签到</span>
+						</div>
+					</a> 
+					<a href="/?s=/Yuyue/index" class="app-item">
+						<img class="app-item-icon" src="/static/images/APP/YYFW.png"/>
+						<div>
+							<span class="app-item-title">预约服务</span>
+							<span class="app-item-desc">预约服务</span>
+						</div>
+					</a> 
+					<a href="/?s=/KechengCategory/index" class="app-item">
+						<img class="app-item-icon" src="/static/images/APP/ZSFF.png"/>
+						<div>
+							<span class="app-item-title">知识付费</span>
+							<span class="app-item-desc">知识付费</span>
+						</div>
+					</a> 
+					<a href="/?s=/PeisongUser/index" class="app-item">
+						<img class="app-item-icon" src="/static/images/APP/TCPS.png"/>
+						<div>
+							<span class="app-item-title">同城配送</span>
+							<span class="app-item-desc">同城配送</span>
+						</div>
+					</a> 
+					<a href="/?s=/Toupiao/index" class="app-item">
+						<img class="app-item-icon" src="/static/images/APP/TPHD.png"/>
+						<div>
+							<span class="app-item-title">投票活动</span>
+							<span class="app-item-desc">投票活动</span>
+						</div>
+					</a> 
+					<a href="/?s=/CycleProduct/index" class="app-item">
+						<img class="app-item-icon" src="/static/images/APP/ZQG.png"/>
+						<div>
+							<span class="app-item-title">周期购</span>
+							<span class="app-item-desc">周期购</span>
+						</div>
+					</a> 
+					<a href="/?s=/Mingpian/index" class="app-item">
+						<img class="app-item-icon" src="/static/images/APP/MP.png"/>
+						<div>
+							<span class="app-item-title">名片</span>
+							<span class="app-item-desc">名片</span>
+						</div>
+					</a> 
+					<a href="/?s=/Cashier/index" class="app-item">
+						<img class="app-item-icon" src="/static/images/APP/SYT.png"/>
+						<div>
+							<span class="app-item-title">收银台</span>
+							<span class="app-item-desc">收银台</span>
+						</div>
+					</a> 
+					<a href="/?s=/Form/index" class="app-item">
+						<img class="app-item-icon" src="/static/images/APP/ZDYBD.png"/>
+						<div>
+							<span class="app-item-title">自定义表单</span>
+							<span class="app-item-desc">自定义表单</span>
+						</div>
+					</a> 
+					<a href="/?s=/Lipin/index" class="app-item">
+						<img class="app-item-icon" src="/static/images/APP/LPK.png"/>
+						<div>
+							<span class="app-item-title">礼品卡</span>
+							<span class="app-item-desc">礼品卡</span>
+						</div>
+					</a> 
+					<a href="/?s=/Miandan/index" class="app-item">
+						<img class="app-item-icon" src="/static/images/APP/WLZS.png"/>
+						<div>
+							<span class="app-item-title">物流助手</span>
+							<span class="app-item-desc">物流助手</span>
+						</div>
+					</a> 
+					<a href="/?s=/Live/index" class="app-item">
+						<img class="app-item-icon" src="/static/images/APP/ZB.png"/>
+						<div>
+							<span class="app-item-title">小程序直播</span>
+							<span class="app-item-desc">小程序直播</span>
+						</div>
+					</a> 
+					<a href="/?s=/Maidan/add" class="app-item">
+						<img class="app-item-icon" src="/static/images/APP/MDSK.png"/>
+						<div>
+							<span class="app-item-title">买单收款</span>
+							<span class="app-item-desc">小程序直播</span>
+						</div>
+					</a> 
+					<a href="/?s=/MemberLevel/index" class="app-item">
+						<img class="app-item-icon" src="/static/images/APP/DJFX.png"/>
+						<div>
+							<span class="app-item-title">等级及分销</span>
+							<span class="app-item-desc">分销，团队，股东，省代理</span>
+						</div>
+					</a> 
+					<a href="/?s=/Mendian/index" class="app-item">
+						<img class="app-item-icon" src="/static/images/APP/MDGL.png"/>
+						<div>
+							<span class="app-item-title">门店管理</span>
+							<span class="app-item-desc">小程序直播</span>
+						</div>
+					</a> 
+					<a href="/?s=/Freight/index" class="app-item">
+						<img class="app-item-icon" src="/static/images/APP/PSFW.png"/>
+						<div>
+							<span class="app-item-title">配送服务</span>
+							<span class="app-item-desc">小程序直播</span>
+						</div>
+					</a> 
+					<a href="/?s=/Wifiprint/index" class="app-item">
+						<img class="app-item-icon" src="/static/images/APP/XPDY.png"/>
+						<div>
+							<span class="app-item-title">小票打印</span>
+							<span class="app-item-desc">小程序直播</span>
+						</div>
+					</a> 				</div>
+			</div>
+		</div>
+
+		<div class="layui-card layui-col-md12">
+			<div class="layui-card-header">餐饮模块
+			</div>
+			<div class="layui-card-body" pad15>
+				<div class="app-list">
+
+					
+					<a href="/?s=/Restaurant/index" class="app-item">
+						<img class="app-item-icon" src="/static/images/CY/SY.png"/>
+						<div>
+							<span class="app-item-title">餐饮外卖点餐</span>
+							<span class="app-item-desc">餐饮外卖点餐</span>
+						</div>
+					</a> 
+					<a href="/?s=/QueueFree/index" class="app-item">
+						<img class="app-item-icon" src="/static/images/YX/PDMD.png"/>
+						<div>
+							<span class="app-item-title">排队免单</span>
+							<span class="app-item-desc">排队免单</span>
+						</div>
+					</a> 
+					<a href="/?s=/QueueFreeReduce/index" class="app-item">
+						<img class="app-item-icon" src="/static/images/YX/PDMD.png"/>
+						<div>
+							<span class="app-item-title">排队统计</span>
+							<span class="app-item-desc">排队免单</span>
+						</div>
+					</a> 
+					<a href="/?s=/DesignerMarket/index" class="app-item">
+						<img class="app-item-icon" src="/static/images/YX/PDMD.png"/>
+						<div>
+							<span class="app-item-title">模板中心</span>
+							<span class="app-item-desc">模板中心</span>
+						</div>
+					</a> 
+					<a href="/?s=/DesignerPage/index" class="app-item">
+						<img class="app-item-icon" src="/static/images/YX/PDMD.png"/>
+						<div>
+							<span class="app-item-title">diy设计</span>
+							<span class="app-item-desc">排队免单</span>
+						</div>
+					</a> 
+					<a href="/?s=/User/index" class="app-item">
+						<img class="app-item-icon" src="/static/images/YX/PDMD.png"/>
+						<div>
+							<span class="app-item-title">平台管理</span>
+							<span class="app-item-desc">排队免单</span>
+						</div>
+					</a> 
+					<a href="/?s=/Mendian/index" class="app-item">
+						<img class="app-item-icon" src="/static/images/YX/PDMD.png"/>
+						<div>
+							<span class="app-item-title">万能门店</span>
+							<span class="app-item-desc">排队免单</span>
+						</div>
+					</a> 
+					<a href="/?s=/DesignerShare/index" class="app-item">
+						<img class="app-item-icon" src="/static/images/YX/PDMD.png"/>
+						<div>
+							<span class="app-item-title">推广分享</span>
+							<span class="app-item-desc">排队免单</span>
+						</div>
+					</a> 
+					<a href="/?s=/Wxurl/index" class="app-item">
+						<img class="app-item-icon" src="/static/images/YX/PDMD.png"/>
+						<div>
+							<span class="app-item-title">链接生成</span>
+							<span class="app-item-desc">排队免单</span>
+						</div>
+					</a> 
+					<a href="/?s=/Wxembedded/index" class="app-item">
+						<img class="app-item-icon" src="/static/images/YX/PDMD.png"/>
+						<div>
+							<span class="app-item-title">半屏小程序</span>
+							<span class="app-item-desc">排队免单</span>
+						</div>
+					</a> 
+					<a href="/?s=/DesignerMenu/menu2" class="app-item">
+						<img class="app-item-icon" src="/static/images/YX/PDMD.png"/>
+						<div>
+							<span class="app-item-title">内页导航</span>
+							<span class="app-item-desc">排队免单</span>
+						</div>
+					</a> 
+					<a href="/?s=/Invoice/index" class="app-item">
+						<img class="app-item-icon" src="/static/images/YX/PDMD.png"/>
+						<div>
+							<span class="app-item-title">发票管理</span>
+							<span class="app-item-desc">排队免单</span>
+						</div>
+					</a> 
+					<a href="/?s=/DesignerPage/chooseurl" class="app-item">
+						<img class="app-item-icon" src="/static/images/YX/PDMD.png"/>
+						<div>
+							<span class="app-item-title">链接生成</span>
+							<span class="app-item-desc">排队免单</span>
+						</div>
+					</a> 
+					<a href="/?s=/Adminst/plog" class="app-item">
+						<img class="app-item-icon" src="/static/images/YX/PDMD.png"/>
+						<div>
+							<span class="app-item-title">操作日志</span>
+							<span class="app-item-desc">排队免单</span>
+						</div>
+					</a> 
+					<a href="/?s=/Sms/set" class="app-item">
+						<img class="app-item-icon" src="/static/images/YX/PDMD.png"/>
+						<div>
+							<span class="app-item-title">短信配置</span>
+							<span class="app-item-desc">排队免单</span>
+						</div>
+					</a> 				</div>
+			</div>
+		</div>
+
+
+		<div class="layui-card layui-col-md12">
+			<div class="layui-card-header">营销中心
+			</div>
+			<div class="layui-card-body" pad15>
+				<div class="app-list">
+										<a href="/?s=/Coupon/index" class="app-item marketing-item">
+						<img class="app-item-icon" src="/static/images/YX/YHQ.png"/>
+						<div>
+							<span class="app-item-title">优惠券</span>
+							<span class="app-item-desc">优惠券</span>
+						</div>
+					</a>
+										<a href="/?s=/Member/registerGive" class="app-item marketing-item">
+						<img class="app-item-icon" src="/static/images/YX/ZCZS.png"/>
+						<div>
+							<span class="app-item-title">注册赠送</span>
+							<span class="app-item-desc">注册赠送</span>
+						</div>
+					</a>
+										<a href="/?s=/Money/giveset" class="app-item marketing-item">
+						<img class="app-item-icon" src="/static/images/YX/CZZS.png"/>
+						<div>
+							<span class="app-item-title">充值赠送</span>
+							<span class="app-item-desc">充值赠送</span>
+						</div>
+					</a>
+										<a href="/?s=/Manjian/set" class="app-item marketing-item">
+						<img class="app-item-icon" src="/static/images/YX/GWMJ.png"/>
+						<div>
+							<span class="app-item-title">购物满减</span>
+							<span class="app-item-desc">购物满减</span>
+						</div>
+					</a>
+										<a href="/?s=/Cuxiao/index" class="app-item marketing-item">
+						<img class="app-item-icon" src="/static/images/YX/SPCX.png"/>
+						<div>
+							<span class="app-item-title">商品促销</span>
+							<span class="app-item-desc">商品促销</span>
+						</div>
+					</a>
+										<a href="/?s=/Cashback/index" class="app-item marketing-item">
+						<img class="app-item-icon" src="/static/images/YX/GWFX.png"/>
+						<div>
+							<span class="app-item-title">购物返现</span>
+							<span class="app-item-desc">购物返现</span>
+						</div>
+					</a>
+										<a href="/?s=/CollageProduct/index" class="app-item marketing-item">
+						<img class="app-item-icon" src="/static/images/YX/DRPT.png"/>
+						<div>
+							<span class="app-item-title">多人拼团</span>
+							<span class="app-item-desc">多人拼团</span>
+						</div>
+					</a>
+										<a href="/?s=/KanjiaProduct/index" class="app-item marketing-item">
+						<img class="app-item-icon" src="/static/images/YX/KJHD.png"/>
+						<div>
+							<span class="app-item-title">砍价活动</span>
+							<span class="app-item-desc">砍价活动</span>
+						</div>
+					</a>
+										<a href="/?s=/SeckillProduct/index" class="app-item marketing-item">
+						<img class="app-item-icon" src="/static/images/YX/ZDMS.png"/>
+						<div>
+							<span class="app-item-title">整点秒杀</span>
+							<span class="app-item-desc">整点秒杀</span>
+						</div>
+					</a>
+										<a href="/?s=/TuangouProduct/index" class="app-item marketing-item">
+						<img class="app-item-icon" src="/static/images/YX/TGHD.png"/>
+						<div>
+							<span class="app-item-title">团购活动</span>
+							<span class="app-item-desc">团购活动</span>
+						</div>
+					</a>
+										<a href="/?s=/ScoreshopProduct/index" class="app-item marketing-item">
+						<img class="app-item-icon" src="/static/images/YX/JFDH.png"/>
+						<div>
+							<span class="app-item-title">积分兑换</span>
+							<span class="app-item-desc">积分兑换</span>
+						</div>
+					</a>
+										<a href="/?s=/Choujiang/index" class="app-item marketing-item">
+						<img class="app-item-icon" src="/static/images/YX/CJHD.png"/>
+						<div>
+							<span class="app-item-title">抽奖活动</span>
+							<span class="app-item-desc">抽奖活动</span>
+						</div>
+					</a>
+										<a href="/?s=/LuckyCollageProduct/index" class="app-item marketing-item">
+						<img class="app-item-icon" src="/static/images/YX/XYPT.png"/>
+						<div>
+							<span class="app-item-title">幸运拼团</span>
+							<span class="app-item-desc">幸运拼团</span>
+						</div>
+					</a>
+										<a href="/?s=/ShortvideoCategory/index" class="app-item marketing-item">
+						<img class="app-item-icon" src="/static/images/YX/DSP.png"/>
+						<div>
+							<span class="app-item-title">短视频</span>
+							<span class="app-item-desc">短视频</span>
+						</div>
+					</a>
+									</div>
+			</div>
+		</div>
+
+
+	</div>
+</div>
+<script type="text/javascript" src="/static/admin/layui/layui.all.js?v=20210226"></script>
+<script type="text/javascript" src="/static/admin/layui/lay/modules/flow.js?v=1"></script>
+<script type="text/javascript" src="/static/admin/layui/lay/modules/formSelects-v4.js"></script>
+<script type="text/javascript" src="/static/admin/js/jquery-ui.min.js?v=20200228"></script>
+<script type="text/javascript" src="/static/admin/ueditor/ueditor.js?v=20220707"></script>
+<script type="text/javascript" src="/static/admin/ueditor/135editor.js?v=20200228"></script>
+<script type="text/javascript" src="/static/admin/webuploader/webuploader.js?v=20230530"></script>
+<script type="text/javascript" src="/static/admin/js/qrcode.min.js?v=20200228"></script>
+<script type="text/javascript" src="/static/admin/js/sutui.js?v=2022"></script>
+
+<div id="NewsToolBox"></div>
+<script type="text/javascript">
+		// 浮层展示
+		$('.layui-popover').mouseenter(function(){
+			let pageHeight = $(window).height() + $(document).scrollTop();
+			let bottom = pageHeight - $(this).offset().top
+			let topNum = ($(this).offset().top - $(document).scrollTop()).toFixed(2);
+			let Height = $(this).find('.layui-popover-div').outerHeight();
+			$(this).find('.layui-popover-div').show()
+			let that = this;
+			setTimeout(function(){
+				if(topNum < (Height/2-15)){
+					$(that).find('.layui-popover-div').css({'top':-topNum+10+'px','opacity':1,'transition':'opacity .3s'})	
+				}else if(bottom < (Height/2-15)){
+					$(that).find('.layui-popover-div').css({'top': bottom-Height-10 +'px','opacity':1,'transition':'opacity .3s'})	
+				}else{
+					$(that).find('.layui-popover-div').css({'top':-(Height/2-15)+'px','opacity':1,'transition':'opacity .3s'})	
+				}
+			},100)
+		}) 
+		$('.layui-popover').mouseleave(function(){
+			$(this).find('.layui-popover-div').css({'opacity':0})	
+			$(this).find('.layui-popover-div').hide()
+		}) 
+    function copyText(text) {
+        var top = document.documentElement.scrollTop;
+        var textarea = document.createElement("textarea"); //创建input对象
+        var currentFocus = document.activeElement; //当前获得焦点的元素
+        var toolBoxwrap = document.getElementById('NewsToolBox'); //将文本框插入到NewsToolBox这个之后
+        toolBoxwrap.appendChild(textarea); //添加元素
+        textarea.value = text;
+        textarea.focus();
+        document.documentElement.scrollTop = top;
+        if (textarea.setSelectionRange) {
+            textarea.setSelectionRange(0, textarea.value.length); //获取光标起始位置到结束位置
+        } else {
+            textarea.select();
+        }
+        try {
+            var flag = document.execCommand("copy"); //执行复制
+        } catch (eo) {
+            var flag = false;
+        }
+        toolBoxwrap.removeChild(textarea); //删除元素
+        currentFocus.focus();
+        if(flag) layer.msg('复制成功');
+        return flag;
+    }
+		// 查看链接
+		function viewLink(path,url=''){
+			var pagepath = path;
+			if(!url){
+				var url = "https://api.myyooo.com/h5/9.html#/"+pagepath+""; //拼接 H5 链接
+			}
+						var html = '';
+			html+='<div style="margin:20px">';
+			html+='	<div style="width:100%;margin:10px 0" id="urlqr"></div>';
+						html+='	<div style="width:100%;text-align:center"><button class="layui-btn layui-btn-sm layui-btn-primary" onclick="showwxqrcode(\''+pagepath+'\')">查看小程序码</button></div>';
+						html+='	<div style="line-height:25px;"><div><span style="width: 80px;display: inline-block;">链接地址：</span><button class="layui-btn layui-btn-xs layui-btn-primary" onclick="copyText(\''+url+'\')">复制</button></div><div>'+url+'</div></div>';
+			html+='	<div style="height:50px;line-height:25px;"><div><span style="width: 80px;display: inline-block;">页面路径：</span><button style="box-sizing: border-box;" class="layui-btn layui-btn-xs layui-btn-primary" onclick="copyText(\'/'+pagepath+'\')">复制</button></div><div>/'+pagepath+'</div></div>';
+			html+='</div>';
+			layer.open({type:1,'title':'查看链接',area:['500px','430px'],shadeClose:true,'content':html})
+			var qrcode = new QRCode('urlqr', {
+					text: 'your content',
+					width: 200,
+					height: 200,
+					colorDark : '#000000',
+					colorLight : '#ffffff',
+					correctLevel : QRCode.CorrectLevel.L
+				});
+				qrcode.clear();
+				qrcode.makeCode(url);
+		}
+		// 查看小程序码
+		function showwxqrcode(pagepath){
+			var index = layer.load();
+			$.post("/?s=/DesignerPage/getwxqrcode",{path:pagepath},function(res){
+				layer.close(index);
+				if(res.status==0){
+					layer.open({type:1,area:['300px','350px'],content:'<div style="margin:auto auto;text-align:center"><div style="color:red;width:280px;height:180px;margin-top:100px">'+res.msg+'</div><div style="height:25px;line-height:25px;">'+'/'+pagepath+'</div></div>',title:false,shadeClose:true})
+				}else{
+					layer.open({type:1,area:['300px','350px'],content:'<div style="margin:auto auto;text-align:center"><img src="'+res.url+'" style="margin-top:20px;max-width:280px;max-height:280px"/><div style="height:25px;line-height:25px;">'+'/'+pagepath+'</div></div>',title:false,shadeClose:true})
+				}
+			})
+		}
+</script>
+<script>
+    $('.app-item').on('click', function () {
+
+        $(window.parent.document).find('#LAY_app').removeClass('layadmin-side-shrink2').find('.wb-subnav').show();
+        $(window.parent.document).find("a[lay-tips='营销']").trigger('click');
+        $(window.parent.document).find("li.active").removeClass('active');
+
+        let url = $(this).attr('href');
+        $(window.parent.document).find("a[href='" + url + "']").trigger('click').parent('li').addClass('active');
+
+        let title = $(this).find('.app-item-title').text();
+
+		console.log(url,title);
+
+        if(url=='/?s=/Restaurant/index'){
+            $(window.parent.document).find('#subnav_restaurant').show().find('div').show();
+            $(window.parent.document).find('#subnav_restaurant').siblings().hide();
+            return ;
+        }
+
+
+        console.log($(window.parent.document).find("a:contains('" + title + "')").parents('.menu-item'));
+
+        $(window.parent.document).find("a[href='" + url + "']").parents('.menu-item').show().siblings().hide();
+		$(window.parent.document).find("a[href='" + url + "']").parents('.subnav-group').show().siblings('.subnav-group').hide();
+		$(window.parent.document).find(".menu-item:contains('" + title + "')").find('.multiple').show();
+    });
+</script>
+
+<script type='text/javascript'>
+
+</script></body>
+</html>

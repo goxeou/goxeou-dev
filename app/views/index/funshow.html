@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>功能展示 - 微信公众号商城|微信小程序商城|微信公众号分销系统|微信公众号在线制作平台|微信小程序分销系统|微信小程序在线制作平台</title>
+	<meta name="keywords" content="微信公众号,微信公众号商城,小程序商城,小程序分销系统,小程序在线制作,小程序,微信小程序,小程序制作,微信小程序制作,小程序工具,微信小程序工具,小程序开发,微信小程序开发,小程序平台,微信小程序平台" />
+	<meta name="description" content="功能展示 - 微信公众号商城微信小程序商城及分销解决方案，致力于为广大商家快速搭建自己的微信公众号微信小程序，围绕会员、营销、效率，助力商家轻松经营店铺。" />
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="Renderer" content="webkit">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta http-equiv="Pragma" content="no-cache">
+	<!-- HTTP 1.0 -->
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+	<!-- Prevent caching at the proxy server -->
+	<meta http-equiv="Expires" content="0">
+	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE9" />
+	<!-- Mobile Metas -->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no,maximum-scale=1.0,minimum-scale=1.0">
+	<meta http-equiv="Cache-Control" content="no-transform" />
+	<meta http-equiv="Cache-Control" content="no-siteapp" />
+	<link rel="shortcut icon" type="image/x-icon" href="/static/images/favicon.ico" />
+	<link rel="stylesheet" href="/static/index/css/index.css?v={:time()}">
+	<script src="/static/index/js/jquery.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/static/index/js/jquery.SuperSlide.2.1.1.js" type="text/javascript" charset="utf-8"></script>
+</head>
+<body>
+<nav class="chapter_nav flex">
+	{include file="index/public/menu"/}
+</nav>
+<div style="width:100%;height:60px;line-height:60px"></div>
+	
+<div class="bannerbox">
+	<div class="bannerbd">
+		<div class="banner1">
+			<div class="main">
+				<div class="banner1_div1">DIY界面设计</div>
+				<div class="banner1_div2">可视化DIY设计小程序 —— 开启自定义功能新征程</div>
+			</div>
+		</div>
+		<div class="banner2">
+			<div class="main">
+				<div class="banner1_div1">公众号、小程序、会员卡</div>
+				<div class="banner1_div2">同时支持微信公众号、小程序及会员卡，覆盖微信生态圈三大流量入口</div>
+			</div>
+		</div>
+		<div class="banner4">
+			<div class="main">
+				<div class="banner1_div1">众多营销策略供您选择</div>
+				<div class="banner1_div2">分销、秒杀、拼团、砍价、优惠券、积分抵扣应有尽有</div>
+			</div>
+		</div>
+		<div class="banner5">
+			<div class="main">
+				<div class="banner1_div1">电脑端后台、手机端商家助手 双管理系统</div>
+				<div class="banner1_div2">手机端随时随地接收消息通知、查看店铺动态、操作处理订单等</div>
+			</div>
+		</div>
+	</div>
+	<div class="bannerhd">
+		<ul>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+		</ul>
+	</div>
+	<div class="prev">
+		<img src="/static/index/img/index_banner_zjt.png"/>
+	</div>
+	<div class="next">
+		<img src="/static/index/img/index_banner_zjt.png"/> 
+	</div>
+</div>
+<script>
+$(document).ready(function(){
+	$('.bannerbox').slide({titCell:'.bannerhd li',mainCell:'.bannerbd',effect:'left',autoPlay:true});
+	if(istargettouches = true){
+		let _start=0,_end=0,slider=$('.bannerbox');
+		slider.on('touchstart',function(e){_start=e.originalEvent.targetTouches[0].pageX;});
+		slider.on('touchmove',function(e){_end=e.originalEvent.targetTouches[0].pageX;});
+		slider.on('touchend touchcancel',function(e){
+			if((_start-_end)<-50){
+				slider.find('.prev').click();_end=0;
+			}else if((_start-_end)>50){
+				slider.find('.next').click();_end=0;
+			}
+		});
+	}
+	if(ismousedown = true){
+		let _start=0,_end=0,slider=$('.bannerbox');
+		slider.on('mousedown',function(e){if(e.button==0){_start=e.clientX-slider.offset().left;}});
+		slider.on('mouseup',function(e){
+			if(e.button==0){
+				_end=e.clientX-slider.offset().left;
+			}
+			if((_start-_end)<-50){
+				slider.find('.prev').click();_end=0;
+			}else if((_start-_end)>50){
+				slider.find('.next').click();_end=0;
+			}
+			return false;
+		});
+	}
+})
+</script>
+
+
+<div class="core">
+	<div class="coreTitle" style="margin-bottom: 112px;">
+			<img src="/static/index/img/title-left.png" alt="">
+			<span>核心功能</span>
+			<img src="/static/index/img/title-right.png" alt="">
+	</div>
+	<div class="center">
+			<img src="/static/index/img/centerline.png" alt="">
+	</div>
+	<div class="function">
+			<div class="functionImage">
+				<img src="/static/index/img/diy2x.png" alt="">  
+			</div>  
+			<div class="functionLeft">
+					<div>拖拽式排版</div>
+					<div>首页、会员中心及底部菜单</div>
+					<div>进行个性化排版设计</div>
+			</div>
+			<div class="dev">
+					<img src="/static/index/img/fenzhi.png" alt="">
+			</div>
+	</div>
+	<div class="function">
+			<div class="dev-2">
+					<img src="/static/index/img/fenzhi-2.png" alt="">
+			</div>
+			<div class="functionImg" style="display: none;">
+				<img src="/static/index/img/5caa950967ac8.png" alt="">  
+			</div>  
+			<div class="functionRight">
+					<div>商城系统</div>
+					<div>商品秒杀、商品评价</div>
+					<div>快递、自提、同城配送</div>
+					<div>支持三级以下分销模式</div>
+			</div>
+			<div class="functionImage-2">
+				<img src="/static/index/img/5caa950967ac8.png" alt="">  
+			</div>  
+	</div>
+	<div class="function">
+			<div class="functionImage">
+				<img src="/static/index/img/sjfx2x.png" alt="">  
+			</div>  
+			<div class="functionLeft">
+					<div>会员管理</div>
+					<div>会员等级、会员折扣等</div>
+					<div>可领取微信会员卡</div>
+					<div>公众号、小程序数据互通</div>
+			</div>
+			<div class="dev">
+					<img src="/static/index/img/fenzhi.png" alt="">
+			</div>
+	</div>
+	<div class="function">
+			<div class="dev-2">
+					<img src="/static/index/img/fenzhi-2.png" alt="">
+			</div>
+			<div class="functionImg" style="display: none;">
+				<img src="/static/index/img/jifen2x.png" alt="">  
+			</div> 
+			<div class="functionRight">
+					<div>在线客服</div>
+					<div>支持公众号聊天框、</div>
+					<div>商城首页/详情页/会员中心、</div>
+					<div>及小程序内进行在线咨询</div>
+			</div>
+			<div class="functionImage-2">
+				<img src="/static/index/img/jifen2x.png" alt="" style="width:250px">  
+			</div>  
+	</div>
+	<div class="function">
+			<div class="functionImage">
+				<img src="/static/index/img/pintuan2x.png" alt="">  
+			</div>  
+			<div class="functionLeft">
+					<div>拼团购物</div>
+					<div>使用拼团营销</div>
+					<div>促进客户购物积极性</div>
+					<div>提高商品销量</div>
+			</div>
+			<div class="dev">
+					<img src="/static/index/img/fenzhi.png" alt="">
+			</div>
+	</div>
+	<div class="function">
+			<div class="dev-2">
+					<img src="/static/index/img/fenzhi-2.png" alt="">
+			</div>
+		 <div class="functionImg" style="display: none;">
+				<img src="/static/index/img/yuyue2x.png" alt="">  
+			</div> 
+			<div class="functionRight">
+					<div>砍价功能</div>
+					<div>用户可设置原价底价，多个砍价区间</div>
+					<div>自由灵活，活跃粉丝</div>
+			</div>
+			<div class="functionImage-2">
+				<img src="/static/index/img/yuyue2x.png" alt="">  
+			</div>  
+	</div>
+	<div class="function">
+			<div class="functionImage">
+				<img src="/static/index/img/yhq2x.png" alt="">  
+			</div>  
+			<div class="functionLeft">
+					<div>营销活动</div>
+					<div>代金券/礼品券/计次券/运费券</div>
+					<div>充值赠送/积分签到/视频直播</div>
+					<div>微信红包/大转盘/刮刮卡等</div>
+			</div>
+			<div class="dev">
+					<img src="/static/index/img/fenzhi.png" alt="">
+			</div>
+	</div>
+	<div class="function">
+			<div class="dev-2">
+					<img src="/static/index/img/fenzhi-2.png" alt="">
+			</div>
+		 <div class="functionImg" style="display: none;">
+				<img src="/static/index/img/shuju2x.png" alt="">  
+			</div> 
+			<div class="functionRight">
+					<div>数据管理</div>
+					<div>PC端后台详细数据查询/分析/导出等</div>
+					<div>商家助手端财务管理/订单管理/会员管理等</div>
+			</div>
+			<div class="functionImage-2">
+				<img src="/static/index/img/shuju2x.png" alt="">  
+			</div>  
+	</div>
+</div>
+
+<div class="funcontent">
+	<div class="coreTitle" style="margin-bottom: 112px;margin-top:20px">
+			<img src="/static/index/img/title-left.png" alt="">
+			<span>主要功能介绍</span>
+			<img src="/static/index/img/title-right.png" alt="">
+	</div>
+		<div class="ntitle"></div>
+	<div class="main flex">
+		<ul class="leftul">
+			<li class="active"><a href="javascript:;">一键授权</a></li>
+			<li class=""><a href="javascript:;">公众号管理</a></li>
+			<li class=""><a href="javascript:;">小程序管理</a></li>
+			<li class=""><a href="javascript:;">微信会员卡</a></li>
+			<li class=""><a href="javascript:;">微信支付</a></li>
+			<li class=""><a href="javascript:;">界面设计</a></li>
+			<li class=""><a href="javascript:;">会员管理</a></li>
+			<li class=""><a href="javascript:;">商城系统</a></li>
+			<li class=""><a href="javascript:;">积分兑换</a></li>
+			<li class=""><a href="javascript:;">秒杀功能</a></li>
+			<li class=""><a href="javascript:;">拼团功能</a></li>
+			<li class=""><a href="javascript:;">砍价功能</a></li>
+			<li class=""><a href="javascript:;">推荐赚红包</a></li>
+			<li class=""><a href="javascript:;">买单收款</a></li>
+			<li class=""><a href="javascript:;">财务管理</a></li>
+			<li class=""><a href="javascript:;">营销活动</a></li>
+			<li class=""><a href="javascript:;">文章管理</a></li>
+			<li class=""><a href="javascript:;">自定义表单</a></li>
+			<li class=""><a href="javascript:;">优惠券</a></li>
+			<li class=""><a href="javascript:;">积分签到</a></li>
+			<li class=""><a href="javascript:;">短信功能</a></li>
+			<li class=""><a href="javascript:;">在线客服</a></li>
+			<li class=""><a href="javascript:;">在线直播</a></li>
+			<li class=""><a href="javascript:;">后台账号</a></li>
+			<li class=""><a href="javascript:;">商家助手</a></li>
+		</ul>
+		<div class="rightcon" style="height:1300px;overflow-y:scroll">
+			<div class="gongneng1">
+				<p style="font-weight:bold;height:50px;line-height:50px" class="ptit">一键授权</p>
+				<p>授权公众号：直接点击授权公众号即可授权您的公众号，无需繁琐的绑定工作。</p>
+				<p>授权小程序：直接点击授权即可授权您的小程序，点击上传代码即可上传到微信官方服务器进行提交审核发布等，无需导出代码安装开发者工具等繁琐的部署操作</p>
+				<p></p>
+				<p style="font-weight:bold;height:50px;line-height:50px" class="ptit">公众号管理</p>
+				<p>设置自定义菜单、被关注回复、关键字回复，查看公众号粉丝、素材管理、素材群发、模板消息群发、活跃粉丝群发等功能</p>
+				<p>用户领卡后在微信卡包中展示，实现会员卡买单消费等功能，平台积分、余额、等级、优惠券等信息与会员卡实时同步</p>
+				
+				<p style="font-weight:bold;height:50px;line-height:50px" class="ptit">小程序管理</p>
+				<p>创建小程序：可以在授权公众号后复用公众号资质创建小程序账号，创建成功后会自动授权到本平台</p>
+				<p>版本管理：上传版本、提交审核、自动发布、添加体验者等功能</p>
+				<p>实时更新：上线完成后设计的页面及菜单的修改都不需要重新提交审核即可生效，方便发布后更换界面风格等操作</p>
+				
+				<p style="font-weight:bold;height:50px;line-height:50px" class="ptit">微信会员卡</p>
+				<p>服务号在【添加功能插件】-【卡券功能】开通后即可在本平台创建微信会员卡</p>
+				<p>用户领卡后在微信卡包中展示，实现会员卡买单消费等功能，平台积分、余额、等级、优惠券等信息与会员卡实时同步</p>
+				
+				<p style="font-weight:bold;height:50px;line-height:50px" class="ptit">微信支付</p>
+				<p>个体户、企业、党政机关及事业单位、其他组织都可以直接在本平台后台申请微信支付功能，实现在线交易</p>
+				<p>优惠费率：大部分行业微信官方标准费率为0.6% 在本平台申请微信支付可以拿到0.38%的优惠费率</p>
+
+				<p style="font-weight:bold;height:50px;line-height:50px" class="ptit">界面设计</p>
+				<p>首页自定义：20多个自定义组件任意组合排版</p>
+				<p>添加自定义页面：打造完全自主个性化界面</p>
+				<p>会员中心自定义：会员中心功能列表及界面展示自定义</p>
+				<p>底部菜单自定义：自定义菜单个数、图标、文字、跳转均可自定义</p>
+				<p>分享海报自定义：首页海报、商品海报、拼团海报、砍价海报自定义编辑</p>
+
+				<p style="font-weight:bold;height:50px;line-height:50px" class="ptit">会员管理</p>
+				<p>会员数据互通：公众号、小程序、会员卡三端数据互通，订单、余额、积分、等级、优惠券等信息实时同步</p>
+				<p>分销功能：可设置一级、二级、三级分销功能，支持不同会员等级设置不同分销等级权限及提成比例</p>
+				<p>其他功能：设置会员等级、会员升级、会员折扣、会员积分、会员充值等功能</p>
+
+				<p style="font-weight:bold;height:50px;line-height:50px" class="ptit">商城功能</p>
+				<p>商品管理：设置商品规格、分销模式，自定义商品详情支持自定义组件，不再仅仅是图文显示</p>
+				<p>订单管理：查看订单列表、订单详情、分销提成、改状态、发货、备注等</p>
+				<p>评价管理：是否开启评价功能、是否需要审核、评价回复等</p>
+				<p>商品分类：设置商品分类、添加子分类等</p>
+				<p>商品分组：设置商品分组等</p>
+				<p>配送设置：支持快递、同城配送、到店自提等配送方式，根据运费设置规则自动计算运费价格，可设置配送时间选择、满额包邮等</p>
+				<!-- <p>7、淘宝助手：采集淘宝网的商品到系统中</p> -->
+				<p style="font-weight:bold;height:50px;line-height:50px" class="ptit">积分兑换</p>
+				<p>支持积分和积分+金额进行兑换，设置分类、轮播图、配送方式等</p>
+				<p style="font-weight:bold;height:50px;line-height:50px" class="ptit">秒杀功能</p>
+				<p>设置秒杀活动状态，秒杀场次，秒杀时长，选择商城中的商品参与秒杀活动，查看秒杀进度等</p>
+				<p style="font-weight:bold;height:50px;line-height:50px" class="ptit">拼团功能</p>
+				<p>添加拼团商品，设置商品规格，设置拼团人数，限购次数，拼团时间，团长优惠，团长奖励，分类，评价，配送等</p>
+				<p style="font-weight:bold;height:50px;line-height:50px" class="ptit">砍价功能</p>
+				<p>添加砍价商品，设置底价，设置是否只有达到底价才能下单，设置每个人砍掉的价格区间，设置配送方式等</p>
+				<p style="font-weight:bold;height:50px;line-height:50px" class="ptit">推荐赚红包</p>
+				<p>推荐赚红包活动是一种推广单品的营销活动，用户分享单品给好友购买，好友付款后立即获得一定金额的微信红包奖励</p>
+				<p style="font-weight:bold;height:50px;line-height:50px" class="ptit">买单收款</p>
+				<p>支持商城买单、会员卡买单、扫码枪扫描微信付款码收款、手机端商家助手扫描付款码收款</p>
+				<!-- <p style="font-weight:bold;height:50px;line-height:50px" class="ptit">抽奖功能</p>
+				<p>商家拿出一些有诱惑力的商品作为奖品，吸引顾客到商城免费参与抽奖，以此来增强小程序商城和顾客之间的粘性，提升商城、商品的曝光度</p>
+				<p>用户参与抽奖会得到一个抽奖码，每邀请一个好友参与会额外获得一个抽奖码，抽奖码越多中奖率越高</p>
+				<p>设置奖品，奖品数量，活动时间，运费，抽中后免费获取或花钱购买等</p> -->
+				<p style="font-weight:bold;height:50px;line-height:50px" class="ptit">财务管理</p>
+				<p>充值记录、余额提现、余额明细、佣金提现、佣金明细、积分明细、买单记录等功能</p>
+				<p style="font-weight:bold;height:50px;line-height:50px" class="ptit">营销活动</p>
+				<p>优惠券、充值赠送、微信红包、幸运大转盘、刮刮卡、砸金蛋、摇摇乐等活动</p>
+				<p style="font-weight:bold;height:50px;line-height:50px" class="ptit">文章管理</p>
+				<p>自定义文章分类，添加文章，支持组件编辑文章内容，支持文章评论、点赞、回评等功能</p>
+				<p style="font-weight:bold;height:50px;line-height:50px" class="ptit">自定义表单</p>
+				<p>设置表单项（单行输入、多行输入、单项选择、多项选择、普通选择、时间选择、日期选择、省市区选择、开关选择、上传图片），在线支付等，应用此功能来实现预约、报名、收集可以资料等</p>
+				<p style="font-weight:bold;height:50px;line-height:50px" class="ptit">优惠券</p>
+				<p>支持类型：1、代金券：可以直接抵扣金额使用；2、礼品券：用于兑换实物奖品等场景；3、计次券：用于可以多次使用的优惠券场景，如：理发店计次卡等；4、运费抵扣券：用于在线购买时抵扣运费</p>
+				<p>可以在首页、商品详情页、文章详情页、领券中心等进行投放，支持后台主动推送优惠券</p>
+				<p style="font-weight:bold;height:50px;line-height:50px" class="ptit">积分签到</p>
+				<p>设置每次签到获得多少积分，连续签到多少天以上每天获得多少积分，达到多少天额外赠送多少积分等</p>
+				<p style="font-weight:bold;height:50px;line-height:50px" class="ptit">短信功能</p>
+				<p>设置客户短信通知、设置短信签名、短信模板、短信群发、查看短信发送记录等功能</p>
+				<p style="font-weight:bold;height:50px;line-height:50px" class="ptit">在线客服</p>
+				<p>支持公众号聊天框、系统界面内（如商城首页、商品详情页等）、小程序内进行在线咨询</p>
+				<p>商家可在手机端在线回复用户咨询，可接收消息通知，实时与客服进行对话</p>
+				<p style="font-weight:bold;height:50px;line-height:50px" class="ptit">在线直播</p>
+				<p>在线视频直播，无需下载App，主播在小程序管理中心进行直播，粉丝在您的小程序进行观看互动，现场活动、直播推广等，实时与粉丝互动</p>
+				<p style="font-weight:bold;height:50px;line-height:50px" class="ptit">后台账号</p>
+				<p>设置子账号、分配子账号权限、设置接收订单通知、订单扫码核销等</p>
+				<p style="font-weight:bold;height:50px;line-height:50px" class="ptit">商家助手</p>
+				<p>接收通知：订单提交通知、订单支付通知、订单收货通知、退款申请通知、会员充值通知、提现申请通知、表单提交通知、用户咨询通知等</p>
+				<p>扫码核销：扫描用户的核销码核销订单、优惠券、奖品等</p>
+				<p>管理会员：查看会员列表、会员信息</p>
+				<p>管理订单：查看订单、修改订单状态、设置备注、订单发货等</p>
+				<p>财务管理：查看财务概况、充值记录、提现记录、余额明细、佣金明细，处理提现申请等</p>
+				<p>在线客服：处理用户咨询，与用户在线聊天等</p>
+			</div>
+		</div>
+	</div>
+</div>
+<script>
+$(function(){
+	$('.funcontent .leftul li').click(function(){
+		$(this).siblings().removeClass('active');
+		$(this).addClass('active');
+		var linum = $(this).prevAll().length
+		var height = $('.ptit').eq(linum).offset().top
+		$('.ptit').css('color','#333');
+		$('.ptit').eq(linum).css('color','#f8b600');
+		console.log(height);
+		$('.rightcon').scrollTop(linum*100);
+	})
+})
+</script>
+
+
+<div class="bottombox">
+	<div class="main flex-col">
+			<p class="bottom2_p" style="margin-top:20px;margin-bottom:0px;padding-bottom:10px;border-bottom:1px solid #404040">
+				<a href="/" style="color:#aaa;margin-top:20px;margin-right:50px">首页</a>
+				<a href="{:url('funshow')}" style="color:#aaa;margin-top:20px;margin-right:50px">功能介绍</a>
+				<a href="{:url('lianxi')}" style="color:#aaa;margin-top:20px;margin-right:50px">联系我们</a>
+				<a href="{:url('help')}" style="color:#aaa;margin-top:20px;">帮助中心</a>
+			</p>
+			<p class="bottom2_p" style="padding-bottom:20px;margin-top:10px;">
+			</p>
+	</div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,44 @@
+
+<div class="dsn-mod dp-article" ng-class="{'dsn-mod-select':Item.id == focus}" ng-style="{'background-color':Item.params.bgcolor,'margin':Item.params.margin_y+'px '+Item.params.margin_x+'px 0','padding':Item.params.padding_y+'px '+Item.params.padding_x+'px'}">
+	<div style="line-height: 170px; text-align: center; color: #999; font-size: 16px;" ng-show="Item.data == ''">一个帖子都没有...</div>
+	<!--单排-->
+	
+	<div class="datalist" style="	width: 100%;padding: 0 12px;">
+		<div   ng-repeat="item in Item.data" class="article-item2" ng-init="index = $index" class="item" style="width: 100%;display: flex;flex-direction: column;padding: 12px 0;border-bottom: 1px solid #f1f1f1">
+			<div class="top" style="width: 100%;display: flex;align-items: center">
+				<image ng-src="{{item.headimg}}"  style="width: 40px;height: 40px;border-radius: 50%;margin-right: 8px" class="f1"></image>
+				<div class="f2">
+					<div class="t1" style="color: #222;font-weight: bold;font-size: 14px"	:style="params.title_size&&params.title_size>0?'font-size:'+params.title_size*2+'rpx':''">
+						{{item.nickname}}
+					</div>
+					<div class="t2" style="color: #bbb;font-size: 24rpx">{{item.showtime}}</div>
+				</div>
+			</div>
+			<div class="con" style="width: 100%;padding: 12px 0;display: flex;	flex-direction: column;color: #000">
+				<div class="f1"><text style="white-space:pre-wrap;">{{item.content}}</text></div>
+				<div class="f2"  style="margin-top: 5px;display: flex;flex-wrap: wrap">
+					<image ng-if="item.pics[0]" style="width: 31%;margin-right: 2%;margin-bottom: 5px;border-radius: 5px"  ng-src="{{item.pics[0]}}" mode="widthFix" ></image>
+					<image ng-if="item.pics[1]" style="width: 31%;margin-right: 2%;margin-bottom: 5px;border-radius: 5px"  ng-src="{{item.pics[1]}}" mode="widthFix" ></image>
+					<image ng-if="item.pics[2]" style="width: 31%;margin-right: 2%;margin-bottom: 5px;border-radius: 5px"  ng-src="{{item.pics[2]}}" mode="widthFix" ></image>
+					<image ng-if="item.pics[3]" style="width: 31%;margin-right: 2%;margin-bottom: 5px;border-radius: 5px"  ng-src="{{item.pics[3]}}" mode="widthFix" ></image>
+					<image ng-if="item.pics[4]" style="width: 31%;margin-right: 2%;margin-bottom: 5px;border-radius: 5px"  ng-src="{{item.pics[4]}}" mode="widthFix" ></image>
+					<image ng-if="item.pics[5]" style="width: 31%;margin-right: 2%;margin-bottom: 5px;border-radius: 5px"  ng-src="{{item.pics[5]}}" mode="widthFix" ></image>
+					
+				</div>
+			</div>
+	
+			<div class="bot" style="width: 100%;display: flex;align-items: center;color: #222222;font-size: 14px">
+				<div class="f1" style="display: flex;align-items: center;font-weight: bold">
+					<image ng-src="{{'__STATIC__/img/lt_read.png'}}" style="margin-top:0;width: 18px;height: 18px;margin-right: 8px;margin-top: 2px"></image>{{item.readcount}}
+				</div>
+				<div class="f1" style="margin-left:30px;display: flex;align-items: center;font-weight: bold">
+					<image ng-src="{{'__STATIC__/img/lt_pinglun.png'}}" style="margin-top:0;width: 18px;height: 18px;margin-right: 8px;margin-top: 2px"></image>{{item.plcount}}
+				</div>
+				<div class="f2" style="flex: 1;"></div>
+			
+				<div class="f3" style="display: flex;align-items: center;font-weight: bold"><image ng-src="{{'__STATIC__/img/lt_like2.png'}}" style="margin-top:0;width: 18px;height: 18px;margin-right: 8px;margin-top: 2px"></image>	{{item.zan}}</div>
+			</div>
+		</div>
+	
+	</div>
+</div>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>通知详情</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					<i class="fa fa-file-text-o"></i> 通知详情
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closedetail()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<p style="font-size:20px">{$info.title}</p>
+					<p>
+						<span>{:date('Y-m-d H:i',$info['createtime'])}</span>
+					</p>
+					<div>{$info.content}</div>
+					<div style="margin-top:20px"><button class="layui-btn layui-btn-primary layui-btn-sm" onclick="closedetail()">返回</button></div>
+				</div>
+			</div>
+		</div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	function closedetail(){
+		parent.layer.closeAll();
+		parent.tableIns.reload()
+	}
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

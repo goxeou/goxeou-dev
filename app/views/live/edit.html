@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>编辑房间</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+          <div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加房间{else}<i class="fa fa-pencil"></i> 编辑房间{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w8">
+						<input type="hidden" name="info[id]" value="{$info.id}"/>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>直播间名字：</label>
+							<div class="layui-input-inline" style="width:260px">
+								<input type="text" name="info[name]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.name}">
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">最短3个汉字，最长17个汉字</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>背景图：</label>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="coverImg" upload-preview="coverImgPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议像素1080*1920，大小不超过2M</div>
+							<div id="coverImgPreview" style="float:left;padding-top:10px;padding-left:160px;clear: both;">
+								<div class="layui-imgbox imgbox-required">
+									<div class="layui-imgbox-img"><img src="{$info.coverImg}"/></div>
+									<input type="text" name="info[coverImg]" id="coverImg" class="layui-input" value="{$info.coverImg}">
+								</div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>开始时间：</label>
+							<div class="layui-input-inline">
+								<input type="text" autocomplete="off" lay-verify="required" lay-verType="tips" id="starttime" name="info[startTime]" value="{if $info['startTime']}{:date('Y-m-d H:i:s',$info['startTime'])}{/if}" class="layui-input">
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">直播计划开始时间（开播时间需要在当前时间的10分钟后 并且 开始时间不能在 6 个月后）</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>结束时间：</label>
+							<div class="layui-input-inline">
+								<input type="text" autocomplete="off" lay-verify="required" lay-verType="tips" id="endtime" name="info[endTime]" value="{if $info['endTime']}{:date('Y-m-d H:i:s',$info['endTime'])}{/if}" class="layui-input">
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">直播计划结束时间（开播时间和结束时间间隔不得短于30分钟，不得超过12小时）</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>主播昵称：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[anchorName]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.anchorName}">
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">主播昵称，最短2个汉字，最长15个汉字</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>主播微信号：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[anchorWechat]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.anchorWechat}">
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">如果未实名认证，需要先前往“小程序直播”小程序进行实名验证, 小程序二维码链接：<a href="https://res.wx.qq.com/op_res/9rSix1dhHfK4rR049JL0PHJ7TpOvkuZ3mE0z7Ou_Etvjf-w1J_jVX0rZqeStLfwh" target="_blank">前往查看</a></div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar"></span>副主播微信号：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[subAnchorWechat]" class="layui-input" value="{$info.subAnchorWechat}">
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">如果未实名认证，需要先前往“小程序直播”小程序进行实名验证, 小程序二维码链接：<a href="https://res.wx.qq.com/op_res/9rSix1dhHfK4rR049JL0PHJ7TpOvkuZ3mE0z7Ou_Etvjf-w1J_jVX0rZqeStLfwh" target="_blank">前往查看</a></div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar"></span>创建者微信号：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[createrWechat]" class="layui-input" value="{$info.createrWechat}">
+							</div>
+						</div>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>分享图：</label>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="shareImg" upload-preview="shareImgPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议像素800*640，大小不超过1M</div>
+							<div id="shareImgPreview" style="float:left;padding-top:10px;padding-left:160px;clear: both;">
+								<div class="layui-imgbox imgbox-required">
+									<div class="layui-imgbox-img"><img src="{$info.shareImg}"/></div>
+									<input type="text" name="info[shareImg]" id="shareImg" class="layui-input" value="{$info.shareImg}">
+								</div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>购物直播频道封面图：</label>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="feedsImg" upload-preview="feedsImgPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">官方推荐的小程序直播将会出现在购物直播频道内。建议像素800*800，大小不超过100KB</div>
+							<div id="feedsImgPreview" style="float:left;padding-top:10px;padding-left:160px;clear: both;">
+								<div class="layui-imgbox imgbox-required">
+									<div class="layui-imgbox-img"><img src="{$info.feedsImg}"/></div>
+									<input type="text" name="info[feedsImg]" id="feedsImg" class="layui-input" value="{$info.feedsImg}">
+								</div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">官方收录：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[isFeedsPublic]" value="1" title="开启" {if !$info['id'] || $info['isFeedsPublic']==1}checked{/if}>
+								<input type="radio" name="info[isFeedsPublic]" value="0" title="关闭" {if $info['id'] && $info['isFeedsPublic']==0}checked{/if}>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">直播间类型：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[type]" value="0" title="手机直播" {if !$info['id'] || $info['type']==0}checked{/if}>
+								<input type="radio" name="info[type]" value="1" title="推流" {if $info['id'] && $info['type']==1}checked{/if}>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">横屏、竖屏：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[screenType]" value="0" title="竖屏" {if !$info['id'] || $info['screenType']==0}checked{/if}>
+								<input type="radio" name="info[screenType]" value="1" title="横屏" {if $info['id'] && $info['screenType']==1}checked{/if}>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">点赞：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[closeLike]" value="0" title="开启" {if !$info['id'] || $info['closeLike']==0}checked{/if}>
+								<input type="radio" name="info[closeLike]" value="1" title="关闭" {if $info['id'] && $info['closeLike']==1}checked{/if}>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">货架：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[closeGoods]" value="0" title="开启" {if !$info['id'] || $info['closeGoods']==0}checked{/if}>
+								<input type="radio" name="info[closeGoods]" value="1" title="关闭" {if $info['id'] && $info['closeGoods']==1}checked{/if}>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">评论：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[closeComment]" value="0" title="开启" {if !$info['id'] || $info['closeComment']==0}checked{/if}>
+								<input type="radio" name="info[closeComment]" value="1" title="关闭" {if $info['id'] && $info['closeComment']==1}checked{/if}>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">回放：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[closeReplay]" value="0" title="开启" {if $info['id'] && $info['closeReplay']==0}checked{/if}>
+								<input type="radio" name="info[closeReplay]" value="1" title="关闭" {if !$info['id'] || $info['closeReplay']==1}checked{/if}>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">分享：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[closeShare]" value="0" title="开启" {if !$info['id'] || $info['closeShare']==0}checked{/if}>
+								<input type="radio" name="info[closeShare]" value="1" title="关闭" {if $info['id'] && $info['closeShare']==1}checked{/if}>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">客服：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[closeKf]" value="0" title="开启" {if $info['id'] && $info['closeKf']==0}checked{/if}>
+								<input type="radio" name="info[closeKf]" value="1" title="关闭" {if !$info['id'] || $info['closeKf']==1}checked{/if}>
+							</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	//日期时间选择器
+	layui.laydate.render({ 
+		elem: '#starttime',
+		type: 'datetime',
+		trigger: 'click'
+	});
+	layui.laydate.render({ 
+		elem: '#endtime',
+		type: 'datetime',
+		trigger: 'click'
+	});
+	layui.form.on('radio(isff)',function(data){
+		if(data.value==1){
+			$('.ffmoney').show();
+		}else{
+			$('.ffmoney').hide();
+		}
+	});
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		if(field.coverImg==''){
+			dialog('背景图必传');return;
+		}
+		if(field.shareImg==''){
+			dialog('分享图必传');return;
+		}
+		//console.log(field);return;
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.close(parent.layer.getFrameIndex(window.name));
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+	//选择链接
+	function chooseUrl(){
+		layer.open({type:2,shadeClose:true,area:['1200px', '650px'],'title':'选择链接',content:"{:url('DesignerPage/chooseurl')}"})
+	}
+	function chooseLink(urlname,url){
+		$("input[name='info[producturl]']").val(url);
+	}
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

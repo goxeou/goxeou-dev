@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>添加品牌</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加品牌{else}<i class="fa fa-pencil"></i> 编辑品牌{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w8" lay-filter="">
+						<input type="hidden" name="info[id]" value="{$info['id']}">
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>认证审核类型：</label>
+							<div class="layui-input-inline" style="width:600px">
+								<input type="radio" name="info[brand_audit_type]" value="1" title="国内R标" {if $info['brand_audit_type']==1}checked{/if} lay-filter="brand_audit_type">
+								<input type="radio" name="info[brand_audit_type]" value="2" title="国内TM标" {if $info['brand_audit_type']==2}checked{/if} lay-filter="brand_audit_type">
+								<input type="radio" name="info[brand_audit_type]" value="3" title="海外R标" {if $info['brand_audit_type']==3}checked{/if} lay-filter="brand_audit_type">
+								<input type="radio" name="info[brand_audit_type]" value="4" title="海外TM标" {if $info['brand_audit_type']==4}checked{/if} lay-filter="brand_audit_type">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>品牌经营类型：</label>
+							<div class="layui-input-inline" style="width:600px">
+								<input type="radio" name="info[brand_management_type]" value="1" title="自有品牌" {if $info['brand_management_type']==1}checked{/if} lay-filter="brand_management_type">
+								<input type="radio" name="info[brand_management_type]" value="2" title="代理品牌" {if $info['brand_management_type']==2}checked{/if} lay-filter="brand_management_type">
+								<input type="radio" name="info[brand_management_type]" value="3" title="无品牌" {if $info['brand_management_type']==3}checked{/if} lay-filter="brand_management_type">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>商标分类：</label>
+							<div class="layui-input-inline">
+								<select name="info[trademark_type]">
+									{for start="1" end="46"}
+									<option value="{$i}">第{$i}类</option>
+									{/for}
+								</select>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>商标/品牌名称：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[brand_wording]" value="{$info.brand_wording}" lay-verType="tips" autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item" id="trademark_registrant_div" style="{if $info['brand_audit_type']==2 || $info['brand_audit_type']==4}display:none{/if}">
+							<label class="layui-form-label"><span class="redstar">*</span>商标注册人姓名：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[trademark_registrant]" value="{$info.trademark_registrant}" lay-verType="tips" autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item" id="trademark_applicant_div" style="{if $info['brand_audit_type']==1 || $info['brand_audit_type']==3}display:none{/if}">
+							<label class="layui-form-label"><span class="redstar">*</span>商标申请人姓名：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[trademark_applicant]" value="{$info.trademark_applicant}" lay-verType="tips" autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>商标注册号/申请号：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[trademark_registrant_nu]" value="{$info.trademark_registrant_nu}" lay-verType="tips" autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item" id="trademark_authorization_period_div" style="{if $info['brand_audit_type']==2 || $info['brand_audit_type']==4}display:none{/if}">
+							<label class="layui-form-label"><span class="redstar">*</span>商标有效期：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[trademark_authorization_period]" value="{$info.trademark_authorization_period}" id="trademark_authorization_period" lay-verType="tips" autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item" id="trademark_application_time_div" style="{if $info['brand_audit_type']==1 || $info['brand_audit_type']==3}display:none{/if}">
+							<label class="layui-form-label"><span class="redstar">*</span>商标申请时间：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[trademark_application_time]" value="{$info.trademark_application_time}" id="trademark_application_time" lay-verType="tips" autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						
+						<div class="layui-form-item" id="trademark_registration_application_div" style="{if $info['brand_audit_type']==1 || $info['brand_audit_type']==3}display:none{/if}">
+							<label class="layui-form-label"><span class="redstar">*</span>商标注册申请受理通知书：</label>
+							<input type="hidden" name="info[trademark_registration_application]" value="{$info['trademark_registration_application']}" id="trademark_registration_application">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this,true)" upload-input="trademark_registration_application" upload-preview="trademark_registration_applicationList" >上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+							<div id="trademark_registration_applicationList" class="picsList-class-padding">
+								{if $info['trademark_registration_application']}{php}$pics = explode(',',$info['trademark_registration_application']);{/php}{foreach $pics as $pic}
+								<div class="layui-imgbox">
+									<a class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().remove();getpicsval('trademark_registration_application','trademark_registration_applicationList')" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+									<span class="layui-imgbox-img"><img src="{$pic}"></span>
+								</div>
+								{/foreach}{/if}
+							</div>
+						</div>
+
+						
+						<div class="layui-form-item" id="sale_authorization_div" style="{if $info['brand_management_type']!=2}display:none{/if}">
+							<label class="layui-form-label"><span class="redstar">*</span>销售授权书：</label>
+							<input type="hidden" name="info[sale_authorization]" value="{$info['sale_authorization']}" id="sale_authorization">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this,true)" upload-input="sale_authorization" upload-preview="sale_authorizationList" >上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">如商持人为自然人，还需提供有其签名的身份证正反面扫描件</div>
+							<div id="sale_authorizationList" class="picsList-class-padding">
+								{if $info['sale_authorization']}{php}$pics = explode(',',$info['sale_authorization']);{/php}{foreach $pics as $pic}
+								<div class="layui-imgbox">
+									<a class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().remove();getpicsval('sale_authorization','sale_authorizationList')" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+									<span class="layui-imgbox-img"><img src="{$pic}"></span>
+								</div>
+								{/foreach}{/if}
+							</div>
+						</div>
+						
+						<div class="layui-form-item" id="trademark_registration_certificate_div" style="{if $info['brand_audit_type']==2 || $info['brand_audit_type']==4}display:none{/if}">
+							<label class="layui-form-label"><span class="redstar">*</span>商标注册证书：</label>
+							<input type="hidden" name="info[trademark_registration_certificate]" value="{$info['trademark_registration_certificate']}" id="trademark_registration_certificate">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this,true)" upload-input="trademark_registration_certificate" upload-preview="trademark_registration_certificateList" >上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+							<div id="trademark_registration_certificateList" class="picsList-class-padding">
+								{if $info['trademark_registration_certificate']}{php}$pics = explode(',',$info['trademark_registration_certificate']);{/php}{foreach $pics as $pic}
+								<div class="layui-imgbox">
+									<a class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().remove();getpicsval('trademark_registration_certificate','trademark_registration_certificateList')" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+									<span class="layui-imgbox-img"><img src="{$pic}"></span>
+								</div>
+								{/foreach}{/if}
+							</div>
+						</div>
+						<div class="layui-form-item" id="trademark_registration_certificate_div">
+							<label class="layui-form-label">商标变更证明：</label>
+							<input type="hidden" name="info[trademark_change_certificate]" value="{$info['trademark_change_certificate']}" id="trademark_change_certificate">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this,true)" upload-input="trademark_change_certificate" upload-preview="trademark_change_certificateList" >上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+							<div id="trademark_change_certificateList" class="picsList-class-padding">
+								{if $info['trademark_change_certificate']}{php}$pics = explode(',',$info['trademark_change_certificate']);{/php}{foreach $pics as $pic}
+								<div class="layui-imgbox">
+									<a class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().remove();getpicsval('trademark_change_certificate','trademark_change_certificateList')" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+									<span class="layui-imgbox-img"><img src="{$pic}"></span>
+								</div>
+								{/foreach}{/if}
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar"></span>商品产地是否进口：</label>
+							<div class="layui-input-inline" style="width:600px">
+								<input type="radio" name="info[commodity_origin_type]" value="1" title="是" {if $info['commodity_origin_type']==1}checked{/if} lay-filter="commodity_origin_type">
+								<input type="radio" name="info[commodity_origin_type]" value="2" title="否" {if $info['commodity_origin_type']==2}checked{/if} lay-filter="commodity_origin_type">
+							</div>
+						</div>
+						<div class="layui-form-item" id="imported_goods_form_div" style="{if !$info['id'] || $info['commodity_origin_type']==2}display:none{/if}">
+							<label class="layui-form-label">海关进口货物报关单：</label>
+							<input type="hidden" name="info[imported_goods_form]" value="{$info['imported_goods_form']}" id="imported_goods_form">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this,true)" upload-input="imported_goods_form" upload-preview="imported_goods_formList" >上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+							<div id="imported_goods_formList" class="picsList-class-padding">
+								{if $info['imported_goods_form']}{php}$pics = explode(',',$info['imported_goods_form']);{/php}{foreach $pics as $pic}
+								<div class="layui-imgbox">
+									<a class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().remove();getpicsval('imported_goods_form','imported_goods_formList')" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+									<span class="layui-imgbox-img"><img src="{$pic}"></span>
+								</div>
+								{/foreach}{/if}
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>营业执照：</label>
+							<input type="hidden" name="info[license]" id="license" class="layui-input" value="{$info.license}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="license" upload-preview="licensePreview" onclick="uploader(this)">上传图片</button>
+							<div id="licensePreview" class="picsList-class-padding">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.license}"/></div></div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	
+	layui.laydate.render({ 
+		elem: '#trademark_authorization_period',
+		type: 'datetime',
+		trigger: 'click'
+	});
+	layui.laydate.render({ 
+		elem: '#trademark_application_time',
+		type: 'datetime',
+		trigger: 'click'
+	});
+	layui.form.on('radio(brand_audit_type)',function(data){
+		if(data.value == '1' || data.value == '3'){
+			$('#trademark_registrant_div').show();
+			$('#trademark_applicant_div').hide();
+			$('#trademark_authorization_period_div').show();
+			$('#trademark_application_time_div').hide();
+			$('#trademark_registration_application_div').hide();
+			$('#trademark_registration_certificate_div').show();
+		}else{
+			$('#trademark_registrant_div').hide();
+			$('#trademark_applicant_div').show();
+			$('#trademark_authorization_period_div').hide();
+			$('#trademark_application_time_div').show();
+			$('#trademark_registration_application_div').show();
+			$('#trademark_registration_certificate_div').hide();
+		}
+	})
+	layui.form.on('radio(brand_management_type)',function(data){
+		if(data.value == '2'){
+			$('#sale_authorization_div').show();
+		}else{
+			$('#sale_authorization_div').hide();
+		}
+	})
+	layui.form.on('radio(commodity_origin_type)',function(data){
+		if(data.value == '1'){
+			$('#imported_goods_form_div').show();
+		}else{
+			$('#imported_goods_form_div').hide();
+		}
+	})
+
+	
+
+	
+
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		var index = layer.load();
+		$.post("",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.closeAll();
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

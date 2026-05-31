@@ -1,0 +1,4318 @@
+<?php
+
+$bset = db('business_sysset')->where('aid',aid)->find();
+
+//商品分类
+$clist = db('shop_category')->field('id,name,pic')->where('aid',aid)->where('status',1)->where('pid',0)->order('sort desc,id')->select()->toArray();
+foreach($clist as $k=>$v){
+	$clist[$k]['child'] = db('shop_category')->field('id,name,pic')->where('aid',aid)->where('status',1)->where('pid',$v['id'])->order('sort desc,id')->select()->toArray();
+}
+if($bid > 0){
+	$clist2 = db('shop_category2')->field('id,name,pic')->where('aid',aid)->where('bid',$bid)->where('status',1)->where('pid',0)->order('sort desc,id')->select()->toArray();
+	foreach($clist2 as $k=>$v){
+		$clist2[$k]['child'] = db('shop_category2')->field('id,name,pic')->where('aid',aid)->where('bid',$bid)->where('status',1)->where('pid',$v['id'])->order('sort desc,id')->select()->toArray();
+	}
+}
+//商品分组
+$glist = db('shop_group')->where('aid',aid)->order('sort desc,id')->select()->toArray();
+$gids = [0=>true];
+foreach($glist as $g){
+	$gids[$g['id']] = true;
+}
+//文章分类
+$aclist = db('article_category')->field('id,name,pic')->where('aid',aid)->where('bid',$bid)->where('status',1)->where('pid',0)->order('sort desc,id')->select()->toArray();
+foreach($aclist as $k=>$v){
+	$aclist[$k]['child'] = db('article_category')->field('id,name,pic')->where('aid',aid)->where('status',1)->where('pid',$v['id'])->order('sort desc,id')->select()->toArray();
+}
+
+
+$lclist = db('luntan_category')->field('id,name,pic')->where('aid',aid)->where('status',1)->order('sort desc,id')->select()->toArray();
+
+
+
+
+
+$default_cid = db('member_level_category')->where('aid',aid)->where('isdefault', 1)->value('id');
+$default_cid = $default_cid ? $default_cid : 0;
+$memberlevelList = db('member_level')->where('aid',aid)->where('cid',$default_cid)->order('sort,id')->select()->toArray();
+//拼团分类
+$collage_clist = db('collage_category')->field('id,name,pic')->where('aid',aid)->where('status',1)->where('pid',0)->order('sort desc,id')->select()->toArray();
+
+//预约分类
+$yuyue_clist = db('yuyue_category')->field('id,name,pic')->where('aid',aid)->where('bid',$bid)->where('status',1)->where('pid',0)->order('sort desc,id')->select()->toArray();
+
+$business_scoreshop = 0;
+if(getcustom('business_scoreshop')){
+	$business_scoreshop = 1;
+}
+
+if($bid == 0 || $bset['business_selfscore']==1 || $business_scoreshop == 1){
+	//积分兑换分类
+	$scoreshop_clist = db('scoreshop_category')->field('id,name,pic')->where('aid',aid)->where('status',1)->where('pid',0)->order('sort desc,id')->select()->toArray();
+	//商家分类
+	$blist = db('business_category')->field('id,name,pic')->where('aid',aid)->where('status',1)->order('sort desc,id')->select()->toArray();
+	//商家
+	$bnwhere = [];
+	$bnwhere[] = ['aid','=',aid];
+	$bnwhere[] = ['status','=',1];
+	if($areaBids){
+		$bnwhere[] = ['id','in',$areaBids];
+	}
+	$bnlist = db('business')->field('id,name,logo,address')->where($bnwhere)->order('sort desc,id')->select()->toArray();
+}
+$shortvideo_clist = db('shortvideo_category')->where('aid',aid)->where('bid',$bid)->where('status',1)->order('sort desc,id')->select()->toArray();
+
+//幸运拼团分类
+$luckycollage_clist = db('lucky_collage_category')->field('id,name,pic')->where('aid',aid)->where('status',1)->where('pid',0)->order('sort desc,id')->select()->toArray();
+
+//团购分类
+$tuangou_clist = db('tuangou_category')->field('id,name,pic')->where('aid',aid)->where('status',1)->where('pid',0)->order('sort desc,id')->select()->toArray();
+
+//课程类型
+$kecheng_clist = db('kecheng_category')->field('id,name,pic')->where('aid',aid)->where('bid',$bid)->where('status',1)->where('pid',0)->order('sort desc,id')->select()->toArray();
+foreach($kecheng_clist as $k=>$v){
+	$kecheng_clist[$k]['child'] = db('kecheng_category')->field('id,name,pic')->where('aid',aid)->where('bid',$bid)->where('status',1)->where('pid',$v['id'])->order('sort desc,id')->select()->toArray();
+}
+
+//周期购分类
+$cycle_clist = db('cycle_category')->field('id,name,pic')->where('aid',aid)->where('status',1)->where('pid',0)->order('sort desc,id')->select()->toArray();
+
+if(getcustom('car_hailing')){
+	$carhailing_clist = db('car_hailing_category')->field('id,name,pic')->where('aid',aid)->where('bid',$bid)->where('status',1)->where('pid',0)->order('sort desc,id')->select()->toArray();
+	foreach($carhailing_clist as $k=>$v){
+		$carhailing_clist[$k]['child'] = db('car_hailing_category')->field('id,name,pic')->where('aid',aid)->where('bid',$bid)->where('status',1)->where('pid',$v['id'])->order('sort desc,id')->select()->toArray();
+	}
+}
+if(getcustom('fenhong_kecheng')){
+	//课程分类
+	$kclist = db('kecheng_category')->where('aid',aid)->where('bid',$bid)->where('status',1)->where('pid',0)->field('id,name,pic')->order('sort desc,id')->select()->toArray();
+	foreach($kclist as $k=>$v){
+		$kclist[$k]['child'] = db('kecheng_category')->where('aid',aid)->where('bid',$bid)->where('status',1)->where('pid',$v['id'])->field('id,name,pic')->order('sort desc,id')->select()->toArray();
+	}
+}
+//设计组件权限 默认全部开启
+$noshow_modules = [];
+if(getcustom('design_module_auth')){
+	//查询权限组
+	$user = db('admin_user')->where('aid',$aid)->where('isadmin','>',0)->field('auth_data,auth_type')->find();
+	//如果开启了组件权限控制
+	if($user){
+		$neecheck = false;
+		if($user['auth_type'] == 1){
+			$neecheck = true;
+		}else{
+			if($user['groupid']){
+                $user['auth_data'] = Db::name('admin_user_group')->where('id',$user['groupid'])->value('auth_data');
+            }
+			$admin_auth = $user['auth_data']?json_decode($user['auth_data'],true):'';
+			if($admin_auth && in_array('DesignModule,DesignModule',$admin_auth)){
+				$neecheck = true;
+			}
+		}
+		if($neecheck && in_array('DesignModule',$auth_data)){
+			if(!in_array('ModuleNotice',$auth_data))   $noshow_modules[]='ModuleNotice';
+			if(!in_array('ModuleBanner',$auth_data))   $noshow_modules[]='ModuleBanner';
+			if(!in_array('ModuleShop',$auth_data))     $noshow_modules[]='ModuleShop';
+			if(!in_array('ModuleSearch',$auth_data))   $noshow_modules[]='ModuleSearch';
+			if(!in_array('ModulePicture',$auth_data))  $noshow_modules[]='ModulePicture';
+			if(!in_array('ModulePictures',$auth_data)) $noshow_modules[]='ModulePictures';
+			if(!in_array('ModuleCube',$auth_data))     $noshow_modules[]='ModuleCube';
+			if(!in_array('ModuleRichtext',$auth_data)) $noshow_modules[]='ModuleRichtext';
+
+			if(!in_array('ModuleVideo',$auth_data))  $noshow_modules[]='ModuleVideo';
+			if(!in_array('ModuleTitle',$auth_data))  $noshow_modules[]='ModuleTitle';
+			if(!in_array('ModuleDhlist',$auth_data)) $noshow_modules[]='ModuleDhlist';
+			if(!in_array('ModuleText',$auth_data))   $noshow_modules[]='ModuleText';
+			if(!in_array('ModuleButton',$auth_data)) $noshow_modules[]='ModuleButton';
+			if(!in_array('ModuleMenu',$auth_data))   $noshow_modules[]='ModuleMenu';
+			if(!in_array('ModuleCover',$auth_data))  $noshow_modules[]='ModuleCover';
+			if(!in_array('ModuleLine',$auth_data))   $noshow_modules[]='ModuleLine';
+
+			if(!in_array('ModuleBlank',$auth_data))     $noshow_modules[]='ModuleBlank';
+			if(!in_array('ModuleTab',$auth_data))       $noshow_modules[]='ModuleTab';
+			if(!in_array('ModuleMap',$auth_data))       $noshow_modules[]='ModuleMap';
+			if(!in_array('ModuleHotspot',$auth_data))   $noshow_modules[]='ModuleHotspot';
+			if(!in_array('ModuleProduct',$auth_data))   $noshow_modules[]='ModuleProduct';
+			if(!in_array('ModuleArticle',$auth_data))   $noshow_modules[]='ModuleArticle';
+			if(!in_array('ModuleShortvideo',$auth_data))$noshow_modules[]='ModuleShortvideo';
+			if(!in_array('ModuleWxad',$auth_data))      $noshow_modules[]='ModuleWxad';
+			if(!in_array('ModuleUserinfo',$auth_data))  $noshow_modules[]='ModuleUserinfo';
+
+			if(!in_array('ModulePlatform',$auth_data))  $noshow_modules[]='ModulePlatform';
+			if(!in_array('ModuleQuanxian',$auth_data))  $noshow_modules[]='ModuleQuanxian';
+		}
+	}
+}
+
+$categroy_selmore = false;//分类多选
+if(getcustom('design_module_categroy_moresel')){
+	//查询权限组
+	$user = db('admin_user')->where('aid',$aid)->where('isadmin','>',0)->field('auth_type,auth_data')->find();
+	//如果开启了设计组件分类多选
+	if($user['auth_type'] == 1){
+		$categroy_selmore = true;//分类多选
+	}else{
+		if($user['groupid']){
+            $user['auth_data'] = Db::name('admin_user_group')->where('id',$user['groupid'])->value('auth_data');
+        }
+		$admin_auth = json_decode($user['auth_data'],true);
+		if(in_array('DesignModuleCategroyMoresel,DesignModuleCategroyMoresel',$admin_auth)){
+			$categroy_selmore = true;//分类多选
+		}
+	}
+}
+
+if(getcustom('hotel')){
+	//酒店类型
+	$hotel_clist = db('hotel_category')->field('id,name,pic')->where('aid',aid)->where('status',1)->where('pid',0)->order('sort desc,id')->select()->toArray();
+	//房型分组
+	$room_glist = db('hotel_group')->field('id,name,pic')->where('aid',aid)->where('status',1)->order('sort desc,id')->select()->toArray();
+	//酒店列表
+	$hotel_list = db('hotel')->field('id,name,pic')->where('aid',aid)->where('status',1)->order('sort desc,id')->select()->toArray();
+
+}
+
+//金银权限
+$canshowsilvermoney = $canshowgoldmoney = false;
+if(getcustom('member_goldmoney_silvermoney')){
+    //查询权限组
+    $user = db('admin_user')->where('aid',$aid)->where('isadmin','>',0)->field('auth_type,auth_data')->find();
+    //如果开启了设计组件分类多选
+    if($user['auth_type'] == 1){
+        $canshowsilvermoney = $canshowgoldmoney = true;
+    }else{
+        if($user['groupid']){
+            $user['auth_data'] = Db::name('admin_user_group')->where('id',$user['groupid'])->value('auth_data');
+        }
+        $admin_auth = json_decode($user['auth_data'],true);
+
+        if(in_array('Member/addSilvermoney,Member/addSilvermoney',$admin_auth)){
+            $canshowsilvermoney = true;
+        }
+        if(in_array('Member/addGoldmoney,Member/addGoldmoney',$admin_auth)){
+            $canshowgoldmoney = true;
+        }
+    }
+}
+?>
+<style>
+	.panel-body{align-items: flex-start;justify-content: space-between;background:#f8f8f8;height:100%;}
+	.class-div-active{height:auto !important;}
+	.class-div-active::-webkit-scrollbar {width: 2px;height: 0px;}
+	.class-div-active::-webkit-scrollbar-thumb {border-radius: 1px;-webkit-box-shadow: inset 0 0 1px rgba(150,150,150,0.5);background: rgba(150,150,150,0.5);}
+	.class-div-active::-webkit-scrollbar-track {-webkit-box-shadow: inset 0 0 0px rgba(150,150,150,0.2);border-radius: 0;background: rgba(150,150,150,0);}
+	.occupying-box{overflow: hidden;width: 100%;height: 0px;line-height:50px;text-align: center;color: #00a0e9;transition: all .3s;}
+	.class-div{width: 90%;height:auto;border-bottom: 1px #f6f6f6 solid;box-sizing: border-box;overflow: hidden;transition: all 2s;margin: 0 auto;}
+	.class-div-first{width: 90%;height:auto;border-bottom: 1px #f6f6f6 solid;box-sizing: border-box;overflow: hidden;transition: all 2s;margin: 0 auto;}
+	.options-class{width:100%;height:40px;cursor: pointer;display: flex;align-items: center;justify-content: flex-start;font-size: 16px;box-sizing: border-box;
+		color: #333;font-weight: bold;}
+	.item-options-div{width: 100%;height:0px;margin: 0 auto;display: flex;align-items: center;justify-content:flex-start;flex-wrap: wrap;box-sizing: border-box;overflow-y:auto;}
+	.item-options-div2{width: 100%;height:auto;margin: 0 auto;display: flex;align-items: center;justify-content:flex-start;flex-wrap: wrap;box-sizing: border-box;overflow-y:auto;}
+	.item-options-div .options-div {height: auto;width: 65px;background: #fff;border-radius: 5px;font-size: 13px;color: #333;text-align: center;cursor: all-scroll;
+			margin: 6px 8px;display: flex;flex-direction: column;justify-content:space-between;align-items: center;transition: all .3s;}
+	.options-div img{width: 62px;height: 62px;}
+	.item-options-div .options-div:hover img{transition: all .3s;box-shadow: 0 0 10px 0 rgba(24,144,255,.3);}
+	.item-options-div .options-div:hover .text-div{color:#3772e8;}
+	.options-div .text-div{font-size: 13px;font-weight:bold;padding: 4px 0px;}
+	.active-icon img{width: 15px;height: 15px;}
+	.active-icon{transform: rotate(0deg);transition: all .3s;}
+	.active-icon-ed{transform: rotate(180deg);transition: all .3s;}
+	.component-search-div{width: 90%;height: 60px;display: flex;align-items: center;justify-content: flex-start;margin: 0 auto;}
+	.component-search-div .input-div{width: 100%;height:30px;border-radius:5px;background: #f6f6f6;display: flex;align-items: center;justify-content: space-between;overflow: hidden;}
+	.component-search-div .input-div input{background: #f6f6f6;height: 100%;border: none;outline: none;}
+	.component-search-div .input-div img{width: 20px;height: 20px;margin-left: 10px;}
+	.dsn-phone{width: 380px;height:100%;display:flex;align-items:flex-end;justify-content:center;}
+	#editor-content{position: relative;overflow: scroll;height: calc(100% - 95px);}
+	#editor-content::-webkit-scrollbar {width: 0px;height: 0px;}
+	.dsn-panel-editor{background: #fff;padding: 0 10px;border: none;padding-left: 10px;padding-right: 5px;} 
+	.dsn-panel-editor-content .layui-form-item .layui-form-label{font-size: 13px !important;}
+	.dsn-panel-editor-content2{height: 100%;overflow-y: scroll;margin-right: 3px;}
+	.dsn-panel-editor-content2 .dsn-panel-editor-content{height: 100% !important;}
+	.dsn-panel-editor-content2::-webkit-scrollbar {width: 2px;height: 0px;}
+	.dsn-panel-editor-content2::-webkit-scrollbar-thumb {border-radius: 1px;-webkit-box-shadow: inset 0 0 1px rgba(150,150,150,0.5);background: rgba(150,150,150,0.5);}
+	.layui-form-radio>i:hover, .layui-form-radioed>i {color: #3772E8;}
+	.flex-box{display:flex;align-items:center;justify-content: space-between;}
+	.manual-selection-item{margin: 0px 0px !important}
+	.manual-selection-item .layui-form-label{padding: 0px 0px !important;font-weight: bold;color: #333;}
+	.layui-form-radio>i:hover, .layui-form-radioed>i {color: #3772E8;}
+	.layui-form-checkbox[lay-skin=primary]:hover i {border-color: #3772E8;color: #fff}
+	.layui-form-checked[lay-skin=primary] i {border-color: #3772E8;background-color: #3772E8;color: #fff}
+</style>
+<div class='panel-body flex' ng-app="FoxEditor" ng-controller="FoxController">
+	<div class="dsn-panel" style="margin-left: 0px;margin-top: 0px;width: auto;height:100%;background:#fff;">
+		<div class="dsn-panel-menu2 dsn-panel-editor-content" style="width: 280px;height:100% !important;overflow-y:scroll;padding-top: 0;">
+			<div class="component-search-div">
+				<div class="input-div">
+					<img src="{$Think.const.PRE_URL}/static/imgsrc/diypage_search.png"/>
+					<input type="text" placeholder="搜索功能/组件" ng-model="search_text" />
+				</div>
+			</div>
+			<div style="color: #999;font-size: 12px;width: 90%;margin: 0 auto;">点击或拖动使用组件</div>
+			<div ng-show="search_text">
+				<div ng-repeat="navs in navsCopy" class="class-div-first">
+					<div class="item-options-div class-div-active">
+						<div ng-repeat="nav in navs.children  | filter:search_text">
+							<div class="options-div" draggable="true"  id="{{nav.id}}" ondragend="dragend(event)"  ondragstart="ondragstartChange(event,this)" ng-click="addItem(nav.id,0,1)">
+								<img draggable="false" ng-src='{{nav.logo_icon}}' />
+								<div class="text-div" ng-bind="nav.name"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+				<div ng-repeat="navs in navsCopy" class="class-div" ng-show="!search_text">
+					<div class="options-class" ng-click="changeItemsClass($index)">
+						<div class="active-icon">
+							<img src="{$Think.const.PRE_URL}/static/imgsrc/diypage_jaintou.png"/>
+						</div>
+						<div style="margin-left: 15px;font-size: 14px;" ng-bind="navs.subletName + '('+navs.children.length+')'"></div>
+					</div>
+					<div class="item-options-div class-div-active">
+						<div ng-repeat="nav in navs.children">
+							<div class="options-div" draggable="true"  id="{{nav.id}}" ondragend="dragend(event)"  ondragstart="ondragstartChange(event,this)" ng-click="addItem(nav.id,0,1)">
+								<img draggable="false" ng-src='{{nav.logo_icon}}' />
+								<div class="text-div" ng-bind="nav.name"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			<!-- <div ng-repeat="nav in navs">
+				<div class="options-div" draggable="true"  id="{{nav.id}}" ondragend="dragend(event)"  ondragstart="ondragstartChange(event,this)" ng-click="addItem(nav.id,0,1)">
+					<img draggable="false" style="width: 50px;height: 50px;" src="http://t14.baidu.com/it/u=456871674,33376056&fm=224&app=112&f=JPEG?w=500&h=500"/>
+					<p ng-bind="nav.name"></p>
+				</div>
+			</div> -->
+		</div>
+	</div>
+	<div class="dsn-phone">
+		<div class="dsn-phone-center" style="height: 95%;">
+			<div class="dsn-phone-main" style="padding:0;widht:375px;overflow:hidden;height: 100%;background-image: none;">
+				<!-- ng-mouseover="overphone()" -->
+				<div id="editor" style="height: 100%;">
+					<!-- 页面头部标题 -->
+					<div ng-repeat="page in pages">
+						<div ng-include="'show-'+page.temp+'.html'" class="toIndex" id="{{page.id}}" mid="{{page.id}}" ng-click="setfocus(page.id,$event)"></div>
+					</div>
+					<div id="editor-content" style="background-color:{{pages[0].params.bgcolor}};" ondrop="drop(event)"  ondragover="allowDrop(event,this)">
+						<div style="height: 50px;" ng-show="pages[0].params.guide==1"></div>
+						<div ng-repeat="Item in Items"  ondragenter="dragenter(event,this)" ondragleave="dragleave(event,this)" class="dsn-repeat" 
+						style="{{Item.temp=='cover'?'position:absolute;z-index:'+(9999+$index)+';top:'+(Item.params.top*0.95)+'%;left:'+(Item.params.left*0.86)+'%;':''}}" 
+						ng-mouseover="over(Item.id)" ng-mouseleave="out(Item.id)">
+							<div class="occupying-box">释放鼠标将组件添加到此处</div>
+							<div ng-show="Item.temp!='cover'" class="dsn-mod-move" ng-mouseover="drag(Item.id)" ng-click="setfocus(Item.id,$event)"></div>
+							<div ng-include="'show-'+Item.temp+'.html'" class="dsn-parent" id="{{Item.id}}" ng-show="Item" mid="{{Item.id}}" on-finish-render-filters></div>
+							<div class="dsn-del" ng-click="delItem(Item.id)">移除</div>
+							<div class="occupying-box">释放鼠标将组件添加到此处</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="dsn-panel" style="margin-left: 0px;margin-top: 0px;width: 360px;height:100%;background:#fff;">
+		<!-- editor start -->
+		<div class="dsn-panel-editor dsn-panel-editor-content2" ng-show="focus">
+			<!-- <div class="dsn-panel-editor-ico"></div> -->
+			<div ng-repeat="Edit in pages">
+				<div ng-include="'edit-'+Edit.temp+'.html'" ng-show="focus==Edit.id" Editid="{{Edit.id}}"></div>
+			</div>
+			<div ng-repeat="Edit in Items">
+				<div ng-include="'edit-'+Edit.temp+'.html'" ng-show="focus==Edit.id" Editid="{{Edit.id}}" tab-index="-1"></div>
+			</div>
+		</div>
+		<!-- editor end -->
+	</div>
+	<!-- editor template  page start -->
+	{if $info['ishome']==2}
+	<script type="text/ng-template" id="edit-topbar.html">{include file="designer_page/tempnew/edit-topbar2"}</script>
+	{else}
+	<script type="text/ng-template" id="edit-topbar.html">{include file="designer_page/tempnew/edit-topbar"}</script>
+	{/if}
+	<script type="text/ng-template" id="edit-shop.html">{include file="designer_page/tempnew/edit-shop"}</script>
+	<script type="text/ng-template" id="edit-notice.html">{include file="designer_page/tempnew/edit-notice"}</script>
+	<script type="text/ng-template" id="edit-menu.html">{include file="designer_page/tempnew/edit-menu"}</script>
+	<script type="text/ng-template" id="edit-banner.html">{include file="designer_page/tempnew/edit-banner"}</script>
+	<script type="text/ng-template" id="edit-picture.html">{include file="designer_page/tempnew/edit-picture"}</script>
+	<script type="text/ng-template" id="edit-pictures.html">{include file="designer_page/tempnew/edit-pictures"}</script>
+	<script type="text/ng-template" id="edit-title.html">{include file="designer_page/tempnew/edit-title"}</script>
+	<script type="text/ng-template" id="edit-dhlist.html">{include file="designer_page/tempnew/edit-dhlist"}</script>
+	<script type="text/ng-template" id="edit-text.html">{include file="designer_page/tempnew/edit-text"}</script>
+	<script type="text/ng-template" id="edit-search.html">{include file="designer_page/tempnew/edit-search"}</script>
+	<script type="text/ng-template" id="edit-lbssearch.html">{include file="designer_page/tempnew/edit-lbssearch"}</script>
+	<script type="text/ng-template" id="edit-line.html">{include file="designer_page/tempnew/edit-line"}</script>
+	<script type="text/ng-template" id="edit-blank.html">{include file="designer_page/tempnew/edit-blank"}</script>
+	<script type="text/ng-template" id="edit-product.html">{include file="designer_page/tempnew/edit-product"}</script>
+	<script type="text/ng-template" id="edit-cycle.html">{include file="designer_page/tempnew/edit-cycle"}</script>
+	<script type="text/ng-template" id="edit-collage.html">{include file="designer_page/tempnew/edit-collage"}</script>
+	<script type="text/ng-template" id="edit-kanjia.html">{include file="designer_page/tempnew/edit-kanjia"}</script>
+	<script type="text/ng-template" id="edit-seckill.html">{include file="designer_page/tempnew/edit-seckill"}</script>
+	<script type="text/ng-template" id="edit-scoreshop.html">{include file="designer_page/tempnew/edit-scoreshop"}</script>
+	<script type="text/ng-template" id="edit-coupon.html">{include file="designer_page/tempnew/edit-coupon"}</script>
+	<script type="text/ng-template" id="edit-richtext.html">{include file="designer_page/tempnew/edit-richtext"}</script>
+	<script type="text/ng-template" id="edit-cube.html">{include file="designer_page/tempnew/edit-cube"}</script>
+	<script type="text/ng-template" id="edit-video.html">{include file="designer_page/tempnew/edit-video"}</script>
+	<script type="text/ng-template" id="edit-article.html">{include file="designer_page/tempnew/edit-article"}</script>
+	{if !$type}
+	<script type="text/ng-template" id="edit-form.html">{include file="designer_page/tempnew/edit-form"}</script>
+	{/if}
+	<script type="text/ng-template" id="edit-map.html">{include file="designer_page/tempnew/edit-map"}</script>
+	<script type="text/ng-template" id="edit-button.html">{include file="designer_page/tempnew/edit-button"}</script>
+	<script type="text/ng-template" id="edit-cover.html">{include file="designer_page/tempnew/edit-cover"}</script>
+	<script type="text/ng-template" id="edit-business.html">{include file="designer_page/tempnew/edit-business"}</script>
+	<script type="text/ng-template" id="edit-shortvideo.html">{include file="designer_page/tempnew/edit-shortvideo"}</script>
+	<script type="text/ng-template" id="edit-liveroom.html">{include file="designer_page/tempnew/edit-liveroom"}</script>
+	<script type="text/ng-template" id="edit-channelslive.html">{include file="designer_page/tempnew/edit-channelslive"}</script>
+	<script type="text/ng-template" id="edit-hotspot.html">{include file="designer_page/tempnew/edit-hotspot"}</script>
+	<script type="text/ng-template" id="edit-userinfo.html">{include file="designer_page/tempnew/edit-userinfo"}</script>
+	<script type="text/ng-template" id="edit-wxad.html">{include file="designer_page/tempnew/edit-wxad"}</script>
+	<script type="text/ng-template" id="edit-jidian.html">{include file="designer_page/tempnew/edit-jidian"}</script>
+	{if !$type}
+	<script type="text/ng-template" id="edit-tab.html">{include file="designer_page/tempnew/edit-tab"}</script>
+	{/if}
+	<script type="text/ng-template" id="edit-kecheng.html">{include file="designer_page/tempnew/edit-kecheng"}</script>
+	{if getcustom('car_hailing')}
+	<script type="text/ng-template" id="edit-carhailing.html">{include file="designer_page/tempnew/edit-carhailing"}</script>
+	{/if}
+	{if getcustom('show_location') && ($sysset.mode==2 || $sysset.mode==3)}
+	<script type="text/ng-template" id="edit-location.html">{include file="designer_page/tempnew/edit-location"}</script>
+	<script type="text/ng-template" id="show-location.html">{include file="designer_page/temp/show-location"}</script>
+	{/if}
+	<script type="text/ng-template" id="edit-restaurant_product.html">{include file="designer_page/tempnew/edit-restaurant_product"}</script>
+	<script type="text/ng-template" id="show-restaurant_product.html">{include file="designer_page/temp/show-restaurant_product"}</script>
+
+
+
+	<script type="text/ng-template" id="edit-tuangou.html">{include file="designer_page/tempnew/edit-tuangou"}</script>
+
+	<script type="text/ng-template" id="show-topbar.html">{include file="designer_page/tempnew/show-topbar"}</script>
+	<script type="text/ng-template" id="show-shop.html">{include file="designer_page/temp/show-shop"}</script>
+	<script type="text/ng-template" id="show-notice.html">{include file="designer_page/temp/show-notice"}</script>
+	<script type="text/ng-template" id="show-menu.html">{include file="designer_page/temp/show-menu"}</script>
+	<script type="text/ng-template" id="show-banner.html">{include file="designer_page/temp/show-banner"}</script>
+	<script type="text/ng-template" id="show-picture.html">{include file="designer_page/temp/show-picture"}</script>
+	<script type="text/ng-template" id="show-pictures.html">{include file="designer_page/temp/show-pictures"}</script>
+	<script type="text/ng-template" id="show-title.html">{include file="designer_page/temp/show-title"}</script>
+	<script type="text/ng-template" id="show-dhlist.html">{include file="designer_page/temp/show-dhlist"}</script>
+	<script type="text/ng-template" id="show-text.html">{include file="designer_page/temp/show-text"}</script>
+	<script type="text/ng-template" id="show-search.html">{include file="designer_page/temp/show-search"}</script>
+	<script type="text/ng-template" id="show-lbssearch.html">{include file="designer_page/temp/show-lbssearch"}</script>
+	<script type="text/ng-template" id="show-line.html">{include file="designer_page/temp/show-line"}</script>
+	<script type="text/ng-template" id="show-blank.html">{include file="designer_page/temp/show-blank"}</script>
+	<script type="text/ng-template" id="show-product.html">{include file="designer_page/temp/show-product"}</script>
+	<script type="text/ng-template" id="show-cycle.html">{include file="designer_page/temp/show-cycle"}</script>
+	<script type="text/ng-template" id="show-collage.html">{include file="designer_page/temp/show-collage"}</script>
+	<script type="text/ng-template" id="show-kanjia.html">{include file="designer_page/temp/show-kanjia"}</script>
+	<script type="text/ng-template" id="show-seckill.html">{include file="designer_page/temp/show-seckill"}</script>
+	<script type="text/ng-template" id="show-scoreshop.html">{include file="designer_page/temp/show-scoreshop"}</script>
+	<script type="text/ng-template" id="show-coupon.html">{include file="designer_page/temp/show-coupon"}</script>
+	<script type="text/ng-template" id="show-richtext.html">{include file="designer_page/temp/show-richtext"}</script>
+	<script type="text/ng-template" id="show-cube.html">{include file="designer_page/tempnew/show-cube"}</script>
+	<script type="text/ng-template" id="show-video.html">{include file="designer_page/temp/show-video"}</script>
+	<script type="text/ng-template" id="show-article.html">{include file="designer_page/temp/show-article"}</script>
+	<script type="text/ng-template" id="show-form.html">{include file="designer_page/temp/show-form"}</script>
+	<script type="text/ng-template" id="show-map.html">{include file="designer_page/temp/show-map"}</script>
+	<script type="text/ng-template" id="show-button.html">{include file="designer_page/temp/show-button"}</script>
+	<script type="text/ng-template" id="show-cover.html">{include file="designer_page/temp/show-cover"}</script>
+	<script type="text/ng-template" id="show-business.html">{include file="designer_page/temp/show-business"}</script>
+	<script type="text/ng-template" id="show-shortvideo.html">{include file="designer_page/temp/show-shortvideo"}</script>
+	<script type="text/ng-template" id="show-liveroom.html">{include file="designer_page/temp/show-liveroom"}</script>
+	<script type="text/ng-template" id="show-channelslive.html">{include file="designer_page/temp/show-channelslive"}</script>
+	<script type="text/ng-template" id="show-hotspot.html">{include file="designer_page/tempnew/show-hotspot"}</script>
+	<script type="text/ng-template" id="show-userinfo.html">{include file="designer_page/tempnew/show-userinfo"}</script>
+	<!--预约服务-->
+	<script type="text/ng-template" id="edit-yuyue.html">{include file="designer_page/tempnew/edit-yuyue"}</script>
+	<script type="text/ng-template" id="show-yuyue.html">{include file="designer_page/temp/show-yuyue"}</script>
+	<script type="text/ng-template" id="show-tuangou.html">{include file="designer_page/temp/show-tuangou"}</script>
+	<script type="text/ng-template" id="edit-luckycollage.html">{include file="designer_page/tempnew/edit-luckycollage"}</script>
+	<script type="text/ng-template" id="show-luckycollage.html">{include file="designer_page/temp/show-luckycollage"}</script>
+
+	<script type="text/ng-template" id="show-wxad.html">{include file="designer_page/temp/show-wxad"}</script>
+	<script type="text/ng-template" id="show-jidian.html">{include file="designer_page/temp/show-jidian"}</script>
+	<script type="text/ng-template" id="show-tab.html">{include file="designer_page/temp/show-tab"}</script>
+	<script type="text/ng-template" id="show-kecheng.html">{include file="designer_page/temp/show-kecheng"}</script>
+	<script type="text/ng-template" id="show-zhaopin.html">{include file="designer_page/temp/show-zhaopin"}</script>
+	<script type="text/ng-template" id="edit-zhaopin.html">{include file="designer_page/tempnew/edit-zhaopin"}</script>
+	<script type="text/ng-template" id="show-qiuzhi.html">{include file="designer_page/temp/show-qiuzhi"}</script>
+	<script type="text/ng-template" id="edit-qiuzhi.html">{include file="designer_page/tempnew/edit-qiuzhi"}</script>
+	<script type="text/ng-template" id="edit-form-log.html">{include file="designer_page/tempnew/edit-form-log"}</script>
+	<script type="text/ng-template" id="show-form-log.html">{include file="designer_page/temp/show-form-log"}</script>
+	{if getcustom('extend_chongzhi')}
+	<script type="text/ng-template" id="show-livepay.html">{include file="designer_page/tempnew/show-livepay"}</script>
+	<script type="text/ng-template" id="edit-livepay.html">{include file="designer_page/tempnew/edit-livepay"}</script>
+	{/if}
+
+	{if getcustom('car_hailing')}
+	<script type="text/ng-template" id="show-carhailing.html">{include file="designer_page/temp/show-carhailing"}</script>
+	{/if}
+	{if getcustom('extend_tour')}
+		<script type="text/ng-template" id="edit-tour.html">{include file="designer_page/tempnew/edit-tour"}</script>
+		<script type="text/ng-template" id="show-tour.html">{include file="designer_page/temp/show-tour"}</script>
+	{/if}
+	{if getcustom('form_data')}
+		<script type="text/ng-template" id="edit-formdata.html">{include file="designer_page/tempnew/edit-formdata"}</script>
+		<script type="text/ng-template" id="show-formdata.html">{include file="designer_page/temp/show-formdata"}</script>
+	{/if}
+	{if getcustom('hotel')}
+		<script type="text/ng-template" id="edit-hotel.html">{include file="designer_page/tempnew/edit-hotel"}</script>
+		<script type="text/ng-template" id="show-hotel.html">{include file="designer_page/temp/show-hotel"}</script>
+
+		<script type="text/ng-template" id="edit-hotelroom.html">{include file="designer_page/tempnew/edit-hotelroom"}</script>
+		<script type="text/ng-template" id="show-hotelroom.html">{include file="designer_page/temp/show-hotelroom"}</script>
+	{/if}
+	<script type="text/ng-template" id="edit-luntan.html">{include file="designer_page/tempnew/edit-luntan"}</script>
+	<script type="text/ng-template" id="show-luntan.html">{include file="designer_page/temp/show-luntan"}</script>
+
+</div>
+
+<script>var ngisfinish = 0;</script>
+{include file="public/js"/}
+<script type="text/javascript" src="{$Think.const.PRE_URL}/static/admin/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="{$Think.const.PRE_URL}/static/admin/js/angular.min.js"></script>
+<script type="text/javascript" src="{$Think.const.PRE_URL}/static/admin/js/angular-ueditor.js?v=0329"></script>
+<script type="text/javascript" src="{$Think.const.PRE_URL}/static/admin/js/hhSwipe.js"></script>
+<script type="text/javascript" src="{$Think.const.PRE_URL}/static/admin/js/iconpicker.js"></script>
+<script type="text/javascript" charset="utf-8" src="https://map.qq.com/api/js?v=2.exp&key={$sysset_webinfo.map_key_qq}"></script>
+
+<script>
+$( "#editor-content" ).sortable({ stop:function(event,ui){
+		var $scope = angular.element(document.querySelector('[ng-controller=FoxController]')).scope();
+		var arr = [];
+		$(".dsn-repeat").find(".dsn-parent").each(function(i, val) {
+			arr[i] = val.id;
+		});
+		var newarr = [];
+		angular.forEach(arr, function(aid) {
+			angular.forEach($scope.Items, function(obj) {
+				if (obj.id == aid) {
+					newarr.push(obj);
+					return false;
+				}
+			});
+		});
+		console.log(newarr)
+		$scope.Items = newarr;
+		$scope.$apply();
+	}})
+var ItemID = '';
+var ItemObj = '';
+var SortPosition = '';
+// 拖动什么
+function ondragstartChange(ev,obj){
+	ev.dataTransfer.setData("item_id",$(obj).attr('id'));
+}
+// 结束拖动
+function dragend(ev){
+		ItemObj = '';
+		ItemID = '';
+}
+// 目标元素释放
+function drop(ev){
+	ev.preventDefault();
+	var $scope = angular.element(document.querySelector('[ng-controller=FoxController]')).scope();
+	var item_id=ev.dataTransfer.getData("item_id");
+	$(ItemObj).find(".occupying-box").css({'height':'0px','border': 'none'});
+	if(ItemID){
+		if(SortPosition){
+			$scope.addItem(item_id,1)
+		}else{
+			$scope.addItem(item_id,2)
+		}
+	}else{
+		$scope.addItem(item_id,0)
+	}
+	ItemObj = '';
+	ItemID = '';
+}
+// 在目标元素上，经过某个元素触发
+function dragenter(ev,obj){
+	// $(obj).find(".occupying-box").stop().show();
+	$(obj).find(".occupying-box").css({'height':'50px','border': '1px dashed #00a0e9'});
+	ItemObj = obj;
+	ItemID = $(obj).find(".dsn-parent").attr('id');
+}	
+// 在目标元素上，离开某个元素触发
+function dragleave(ev,obj){
+	// $(obj).find(".occupying-box").stop().hide();
+	$(obj).find(".occupying-box").css({'height':'0px','border': 'none'});
+	// var $scope = angular.element(document.querySelector('[ng-controller=FoxController]')).scope();
+	// if($scope.Items[$scope.Items.length-1].id == $(obj).find(".dsn-parent").attr('id')){
+	// 	ItemObj = '';
+	// 	ItemID = '';
+	// }
+}
+	// 放到何处
+function allowDrop(ev,obj){
+	ev.preventDefault();
+	if(!$(ItemObj).height()) return;
+	if(ev.offsetY < ($(ItemObj).height() / 2)){
+		// console.log('上盒子')
+		let transparency = (8 -(Math.trunc(ev.offsetY/Math.trunc($(ItemObj).height() / 2 /8))))/10;
+		SortPosition = true;
+		$(ItemObj).find(".occupying-box").eq(0).css("background-color","rgba("+162+","+220+","+247+","+transparency+")");
+		$(ItemObj).find(".occupying-box").eq(1).css("background-color",'none');
+	}else if(ev.offsetY > ($(ItemObj).height() / 2)){
+		// console.log('下盒子')
+		let transparency = (Math.trunc((ev.offsetY - $(ItemObj).height() / 2)/Math.trunc($(ItemObj).height() / 2 /8)))/10;
+		SortPosition = false;
+		$(ItemObj).find(".occupying-box").eq(0).css("background-color",'none');
+		$(ItemObj).find(".occupying-box").eq(1).css("background-color","rgba("+162+","+220+","+247+","+transparency+")");
+	
+	}else{
+		ItemID = '';
+	}
+}
+
+function clone(myObj) {
+	if (typeof(myObj) != 'object' || myObj == null) return myObj;
+	var newObj = new Object();
+	for (var i in myObj) {
+		newObj[i] = clone(myObj[i]);
+	}
+	return newObj;
+}
+function cloneArr(arr) {
+	var newArr = [];
+	$(arr).each(function(i, val) {
+		newArr.push(clone(val));
+	});
+	return newArr;
+}
+
+function initswipe(jobj) {
+	var bullets = jobj.next().get(0).getElementsByTagName('a');
+	var banner = Swipe(jobj.get(0), {
+		auto: 2000,
+		continuous: true,
+		disableScroll: false,
+		callback: function(pos) {
+			var i = bullets.length;
+			while (i--) {
+				$(bullets[i]).css({'background-color':$(jobj.next()).attr('indicatorcolor'),'width':$(jobj.next()).attr('dotwidth')});
+			}
+			//console.log($(jobj.next()).attr('indicatorcolor'))
+			//console.log($(jobj.next()).attr('indicatoractivecolor'))
+			$(bullets[pos]).css({'background-color':$(jobj.next()).attr('indicatoractivecolor'),'width':$(jobj.next()).attr('dotactivewidth')});
+		}
+	})
+}
+
+function isUndefined(n) {
+	return void 0 === n
+}
+
+function toIndex(){
+	$('.toIndex').click();
+}
+
+var myModel = angular.module('FoxEditor', ['ng.ueditor']);
+myModel.filter('price', function() {
+    return function(text){
+        return parseFloat(text).toString().split('.')[0];
+    }
+});
+myModel.filter('price_dot', function() {
+    return function(text){
+        var pricearr = parseFloat(text).toString().split('.');
+				if(pricearr[1]) return '.'+pricearr[1];
+				else return '';
+    }
+});
+myModel.controller('FoxController', ['$scope', function($scope) {
+	$scope.navsCopy = [
+		{subletName:'基础组件',children:[
+			{if !$noshow_modules || !in_array('ModuleNotice',$noshow_modules)}
+			{id:'notice',name:'公告',params:{showimg:0,img:'{$Think.const.PRE_URL}/static/imgsrc/hotdot3.png',showicon:1,icon:'{$Think.const.PRE_URL}/static/imgsrc/notice2.png',color:'#666666',bgcolor:'#000000',scroll:3,fontsize:'14',padding_x:'5',padding_y:'7',margin_x:'0',margin_y:'0',borderradius:0,quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},
+				data:[{id:'N001',title:'这里是第一条自定义公告的标题',hrefurl:''},{id:'N002',title:'这里是第二条自定义公告的标题',hrefurl:''}],
+				logo_icon:'{$Think.const.PRE_URL}/static/admin/img/notice.png'
+			},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleBanner',$noshow_modules)}
+			{id:'banner',name:'轮播图',params:{shape:'',align:'center',bgcolor:'#FFFFFF',margin_x:'0',margin_y:'0',padding_x:'0',padding_y:'0',height:'200',borderradius:'0',dotSite:'8',indicatordots:'1',indicatorcolor:'#EDEEF0',indicatoractivecolor:'#3DB51E',interval:5,previous_margin:0,next_margin:0,quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},
+				data:[
+						{id:'B0000000000001',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/banner-1.jpg',hrefurl:''},
+						{id:'B0000000000002',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/banner-2.jpg',hrefurl:''}
+				],
+				logo_icon:'{$Think.const.PRE_URL}/static/admin/img/banner.png'
+			},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleSearch',$noshow_modules)}
+			{id:'search',name:'搜索框',params:{placeholder:'输入关键字搜索您感兴趣的商品','color':'#666666','bgcolor':'#F6F6F6',borderradius:5,'bordercolor':'#FFFFFF',hrefurl:'/pages/shop/search{$bid==0?'':'?bid='.$bid}',hrefname:'基础功能>商品搜索',margin_x:'0',margin_y:'0',padding_x:'6',padding_y:'6',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort','openmore':false,'scan_code':false,bid:'{$bid}'},
+				data:[
+						{id:'S001',title1:'列表1',title2:'输入搜索信息',hrefurl:''},
+						{id:'S002',title1:'列表2',title2:'输入搜索信息',hrefurl:''},
+						{id:'S003',title1:'列表3',title2:'输入搜索信息',hrefurl:''},
+					],
+					logo_icon:'{$Think.const.PRE_URL}/static/admin/img/search.png'
+			},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleShop',$noshow_modules)}
+			{id:'shop',name:'店招',params:{style:'1',bgimg:'{$Think.const.PRE_URL}/static/imgsrc/banner-1.jpg',logo:'1',name:'1',menu:'1',navcolor:'#FFFFFF',bid:'{$bid}',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},
+				data:[
+				{id:'S001',text:'首页',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/shop-home.png',color:'#FFFFFF',hrefurl:''},
+				{id:'S002',text:'全部商品',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/shop-proall.png',color:'#FFFFFF',hrefurl:''},
+				{id:'S003',text:'促销商品',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/shop-procx.png',color:'#FFFFFF',hrefurl:''},
+				{id:'S004',text:'店铺公告',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/shop-notice.png',color:'#FFFFFF',hrefurl:''}],
+				logo_icon:'{$Think.const.PRE_URL}/static/admin/img/shop2.png'
+			},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleVideo',$noshow_modules)}
+			{id:'video',name:'视频',params:{bgcolor:'#FFFFFF',margin_x:'0',margin_y:'0',padding_x:'0',padding_y:'0',type:0,'pic':'','src':'http://wxsnsdy.tc.qq.com/105/20210/snsdyvideodownload?filekey=30280201010421301f0201690402534804102ca905ce620b1241b726bc41dcff44e00204012882540400',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort',autoplay:'0',loop:'0',muted:'0',controls:'1',fullscreen:'1',butposition:'center',objectfit:'contain',videoheight:'30'},logo_icon:'{$Think.const.PRE_URL}/static/admin/img/video.png'},
+			{/if}
+			{if !$noshow_modules || !in_array('ModulePicture',$noshow_modules)}
+			{id:'picture',name:'单图',params:{bgcolor:'#FFFFFF',margin_x:'0',margin_y:'0',padding_x:'0',padding_y:'0',borderradius:'0',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},
+				data:[{id:'P0000000000001',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/banner-1.jpg',hrefurl:'',option:'0'}],
+				logo_icon:'{$Think.const.PRE_URL}/static/admin/img/picture.png'
+			},
+			{/if}
+			{if !$noshow_modules || !in_array('ModulePictures',$noshow_modules)}
+			{id:'pictures',name:'多图',params:{style:'2',bgcolor:'#FFFFFF',margin_x:'0',margin_y:'0',padding_x:'0',padding_y:'0',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort',imageRadius:'5',imageWidth:'24',imageHeight:'140',imageRight:'2'},
+				data:[
+					{id:'PS000000000001',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/picture-1.jpg',hrefurl:'',option:'0',gototype:'0'},
+					{id:'PS000000000002',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/picture-2.jpg',hrefurl:'',option:'0',gototype:'0'},
+					{id:'PS000000000003',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/picture-3.jpg',hrefurl:'',option:'0',gototype:'0'},
+					{id:'PS000000000004',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/picture-4.jpg',hrefurl:'',option:'0',gototype:'0'}
+				],
+				logo_icon:'{$Think.const.PRE_URL}/static/admin/img/pictures.png'
+			},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleCube',$noshow_modules)}
+			{id: "cube",name: "图片魔方",params: {bgcolor:'#FFFFFF',margin_x:'0',margin_y:'0',padding_x:'0',padding_y:'0',layout: {},showIndex: 0,selection: {},currentPos: {},currentLayout: {isempty: 1},quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/cube.png'},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleHotspot',$noshow_modules)}
+			{id:'hotspot',name:'热区',params:{bgcolor:'#FFFFFF',margin_x:'0',margin_y:'0',padding_x:'0',padding_y:'0',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/banner-1.jpg',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[
+				{id:'H0000000000001',hrefurl:'',hrefname:'',left:'0',top:'0',width:'50',height:'50'}
+			],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/hotspot.png'},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleTitle',$noshow_modules)}
+			{id:'title',name:'标题',params:{bgcolor:'#F6F6F6',title:'猜你喜欢',fontsize:'14',color:'#333',showicon:1,iconsize:'14',imgurl:'{$Think.const.PRE_URL}/static/img/xihuan.png',linecolor:'#DDDDDD',margin_x:'0',margin_y:'0',padding_x:'30',padding_y:'5',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},logo_icon:'{$Think.const.PRE_URL}/static/admin/img/title.png'},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleText',$noshow_modules)}
+			{id:'text',name:'文本',params:{content:'文本内容',bgcolor:'#FFFFFF',fontsize:'14',lineheight:'20',letter_spacing:'0',bgpic:'',align:'left',color:'#000',margin_x:'0',margin_y:'0',padding_x:'5',padding_y:'5',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort',hrefurl:''},logo_icon:'{$Think.const.PRE_URL}/static/admin/img/text.png'},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleRichtext',$noshow_modules)}
+			{id:'richtext',name:'富文本',params:{bgcolor:'#FFFFFF',margin_x:'0',margin_y:'0',padding_x:'10',padding_y:'10',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},content:'',logo_icon:'{$Think.const.PRE_URL}/static/admin/img/richtext.png'},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleButton',$noshow_modules)}
+			{id:'button',name:'按钮',params:{bgcolor:'#FFFFFF',btntext:'按钮文字',btnbgcolor:'{:t('color1')}',btnbordercolor:'{:t('color1')}',btnfontsize:'14',btncolor:'#FFFFFF',btnwidth:'300',btnheight:'40',btnradius:'20',margin_x:'0',margin_y:'0',padding_x:'10',padding_y:'10',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},hrefurl:'',logo_icon:'{$Think.const.PRE_URL}/static/admin/img/button.png'},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleMenu',$noshow_modules)}
+			{id:'menu',name:'按钮导航',params:{num:'5',radius:'0',fontsize:'14',fontheight:'30',pernum:'10',bgcolor:'#FFFFFF',margin_x:'0',margin_y:'0',padding_x:'10',padding_y:'5',iconsize:'40',showicon:'1',showline:'0',showtitle:'0','title':'导航标题','titlesize':'16','titlecolor':'#333333','boxradius':'0',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},
+					data:[
+						{id:'F0000000000001',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/picture-1.jpg',text:'按钮1',hrefurl:'',color:'#666666'},
+						{id:'F0000000000002',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/picture-2.jpg',text:'按钮2',hrefurl:'',color:'#666666'},
+						{id:'F0000000000003',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/picture-3.jpg',text:'按钮3',hrefurl:'',color:'#666666'},
+						{id:'F0000000000004',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/picture-4.jpg',text:'按钮4',hrefurl:'',color:'#666666'},
+						{id:'F0000000000005',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/picture-1.jpg',text:'按钮5',hrefurl:'',color:'#666666'}
+					],
+					logo_icon:'{$Think.const.PRE_URL}/static/admin/img/menu.png'
+			},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleDhlist',$noshow_modules)}
+			{id:'dhlist',name:'列表导航',params:{titlemarginleft:'8',bgcolor:'#FFFFFF',fontsize1:'16',fontsize2:'12',color1:'#333',color2:'#999',margin_x:'0',margin_y:'8',padding_x:'5',padding_y:'10',arrowshow:1,quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},
+				data:[
+					{id:'D001',title1:'列表1',title2:'备注信息',showicon:1,iconcolor:'#CB5858',iconsize:'16',imgurl:'{$Think.const.PRE_URL}/static/img/xihuan.png'},
+					{id:'D002',title1:'列表2',title2:'备注信息',showicon:1,iconcolor:'#CB5858',iconsize:'16',imgurl:'{$Think.const.PRE_URL}/static/img/xihuan.png'}
+				],
+				logo_icon:'{$Think.const.PRE_URL}/static/admin/img/dhlist.png'
+			},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleCover',$noshow_modules)}
+			{id:'cover',name:'悬浮按钮',params:{style:'1',text:'咨询',fontsize:'14',bgcolor:'rgba(51, 136, 255, 0.7)',color:'#FFFFFF',border:0,bordercolor:'rgba(255, 255, 255, 0.7)',top:80,left:80,width:'50',height:'50',radius:'25',margin_x:'0',margin_y:'0',padding_x:'0',padding_y:'0',hrefurl:'/pages/kefu/index{$bid==0?'':'?bid='.$bid}',hrefname:'功能>在线客服',pic:'{$Think.const.PRE_URL}/static/img/zixun.png',picwidth:50,picheight:50,'alignstyle':'1',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},logo_icon:'{$Think.const.PRE_URL}/static/admin/img/cover.png'},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleLine',$noshow_modules)}
+			{id:'line',name:'辅助线',params:{height:'2',style:'dashed',color:'#666666','bgcolor':'#F6F6F6',margin_x:'0',margin_y:'0',padding_x:'10',padding_y:'10',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},logo_icon:'{$Think.const.PRE_URL}/static/admin/img/line.png'},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleBlank',$noshow_modules)}
+			{id:'blank',name:'辅助空白',params:{height:'50',bgcolor:'#F6F6F6',margin_x:'0',margin_y:'0',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},logo_icon:'{$Think.const.PRE_URL}/static/admin/img/blank.png'},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleTab',$noshow_modules)}
+			{if !$type}
+			{id:'tab',name:'选项卡',params:{bgcolor:'#F7F7F8',bgcolor2:'#FFFFFF',selectindex:0,fontsize1:'14',color1:'#333',color2:'{:t('color1')}',arrowshow:'1',arrowcolor:'{:t('color1')}',borderradius:'0',fixedtop:'0',margin_x:'0',margin_y:'0',padding_x:'0',padding_y:'0',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[
+				{id:'T0000000000001',name:'选项一',tabid:''},
+				{id:'T0000000000002',name:'选项二',tabid:''},
+				{id:'T0000000000003',name:'选项三',tabid:''}
+			],
+			logo_icon:'{$Think.const.PRE_URL}/static/admin/img/tab.png'},
+			{/if}
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleMap',$noshow_modules)}
+			{id:'map',name:'地图',params:{height:'300','bgcolor':'#F6F6F6',address:'天安门广场',longitude:'116.397827',latitude:'39.90374',margin_x:'0',margin_y:'0',padding_x:'0',padding_y:'0',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},logo_icon:'{$Think.const.PRE_URL}/static/admin/img/map.png'},
+			{/if}
+		]},
+		{subletName:'商品组件',children:[
+			{if !$noshow_modules || !in_array('ModuleProduct',$noshow_modules)}
+			{if $auth_data=='all' || in_array('ShopProduct/*',$auth_data)}
+			{id:'product',name:'商城商品',params:{style:'2',bgcolor:'#FFFFFF',probgcolor:'#FFFFFF',showname:'1',showcart:'1',cartimg:'{$Think.const.PRE_URL}/static/imgsrc/cart.svg',showprice:'1',showsales:'1',saleimg:'',showstock:'0',showbname:'0',showcoupon:'0',showcommission:0,icback:'0',productfrom:'1',bid:'{$bid}',sortby:'sort',proshownum:6,margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',group:{'all':true},quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/product.png'},
+			{/if}
+			{/if}
+			{if ($bid==0 || $bset['business_selfscore']==1 || $business_scoreshop==1) && ($auth_data=='all' || in_array('ScoreshopProduct/*',$auth_data))}
+			{id:'scoreshop',name:'{:t('积分')}兑换',params:{style:'2',bgcolor:'#FFFFFF',showname:'1',showprice:'1',showsales:'1',saleimg:'',productfrom:'1',bid:'{$bid}',sortby:'sort',proshownum:6,margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/scoreshop2.png'},
+			{/if}
+			{if $auth_data=='all' || in_array('CollageProduct/*',$auth_data)}
+			{id:'collage',name:'拼团商品',params:{style:'2',bgcolor:'#FFFFFF',showname:'1',showprice:'1',showsales:'1',saleimg:'',productfrom:'1',bid:'{$bid}',sortby:'sort',proshownum:6,shopstyle:1,margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/collage2.png'},
+			{/if}
+			{if $auth_data=='all' || in_array('CycleProduct/*',$auth_data)}
+			{id:'cycle',name:'周期购商品',params:{style:'2',bgcolor:'#FFFFFF',showname:'1',showprice:'1',showsales:'1',saleimg:'',productfrom:'1',bid:'{$bid}',sortby:'sort',proshownum:6,margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/cycle.png'},
+			{/if}
+			{if $auth_data=='all' || in_array('KanjiaProduct/*',$auth_data)}
+			{id:'kanjia',name:'砍价商品',params:{style:'2',bgcolor:'#FFFFFF',showname:'1',showprice:'1',showsales:'1',saleimg:'',productfrom:'1',bid:'{$bid}',sortby:'sort',proshownum:6,margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/kanjia2.png'},
+			{/if}
+			{if $auth_data=='all' || in_array('SeckillProduct/*',$auth_data)}
+			{id:'seckill',name:'秒杀商品',params:{style:'2',bgcolor:'#FFFFFF',showname:'1',showprice:'1',showsales:'1',showtime:'0',saleimg:'',productfrom:'1',bid:'{$bid}',sortby:'sort',proshownum:6,shopstyle:1,showtitle:1,titlestyle:1,margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/seckill.png'},
+			{/if}
+			{if $auth_data=='all' || in_array('TuangouProduct/*',$auth_data)}
+			{id:'tuangou',name:'团购商品',params:{style:'2',bgcolor:'#FFFFFF',showname:'1',showcart:'1',cartimg:'{$Think.const.PRE_URL}/static/imgsrc/cart.svg',showprice:'1',showsales:'1',saleimg:'',productfrom:'1',bid:'{$bid}',sortby:'sort',proshownum:6,margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/tuangou.png'},
+			{/if}
+			{if $auth_data=='all' || in_array('LuckyCollageProduct/*',$auth_data)}
+			{id:'luckycollage',name:'幸运拼团',params:{style:'2',bgcolor:'#FFFFFF',showname:'1',showcart:'1',cartimg:'{$Think.const.PRE_URL}/static/imgsrc/cart.svg',showprice:'1',showsales:'1',saleimg:'',productfrom:'1',bid:'{$bid}',sortby:'sort',proshownum:6,margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/luckycollage.png'},
+			{/if}
+			{if $auth_data=='all' || in_array('Restaurant/*',$auth_data)}
+			{id:'restaurant_product',name:'餐饮菜品',params:{style:'2',bgcolor:'#FFFFFF',showname:'1',showcart:'0',showtype:'0',cartimg:'{$Think.const.PRE_URL}/static/imgsrc/cart.svg',showprice:'1',showsales:'1',saleimg:'',productfrom:'1',bid:'{$bid}',sortby:'sort',proshownum:6,margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/restaurant_product.png'},
+			{/if}
+			{if getcustom('extend_tour')}
+				{if $auth_data=='all' || in_array('TourActivity/*',$auth_data)}
+				{id:'tour',name:'活动商品',params:{style:'2',bgcolor:'#FFFFFF',showcart:'1',cartimg:'{$Think.const.PRE_URL}/static/imgsrc/cart.svg',showname:'1',showprice:'1',showsales:0,productfrom:'1',bid:'{$bid}',sortby:'sort',proshownum:'6',margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/tour.png'},
+				{/if}
+			{/if}
+			{if $auth_data=='all' || in_array('YuyueList/*',$auth_data)}
+			{id:'yuyue',name:'预约服务',params:{style:'2',bgcolor:'#FFFFFF',showname:'1',showcart:'1',showprice:'1',showsales:'1',saleimg:'',productfrom:'1',bid:'{$bid}',sortby:'sort',proshownum:6,margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',showisopen:'0',showcat:'0',showfwtype:'0',showsellpoint:'0',showfuwu:'0',group:{'all':true},quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/yuyue.png'},
+			{/if}
+			{if $auth_data=='all' || in_array('KechengList/*',$auth_data)}
+			{id:'kecheng',name:'课程列表',params:{style:'2',bgcolor:'#F7F7F8',showname:'1',showcart:'1',showprice:'1',showsales:'1',saleimg:'',productfrom:'1',bid:'{$bid}',sortby:'sort',proshownum:6,margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',group:{'all':true},quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort',kctype:'all',chaptertype:'all'},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/kecheng.png'},
+			{/if}
+			{if $bid==0 && ($auth_data=='all' || in_array('Business/*',$auth_data))}
+			{id:'business',name:'商家',params:{titlecolor:'#333',bgcolor:'#F6F6F6',showstyle:'1',businessfrom:'1',showpingfen:'1',showsales:'1',showaddress:'1',showjianjie:'0',showdistance:'0',showproduct:'0',showmaidan:'0',showscoreshop:'0',showinstore:'0',showseckill:'0',showtuangou:'0',showkanjia:'0',showcollage:'0',showluckycollage:'0',distance:'30',sortby:'sort',shownum:6,margin_x:'0',margin_y:'0',padding_x:'0',padding_y:'0',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort','intotype':0,showcategroy:'0'},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/business2.png'},
+			{/if}
+			{if getcustom('hotel')}
+				{if $bid==0 && ($auth_data=='all' || in_array('Hotel/*',$auth_data))}
+					{id:'hotel',name:"{$text['酒店']}列表",logo_icon:'{$Think.const.PRE_URL}/static/admin/img/hotel.png'},
+				{/if}
+				{if $bid==0 && ($auth_data=='all' || in_array('Hotel/*',$auth_data))}
+					{id:'hotelroom',name:"房型列表",logo_icon:'{$Think.const.PRE_URL}/static/admin/img/hotel.png'},
+				{/if}
+			{/if}
+		]},
+		{subletName:'其他组件',children:[
+		{if getcustom('extend_chongzhi')}
+			{id:'livepay',name:'生活缴费',params:{radius:'5',fontsize:'14',fontheight:'30',bgcolor:'#FFFFFF',margin_x:'0',margin_y:'0',padding_x:'10',padding_y:'5',iconsize:'30',showicon:'1','title':'生活缴费','titlesize':'16','titlecolor':'#333333','boxradius':'0',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},
+					data:[
+						{id:'F0000000000001',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/costliving-1.png',text:'电费',hrefurl:'',color:'#666666',type:'electric'},
+						{id:'F0000000000002',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/costliving-2.png',text:'水费',hrefurl:'',color:'#666666',type:'water'},
+						{id:'F0000000000003',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/costliving-3.png',text:'燃气费',hrefurl:'',color:'#666666',type:'gas'},
+						{id:'F0000000000004',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/costliving-4.png',text:'固话费',hrefurl:'',color:'#666666',type:'heating'},
+						{id:'F0000000000005',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/costliving-5.png',text:'宽带费',hrefurl:'',color:'#666666',type:'charging'},
+						{id:'F0000000000006',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/costliving-6.png',text:'手机充值',hrefurl:'',color:'#666666',type:'phone'}
+					],
+					logo_icon:'{$Think.const.PRE_URL}/static/admin/img/costliving.png'
+			},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleArticle',$noshow_modules)}
+			{if $auth_data=='all' || in_array('Article/*',$auth_data)}
+			{id:'article',name:'文章列表',params:{style:'4',showpic:'1',articlefrom:'1',bid:'{$bid}',sortby:'sort',shownum:6,showtime:'1',showreadcount:'1',margin_x:'0',margin_y:'0',padding_x:'5',padding_y:'5',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort',articlefrom:'1',borderradius:'4',showline:'0'},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/article.png'},
+			{/if}
+			{/if}
+			
+			
+			{if $auth_data=='all' || in_array('Luntan/*',$auth_data)}
+			 {id:'luntan',name:'论坛列表',params:{style:'4',showpic:'1',articlefrom:'1',bid:'{$bid}',sortby:'sort',shownum:6,showtime:'1',showreadcount:'1',margin_x:'0',margin_y:'0',padding_x:'5',padding_y:'5',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort',articlefrom:'1',borderradius:'4',showline:'0'},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/article.png'},
+			{/if}
+			
+			
+			
+			
+			
+			
+			{if $auth_data=='all' || in_array('Coupon/*',$auth_data)}
+			{id:'coupon',name:'{:t('优惠券')}',params:{style:'1',titlecolor:'#FFFFFF',remarkcolor:'#E5E5E5',bgcolor:'#FFFFFF',bgpic:'{$Think.const.PRE_URL}/static/imgsrc/coupon1.png',couponfrom:'1',sortby:'sort',bid:'{$bid}',shownum:6,margin_x:'0',margin_y:'0',padding_x:'0',padding_y:'4',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/coupon.png'},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleUserinfo',$noshow_modules)}
+			{id:'userinfo',name:'{:t('会员')}信息',
+				params:{moneyshow:'1',scoreshow:'1',couponshow:'1',seticonshow:'1',cardshow:'0',membercodeshow:'0',realnameVerifyShow:'0',levelshow:'1',levelclick:'1'
+					,ordershow:'1',commissionshow:'1',freezecreditshow:'0',midshow:'0',bgimg:'{$Think.const.PRE_URL}/static/imgsrc/userinfobg.png',style:'2',margin_x:'0',margin_y:'0',padding_x:'10'
+					,padding_y:'10',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort','seticonsize':'17',showtype:'0',ordertitle:'我的订单',
+					orderData:[
+						{text:'待付款',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/fukuan.png',show:'1',id:'F0000000000001',type:'daifukuan'},
+						{text:'待发货',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/fahuo.png',show:'1',id:'F0000000000002',type:'daifahuo'},
+						{text:'待收货',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/shouhuo.png',show:'1',id:'F0000000000003',type:'daishouhuo'},
+						{text:'已完成',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/wancheng.png',show:'1',id:'F0000000000004',type:'wancheng'},
+						{text:'退款/售后',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/tksh.png',show:'1',id:'F0000000000005',type:'tuikuan'}],
+				},
+				logo_icon:'{$Think.const.PRE_URL}/static/admin/img/userinfo.png','showsilvermoney':'0','showgoldmoney':'0'},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleShortvideo',$noshow_modules)}
+			{if $auth_data=='all' || in_array('Shortvideo/*',$auth_data)}
+			{id:'shortvideo',name:'短视频',params:{bgcolor:'#FFFFFF',showlogo:'1',showviewnum:'1',showzannum:'1',productfrom:'1',bid:'{$bid}',sortby:'sort',shownum:6,margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',category:'',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/shortvideo.png'},
+			{/if}
+			{/if}
+			{if $bid==0 && in_array('wx',$platform) && ($auth_data=='all' || in_array('Live/*',$auth_data))}
+			{id:'liveroom',name:'小程序直播',params:{titlecolor:'#333',bgcolor:'#F6F6F6',liveroomfrom:'1',sortby:'sort',shownum:12,margin_x:'0',margin_y:'0',padding_x:'6',padding_y:'6',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/liveroom.png'},
+			{/if}
+			{if $bid==0 && in_array('wx',$platform)}
+			{id:'channelslive',name:'视频号直播',params:{titlecolor:'#333',bgcolor:'#F6F6F6',margin_x:'0',margin_y:'0',padding_x:'6',padding_y:'6',live_height:'50',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/channelslive.png'},
+			{/if}
+			{if !$type}
+				{if $auth_data=='all' || in_array('Form/*',$auth_data)}
+				{id:'form',name:'表单',params:{style:'1',fontsize:'14',color:'#000000',showmuststar:true,inputbordercolor:'#EEEEEE',inputbgcolor:'#FFFFFF','linecolor':'#FFFFFF',bgcolor:'#FFFFFF',btntext:'提 交',btnbgcolor:'{:t('color1')}',btnbordercolor:'{:t('color1')}',btnfontsize:'14',btncolor:'#FFFFFF',btnwidth:'300',btnheight:'40',btnradius:'20',margin_x:'0',margin_y:'0',padding_x:'10',padding_y:'10',hrefurl:'/pagesA/form/formlog',hrefname:'基础功能>提交记录','isquery':'0',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort','show_submember':false,'is_jingmo':'0'},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/form.png'},
+				{if getcustom('form_log_plug')}
+				{id:'form-log',name:'表单动态',params:{title:'最新动态',bgcolor:'#FFFFFF',hrefurl:'/pagesA/form/formlog2',sortby:'sort',bid:'{$bid}',borderradius:'0',margin_x:'0',margin_y:'0',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/form-log.png'},
+				{/if}
+				{/if}
+			{/if}
+			{if getcustom('form_data')}
+				{if $auth_data=='all' || in_array('Form/*',$auth_data)}
+					{id:'formdata',name:'表单数据',params:{titlecolor:'#333',bgcolor:'#F6F6F6',formfrom:'1',sortby:'sort',proshownum:6,margin_x:'0',margin_y:'0',padding_x:'0',padding_y:'0',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort','intotype':0},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/formdata.png'},
+				{/if}
+			{/if}
+			{if getcustom('lbs_search')}
+				{id:'lbssearch',name:'定位检索',params:{placeholder:'输入关键字进行搜索','color':'#666666','bgcolor':'#F6F6F6',borderradius:5,'bordercolor':'#FFFFFF',hrefurl:'/pagesExt/business/blist{$bid==0?'':'?bid='.$bid}',hrefname:'基础功能>商家列表',margin_x:'0',margin_y:'0',padding_x:'6',padding_y:'6',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},'showlevel':3,logo_icon:'{$Think.const.PRE_URL}/static/admin/img/lbssearch.png'},
+			{/if}
+			{if getcustom('zhaopin') && $bid==0 && ($auth_data=='all' || in_array('Zhaopin/*',$auth_data))}
+				{id:'zhaopin',name:'招聘列表',params:{style:'2',bgcolor:'#F7F7F8',productfrom:'1',bid:'{$bid}',sortby:'sort',shownum:6,margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',group:{'all':true},quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/zhaopin.png'},
+				{id:'qiuzhi',name:'求职列表',params:{style:'2',bgcolor:'#F7F7F8',productfrom:'1',bid:'{$bid}',sortby:'sort',shownum:6,margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',group:{'all':true},quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/qiuzhi.png'},
+			{/if}
+			{if getcustom('car_hailing')}
+			{id:'carhailing',name:'约车列表',params:{bgcolor:'#F7F7F8',bid:'{$bid}',cid:'','showdate':'1',sortby:'sort',margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',group:{'all':true},quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/carhailing.png'},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleWxad',$noshow_modules)}
+			{if in_array('wx',$platform)}
+			{id:'wxad',name:'小程序广告',params:{adtype:'banner',unitid:'',bgcolor:'#FFFFFF',margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',quanxian:{'all':true},'platform':{"all":false,"wx":true}},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/wxad.png'},
+			{/if}
+			{/if}
+			{if getcustom('yx_jidian') && $bid!=0 && ($auth_data=='all' || in_array('Jidian/*',$auth_data))}
+			{id:'jidian',name:'集点',params:{bgcolor:'#FDEEE9',sortby:'sort',bid:'{$bid}',borderradius:'0',margin_x:'0',margin_y:'0',padding_x:'6',padding_y:'6',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/jidian.png'},
+			{/if}
+			{if getcustom('show_location')}
+				{if $sysset.mode==2}
+				{id:'location',name:'定位组件',params:{style:'1',bgcolor:'#FFFFFF',borderradius:5,bordercolor:'#DDDDDD',color:"#666666",showlevel:'2',showsearch:'1',showicon:'1',bid:'{$bid}',margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[{id:'L0000000000001',imgurl:'{$Think.const.PRE_URL}/static/img/cart_64.png',hrefurl:''},{id:'L0000000000002',imgurl:'{$Think.const.PRE_URL}/static/img/message_64.png',hrefurl:''}],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/location.png'},
+				{/if}
+				{if $sysset.mode==3}
+				{id:'location',name:'定位组件',params:{style:'1',bgcolor:'#FFFFFF',borderradius:5,bordercolor:'#DDDDDD',color:"#666666",showlevel:'0',showsearch:'1',showicon:'1',bid:'{$bid}',margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[{id:'L0000000000001',imgurl:'{$Think.const.PRE_URL}/static/img/cart_64.png',hrefurl:''},{id:'L0000000000002',imgurl:'{$Think.const.PRE_URL}/static/img/message_64.png',hrefurl:''}],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/location.png'},
+				{/if}
+			{/if}
+		]}
+		],
+	$scope.navs = [
+			{if !$noshow_modules || !in_array('ModuleNotice',$noshow_modules)}
+			{id:'notice',name:'公告',params:{showimg:0,img:'{$Think.const.PRE_URL}/static/imgsrc/hotdot3.png',showicon:1,icon:'{$Think.const.PRE_URL}/static/imgsrc/notice2.png',color:'#666666',bgcolor:'#FFFFFF',scroll:3,fontsize:'14',padding_x:'5',padding_y:'7',margin_x:'0',margin_y:'0',borderradius:0,quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},
+				data:[{id:'N001',title:'这里是第一条自定义公告的标题',hrefurl:''},{id:'N002',title:'这里是第二条自定义公告的标题',hrefurl:''}]
+			},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleBanner',$noshow_modules)}
+			{id:'banner',name:'轮播图',params:{shape:'',align:'center',bgcolor:'#FFFFFF',margin_x:'0',margin_y:'0',padding_x:'0',padding_y:'0',height:'200',borderradius:'0',dotSite:'8',indicatordots:'1',indicatorcolor:'#EDEEF0',indicatoractivecolor:'#3DB51E',interval:5,previous_margin:0,next_margin:0,quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},
+				 data:[
+						 {id:'B0000000000001',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/banner-1.jpg',hrefurl:''},
+						 {id:'B0000000000002',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/banner-2.jpg',hrefurl:''}
+				 ]
+			},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleShop',$noshow_modules)}
+			{id:'shop',name:'店招',params:{style:'1',bgimg:'{$Think.const.PRE_URL}/static/imgsrc/banner-1.jpg',logo:'1',name:'1',menu:'1',navcolor:'#FFFFFF',bid:'{$bid}',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},
+				 data:[
+				 {id:'S001',text:'首页',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/shop-home.png',color:'#FFFFFF',hrefurl:''},
+				 {id:'S002',text:'全部商品',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/shop-proall.png',color:'#FFFFFF',hrefurl:''},
+				 {id:'S003',text:'促销商品',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/shop-procx.png',color:'#FFFFFF',hrefurl:''},
+				 {id:'S004',text:'店铺公告',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/shop-notice.png',color:'#FFFFFF',hrefurl:''}]
+			},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleSearch',$noshow_modules)}
+			{id:'search',name:'搜索框',params:{placeholder:'输入关键字搜索您感兴趣的商品','color':'#666666','bgcolor':'#F6F6F6',borderradius:5,'bordercolor':'#FFFFFF',hrefurl:'/pages/shop/search{$bid==0?'':'?bid='.$bid}',hrefname:'基础功能>商品搜索',margin_x:'0',margin_y:'0',padding_x:'6',padding_y:'6',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort','openmore':false,'scan_code':false,bid:'{$bid}'},
+				data:[
+						{id:'S001',title1:'列表1',title2:'输入搜索信息',hrefurl:''},
+						{id:'S002',title1:'列表2',title2:'输入搜索信息',hrefurl:''},
+						{id:'S003',title1:'列表3',title2:'输入搜索信息',hrefurl:''},
+					]
+			},
+			{/if}
+			{if getcustom('lbs_search')}
+				{id:'lbssearch',name:'定位检索',params:{placeholder:'输入关键字进行搜索','color':'#666666','bgcolor':'#F6F6F6',borderradius:5,'bordercolor':'#FFFFFF',hrefurl:'/pagesExt/business/blist{$bid==0?'':'?bid='.$bid}',hrefname:'基础功能>商家列表',margin_x:'0',margin_y:'0',padding_x:'6',padding_y:'6',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},'showlevel':3},
+			{/if}
+			{if !$noshow_modules || !in_array('ModulePicture',$noshow_modules)}
+			{id:'picture',name:'单图',params:{bgcolor:'#FFFFFF',margin_x:'0',margin_y:'0',padding_x:'0',padding_y:'0',borderradius:'0',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},
+				data:[{id:'P0000000000001',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/banner-1.jpg',hrefurl:'',option:'0'}]
+			},
+			{/if}
+			{if !$noshow_modules || !in_array('ModulePictures',$noshow_modules)}
+			{id:'pictures',name:'多图',params:{style:'2',bgcolor:'#FFFFFF',margin_x:'0',margin_y:'0',padding_x:'0',padding_y:'0',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort',imageRadius:'5',imageWidth:'24',imageHeight:'140',imageRight:'2'},
+				data:[
+					{id:'PS000000000001',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/picture-1.jpg',hrefurl:'',option:'0',gototype:'0'},
+					{id:'PS000000000002',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/picture-2.jpg',hrefurl:'',option:'0',gototype:'0'},
+					{id:'PS000000000003',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/picture-3.jpg',hrefurl:'',option:'0',gototype:'0'},
+					{id:'PS000000000004',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/picture-4.jpg',hrefurl:'',option:'0',gototype:'0'}
+				]
+			},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleCube',$noshow_modules)}
+			{id: "cube",name: "图片魔方",params: {bgcolor:'#FFFFFF',margin_x:'0',margin_y:'0',padding_x:'0',padding_y:'0',layout: {},showIndex: 0,selection: {},currentPos: {},currentLayout: {isempty: 1},quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[]},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleRichtext',$noshow_modules)}
+			{id:'richtext',name:'富文本',params:{bgcolor:'#FFFFFF',margin_x:'0',margin_y:'0',padding_x:'10',padding_y:'10',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},content:''},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleVideo',$noshow_modules)}
+			{id:'video',name:'视频',params:{bgcolor:'#FFFFFF',margin_x:'0',margin_y:'0',padding_x:'0',padding_y:'0',type:0,'pic':'','src':'http://wxsnsdy.tc.qq.com/105/20210/snsdyvideodownload?filekey=30280201010421301f0201690402534804102ca905ce620b1241b726bc41dcff44e00204012882540400',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort',autoplay:'0',loop:'0',muted:'0',controls:'1',fullscreen:'1',butposition:'center',objectfit:'contain',videoheight:'30'}},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleTitle',$noshow_modules)}
+			{id:'title',name:'标题',params:{bgcolor:'#F6F6F6',title:'猜你喜欢',fontsize:'14',color:'#333',showicon:1,iconsize:'14',imgurl:'{$Think.const.PRE_URL}/static/img/xihuan.png',linecolor:'#DDDDDD',margin_x:'0',margin_y:'0',padding_x:'30',padding_y:'5',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'}},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleDhlist',$noshow_modules)}
+			{id:'dhlist',name:'列表导航',params:{titlemarginleft:'8',bgcolor:'#FFFFFF',fontsize1:'16',fontsize2:'12',color1:'#333',color2:'#999',margin_x:'0',margin_y:'8',padding_x:'5',padding_y:'10',arrowshow:1,quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},
+				data:[
+					{id:'D001',title1:'列表1',title2:'备注信息',showicon:1,iconcolor:'#CB5858',iconsize:'16',imgurl:'{$Think.const.PRE_URL}/static/img/xihuan.png'},
+					{id:'D002',title1:'列表2',title2:'备注信息',showicon:1,iconcolor:'#CB5858',iconsize:'16',imgurl:'{$Think.const.PRE_URL}/static/img/xihuan.png'}
+				]
+			},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleText',$noshow_modules)}
+			{id:'text',name:'文本',params:{content:'文本内容',bgcolor:'#FFFFFF',fontsize:'14',lineheight:'20',letter_spacing:'0',bgpic:'',align:'left',color:'#000',margin_x:'0',margin_y:'0',padding_x:'5',padding_y:'5',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort',hrefurl:''}},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleButton',$noshow_modules)}
+			{id:'button',name:'按钮',params:{bgcolor:'#FFFFFF',btntext:'按钮文字',btnbgcolor:'{:t('color1')}',btnbordercolor:'{:t('color1')}',btnfontsize:'14',btncolor:'#FFFFFF',btnwidth:'300',btnheight:'40',btnradius:'20',margin_x:'0',margin_y:'0',padding_x:'10',padding_y:'10',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},hrefurl:''},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleMenu',$noshow_modules)}
+			{id:'menu',name:'按钮导航',params:{num:'5',radius:'0',fontsize:'14',fontheight:'30',pernum:'10',bgcolor:'#FFFFFF',margin_x:'0',margin_y:'0',padding_x:'10',padding_y:'5',iconsize:'40',showicon:'1',showline:'0',showtitle:'0','title':'导航标题','titlesize':'16','titlecolor':'#333333','boxradius':'0',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},
+					data:[
+						{id:'F0000000000001',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/picture-1.jpg',text:'按钮1',hrefurl:'',color:'#666666'},
+						{id:'F0000000000002',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/picture-2.jpg',text:'按钮2',hrefurl:'',color:'#666666'},
+						{id:'F0000000000003',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/picture-3.jpg',text:'按钮3',hrefurl:'',color:'#666666'},
+						{id:'F0000000000004',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/picture-4.jpg',text:'按钮4',hrefurl:'',color:'#666666'},
+						{id:'F0000000000005',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/picture-1.jpg',text:'按钮5',hrefurl:'',color:'#666666'}
+					]
+			},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleCover',$noshow_modules)}
+			{id:'cover',name:'悬浮按钮',params:{style:'1',text:'咨询',fontsize:'14',bgcolor:'rgba(51, 136, 255, 0.7)',color:'#FFFFFF',border:0,bordercolor:'rgba(255, 255, 255, 0.7)',top:80,left:80,width:'50',height:'50',radius:'25',margin_x:'0',margin_y:'0',padding_x:'0',padding_y:'0',hrefurl:'/pages/kefu/index{$bid==0?'':'?bid='.$bid}',hrefname:'功能>在线客服',pic:'{$Think.const.PRE_URL}/static/img/zixun.png',picwidth:50,picheight:50,'alignstyle':'1',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'}},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleLine',$noshow_modules)}
+			{id:'line',name:'辅助线',params:{height:'2',style:'dashed',color:'#666666','bgcolor':'#F6F6F6',margin_x:'0',margin_y:'0',padding_x:'10',padding_y:'10',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'}},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleBlank',$noshow_modules)}
+			{id:'blank',name:'辅助空白',params:{height:'50',bgcolor:'#F6F6F6',margin_x:'0',margin_y:'0',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'}},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleTab',$noshow_modules)}
+			{if !$type}
+			{id:'tab',name:'选项卡',params:{bgcolor:'#F7F7F8',bgcolor2:'#FFFFFF',selectindex:0,fontsize1:'14',color1:'#333',color2:'{:t('color1')}',arrowshow:'1',arrowcolor:'{:t('color1')}',borderradius:'0',fixedtop:'0',margin_x:'0',margin_y:'0',padding_x:'0',padding_y:'0',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[
+				{id:'T0000000000001',name:'选项一',tabid:''},
+				{id:'T0000000000002',name:'选项二',tabid:''},
+				{id:'T0000000000003',name:'选项三',tabid:''}
+			]},
+			{/if}
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleMap',$noshow_modules)}
+			{id:'map',name:'地图',params:{height:'300','bgcolor':'#F6F6F6',address:'天安门广场',longitude:'116.397827',latitude:'39.90374',margin_x:'0',margin_y:'0',padding_x:'0',padding_y:'0',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'}},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleHotspot',$noshow_modules)}
+			{id:'hotspot',name:'热区',params:{bgcolor:'#FFFFFF',margin_x:'0',margin_y:'0',padding_x:'0',padding_y:'0',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/banner-1.jpg',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[
+				{id:'H0000000000001',hrefurl:'',hrefname:'',left:'0',top:'0',width:'50',height:'50'}
+			]},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleProduct',$noshow_modules)}
+			{if $auth_data=='all' || in_array('ShopProduct/*',$auth_data)}
+			{id:'product',name:'商城商品',params:{style:'2',bgcolor:'#FFFFFF',probgcolor:'#FFFFFF',showname:'1',showcart:'1',cartimg:'{$Think.const.PRE_URL}/static/imgsrc/cart.svg',showprice:'1',showsales:'1',saleimg:'',showstock:'0',showbname:'0',showcoupon:'0',showcommission:0,icback:'0',productfrom:'1',bid:'{$bid}',sortby:'sort',proshownum:6,margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',group:{'all':true},quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[]},
+			{/if}
+			{/if}
+			{if $auth_data=='all' || in_array('CollageProduct/*',$auth_data)}
+			{id:'collage',name:'拼团商品',params:{style:'2',bgcolor:'#FFFFFF',showname:'1',showprice:'1',showsales:'1',saleimg:'',productfrom:'1',bid:'{$bid}',sortby:'sort',proshownum:6,shopstyle:1,margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[]},
+			{/if}
+			{if $auth_data=='all' || in_array('CycleProduct/*',$auth_data)}
+		    {id:'cycle',name:'周期购商品',params:{style:'2',bgcolor:'#FFFFFF',showname:'1',showprice:'1',showsales:'1',saleimg:'',productfrom:'1',bid:'{$bid}',sortby:'sort',proshownum:6,margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[]},
+			{/if}
+			{if $auth_data=='all' || in_array('KanjiaProduct/*',$auth_data)}
+			{id:'kanjia',name:'砍价商品',params:{style:'2',bgcolor:'#FFFFFF',showname:'1',showprice:'1',showsales:'1',saleimg:'',productfrom:'1',bid:'{$bid}',sortby:'sort',proshownum:6,margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[]},
+			{/if}
+			{if $auth_data=='all' || in_array('SeckillProduct/*',$auth_data)}
+			{id:'seckill',name:'秒杀商品',params:{style:'2',bgcolor:'#FFFFFF',showname:'1',showprice:'1',showsales:'1',showrange:'0',showtime:'0',saleimg:'',productfrom:'1',bid:'{$bid}',sortby:'sort',proshownum:6,shopstyle:1,showtitle:1,titlestyle:1,margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[]},
+			{/if}
+			{if $auth_data=='all' || in_array('TuangouProduct/*',$auth_data)}
+			{id:'tuangou',name:'团购商品',params:{style:'2',bgcolor:'#FFFFFF',showname:'1',showcart:'1',cartimg:'{$Think.const.PRE_URL}/static/imgsrc/cart.svg',showprice:'1',showsales:'1',saleimg:'',productfrom:'1',bid:'{$bid}',sortby:'sort',proshownum:6,margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[]},
+			{/if}
+			{if $auth_data=='all' || in_array('LuckyCollageProduct/*',$auth_data)}
+			{id:'luckycollage',name:'幸运拼团',params:{style:'2',bgcolor:'#FFFFFF',showname:'1',showcart:'1',cartimg:'{$Think.const.PRE_URL}/static/imgsrc/cart.svg',showprice:'1',showsales:'1',saleimg:'',productfrom:'1',bid:'{$bid}',sortby:'sort',proshownum:6,margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[]},
+			{/if}
+			{if $auth_data=='all' || in_array('Restaurant/*',$auth_data)}
+			{id:'restaurant_product',name:'餐饮菜品',params:{style:'2',bgcolor:'#FFFFFF',showname:'1',showcart:'0',showtype:'0',cartimg:'{$Think.const.PRE_URL}/static/imgsrc/cart.svg',showprice:'1',showsales:'1',saleimg:'',productfrom:'1',bid:'{$bid}',sortby:'sort',proshownum:6,margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[]},
+			{/if}
+			{if ($bid==0 || $bset['business_selfscore']==1 || $business_scoreshop == 1) && ($auth_data=='all' || in_array('ScoreshopProduct/*',$auth_data))}
+			{id:'scoreshop',name:'{:t('积分')}兑换',params:{style:'2',bgcolor:'#FFFFFF',showname:'1',showprice:'1',showsales:'1',saleimg:'',productfrom:'1',bid:'{$bid}',sortby:'sort',proshownum:6,margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[]},
+			{/if}
+			{if $auth_data=='all' || in_array('Coupon/*',$auth_data)}
+			{id:'coupon',name:'{:t('优惠券')}',params:{style:'1',titlecolor:'#FFFFFF',remarkcolor:'#E5E5E5',bgcolor:'#FFFFFF',bgpic:'{$Think.const.PRE_URL}/static/imgsrc/coupon1.png',couponfrom:'1',sortby:'sort',bid:'{$bid}',shownum:6,margin_x:'0',margin_y:'0',padding_x:'0',padding_y:'4',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[]},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleArticle',$noshow_modules)}
+			{if $auth_data=='all' || in_array('Article/*',$auth_data)}
+			{id:'article',name:'文章列表',params:{style:'4',showpic:'1',articlefrom:'1',bid:'{$bid}',sortby:'sort',shownum:6,showtime:'1',showreadcount:'1',margin_x:'0',margin_y:'0',padding_x:'5',padding_y:'5',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort',articlefrom:'1',articlefrom:'1',borderradius:'4',showline:'0'},data:[]},
+			{/if}
+			{/if}
+			
+			
+				{if $auth_data=='all' || in_array('Luntan/*',$auth_data)}
+			{id:'luntan',name:'论坛列表',params:{style:'4',showpic:'1',articlefrom:'1',bid:'{$bid}',sortby:'sort',shownum:6,showtime:'1',showreadcount:'1',margin_x:'0',margin_y:'0',padding_x:'5',padding_y:'5',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort',articlefrom:'1',articlefrom:'1',borderradius:'4',showline:'0'},data:[]},
+			{/if}
+			
+			
+			
+			
+			
+			{if !$type}
+				{if $auth_data=='all' || in_array('Form/*',$auth_data)}
+				{id:'form',name:'表单',params:{style:'1',fontsize:'14',color:'#000000',showmuststar:true,inputbordercolor:'#EEEEEE',inputbgcolor:'#FFFFFF','linecolor':'#FFFFFF',bgcolor:'#FFFFFF',btntext:'提 交',btnbgcolor:'{:t('color1')}',btnbordercolor:'{:t('color1')}',btnfontsize:'14',btncolor:'#FFFFFF',btnwidth:'300',btnheight:'40',btnradius:'20',margin_x:'0',margin_y:'0',padding_x:'10',padding_y:'10',hrefurl:'/pagesA/form/formlog',hrefname:'基础功能>提交记录','isquery':'0',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort','show_submember':false,'is_jingmo':'0'},data:[]},
+				{if getcustom('form_log_plug')}
+				{id:'form-log',name:'表单动态',params:{title:'最新动态',bgcolor:'#FFFFFF',hrefurl:'/pagesA/form/formlog2',sortby:'sort',bid:'{$bid}',borderradius:'0',margin_x:'0',margin_y:'0',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[]},
+				{/if}
+				{/if}
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleShortvideo',$noshow_modules)}
+			{if $auth_data=='all' || in_array('Shortvideo/*',$auth_data)}
+			{id:'shortvideo',name:'短视频',params:{bgcolor:'#FFFFFF',showlogo:'1',showviewnum:'1',showzannum:'1',productfrom:'1',bid:'{$bid}',sortby:'sort',shownum:6,margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',category:'',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[]},
+			{/if}
+			{/if}
+			{if $bid==0 && in_array('wx',$platform) && ($auth_data=='all' || in_array('Live/*',$auth_data))}
+			{id:'liveroom',name:'直播列表',params:{titlecolor:'#333',bgcolor:'#F6F6F6',liveroomfrom:'1',sortby:'sort',shownum:12,margin_x:'0',margin_y:'0',padding_x:'6',padding_y:'6',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[]},
+			{/if}
+			{if $bid==0 && in_array('wx',$platform)}
+			{id:'channelslive',name:'视频号直播',params:{titlecolor:'#333',bgcolor:'#F6F6F6',margin_x:'0',margin_y:'0',padding_x:'6',padding_y:'6',live_height:'50',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[]},
+			{/if}
+			{if $bid==0 && ($auth_data=='all' || in_array('Business/*',$auth_data))}
+			{id:'business',name:'商家',params:{titlecolor:'#333',bgcolor:'#F6F6F6','showstyle':'1',businessfrom:'1',showpingfen:'1',showsales:'1',showaddress:'1',showjianjie:'0',showdistance:'0',showproduct:'0',showturnover:'0',showmaidan:'0',showscoreshop:'0',showinstore:'0',showseckill:'0',showtuangou:'0',showkanjia:'0',showcollage:'0',showluckycollage:'0',distance:'30',sortby:'sort',shownum:6,margin_x:'0',margin_y:'0',padding_x:'0',padding_y:'0',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort','intotype':0,showcategroy:'0'},data:[]},
+			{/if}
+			{if $auth_data=='all' || in_array('YuyueList/*',$auth_data)}
+			{id:'yuyue',name:'预约服务',params:{style:'2',bgcolor:'#FFFFFF',showname:'1',showcart:'1',showprice:'1',showsales:'1',saleimg:'',productfrom:'1',bid:'{$bid}',sortby:'sort',proshownum:6,margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',showisopen:'0',showcat:'0',showfwtype:'0',showsellpoint:'0',showfuwu:'0',group:{'all':true},quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[]},
+			{/if}
+			{if $auth_data=='all' || in_array('KechengList/*',$auth_data)}
+			{id:'kecheng',name:'课程列表',params:{style:'2',bgcolor:'#F7F7F8',showname:'1',showcart:'1',showprice:'1',showsales:'1',saleimg:'',productfrom:'1',bid:'{$bid}',sortby:'sort',proshownum:6,margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',group:{'all':true},quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort',kctype:'all',chaptertype:'all'},data:[]},
+			{/if}
+			{if getcustom('zhaopin') && $bid==0 && ($auth_data=='all' || in_array('Zhaopin/*',$auth_data))}
+				{id:'zhaopin',name:'招聘列表',params:{style:'2',bgcolor:'#F7F7F8',productfrom:'1',bid:'{$bid}',sortby:'sort',shownum:6,margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',group:{'all':true},quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[]},
+				{id:'qiuzhi',name:'求职列表',params:{style:'2',bgcolor:'#F7F7F8',productfrom:'1',bid:'{$bid}',sortby:'sort',shownum:6,margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',group:{'all':true},quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[]},
+			{/if}
+			{if getcustom('car_hailing')}
+			{id:'carhailing',name:'约车列表',params:{bgcolor:'#F7F7F8',bid:'{$bid}',cid:'','showdate':'1',sortby:'sort',margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',group:{'all':true},quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/carhailing.png'},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleWxad',$noshow_modules)}
+			{if in_array('wx',$platform)}
+			{id:'wxad',name:'小程序广告',params:{adtype:'banner',unitid:'',bgcolor:'#FFFFFF',margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',quanxian:{'all':true},'platform':{"all":false,"wx":true}},data:[]},
+			{/if}
+			{/if}
+			{if getcustom('yx_jidian') && $bid!=0 && ($auth_data=='all' || in_array('Jidian/*',$auth_data))}
+			{id:'jidian',name:'集点',params:{bgcolor:'#FDEEE9',sortby:'sort',bid:'{$bid}',borderradius:'0',margin_x:'0',margin_y:'0',padding_x:'6',padding_y:'6',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[]},
+			{/if}
+			{if !$noshow_modules || !in_array('ModuleUserinfo',$noshow_modules)}
+			{id:'userinfo',name:'{:t('会员')}信息',
+				params:{moneyshow:'1',scoreshow:'1',couponshow:'1',seticonshow:'1',cardshow:'0',membercodeshow:'0',realnameVerifyShow:'0',levelshow:'1',levelclick:'1'
+				,ordershow:'1',commissionshow:'1',freezecreditshow:'0',midshow:'0',bgimg:'{$Think.const.PRE_URL}/static/imgsrc/userinfobg.png',style:'2',margin_x:'0',margin_y:'0',padding_x:'10'
+				,padding_y:'10',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort','seticonsize':'17',showtype:'0',ordertitle:'我的订单',
+				orderData:[
+					{text:'待付款',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/fukuan.png',show:'1',id:'F0000000000001',type:'daifukuan'},
+					{text:'待发货',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/fahuo.png',show:'1',id:'F0000000000002',type:'daifahuo'},
+					{text:'待收货',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/shouhuo.png',show:'1',id:'F0000000000003',type:'daishouhuo'},
+					{text:'已完成',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/wancheng.png',show:'1',id:'F0000000000004',type:'wancheng'},
+					{text:'退款/售后',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/tksh.png',show:'1',id:'F0000000000005',type:'tuikuan'}],
+				},
+				logo_icon:'{$Think.const.PRE_URL}/static/admin/img/userinfo.png','showsilvermoney':'0','showgoldmoney':'0'},
+			{/if}
+			{if getcustom('show_location')}
+				{if $sysset.mode==2}
+				{id:'location',name:'定位组件',params:{style:'1',bgcolor:'#FFFFFF',borderradius:5,bordercolor:'#DDDDDD',color:"#666666",showlevel:'2',showsearch:'1',showicon:'1',bid:'{$bid}',margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[{id:'L0000000000001',imgurl:'{$Think.const.PRE_URL}/static/img/cart_64.png',hrefurl:''},{id:'L0000000000002',imgurl:'{$Think.const.PRE_URL}/static/img/message_64.png',hrefurl:''}],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/location.png'},
+				{/if}
+				{if $sysset.mode==3}
+				{id:'location',name:'定位组件',params:{style:'1',bgcolor:'#FFFFFF',borderradius:5,bordercolor:'#DDDDDD',color:"#666666",showlevel:'0',showsearch:'1',showicon:'1',bid:'{$bid}',margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[{id:'L0000000000001',imgurl:'{$Think.const.PRE_URL}/static/img/cart_64.png',hrefurl:''},{id:'L0000000000002',imgurl:'{$Think.const.PRE_URL}/static/img/message_64.png',hrefurl:''}],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/location.png'},
+				{/if}
+			{/if}
+			{if getcustom('extend_tour')}
+				{if $auth_data=='all' || in_array('TourActivity/*',$auth_data)}
+				{id:'tour',name:'活动商品',params:{style:'2',bgcolor:'#FFFFFF',showcart:'1',cartimg:'{$Think.const.PRE_URL}/static/imgsrc/cart.svg',showname:'1',showprice:'1',showsales:0,productfrom:'1',bid:'{$bid}',sortby:'sort',proshownum:'6',margin_x:'0',margin_y:'0',padding_x:'8',padding_y:'8',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/tour.png'},
+				{/if}
+			{/if}
+			{if getcustom('form_data')}
+				{if $auth_data=='all' || in_array('Form/*',$auth_data)}
+					{id:'formdata',name:'表单数据',params:{titlecolor:'#333',bgcolor:'#F6F6F6',formfrom:'1',sortby:'sort',proshownum:6,margin_x:'0',margin_y:'0',padding_x:'0',padding_y:'0',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort','intotype':0},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/formdata.png'},
+				{/if}
+			{/if}
+			
+			
+			
+			{if getcustom('extend_chongzhi')}
+			{id:'livepay',name:'生活缴费',params:{radius:'5',fontsize:'14',fontheight:'30',bgcolor:'#FFFFFF',margin_x:'0',margin_y:'0',padding_x:'10',padding_y:'5',iconsize:'30',showicon:'1','title':'生活缴费','titlesize':'16','titlecolor':'#333333','boxradius':'0',quanxian:{'all':true},'platform':{'all':true},'mendian':{'all':true},mendian_sort:'sort'},
+					data:[
+						{id:'F0000000000001',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/costliving-1.png',text:'电费',hrefurl:'',color:'#666666',type:'electric'},
+						{id:'F0000000000002',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/costliving-2.png',text:'水费',hrefurl:'',color:'#666666',type:'water'},
+						{id:'F0000000000003',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/costliving-3.png',text:'燃气费',hrefurl:'',color:'#666666',type:'gas'},
+						{id:'F0000000000004',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/costliving-4.png',text:'固话费',hrefurl:'',color:'#666666',type:'heating'},
+						{id:'F0000000000005',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/costliving-5.png',text:'宽带费',hrefurl:'',color:'#666666',type:'charging'},
+						{id:'F0000000000006',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/costliving-6.png',text:'手机充值',hrefurl:'',color:'#666666',type:'phone'}
+					],
+					logo_icon:'{$Think.const.PRE_URL}/static/admin/img/costliving.png'
+			}
+			{/if}
+			{if getcustom('hotel')}
+				{if $bid==0 && ($auth_data=='all' || in_array('Hotel/*',$auth_data))}
+				{id:'hotel',name:"{$text['酒店']}列表",params:{titlecolor:'#333',showname:'1',showprice:'1',bgcolor:'#F6F6F6',showsales:'1',showtag:'1',hotelfrom:'1',sortby:'sort',shownum:6,margin_x:'0',margin_y:'0',padding_x:'0',padding_y:'0',quanxian:{'all':true},'platform':{'all':true}},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/hotel.png'},
+				{id:'hotelroom',name:"房型列表",params:{titlecolor:'#333',showname:'1',showprice:'1',bgcolor:'#F6F6F6',showsales:'1',showtag:'1',roomfrom:'1',sortby:'sort',shownum:6,margin_x:'0',margin_y:'0',padding_x:'0',padding_y:'0',quanxian:{'all':true},'platform':{'all':true}},data:[],logo_icon:'{$Think.const.PRE_URL}/static/admin/img/hotel.png'},
+				{/if}
+			{/if}
+			
+		
+	];
+	{php}
+	if($bid==0){
+		$sysset = db('admin_set')->field('name,logo')->where('aid',aid)->find();
+	}else{
+		$sysset = db('business')->field('name,logo')->where('id',$bid)->find();
+	}
+	{/php}
+	$scope.pages = {$pageinfo};
+	$scope.system = { name: "{$sysset['name']}",logo: "{$sysset['logo']}"};
+	$scope.Items = {$pagedata}; //初始数据
+	angular.forEach($scope.Items,function(item,index){
+		if(item.temp == 'video'){
+			if(!item.params.videoheight){
+				$scope.Items[index].params.videoheight = '30';
+				$scope.Items[index].params.autoplay = '0';
+				$scope.Items[index].params.butposition = 'center';
+				$scope.Items[index].params.controls = '1';
+				$scope.Items[index].params.loop = '0';
+				$scope.Items[index].params.muted = '0';
+				$scope.Items[index].params.objectfit = 'contain';
+				$scope.Items[index].params.fullscreen = '1';
+			}
+		}
+		if(item.temp == 'userinfo'){
+			if(!item.params.orderData){
+				$scope.Items[index].params.showtype = '0';
+				$scope.Items[index].params.ordertitle ='我的订单';
+				$scope.Items[index].params.orderData = [
+					{text:'待付款',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/fukuan.png',show:'1',id:'F0000000000001',type:'daifukuan'},
+					{text:'待发货',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/fahuo.png',show:'1',id:'F0000000000002',type:'daifahuo'},
+					{text:'待收货',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/shouhuo.png',show:'1',id:'F0000000000003',type:'daishouhuo'},
+					{text:'已完成',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/wancheng.png',show:'1',id:'F0000000000004',type:'wancheng'},
+					{text:'退款/售后',imgurl:'{$Think.const.PRE_URL}/static/imgsrc/tksh.png',show:'1',id:'F0000000000005',type:'tuikuan'}];
+					
+			}
+		}
+	})
+	$scope.focus = $scope.pages[0].id;
+	$scope.contenttop = 0;
+	$scope.contentleft = 0;
+	$scope.hasCube = function(Item) {
+		var has = false;
+		var row = 0,col = 0;
+		for(var i = row; i < 4; i++) {
+			for(var j = col; j < 4; j++) {
+				if(!isUndefined(Item.params.layout[i][j]) && !Item.params.layout[i][j].isempty) {
+					has = true;
+					break;
+				}
+			}
+		}
+		return has;
+	}
+	$scope.changeItemsClass = function(index){
+		$('.dsn-panel-menu2').find('.class-div').eq(index).find('.options-class .active-icon').toggleClass('active-icon-ed')
+		$('.dsn-panel-menu2').find('.class-div').eq(index).find('.item-options-div').toggleClass('class-div-active')
+	}
+	$scope.showSelection = function(Edit, row, col){
+		Edit.params.currentPos = {row: row,col: col};
+		Edit.params.selection = {};
+		var maxrow = 4,maxcol = 4,end = false;
+		for(var i = row; i <= 3; i++) {
+			if(isUndefined(Edit.params.layout[i][col]) || !isUndefined(Edit.params.layout[i][col]) && !Edit.params.layout[i][col].isempty) {
+				maxrow = i;
+				end = true;
+			}
+			if (end) {break;}
+		}
+		end = false;
+		for(var j = col; j <= 3; j++) {
+			if(isUndefined(Edit.params.layout[row][j]) || !isUndefined(Edit.params.layout[row][j]) && !Edit.params.layout[row][j].isempty) {
+				maxcol = j;
+				end = true;
+			}
+			if(end) {break;}
+		}
+		var f = maxcol,n=-1,g = 1;
+		for(var i = row; i < maxrow; i++) {
+			var y = 1;
+			Edit.params.selection[g] = {};
+			for(var j = col; j < maxcol; j++) {
+				if(f>j && (!isUndefined(Edit.params.layout[i][j]) && Edit.params.layout[i][j].isempty)) {
+					Edit.params.selection[g][y] = {rows: g,cols: y};
+					y++;
+				}else if(f > j){
+					f = j
+				}
+			}
+			g++;
+		}
+		//console.log(Edit.params.selection)
+
+		$(".layout-table li").removeClass("selected");
+		//$scope.modalobj = $("#" + Edit.id + "-modal-cube-layout").modal({show: true});
+		$scope.modalobj = layer.open({type:1,content:$("#" + Edit.id + "-modal-cube-layout"),area:['400px','400px'],title:'选择布局',shadeClose:true})
+		$('#' + Edit.id + '-modal-cube-layout').find(".layout-table").unbind('mouseover').mouseover(function(a) {
+			if ("LI" == a.target.tagName) {
+				$(".layout-table li").removeClass("selected");
+				var c = $(a.target).attr("data-rows"),d = $(a.target).attr("data-cols");
+				$(".layout-table li").filter(function(a, e) {
+					return $(e).attr("data-rows") <= c && $(e).attr("data-cols") <= d
+				}).addClass("selected")
+			}
+		});
+		return true;
+	}
+	$scope.selectLayout = function(Edit, currentRow, currentCol, rows, cols) {
+		if (isUndefined(rows)) {rows = 0;}
+		if (isUndefined(cols)) {cols = 0;}
+		Edit.params.layout[currentRow][currentCol] = {
+			cols: cols,
+			rows: rows,
+			isempty: false,
+			imgurl: "",
+			classname: "index-" + Edit.params.showIndex
+		};
+		for (var i = parseInt(currentRow); i < parseInt(currentRow) + parseInt(rows); i++) {
+			for (var j = parseInt(currentCol); j < parseInt(currentCol) + parseInt(cols); j++) {
+				if (currentRow != i || currentCol != j) {
+					delete Edit.params.layout[i][j];
+				}
+			}
+		}
+		Edit.params.showIndex++;
+		layer.close($scope.modalobj);
+
+		var maxheight = 0;
+		for(var i in Edit.params.layout){
+			for(var j in Edit.params.layout[i]){
+				var col = Edit.params.layout[i][j];
+				if(!isUndefined(col['rows']) && !col['isempty'] && parseInt(i) + parseInt(col['rows']) > maxheight){
+					maxheight = parseInt(i) + parseInt(col['rows']);
+				}
+			}
+		}
+		console.log(maxheight)
+		Edit.params.maxheight = maxheight;
+
+
+		$scope.changeItem(Edit, currentRow, currentCol);
+
+		return true;
+	}
+	$scope.changeItem = function(Edit, row, col) {
+		$("#cube-editor td").removeClass("current").filter(function(a, e) {
+			return $(e).attr("x") == row && $(e).attr("y") == col
+		}).addClass("current");
+		$("#cube_thumb").attr("src", "");
+		Edit.params.currentLayout = Edit.params.layout[row][col];
+	}
+	$scope.delCube = function(Edit, Cid, cols, rows) {
+		if (Edit && Cid && cols && rows) {
+			var len = Edit.params.layout.length;
+			$.each(Edit.params.layout, function(row, a) {
+				$.each(Edit.params.layout[row], function(col, b) {
+					if (col != '$$hashKey') {
+						if (b.classname == Edit.params.currentLayout.classname) {
+							row = parseInt(row);
+							col = parseInt(col);
+							rows = parseInt(rows);
+							cols = parseInt(cols);
+							for (var i = row; i < row + rows; i++) {
+								for (var j = col; j < col + cols; j++) {
+									Edit.params.layout[i][j] = {
+										cols: 1,
+										rows: 1,
+										isempty: true,
+										imgurl: "",
+										classname: ""
+									};
+								}
+							}
+						}
+					}
+				});
+			});
+		}
+	}
+	// 1.1 添加一条子级(good,picture,banner,dhlist,search)
+	$scope.addItemChild = function(type, Mid) {
+		if (type && Mid) {
+			t = '';
+			if (type == 'good') {
+				t = 'G';
+			} else if (type == 'picture') {
+				t = 'P';
+			} else if (type == 'pictures') {
+				t = 'PS';
+			} else if (type == 'banner') {
+				t = 'B';
+			} else if (type == 'dhlist') {
+				t = 'D';
+			} else if (type == 'menu') {
+				t = 'M';
+			} else if (type == 'spot') {
+				t = 'H';
+			} else if (type == 'tab') {
+				t = 'T';
+			} else if (type == 'search') {
+				t = 'S';
+			} else if (type == 'location') {
+				t = 'L';
+			}
+			var var_id = t + new Date().getTime() + parseInt(Math.random() * 1000000);
+			var push = {
+				banner: {
+					id: var_id,
+					imgurl: '{$Think.const.PRE_URL}/static/imgsrc/banner-2.jpg',
+					hrefurl: ''
+				},
+				picture: {
+					id: var_id,
+					imgurl: '{$Think.const.PRE_URL}/static/imgsrc/banner-2.jpg',
+					hrefurl: ''
+				},
+				location: {
+					id: var_id,
+					imgurl: '{$Think.const.PRE_URL}/static/imgsrc/ico-poster.png',
+					hrefurl: ''
+				},
+				pictures: {
+					id: var_id,
+					imgurl: '{$Think.const.PRE_URL}/static/imgsrc/picture-1.jpg',
+					hrefurl: '',
+					gototype:'0'
+				},
+				good: {},
+				dhlist: {id:var_id,title1:'列表名称',title2:'备注信息',showicon:1,icon:'fa fa-heart',iconcolor:'#333',iconsize:'16',imgurl:''},
+				notice2: {id:var_id,title:'这里是一条自定义公告的标题',hrefurl:''},
+				menu: {id:var_id,imgurl:'{$Think.const.PRE_URL}/static/imgsrc/picture-1.jpg',text:'按钮文字',hrefurl:'',color:'#666666'},
+				spot: {id:var_id,width:'50',height:'50',left:0,top:0,hrefurl:'',hrefname:''},
+				tab: {id:var_id,name:'选项X',tabid:''},
+				search: {id:var_id,title1:'列表名称',title2:'输入搜索信息'},
+			};
+			var Items = $scope.Items;
+			angular.forEach(Items, function(m, index) {
+				if (m.id == Mid) {
+					if(!m.data){
+						m.data = [];
+					}
+					m.data.push(push[type]);
+				}
+			});
+		}
+	}
+
+	// 1.1 删除一条子级
+	$scope.delItemChild = function(Mid, Cid) {
+		var Items = $scope.Items;
+		angular.forEach(Items, function(m, index1) {
+			if (m.id == Mid) {
+				angular.forEach(m.data, function(c, index2) {
+					if (c.id == Cid) {
+						m.data.splice(index2, 1);
+					}
+				});
+			}
+		});
+	}
+	//上移子级
+	$scope.upItemChild = function(Mid, Cid) {
+		var Items = $scope.Items;
+		angular.forEach(Items, function(m, index1) {
+			if (m.id == Mid) {
+				angular.forEach(m.data, function(c, index2) {
+					if (c.id == Cid) {
+						if(index2 == 0){
+							layer.msg('已经到顶了');
+							return;
+						}
+						m.data[index2] = m.data.splice(index2-1, 1, m.data[index2])[0];
+					}
+				});
+			}
+		});
+	}
+
+	$scope.iconImg = function(Mid){
+			fileUploader.show(function(data){
+				 var Items = $scope.Items;
+				 angular.forEach(Items, function(m,index1) {
+						 if(m.id==Mid){
+								 m.params.icon = data['url'];
+								 $("div[mid="+Mid+"]").mouseover();
+						 }
+				 });
+			}, {type :'image',tabs:{selecticon:'active',upload: '',browser:''}});
+	}
+	$scope.selecticon = function(Mid,paramsName){
+		iconpicker.show(function(data) {
+			console.log(data)
+			var Items = $scope.Items;
+			angular.forEach(Items, function(m, index1) {
+				if(m.id == Mid){
+					m.params[paramsName] = data;
+					$("div[mid=" + Mid + "]").mouseover();
+					$scope.$apply();
+				}
+			});
+		})
+	}
+	$scope.selecticon2 = function(Mid,Cid,paramsName){
+		iconpicker.show(function(data) {
+			var Items = $scope.Items;
+			angular.forEach(Items, function(m, index1) {
+				if(m.id == Mid){
+					angular.forEach(m.data, function(c, index2) {
+						if(c.id == Cid) {
+							c[paramsName] = data;
+							$("div[mid=" + Mid + "]").mouseover();
+							$scope.$apply();
+						}
+					});
+				}
+			});
+		})
+	}
+	// 1.1 上传图片
+	$scope.uploadImg = function(Mid,paramsName) {
+		fileUploader.show(function(data) {
+			if(Mid == 'M0000000000000' || Mid == 'M0000000000001' || Mid == 'M0000000000002'){
+				$scope.pages[0].params[paramsName] = data['url'];
+				$scope.$apply();
+				return;
+			}
+			var Items = $scope.Items;
+			angular.forEach(Items, function(m, index1) {
+				if(m.id == Mid){
+					m.params[paramsName] = data['url'];
+					$("div[mid=" + Mid + "]").mouseover();
+				}
+			});
+		}, {type: 'image'});
+	}
+	$scope.uploadImgChild = function(Mid, Cid, Type) {
+		fileUploader.show(function(data) {
+			var Items = $scope.Items;
+			angular.forEach(Items, function(m, index1) {
+				if(m.id == Mid){
+					if(Type == 'cube'){
+						m.params.currentLayout.imgurl = data['url'];
+						$("div[mid=" + Mid + "]").mouseover();
+					}else if(Type == 'userinfo'){
+						angular.forEach(m.params.orderData, function(c, index2) {
+							if(c.id == Cid) {
+								c.imgurl = data['url'];
+								$("div[mid=" + Mid + "]").mouseover();
+							}
+						});
+					}else{
+						angular.forEach(m.data, function(c, index2) {
+							if(c.id == Cid) {
+								c.imgurl = data['url'];
+								$("div[mid=" + Mid + "]").mouseover();
+							}
+						});
+					}
+				}
+			});
+		}, {type: 'image'});
+	}
+
+	$scope.chooseUrlCube = function(Mid, Cid) {
+		var Items = $scope.Items;
+		angular.forEach(Items, function(m) {
+			if(m.id == Mid) {
+				m.params.currentLayout.url = 'http://www.qq.com';
+				$("div[mid=" + Mid + "]").mouseover();
+			}
+		});
+	}
+
+	$scope.designerTab = function(Mid, Cid,tabname) {
+		console.log(Mid);
+		console.log(Cid);
+		var designerTabLayer = layer.open({type:2,shadeClose: false,area: ['94%', '94%'],'title': '设置选项卡内容',content:"{:url('DesignerPage/designer_tab')}&tabid="+Mid+"&tabindexid="+Cid+'&tabname='+tabname,btn:['确定','取消'],yes:function(index, layero){
+			var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象
+			var tabpagedata = iframeWin.geteditordata();
+			layer.close(designerTabLayer);
+			var index = layer.load();
+			$.post("{:url('DesignerPage/designer_tab_save')}",{tabid:Mid,tabindexid:Cid,tabpagedata:tabpagedata},function(data){
+				layer.close(index);
+			})
+		}})
+	}
+	//地图 选择坐标
+	$scope.choosezuobiao = function(Mid,address,jd,wd){
+		var choosezblayer = layer.open({type:2,shadeClose: true,area: ['800px', '560px'],'title': '选择坐标',content: "{:url('DesignerPage/choosezuobiao')}/Mid/"+Mid+'&address='+(address?address:'')+'&jd='+(jd?jd:'')+'&wd='+(wd?wd:''),btn:['确定','取消'],yes:function(index, layero){
+			var longitude = layero.find('iframe').contents().find('#mapjd').val();
+			var latitude = layero.find('iframe').contents().find('#mapwd').val();
+			angular.forEach($scope.Items, function(m, index1) {
+				if(m.id == Mid){
+					m.params.longitude = longitude;
+					m.params.latitude = latitude;
+					var center = new qq.maps.LatLng(latitude,longitude);
+					var map = new qq.maps.Map(document.getElementById("showmp_"+Mid), {
+						center: center,      // 地图的中心地理坐标。
+						zoom:15              // 地图的中心地理坐标。
+					});
+					var marker = new qq.maps.Marker({ position:center, map: map});
+
+					$("div[mid=" + Mid + "]").mouseover();
+				}
+			});
+			layer.close(choosezblayer);
+		}});
+	}
+	// 1.1 选择链接
+	$scope.chooseUrl = function(Mid, Cid) {
+		var oldhrefurl = '';
+		angular.forEach($scope.Items, function(m, index1) {
+			if(m.id == Mid){
+				oldhrefurl = m.params.hrefurl
+			}
+		});
+		oldhrefurl = encodeURIComponent(oldhrefurl);
+		layer.open({type:2,shadeClose: true,area: ['1100px', '650px'],'title': '选择链接',content: "{:url('DesignerPage/chooseurl')}/fromdsn/1/args/"+Mid+','+Cid+'&oldhrefurl='+oldhrefurl})
+	}
+	$scope.chooseLink = function(urlname,url,args) {
+		var argsArr = args.split(',');
+		var Mid = argsArr[0];
+		var Cid = argsArr[1];
+		if (url && Mid && Cid){
+			if(Mid == 'M0000000000000' || Mid == 'M0000000000001' || Mid == 'M0000000000002'){
+				if(Cid == -2){
+					$scope.pages[0].params['hrefurl2'] = url;
+				}else{
+					$scope.pages[0].params['hrefurl'] = url;
+				}
+				$scope.$apply();
+				return;
+			}
+			angular.forEach($scope.Items, function(m, index1) {
+				if(m.id == Mid){
+					if(m.temp == 'cube'){
+						m.params.currentLayout.hrefurl = url;
+						m.params.currentLayout.hrefname = urlname;
+						$("div[mid=" + Mid + "]").mouseover();
+					}else{
+						if(Cid == -1){
+							m.params.hrefurl = url;
+							m.params.hrefname = urlname
+						}else if(Cid == -2){
+							m.params.hrefurl2 = url;
+							m.params.hrefname2 = urlname
+						}else{
+							angular.forEach(m.data, function(c, index2) {
+								if(c.id == Cid) {
+									c.hrefurl = url;
+									console.log(c.hrefurl)
+									c.hrefname = urlname
+								}
+							});
+						}
+					}
+				}
+			});
+			layer.closeAll();
+		}
+	}
+	$scope.toChooseVideoList = function(action, Mid, Gid) {
+		layer.open({type:2,shadeClose:true,area:['920px', '560px'],'title':'选择视频',content:"{:url('VideoList/choosevideolist')}/args/"+action+','+Mid+','+Gid});
+	}
+
+	$scope.temp = {notcie: []};
+	//商城商品
+	$scope.getgoods = function(Mid) {
+		angular.forEach($scope.Items, function(m, index1) {
+			if (m.id == Mid) {
+				var categoryseltype = m.params.categoryseltype?parseInt(m.params.categoryseltype):0;
+				var bid 			= categoryseltype==1?m.params.bidmore:m.params.bid
+				var category        = categoryseltype==1?m.params.categorymore:m.params.category
+				var category2       = categoryseltype==1?m.params.categorymore2:m.params.category2
+				var group = m.params.group
+				var sortby = m.params.sortby
+				var proshownum = m.params.proshownum
+				var icback   = m.params.icback || 0
+				var productfrom =m.params.productfrom || 0
+				$.ajax({
+					type: 'post',
+					dataType: 'json',
+					url: "{:url('DesignerPage/api')}/op/selectproduct",
+					data: {
+						bid: bid,
+						cid: category,
+						cid2: category2,
+						giddata: group,
+						sortby: sortby,
+						proshownum: proshownum,
+						icback:icback,
+						productfrom:productfrom,
+						categoryseltype:categoryseltype
+					},
+					success: function(data) {
+						m.data = [];
+						angular.forEach(data, function(d, i) {
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							// 执行添加
+							m.data.push({
+								id: Gid,
+								pic: data[i].pic,
+								proid: data[i].id,
+								name: data[i].name,
+								market_price: data[i].market_price,
+								sell_price: data[i].sell_price,
+								sales: data[i].sales,
+								merchant_name: data[i].merchant_name? data[i].merchant_name:'',
+								main_business: data[i].main_business?data[i].main_business:'',
+
+								brand: data[i].brand?data[i].brand:'',
+								barcode: data[i].barcode?data[i].barcode:'',
+								ggname: data[i].ggname?data[i].ggname:'',
+								unit: data[i].unit?data[i].unit:'',
+								ggstock: data[i].ggstock?data[i].ggstock:0,
+								valid_time: data[i].valid_time?data[i].valid_time:'',
+								remark: data[i].remark?data[i].remark:'',
+							});
+						});
+						$("div[mid=" + Mid + "]").mouseover();
+					},
+					error: function() {
+						layer.msg('查询商品信息失败！请刷新页面。');
+					}
+				});
+			}
+		});
+	}
+	$scope.addGood = function(action, Mid, Gid) {
+		layer.open({type:2,shadeClose:true,area:['1000px', '560px'],'title':'选择商品',content:"{:url('ShopProduct/chooseproduct')}/showallbusiness/true/args/"+action+','+Mid+','+Gid});
+	}
+	$scope.delGood = function(Mid, Gid) {
+		var Items = $scope.Items;
+		angular.forEach(Items, function(m, index1) {
+			if (m.id == Mid) {
+				angular.forEach(m.data, function(g, index2) {
+					if (g.id == Gid) {
+						m.data.splice(index2, 1);
+					}
+				});
+			}
+		});
+	}
+	$scope.pushGood = function(prodata,args){
+		var argsArr = args.split(',');
+		var action = argsArr[0];
+		var Mid = argsArr[1];
+		var oldGid = argsArr[2];
+		angular.forEach($scope.Items, function(m, index1) {
+			if(m.id == Mid){
+				if(action == 'replace' && oldGid){
+					// 执行替换
+					angular.forEach(m.data, function(r, index3){
+						if(r.id == oldGid){
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							r.id = Gid;
+							r.pic = prodata.pic;
+							r.proid = prodata.id;
+							r.name = prodata.name;
+							r.market_price = prodata.market_price;
+							r.sell_price = prodata.sell_price;
+							r.sales = prodata.sales;
+						}
+					});
+				}else if(!action){
+					var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+					// 执行添加
+					m.data.push({
+						id: Gid,
+						pic: prodata.pic,
+						proid: prodata.id,
+						name: prodata.name,
+						market_price: prodata.market_price,
+						sell_price: prodata.sell_price,
+						sales: prodata.sales
+					});
+				}
+			}
+		});
+	}
+	//餐饮商品
+	$scope.getRestaurantGoods = function(Mid) {
+		angular.forEach($scope.Items, function(m, index1) {
+			if (m.id == Mid) {
+				var categoryseltype = m.params.categoryseltype?parseInt(m.params.categoryseltype):0;
+				var bid      = categoryseltype==1?m.params.bidmore:m.params.bid
+				var category = categoryseltype==1?m.params.categorymore:m.params.category
+				var group = m.params.group
+				var sortby = m.params.sortby
+				var proshownum = m.params.proshownum
+				$.ajax({
+					type: 'post',
+					dataType: 'json',
+					url: "{:url('DesignerPage/api')}/op/selectRestaurantproduct",
+					data: {
+						bid: bid,
+						cid: category,
+						giddata: group,
+						sortby: sortby,
+						proshownum: proshownum,
+						categoryseltype:categoryseltype
+					},
+					success: function(data) {
+						m.data = [];
+						angular.forEach(data, function(d, i) {
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							// 执行添加
+							m.data.push({
+								id: Gid,
+								pic: data[i].pic,
+								proid: data[i].id,
+								name: data[i].name,
+								market_price: data[i].market_price,
+								sell_price: data[i].sell_price,
+								sales: data[i].sales
+							});
+						});
+						$("div[mid=" + Mid + "]").mouseover();
+					},
+					error: function() {
+						layer.msg('查询菜品信息失败！请刷新页面。');
+					}
+				});
+			}
+		});
+	}
+	$scope.addRestaurantGood = function(action, Mid, Gid) {
+		layer.open({type:2,shadeClose:true,area:['920px', '560px'],'title':'选择菜品',content:"{:url('RestaurantProduct/chooseproduct')}/args/"+action+','+Mid+','+Gid});
+	}
+	$scope.delRestaurantGood = function(Mid, Gid) {
+		var Items = $scope.Items;
+		angular.forEach(Items, function(m, index1) {
+			if (m.id == Mid) {
+				angular.forEach(m.data, function(g, index2) {
+					if (g.id == Gid) {
+						m.data.splice(index2, 1);
+					}
+				});
+			}
+		});
+	}
+	//拼团商品
+	$scope.getcollage = function(Mid) {
+		angular.forEach($scope.Items, function(m, index1) {
+			if (m.id == Mid) {
+				var categoryseltype = m.params.categoryseltype?parseInt(m.params.categoryseltype):0;
+				var bid      = categoryseltype==1?m.params.bidmore:m.params.bid
+				var category = categoryseltype==1?m.params.categorymore:m.params.category
+				var sortby = m.params.sortby
+				var proshownum = m.params.proshownum
+				$.ajax({
+					type: 'post',
+					dataType: 'json',
+					url: "{:url('DesignerPage/api')}/op/selectcollage",
+					data: {
+						bid: bid,
+						cid: category,
+						sortby: sortby,
+						proshownum: proshownum,
+						categoryseltype:categoryseltype
+					},
+					success: function(data) {
+						m.data = [];
+						angular.forEach(data, function(d, i) {
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							// 执行添加
+							m.data.push({
+								id: Gid,
+								pic: data[i].pic,
+								proid: data[i].id,
+								name: data[i].name,
+								market_price: data[i].market_price,
+								sell_price: data[i].sell_price,
+								sales: data[i].sales,
+								teamnum: data[i].teamnum
+							});
+						});
+						$("div[mid=" + Mid + "]").mouseover();
+					},
+					error: function() {
+						layer.msg('查询商品信息失败！请刷新页面。');
+					}
+				});
+			}
+		});
+	}
+	$scope.addcollage = function(action, Mid, Gid) {
+		layer.open({type:2,shadeClose:true,area:['1000px', '560px'],'title':'选择商品',content:"{:url('CollageProduct/chooseproduct')}/showallbusiness/true/args/"+action+','+Mid+','+Gid});
+	}
+	$scope.delcollage = function(Mid, Gid) {
+		var Items = $scope.Items;
+		angular.forEach(Items, function(m, index1) {
+			if (m.id == Mid) {
+				angular.forEach(m.data, function(g, index2) {
+					if (g.id == Gid) {
+						m.data.splice(index2, 1);
+					}
+				});
+			}
+		});
+	}
+	$scope.pushcollage = function(prodata,args){
+		var argsArr = args.split(',');
+		var action = argsArr[0];
+		var Mid = argsArr[1];
+		var oldGid = argsArr[2];
+		angular.forEach($scope.Items, function(m, index1) {
+			if(m.id == Mid){
+				if(action == 'replace' && oldGid){
+					// 执行替换
+					angular.forEach(m.data, function(r, index3){
+						if(r.id == oldGid){
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							r.id = Gid;
+							r.pic = prodata.pic;
+							r.proid = prodata.id;
+							r.name = prodata.name;
+							r.market_price = prodata.market_price;
+							r.sell_price = prodata.sell_price;
+							r.sales = prodata.sales;
+						}
+					});
+				}else if(!action){
+					var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+					// 执行添加
+					m.data.push({
+						id: Gid,
+						pic: prodata.pic,
+						proid: prodata.id,
+						name: prodata.name,
+						market_price: prodata.market_price,
+						sell_price: prodata.sell_price,
+						sales: prodata.sales
+					});
+				}
+			}
+		});
+	}
+
+	//周期购
+	$scope.getcycle = function(Mid) {
+			angular.forEach($scope.Items, function(m, index1) {
+				if (m.id == Mid) {
+					var categoryseltype = m.params.categoryseltype?parseInt(m.params.categoryseltype):0;
+					var bid = categoryseltype==1?m.params.bidmore:m.params.bid
+					var category = categoryseltype==1?m.params.categorymore:m.params.category
+					var sortby = m.params.sortby
+					var proshownum = m.params.proshownum
+					$.ajax({
+						type: 'post',
+						dataType: 'json',
+						url: "{:url('DesignerPage/api')}/op/selectcycle",
+						data: {
+							bid: bid,
+							cid: category,
+							sortby: sortby,
+							proshownum: proshownum,
+							categoryseltype:categoryseltype
+						},
+						success: function(data) {
+							m.data = [];
+							angular.forEach(data, function(d, i) {
+								var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+								// 执行添加
+								m.data.push({
+									id: Gid,
+									pic: data[i].pic,
+									proid: data[i].id,
+									name: data[i].name,
+									market_price: data[i].market_price,
+									sell_price: data[i].sell_price,
+									sales: data[i].sales,
+									pspl: data[i].pspl,
+								});
+							});
+							$("div[mid=" + Mid + "]").mouseover();
+						},
+						error: function() {
+							layer.msg('查询商品信息失败！请刷新页面。');
+						}
+					});
+				}
+			});
+		}
+	$scope.addcycle = function(action, Mid, Gid) {
+			layer.open({type:2,shadeClose:true,area:['920px', '560px'],'title':'选择商品',content:"{:url('CycleProduct/chooseproduct')}/args/"+action+','+Mid+','+Gid});
+		}
+	$scope.delcycle = function(Mid, Gid) {
+			var Items = $scope.Items;
+			angular.forEach(Items, function(m, index1) {
+				if (m.id == Mid) {
+					angular.forEach(m.data, function(g, index2) {
+						if (g.id == Gid) {
+							m.data.splice(index2, 1);
+						}
+					});
+				}
+			});
+		}
+	$scope.pushcycle = function(prodata,args){
+			var argsArr = args.split(',');
+			var action = argsArr[0];
+			var Mid = argsArr[1];
+			var oldGid = argsArr[2];
+			angular.forEach($scope.Items, function(m, index1) {
+				if(m.id == Mid){
+					if(action == 'replace' && oldGid){
+						// 执行替换
+						angular.forEach(m.data, function(r, index3){
+							if(r.id == oldGid){
+								var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+								r.id = Gid;
+								r.pic = prodata.pic;
+								r.proid = prodata.id;
+								r.name = prodata.name;
+								r.market_price = prodata.market_price;
+								r.sell_price = prodata.sell_price;
+								r.sales = prodata.sales;
+								r.pspl = prodata.pspl;
+							}
+						});
+					}else if(!action){
+						var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+						// 执行添加
+						m.data.push({
+							id: Gid,
+							pic: prodata.pic,
+							proid: prodata.id,
+							name: prodata.name,
+							market_price: prodata.market_price,
+							sell_price: prodata.sell_price,
+							sales: prodata.sales,
+							pspl: prodata.pspl,
+						});
+					}
+				}
+			});
+		}
+	//幸运拼团商品
+	$scope.getluckycollage = function(Mid) {
+		angular.forEach($scope.Items, function(m, index1) {
+			if (m.id == Mid) {
+				var categoryseltype = m.params.categoryseltype?parseInt(m.params.categoryseltype):0;
+				var bid      = categoryseltype==1?m.params.bidmore:m.params.bid
+				var category = categoryseltype==1?m.params.categorymore:m.params.category
+				var sortby = m.params.sortby
+				var proshownum = m.params.proshownum
+				$.ajax({
+					type: 'post',
+					dataType: 'json',
+					url: "{:url('DesignerPage/api')}/op/selectluckycollage",
+					data: {
+						bid: bid,
+						cid: category,
+						sortby: sortby,
+						proshownum: proshownum,
+						categoryseltype:categoryseltype
+					},
+					success: function(data) {
+						m.data = [];
+						angular.forEach(data, function(d, i) {
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							// 执行添加
+							m.data.push({
+								id: Gid,
+								pic: data[i].pic,
+								proid: data[i].id,
+								name: data[i].name,
+								market_price: data[i].market_price,
+								sell_price: data[i].sell_price,
+								sales: data[i].sales,
+								teamnum: data[i].teamnum,
+								money:data[i].money,
+								gua_num:data[i].gua_num
+							});
+						});
+						$("div[mid=" + Mid + "]").mouseover();
+					},
+					error: function() {
+						layer.msg('查询商品信息失败！请刷新页面。');
+					}
+				});
+			}
+		});
+	}
+	$scope.addluckycollage = function(action, Mid, Gid) {
+		layer.open({type:2,shadeClose:true,area:['920px', '560px'],'title':'选择商品',content:"{:url('LuckyCollageProduct/chooseproduct')}/args/"+action+','+Mid+','+Gid});
+	}
+	$scope.delluckycollage = function(Mid, Gid) {
+		var Items = $scope.Items;
+		angular.forEach(Items, function(m, index1) {
+			if (m.id == Mid) {
+				angular.forEach(m.data, function(g, index2) {
+					if (g.id == Gid) {
+						m.data.splice(index2, 1);
+					}
+				});
+			}
+		});
+	}
+	$scope.pushluckycollage = function(prodata,args){
+		//console.log(prodata);
+		var argsArr = args.split(',');
+		var action = argsArr[0];
+		var Mid = argsArr[1];
+		var oldGid = argsArr[2];
+		angular.forEach($scope.Items, function(m, index1) {
+			if(m.id == Mid){
+				if(action == 'replace' && oldGid){
+					// 执行替换
+					angular.forEach(m.data, function(r, index3){
+						if(r.id == oldGid){
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							r.id = Gid;
+							r.pic = prodata.pic;
+							r.proid = prodata.id;
+							r.name = prodata.name;
+							r.market_price = prodata.market_price;
+							r.sell_price = prodata.sell_price;
+							r.sales = prodata.sales;
+							r.teamnum = prodata.teamnum;
+							r.gua_num=prodata.gua_num;
+							r.money=prodata.money
+						}
+					});
+				}else if(!action){
+					var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+					// 执行添加
+					m.data.push({
+						id: Gid,
+						pic: prodata.pic,
+						proid: prodata.id,
+						name: prodata.name,
+						market_price: prodata.market_price,
+						sell_price: prodata.sell_price,
+						sales: prodata.sales,
+						teamnum:prodata.teamnum,
+						gua_num:prodata.gua_num,
+						money:prodata.money,
+					});
+				}
+			}
+		});
+	}
+
+	//砍价商品
+	$scope.getkanjia = function(Mid) {
+		angular.forEach($scope.Items, function(m, index1) {
+			if (m.id == Mid) {
+				var categoryseltype = m.params.categoryseltype?parseInt(m.params.categoryseltype):0;
+				var bid = categoryseltype==1?m.params.bidmore:m.params.bid
+				var sortby = m.params.sortby
+				var proshownum = m.params.proshownum
+				$.ajax({
+					type: 'post',
+					dataType: 'json',
+					url: "{:url('DesignerPage/api')}/op/selectkanjia",
+					data: {
+						bid: bid,
+						sortby: sortby,
+						proshownum: proshownum,
+						categoryseltype:categoryseltype
+					},
+					success: function(data) {
+						m.data = [];
+						angular.forEach(data, function(d, i) {
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							// 执行添加
+							m.data.push({
+								id: Gid,
+								pic: data[i].pic,
+								proid: data[i].id,
+								name: data[i].name,
+								min_price: data[i].min_price,
+								sell_price: data[i].sell_price,
+								sales: data[i].sales
+							});
+						});
+						$("div[mid=" + Mid + "]").mouseover();
+					},
+					error: function() {
+						layer.msg('查询商品信息失败！请刷新页面。');
+					}
+				});
+			}
+		});
+	}
+	$scope.addkanjia = function(action, Mid, Gid) {
+		layer.open({type:2,shadeClose:true,area:['920px', '560px'],'title':'选择商品',content:"{:url('KanjiaProduct/chooseproduct')}/args/"+action+','+Mid+','+Gid});
+	}
+	$scope.delkanjia = function(Mid, Gid) {
+		var Items = $scope.Items;
+		angular.forEach(Items, function(m, index1) {
+			if (m.id == Mid) {
+				angular.forEach(m.data, function(g, index2) {
+					if (g.id == Gid) {
+						m.data.splice(index2, 1);
+					}
+				});
+			}
+		});
+	}
+	$scope.pushkanjia = function(prodata,args){
+		var argsArr = args.split(',');
+		var action = argsArr[0];
+		var Mid = argsArr[1];
+		var oldGid = argsArr[2];
+		angular.forEach($scope.Items, function(m, index1) {
+			if(m.id == Mid){
+				if(action == 'replace' && oldGid){
+					// 执行替换
+					angular.forEach(m.data, function(r, index3){
+						if(r.id == oldGid){
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							r.id = Gid;
+							r.pic = prodata.pic;
+							r.proid = prodata.id;
+							r.name = prodata.name;
+							r.min_price = prodata.min_price;
+							r.sell_price = prodata.sell_price;
+							r.sales = prodata.sales;
+						}
+					});
+				}else if(!action){
+					var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+					// 执行添加
+					m.data.push({
+						id: Gid,
+						pic: prodata.pic,
+						proid: prodata.id,
+						name: prodata.name,
+						min_price: prodata.min_price,
+						sell_price: prodata.sell_price,
+						sales: prodata.sales
+					});
+				}
+			}
+		});
+	}
+	//秒杀商品
+	$scope.getseckill = function(Mid) {
+		angular.forEach($scope.Items, function(m, index1) {
+			if (m.id == Mid) {
+				var categoryseltype = m.params.categoryseltype?parseInt(m.params.categoryseltype):0;
+				var bid = categoryseltype==1?m.params.bidmore:m.params.bid
+				var sortby = m.params.sortby
+				var proshownum = m.params.proshownum
+				var showrange = m.params.showrange
+
+				$.ajax({
+					type: 'post',
+					dataType: 'json',
+					url: "{:url('DesignerPage/api')}/op/selectseckill",
+					data: {
+						bid: bid,
+						sortby: sortby,
+						proshownum: proshownum,
+						categoryseltype:categoryseltype,
+						showrange:showrange
+					},
+					success: function(data) {
+						m.data = [];
+						angular.forEach(data, function(d, i) {
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							// 执行添加
+							m.data.push({
+								id: Gid,
+								pic: data[i].pic,
+								proid: data[i].id,
+								name: data[i].name,
+								market_price: data[i].market_price,
+								sell_price: data[i].sell_price,
+								sales: data[i].sales,
+								seckill_date:data[i].seckill_date,
+								seckill_status:data[i].seckill_status,
+								seckill_time:data[i].seckill_time
+							});
+						});
+						$("div[mid=" + Mid + "]").mouseover();
+					},
+					error: function() {
+						layer.msg('查询商品信息失败！请刷新页面。');
+					}
+				});
+			}
+		});
+	}
+	$scope.addseckill = function(action, Mid, Gid) {
+		layer.open({type:2,shadeClose:true,area:['920px', '560px'],'title':'选择商品',content:"{:url('SeckillProduct/chooseproduct')}/args/"+action+','+Mid+','+Gid});
+	}
+	$scope.delseckill = function(Mid, Gid) {
+		var Items = $scope.Items;
+		angular.forEach(Items, function(m, index1) {
+			if (m.id == Mid) {
+				angular.forEach(m.data, function(g, index2) {
+					if (g.id == Gid) {
+						m.data.splice(index2, 1);
+					}
+				});
+			}
+		});
+	}
+	$scope.pushseckill = function(prodata,args){
+		var argsArr = args.split(',');
+		var action = argsArr[0];
+		var Mid = argsArr[1];
+		var oldGid = argsArr[2];
+		angular.forEach($scope.Items, function(m, index1) {
+			if(m.id == Mid){
+				if(action == 'replace' && oldGid){
+					// 执行替换
+					angular.forEach(m.data, function(r, index3){
+						if(r.id == oldGid){
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							r.id = Gid;
+							r.pic = prodata.pic;
+							r.proid = prodata.id;
+							r.name = prodata.name;
+							r.market_price = prodata.market_price;
+							r.sell_price = prodata.sell_price;
+							r.sales = prodata.sales;
+						}
+					});
+				}else if(!action){
+					var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+					// 执行添加
+					m.data.push({
+						id: Gid,
+						pic: prodata.pic,
+						proid: prodata.id,
+						name: prodata.name,
+						market_price: prodata.market_price,
+						sell_price: prodata.sell_price,
+						sales: prodata.sales
+					});
+				}
+			}
+		});
+	}
+
+	//积分兑换商品
+	$scope.getscoreshop = function(Mid) {
+		angular.forEach($scope.Items, function(m, index1) {
+			if (m.id == Mid) {
+				var bid = m.params.bid
+				var categoryseltype = m.params.categoryseltype?parseInt(m.params.categoryseltype):0;
+				var category = categoryseltype==1?m.params.categorymore:m.params.category
+				var sortby = m.params.sortby
+				var proshownum = m.params.proshownum
+				$.ajax({
+					type: 'post',
+					dataType: 'json',
+					url: "{:url('DesignerPage/api')}/op/selectscoreshop",
+					data: {
+						bid: bid,
+						cid: category,
+						sortby: sortby,
+						proshownum: proshownum,
+						categoryseltype:categoryseltype,
+					},
+					success: function(data) {
+						m.data = [];
+						angular.forEach(data, function(d, i) {
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							// 执行添加
+							m.data.push({
+								id: Gid,
+								pic: data[i].pic,
+								proid: data[i].id,
+								name: data[i].name,
+								sell_price: data[i].sell_price,
+								money_price: data[i].money_price,
+								score_price: data[i].score_price,
+								sales: data[i].sales
+							});
+						});
+						$("div[mid=" + Mid + "]").mouseover();
+					},
+					error: function() {
+						layer.msg('查询商品信息失败！请刷新页面。');
+					}
+				});
+			}
+		});
+	}
+	$scope.addscoreshop = function(action, Mid, Gid) {
+		layer.open({type:2,shadeClose:true,area:['920px', '560px'],'title':'选择商品',content:"{:url('ScoreshopProduct/chooseproduct')}/args/"+action+','+Mid+','+Gid});
+	}
+	$scope.delscoreshop = function(Mid, Gid) {
+		var Items = $scope.Items;
+		angular.forEach(Items, function(m, index1) {
+			if (m.id == Mid) {
+				angular.forEach(m.data, function(g, index2) {
+					if (g.id == Gid) {
+						m.data.splice(index2, 1);
+					}
+				});
+			}
+		});
+	}
+	$scope.pushscoreshop = function(prodata,args){
+		var argsArr = args.split(',');
+		var action = argsArr[0];
+		var Mid = argsArr[1];
+		var oldGid = argsArr[2];
+		angular.forEach($scope.Items, function(m, index1) {
+			if(m.id == Mid){
+				if(action == 'replace' && oldGid){
+					// 执行替换
+					angular.forEach(m.data, function(r, index3){
+						if(r.id == oldGid){
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							r.id = Gid;
+							r.pic = prodata.pic;
+							r.proid = prodata.id;
+							r.name = prodata.name;
+							r.sell_price = prodata.sell_price;
+							r.score_price = prodata.score_price;
+							r.money_price = prodata.money_price;
+							r.sales = prodata.sales;
+						}
+					});
+				}else if(!action){
+					var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+					// 执行添加
+					m.data.push({
+						id: Gid,
+						pic: prodata.pic,
+						proid: prodata.id,
+						name: prodata.name,
+						sell_price: prodata.sell_price,
+						score_price: prodata.score_price,
+						money_price: prodata.money_price,
+						sales: prodata.sales
+					});
+				}
+			}
+		});
+	}
+
+	//团购商品
+	$scope.gettuangou = function(Mid) {
+		angular.forEach($scope.Items, function(m, index1) {
+			if (m.id == Mid) {
+				var categoryseltype = m.params.categoryseltype?parseInt(m.params.categoryseltype):0;
+				var bid      = categoryseltype==1?m.params.bidmore:m.params.bid
+				var category = categoryseltype==1?m.params.categorymore:m.params.category
+				var group = m.params.group
+				var sortby = m.params.sortby
+				var proshownum = m.params.proshownum
+				$.ajax({
+					type: 'post',
+					dataType: 'json',
+					url: "{:url('DesignerPage/api')}/op/selecttuangou",
+					data: {
+						bid: bid,
+						cid: category,
+						sortby: sortby,
+						proshownum: proshownum,
+						categoryseltype:categoryseltype,
+					},
+					success: function(data) {
+						m.data = [];
+						angular.forEach(data, function(d, i) {
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							// 执行添加
+							m.data.push({
+								id: Gid,
+								pic: data[i].pic,
+								proid: data[i].id,
+								name: data[i].name,
+								market_price: data[i].market_price,
+								sell_price: data[i].sell_price,
+								min_price: data[i].min_price,
+								sales: data[i].sales
+							});
+						});
+						$("div[mid=" + Mid + "]").mouseover();
+					},
+					error: function() {
+						layer.msg('查询商品信息失败！请刷新页面。');
+					}
+				});
+			}
+		});
+	}
+	$scope.addTuangou = function(action, Mid, Gid) {
+		layer.open({type:2,shadeClose:true,area:['920px', '560px'],'title':'选择商品',content:"{:url('TuangouProduct/chooseproduct')}/args/"+action+','+Mid+','+Gid});
+	}
+	$scope.delTuangou = function(Mid, Gid) {
+		var Items = $scope.Items;
+		angular.forEach(Items, function(m, index1) {
+			if (m.id == Mid) {
+				angular.forEach(m.data, function(g, index2) {
+					if (g.id == Gid) {
+						m.data.splice(index2, 1);
+					}
+				});
+			}
+		});
+	}
+	$scope.pushTuangou = function(prodata,args){
+		console.log(prodata)
+		var argsArr = args.split(',');
+		var action = argsArr[0];
+		var Mid = argsArr[1];
+		var oldGid = argsArr[2];
+		angular.forEach($scope.Items, function(m, index1) {
+			if(m.id == Mid){
+				if(action == 'replace' && oldGid){
+					// 执行替换
+					angular.forEach(m.data, function(r, index3){
+						if(r.id == oldGid){
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							r.id = Gid;
+							r.pic = prodata.pic;
+							r.proid = prodata.id;
+							r.name = prodata.name;
+							r.market_price = prodata.market_price;
+							r.sell_price = prodata.sell_price;
+							r.min_price = prodata.min_price;
+							r.sales = prodata.sales;
+						}
+					});
+				}else if(!action){
+					var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+					// 执行添加
+					m.data.push({
+						id: Gid,
+						pic: prodata.pic,
+						proid: prodata.id,
+						name: prodata.name,
+						market_price: prodata.market_price,
+						sell_price: prodata.sell_price,
+						min_price: prodata.min_price,
+						sales: prodata.sales
+					});
+				}
+			}
+		});
+	}
+	//课程商品
+	$scope.getKecheng = function(Mid) {
+		angular.forEach($scope.Items, function(m, index1) {
+			if (m.id == Mid) {
+				var categoryseltype = m.params.categoryseltype?parseInt(m.params.categoryseltype):0;
+				var bid 	 = categoryseltype==1?m.params.bidmore:m.params.bid
+				var category = categoryseltype==1?m.params.categorymore:m.params.category
+				var sortby = m.params.sortby
+				var proshownum = m.params.proshownum
+				var kctype = m.params.kctype
+				var chaptertype = m.params.chaptertype
+				$.ajax({
+					type: 'post',
+					dataType: 'json',
+					url: "{:url('DesignerPage/api')}/op/selectkecheng",
+					data: {
+						bid: bid,
+						cid: category,
+						sortby: sortby,
+						proshownum: proshownum,
+						categoryseltype:categoryseltype,
+						kctype:kctype,
+						chaptertype:chaptertype
+					},
+					success: function(data) {
+						m.data = [];
+						angular.forEach(data, function(d, i) {
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							// 执行添加
+							m.data.push({
+								id: Gid,
+								pic: data[i].pic,
+								proid: data[i].id,
+								name: data[i].name,
+								market_price: data[i].market_price,
+								price: data[i].price,
+								join_num: data[i].join_num,
+								count: data[i].count,
+							});
+						});
+						$("div[mid=" + Mid + "]").mouseover();
+					},
+					error: function() {
+						layer.msg('查询商品信息失败！请刷新页面。');
+					}
+				});
+			}
+		});
+	}
+	$scope.addKecheng = function(action, Mid, Gid) {
+		layer.open({type:2,shadeClose:true,area:['920px', '560px'],'title':'选择课程',content:"{:url('KechengList/chooseproduct')}/args/"+action+','+Mid+','+Gid});
+	}
+	$scope.delKecheng = function(Mid, Gid) {
+		var Items = $scope.Items;
+		angular.forEach(Items, function(m, index1) {
+			if (m.id == Mid) {
+				angular.forEach(m.data, function(g, index2) {
+					if (g.id == Gid) {
+						m.data.splice(index2, 1);
+					}
+				});
+			}
+		});
+	}
+	$scope.pushKecheng = function(prodata,args){
+		var argsArr = args.split(',');
+		var action = argsArr[0];
+		var Mid = argsArr[1];
+		var oldGid = argsArr[2];
+		angular.forEach($scope.Items, function(m, index1) {
+			if(m.id == Mid){
+				if(action == 'replace' && oldGid){
+					// 执行替换
+					angular.forEach(m.data, function(r, index3){
+						if(r.id == oldGid){
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							r.id = Gid;
+							r.pic = prodata.pic;
+							r.proid = prodata.id;
+							r.name = prodata.name;
+							r.market_price = prodata.market_price;
+							r.price = prodata.price;
+							r.join_num = prodata.join_num;
+							r.count = prodata.count;
+						}
+					});
+				}else if(!action){
+					var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+					// 执行添加
+					m.data.push({
+						id: Gid,
+						pic: prodata.pic,
+						proid: prodata.id,
+						name: prodata.name,
+						market_price: prodata.market_price,
+						price: prodata.price,
+						join_num: prodata.join_num,
+						count: prodata.count
+					});
+				}
+			}
+		});
+	}
+
+
+		//zhaopin
+		$scope.getZhaopin = function(Mid) {
+			angular.forEach($scope.Items, function(m, index1) {
+				if (m.id == Mid) {
+					var bid = m.params.bid
+					console.log('--------------ddddd------------------------')
+					console.log(m.data)
+					console.log('---------------dddd-----------------------')
+					var sortby = m.params.sortby
+					var shownum = m.params.shownum
+					$.ajax({
+						type: 'post',
+						dataType: 'json',
+						url: "{:url('DesignerPage/api')}/op/selectzhaopin",
+						data: {
+							bid: bid,
+							sortby: sortby,
+							shownum: shownum
+						},
+						success: function(data) {
+
+							console.log('--------------------------------------')
+							console.log(data)
+							console.log('--------------------------------------')
+							m.data = [];
+							angular.forEach(data, function(d, i) {
+								var Gid = 'Z' + new Date().getTime() + parseInt(Math.random() * 1000000);
+								// 执行添加
+								m.data.push({
+									id: Gid,
+									thumb: data[i].thumb,
+									proid: data[i].id,
+									title: data[i].title,
+									area: data[i].area,
+									salary: data[i].salary,
+									num: data[i].num,
+								});
+							});
+							$("div[mid=" + Mid + "]").mouseover();
+						},
+						error: function() {
+							layer.msg('查询信息失败！请刷新页面。');
+						}
+					});
+				}
+			});
+		}
+		$scope.addZhaopin = function(action, Mid, Gid) {
+			layer.open({type:2,shadeClose:true,area:['920px', '560px'],'title':'选择招聘',content:"{:url('Zhaopin/choosezhaopin')}/args/"+action+','+Mid+','+Gid});
+		}
+		$scope.delZhaopin = function(Mid, Gid) {
+			var Items = $scope.Items;
+			angular.forEach(Items, function(m, index1) {
+				if (m.id == Mid) {
+					angular.forEach(m.data, function(g, index2) {
+						if (g.id == Gid) {
+							m.data.splice(index2, 1);
+						}
+					});
+				}
+			});
+		}
+		$scope.pushZhaopin = function(prodata,args){
+			var argsArr = args.split(',');
+			var action = argsArr[0];
+			var Mid = argsArr[1];
+			var oldGid = argsArr[2];
+			angular.forEach($scope.Items, function(m, index1) {
+				if(m.id == Mid){
+					if(action == 'replace' && oldGid){
+						// 执行替换
+						angular.forEach(m.data, function(r, index3){
+							if(r.id == oldGid){
+								var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+								r.id = Gid;
+								r.thumb = prodata.thumb;
+								r.proid = prodata.id;
+								r.title = prodata.title;
+								r.salary = prodata.salary;
+								r.area = prodata.area
+								r.count = prodata.count;
+							}
+						});
+					}else if(!action){
+						var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+						// 执行添加
+						m.data.push({
+							id: Gid,
+							thumb: prodata.thumb,
+							proid: prodata.id,
+							title: prodata.title,
+							salary: prodata.salary,
+							area: prodata.area,
+							num: prodata.num
+						});
+					}
+				}
+			});
+		}
+		//zhaopin end
+
+		//qiuzhi
+		$scope.getQiuzhi = function(Mid) {
+			angular.forEach($scope.Items, function(m, index1) {
+				if (m.id == Mid) {
+					var bid = m.params.bid
+					console.log(bid)
+					var sortby = m.params.sortby
+					var shownum = m.params.shownum
+					$.ajax({
+						type: 'post',
+						dataType: 'json',
+						url: "{:url('DesignerPage/api')}/op/selectqiuzhi",
+						data: {
+							bid: bid,
+							sortby: sortby,
+							shownum: shownum
+						},
+						success: function(data) {
+							m.data = [];
+							angular.forEach(data, function(d, i) {
+								var Gid = 'Q' + new Date().getTime() + parseInt(Math.random() * 1000000);
+								// 执行添加
+								m.data.push({
+									id: Gid,
+									thumb: data[i].thumb,
+									proid: data[i].id,
+									title: data[i].title,
+									name: data[i].name,
+									cnames: data[i].names,
+									age: data[i].age,
+									sex: data[i].sex,
+									has_job: data[i].has_job,
+									area: data[i].area,
+									salary: data[i].salary,
+									secret_type:data[i].secret_type,
+									mohu:data[i].mohu
+								});
+							});
+							$("div[mid=" + Mid + "]").mouseover();
+						},
+						error: function() {
+							layer.msg('查询信息失败！请刷新页面。');
+						}
+					});
+				}
+			});
+		}
+		$scope.addQiuzhi = function(action, Mid, Gid) {
+			layer.open({type:2,shadeClose:true,area:['920px', '560px'],'title':'选择求职',content:"{:url('ZhaopinQiuzhi/chooseqiuzhi')}/args/"+action+','+Mid+','+Gid});
+		}
+		$scope.delQiuzhi = function(Mid, Gid) {
+			var Items = $scope.Items;
+			angular.forEach(Items, function(m, index1) {
+				if (m.id == Mid) {
+					angular.forEach(m.data, function(g, index2) {
+						if (g.id == Gid) {
+							m.data.splice(index2, 1);
+						}
+					});
+				}
+			});
+		}
+		$scope.pushQiuzhi = function(prodata,args){
+			var argsArr = args.split(',');
+			var action = argsArr[0];
+			var Mid = argsArr[1];
+			var oldGid = argsArr[2];
+			angular.forEach($scope.Items, function(m, index1) {
+				if(m.id == Mid){
+					if(action == 'replace' && oldGid){
+						// 执行替换
+						angular.forEach(m.data, function(r, index3){
+							if(r.id == oldGid){
+								var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+								r.id = Gid;
+								r.thumb = prodata.thumb;
+								r.proid = prodata.id;
+								r.title = prodata.title;
+								r.name = prodata.name;
+								r.cnames = prodata.cnames;
+								r.age = prodata.age;
+								r.sex = prodata.sex;
+								r.has_job = prodata.has_job;
+								r.salary = prodata.salary;
+								r.area = prodata.area;
+								r.secret_type = prodata.secret_type;
+								r.mohu = prodata.mohu;
+							}
+						});
+					}else if(!action){
+						var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+						// 执行添加
+						m.data.push({
+							id: Gid,
+							thumb: prodata.thumb,
+							proid: prodata.id,
+							name: prodata.name,
+							cnames: prodata.cnames,
+							title: prodata.title,
+							age:prodata.age,
+							sex:prodata.sex,
+							has_job:prodata.has_job,
+							salary: prodata.salary,
+							area: prodata.area,
+							secret_type:prodata.secret_type,
+							mohu:prodata.mohu
+						});
+					}
+				}
+			});
+		}
+		//zhaopin end
+
+	//商家
+	$scope.getbusiness = function(Mid) {
+		angular.forEach($scope.Items, function(m, index1) {
+			if (m.id == Mid) {
+				var categoryseltype = m.params.categoryseltype?parseInt(m.params.categoryseltype):0;
+				var category = categoryseltype==1?m.params.categorymore:m.params.category
+				var sortby = m.params.sortby
+				var shownum = m.params.shownum
+				$.ajax({
+					type: 'post',
+					dataType: 'json',
+					url: "{:url('DesignerPage/api')}/op/selectbusiness",
+					data: {
+						cid: category,
+						sortby: sortby,
+						shownum: shownum,
+						categoryseltype:categoryseltype
+					},
+					success: function(data) {
+						m.data = [];
+						angular.forEach(data, function(d, i) {
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							// 执行添加
+							m.data.push({
+								id: Gid,
+								logo: data[i].logo,
+								bid: data[i].id,
+								name: data[i].name,
+								tel: data[i].tel,
+								address: data[i].address,
+								sales: data[i].sales,
+								content: data[i].content,
+								comment_score: data[i].comment_score,
+								commentscore: Math.floor(data[i].comment_score),
+								prolist: data[i].prolist,
+								catname: data[i].catname
+							});
+						});
+						$("div[mid=" + Mid + "]").mouseover();
+					},
+					error: function() {
+						layer.msg('查询商品信息失败！请刷新页面。');
+					}
+				});
+			}
+		});
+	}
+	$scope.addbusiness = function(action, Mid, Gid) {
+		layer.open({type:2,shadeClose:true,area:['920px', '560px'],'title':'选择商品',content:"{:url('Business/choosebusiness')}/args/"+action+','+Mid+','+Gid});
+	}
+	$scope.delbusiness = function(Mid, Gid) {
+		var Items = $scope.Items;
+		angular.forEach(Items, function(m, index1) {
+			if (m.id == Mid) {
+				angular.forEach(m.data, function(g, index2) {
+					if (g.id == Gid) {
+						m.data.splice(index2, 1);
+					}
+				});
+			}
+		});
+	}
+	$scope.delbusinessall = function(Mid) {
+		var Items = $scope.Items;
+		angular.forEach(Items, function(m, index1) {
+			if (m.id == Mid) {
+				m.data = '';
+			}
+		});
+	}
+	$scope.pushbusiness = function(prodata,args){
+		var argsArr = args.split(',');
+		var action = argsArr[0];
+		var Mid = argsArr[1];
+		var oldGid = argsArr[2];
+		angular.forEach($scope.Items, function(m, index1) {
+			if(m.id == Mid){
+				if(action == 'replace' && oldGid){
+					// 执行替换
+					angular.forEach(m.data, function(r, index3){
+						if(r.id == oldGid){
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							r.id = Gid;
+							r.logo = prodata.logo;
+							r.bid = prodata.id;
+							r.name = prodata.name;
+							r.comment_score = prodata.comment_score;
+							r.commentscore = Math.floor(prodata.comment_score);
+							r.tel = prodata.tel;
+							r.address = prodata.address;
+							r.sales = prodata.sales;
+							r.content = prodata.content;
+							r.prolist = prodata.prolist;
+							r.catname = prodata.catname;
+						}
+					});
+				}else if(!action){
+					var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+					// 执行添加
+					m.data.push({
+						id: Gid,
+						logo: prodata.logo,
+						bid: prodata.id,
+						name: prodata.name,
+						comment_score: prodata.comment_score,
+						commentscore: Math.floor(prodata.comment_score),
+						tel: prodata.tel,
+						address: prodata.address,
+						sales: prodata.sales,
+						content: prodata.content,
+						prolist: prodata.prolist,
+						catname:prodata.catname
+					});
+				}
+			}
+		});
+	}
+
+	//短视频
+	$scope.getshortvideo = function(Mid) {
+		angular.forEach($scope.Items, function(m, index1) {
+			if (m.id == Mid) {
+				var categoryseltype = m.params.categoryseltype?parseInt(m.params.categoryseltype):0;
+				var bid 	 = categoryseltype==1?m.params.bidmore:m.params.bid
+				var category = categoryseltype==1?m.params.categorymore:m.params.category
+				var sortby = m.params.sortby
+				var shownum = m.params.shownum
+				$.ajax({
+					type: 'post',
+					dataType: 'json',
+					url: "{:url('DesignerPage/api')}/op/selectshortvideo",
+					data: {
+						bid: bid,
+						cid: category,
+						sortby: sortby,
+						shownum: shownum,
+						categoryseltype:categoryseltype,
+					},
+					success: function(data) {
+						m.data = [];
+						angular.forEach(data, function(d, i) {
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							// 执行添加
+							m.data.push({
+								id: Gid,
+								videoId: data[i].videoId,
+								logo: data[i].logo,
+								name: data[i].name,
+								description: data[i].description,
+								coverimg: data[i].coverimg,
+								view_num: data[i].view_num,
+								zan_num: data[i].zan_num
+							});
+						});
+						$("div[mid=" + Mid + "]").mouseover();
+					},
+					error: function() {
+						layer.msg('查询信息失败！请刷新页面。');
+					}
+				});
+			}
+		});
+	}
+	$scope.addshortvideo = function(action, Mid, Gid) {
+		layer.open({type:2,shadeClose:true,area:['920px', '560px'],'title':'选择短视频',content:"{:url('Shortvideo/choosevideo')}/args/"+action+','+Mid+','+Gid});
+	}
+	$scope.delshortvideo = function(Mid, Gid) {
+		var Items = $scope.Items;
+		angular.forEach(Items, function(m, index1) {
+			if (m.id == Mid) {
+				angular.forEach(m.data, function(g, index2) {
+					if (g.id == Gid) {
+						m.data.splice(index2, 1);
+					}
+				});
+			}
+		});
+	}
+	$scope.pushshortvideo = function(prodata,args){
+		var argsArr = args.split(',');
+		var action = argsArr[0];
+		var Mid = argsArr[1];
+		var oldGid = argsArr[2];
+		angular.forEach($scope.Items, function(m, index1) {
+			if(m.id == Mid){
+				if(action == 'replace' && oldGid){
+					// 执行替换
+					angular.forEach(m.data, function(r, index3){
+						if(r.id == oldGid){
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							r.id = Gid;
+							r.videoId = prodata.id;
+							r.logo = prodata.logo;
+							r.name = prodata.name;
+							r.description = prodata.description;
+							r.coverimg = prodata.coverimg;
+							r.view_num = prodata.view_num;
+							r.zan_num = prodata.zan_num;
+						}
+					});
+				}else if(!action){
+					var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+					// 执行添加
+					m.data.push({
+						id: Gid,
+						videoId: prodata.id,
+						logo: prodata.logo,
+						name: prodata.name,
+						description: prodata.description,
+						coverimg: prodata.coverimg,
+						view_num: prodata.view_num,
+						zan_num: prodata.zan_num
+					});
+				}
+			}
+		});
+	}
+	//直播间
+	$scope.getliveroom = function(Mid) {
+		angular.forEach($scope.Items, function(m, index1) {
+			if (m.id == Mid) {
+				var sortby = m.params.sortby
+				var shownum = m.params.shownum
+				$.ajax({
+					type: 'post',
+					dataType: 'json',
+					url: "{:url('DesignerPage/api')}/op/selectliveroom",
+					data: {
+						sortby: sortby,
+						shownum: shownum
+					},
+					success: function(data) {
+						m.data = [];
+						angular.forEach(data, function(d, i) {
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							// 执行添加
+							m.data.push({
+								id: Gid,
+								roomId: data[i].roomId,
+								bid: data[i].bid,
+								name: data[i].name,
+								coverImg: data[i].coverImg,
+								shareImg: data[i].shareImg,
+								anchorName: data[i].anchorName,
+								startTime: data[i].startTime,
+								endTime: data[i].endTime,
+								showtime: data[i].showtime,
+								status: data[i].status
+							});
+						});
+						$("div[mid=" + Mid + "]").mouseover();
+					},
+					error: function() {
+						layer.msg('查询信息失败！请刷新页面。');
+					}
+				});
+			}
+		});
+	}
+	$scope.addliveroom = function(action, Mid, Gid) {
+		layer.open({type:2,shadeClose:true,area:['920px', '560px'],'title':'选择直播间',content:"{:url('Live/chooseliveroom')}/args/"+action+','+Mid+','+Gid});
+	}
+	$scope.delliveroom = function(Mid, Gid) {
+		var Items = $scope.Items;
+		angular.forEach(Items, function(m, index1) {
+			if (m.id == Mid) {
+				angular.forEach(m.data, function(g, index2) {
+					if (g.id == Gid) {
+						m.data.splice(index2, 1);
+					}
+				});
+			}
+		});
+	}
+	$scope.pushliveroom = function(prodata,args){
+		var argsArr = args.split(',');
+		var action = argsArr[0];
+		var Mid = argsArr[1];
+		var oldGid = argsArr[2];
+		angular.forEach($scope.Items, function(m, index1) {
+			if(m.id == Mid){
+				if(action == 'replace' && oldGid){
+					// 执行替换
+					angular.forEach(m.data, function(r, index3){
+						if(r.id == oldGid){
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							r.id = Gid;
+							r.roomId = prodata.roomId;
+							r.bid = prodata.bid;
+							r.name = prodata.name;
+							r.coverImg = prodata.coverImg;
+							r.shareImg = prodata.shareImg;
+							r.anchorName = prodata.anchorName;
+							r.startTime = prodata.startTime;
+							r.endTime = prodata.endTime;
+							r.showtime = prodata.showtime;
+							r.status = prodata.status;
+						}
+					});
+				}else if(!action){
+					var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+					// 执行添加
+					m.data.push({
+						id: Gid,
+						roomId: prodata.roomId,
+						bid: prodata.bid,
+						name: prodata.name,
+						coverImg: prodata.coverImg,
+						shareImg: prodata.shareImg,
+						startTime: prodata.startTime,
+						endTime: prodata.endTime,
+						showtime: prodata.showtime,
+						status: prodata.status
+					});
+				}
+			}
+		});
+	}
+
+
+	$scope.getarticle = function(Mid) {
+		angular.forEach($scope.Items, function(m, index1) {
+			if (m.id == Mid) {
+				var bid = m.params.bid
+				var categoryseltype = m.params.categoryseltype?parseInt(m.params.categoryseltype):0;
+				var category       = categoryseltype==1?m.params.categorymore:m.params.category
+				var sortby = m.params.sortby
+				var shownum = m.params.shownum
+				$.ajax({
+					type: 'post',
+					dataType: 'json',
+					url: "{:url('DesignerPage/api')}/op/selectarticle",
+					data: {
+						bid: bid,
+						cid: category,
+						categoryseltype:categoryseltype,
+						sortby: sortby,
+						shownum: shownum
+					},
+					success: function(data) {
+						m.data = [];
+						angular.forEach(data, function(d, i) {
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							// 执行添加
+							m.data.push({
+								id: Gid,
+								pic: data[i].pic,
+								pics: data[i].pics,
+								artid: data[i].id,
+								name: data[i].name,
+								subname: data[i].subname,
+								readcount: data[i].readcount,
+								createtime: date('Y-m-d H:i',data[i].createtime)
+							});
+						});
+						$("div[mid=" + Mid + "]").mouseover();
+					},
+					error: function() {
+						layer.msg('查询信息失败！请刷新页面。');
+					}
+				});
+			}
+		});
+	}
+	$scope.addArticle = function(action, Mid, Gid) {
+		layer.open({type:2,shadeClose:true,area:['920px', '560px'],'title':'选择文章',content:"{:url('Article/choosearticle')}/args/"+action+','+Mid+','+Gid});
+	}
+	$scope.delArticle = function(Mid, Gid) {
+		var Items = $scope.Items;
+		angular.forEach(Items, function(m, index1) {
+			if (m.id == Mid) {
+				angular.forEach(m.data, function(g, index2) {
+					if (g.id == Gid) {
+						m.data.splice(index2, 1);
+					}
+				});
+			}
+		});
+	}
+	$scope.pushArticle = function(artdata,args){
+		var argsArr = args.split(',');
+		var action = argsArr[0];
+		var Mid = argsArr[1];
+		var oldGid = argsArr[2];
+		angular.forEach($scope.Items, function(m, index1) {
+			if(m.id == Mid){
+				if(action == 'replace' && oldGid){
+					console.log(oldGid)
+					// 执行替换
+					angular.forEach(m.data, function(r, index3){
+					console.log(r.id)
+						if(r.id == oldGid){
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							r.id = Gid;
+							r.pic = artdata.pic;
+							r.artid = artdata.id;
+							r.name = artdata.name;
+							r.subname = artdata.subname;
+							r.createtime = date('Y-m-d H:i',artdata.createtime);
+							r.readcount = artdata.readcount;
+						}
+					});
+				}else if(!action){
+					var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+					// 执行添加
+					m.data.push({
+						id: Gid,
+						pic: artdata.pic,
+						artid: artdata.id,
+						name: artdata.name,
+						subname: artdata.subname,
+						createtime: date('Y-m-d H:i',artdata.createtime),
+						readcount: artdata.readcount
+					});
+				}
+			}
+		});
+	}
+
+
+
+
+	$scope.getluntan = function(Mid) {
+		angular.forEach($scope.Items, function(m, index1) {
+			if (m.id == Mid) {
+				var bid = m.params.bid
+				var categoryseltype = m.params.categoryseltype?parseInt(m.params.categoryseltype):0;
+				var category       = categoryseltype==1?m.params.categorymore:m.params.category
+				var sortby = m.params.sortby
+				var shownum = m.params.shownum
+				$.ajax({
+					type: 'post',
+					dataType: 'json',
+					url: "{:url('DesignerPage/api')}/op/selectluntan",
+					data: {
+						bid: bid,
+						cid: category,
+						categoryseltype:categoryseltype,
+						sortby: sortby,
+						shownum: shownum
+					},
+					success: function(data) {
+						m.data = [];
+						angular.forEach(data, function(d, i) {
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							// 执行添加
+							m.data.push({
+								id: Gid,
+								pic: data[i].pic,
+								pics: data[i].pics,
+								artid: data[i].id,
+								name: data[i].name,
+								subname: data[i].subname,
+								readcount: data[i].readcount,
+								createtime: date('Y-m-d H:i',data[i].createtime)
+							});
+						});
+						$("div[mid=" + Mid + "]").mouseover();
+					},
+					error: function() {
+						layer.msg('查询信息失败！请刷新页面。');
+					}
+				});
+			}
+		});
+	}
+	$scope.addLuntan = function(action, Mid, Gid) {
+		layer.open({type:2,shadeClose:true,area:['920px', '560px'],'title':'选择帖子',content:"{:url('Luntan/chooseluntan')}/args/"+action+','+Mid+','+Gid});
+	}
+	$scope.delLuntan = function(Mid, Gid) {
+		var Items = $scope.Items;
+		angular.forEach(Items, function(m, index1) {
+			if (m.id == Mid) {
+				angular.forEach(m.data, function(g, index2) {
+					if (g.id == Gid) {
+						m.data.splice(index2, 1);
+					}
+				});
+			}
+		});
+	}
+	$scope.pushLuntan = function(artdata,args){
+	    
+	    console.log('77777777')
+	    
+	    
+		var argsArr = args.split(',');
+		var action = argsArr[0];
+		var Mid = argsArr[1];
+		var oldGid = argsArr[2];
+		angular.forEach($scope.Items, function(m, index1) {
+			if(m.id == Mid){
+				if(action == 'replace' && oldGid){
+					console.log(oldGid)
+					// 执行替换
+					angular.forEach(m.data, function(r, index3){
+					console.log(r.id)
+						if(r.id == oldGid){
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							r.id = Gid;
+							r.pic = artdata.pic;
+							r.artid = artdata.id;
+							r.name = artdata.name;
+							r.subname = artdata.subname;
+							r.createtime = date('Y-m-d H:i',artdata.createtime);
+							r.readcount = artdata.readcount;
+						}
+					});
+				}else if(!action){
+					var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+					// 执行添加
+					m.data.push({
+						id: Gid,
+						pic: artdata.pic,
+						artid: artdata.id,
+						name: artdata.name,
+						subname: artdata.subname,
+						createtime: date('Y-m-d H:i',artdata.createtime),
+						readcount: artdata.readcount
+					});
+				}
+			}
+		});
+	}
+
+
+
+
+
+
+
+
+
+
+
+//预约服务商品
+$scope.getyuyue = function(Mid) {
+	angular.forEach($scope.Items, function(m, index1) {
+		if (m.id == Mid) {
+			var categoryseltype = m.params.categoryseltype?parseInt(m.params.categoryseltype):0;
+			var bid 	 = categoryseltype==1?m.params.bidmore:m.params.bid
+			var category = categoryseltype==1?m.params.categorymore:m.params.category
+			var sortby = m.params.sortby
+			var proshownum = m.params.proshownum
+			$.ajax({
+				type: 'post',
+				dataType: 'json',
+				url: "{:url('DesignerPage/api')}/op/selectyuyue",
+				data: {
+					bid: bid,
+					sortby: sortby,
+					proshownum: proshownum,
+					cid: category,
+					categoryseltype:categoryseltype,
+				},
+				success: function(data) {
+					m.data = [];
+					angular.forEach(data, function(d, i) {
+						var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+						// 执行添加
+						m.data.push({
+							id: Gid,
+							pic: data[i].pic,
+							proid: data[i].id,
+							name: data[i].name,
+							sell_price: data[i].sell_price,
+							danwei:data[i].danwei,
+							sales:data[i].sales,
+							fwtype:data[i].fwtype,
+							is_open:data[i].is_open,
+							sellpoint:data[i].sellpoint,
+							fuwulist:data[i].fuwulist,
+							color1:data[i].color1,
+							opentip:data[i].opentip,
+							noopentip:data[i].noopentip,
+							fwtypetop1:data[i].fwtypetop1,
+                        	fwtypetop2:data[i].fwtypetop2,
+                        	fwtypetop3:data[i].fwtypetop3,
+						});
+					});
+					$("div[mid=" + Mid + "]").mouseover();
+				},
+				error: function() {
+					layer.msg('查询商品信息失败！请刷新页面。');
+				}
+			});
+		}
+	});
+}
+$scope.addyuyue = function(action, Mid, Gid) {
+	layer.open({type:2,shadeClose:true,area:['920px', '560px'],'title':'选择服务',content:"{:url('YuyueList/chooseproduct')}/args/"+action+','+Mid+','+Gid});
+}
+$scope.delyuyue = function(Mid, Gid) {
+	var Items = $scope.Items;
+	angular.forEach(Items, function(m, index1) {
+		if (m.id == Mid) {
+			angular.forEach(m.data, function(g, index2) {
+				if (g.id == Gid) {
+					m.data.splice(index2, 1);
+				}
+			});
+		}
+	});
+}
+$scope.pushyuyue = function(prodata,args){
+	var argsArr = args.split(',');
+	var action = argsArr[0];
+	var Mid = argsArr[1];
+	var oldGid = argsArr[2];
+	angular.forEach($scope.Items, function(m, index1) {
+		if(m.id == Mid){
+			if(action == 'replace' && oldGid){
+				// 执行替换
+				angular.forEach(m.data, function(r, index3){
+					if(r.id == oldGid){
+						var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+						r.id = Gid;
+						r.pic = prodata.pic;
+						r.proid = prodata.id;
+						r.name = prodata.name;
+						r.sell_price = prodata.sell_price;
+						r.sales = prodata.sales;
+					}
+				});
+			}else if(!action){
+				var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+				// 执行添加
+				m.data.push({
+					id: Gid,
+					pic: prodata.pic,
+					proid: prodata.id,
+					name: prodata.name,
+					sell_price: prodata.sell_price,
+				});
+			}
+		}
+	});
+}
+
+	$scope.getcoupon = function(Mid) {
+		angular.forEach($scope.Items, function(m, index1) {
+			if (m.id == Mid) {
+				var bid = m.params.bid
+				var category = m.params.category
+				var sortby = m.params.sortby
+				var shownum = m.params.shownum
+				$.ajax({
+					type: 'post',
+					dataType: 'json',
+					url: "{:url('DesignerPage/api')}/op/selectcoupon",
+					data: {
+						bid: bid,
+						cid: category,
+						sortby: sortby,
+						shownum: shownum
+					},
+					success: function(data) {
+						m.data = [];
+						angular.forEach(data, function(d, i) {
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							// 执行添加
+							m.data.push({
+								id: Gid,
+								couponid: data[i].id,
+								type: data[i].type,
+								limit_count: data[i].limit_count,
+								name: data[i].name,
+								money: data[i].money,
+								minprice: data[i].minprice,
+								starttime: date('Y-m-d H:i',data[i].starttime),
+								endtime: date('Y-m-d H:i',data[i].endtime)
+							});
+						});
+						$("div[mid=" + Mid + "]").mouseover();
+					},
+					error: function() {
+						layer.msg('查询信息失败！请刷新页面。');
+					}
+				});
+			}
+		});
+	}
+	$scope.addcoupon = function(action, Mid, Gid) {
+		console.log(Gid)
+		layer.open({type:2,shadeClose:true,area:['920px', '560px'],'title':'选择{:t('优惠券')}',content:"{:url('Coupon/choosecoupon')}/args/"+action+','+Mid+','+Gid});
+	}
+	$scope.delcoupon = function(Mid, Gid) {
+		var Items = $scope.Items;
+		angular.forEach(Items, function(m, index1) {
+			if (m.id == Mid) {
+				angular.forEach(m.data, function(g, index2) {
+					if (g.couponid == Gid) {
+						m.data.splice(index2, 1);
+					}
+				});
+			}
+		});
+	}
+	$scope.pushcoupon = function(coupondata,args){
+		var argsArr = args.split(',');
+		var action = argsArr[0];
+		var Mid = argsArr[1];
+		var oldGid = argsArr[2];
+		console.log(coupondata)
+		angular.forEach($scope.Items, function(m, index1) {
+			if(m.id == Mid){
+				if(action == 'replace' && oldGid){
+					console.log(oldGid)
+					// 执行替换
+					angular.forEach(m.data, function(r, index3){
+						if(r.id == oldGid){
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							r.id = Gid;
+							r.couponid = coupondata.id;
+							r.type = coupondata.type;
+							r.limit_count = coupondata.limit_count;
+							r.name = coupondata.name;
+							r.money = coupondata.money;
+							r.minprice = coupondata.minprice;
+							r.starttime = date('Y-m-d H:i',coupondata.starttime);
+							r.endtime = date('Y-m-d H:i',coupondata.endtime);
+						}
+					});
+				}else if(!action){
+					var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+					// 执行添加
+					m.data.push({
+						id: Gid,
+						couponid: coupondata.id,
+						type: coupondata.type,
+						limit_count: coupondata.limit_count,
+						name: coupondata.name,
+						money: coupondata.money,
+						minprice: coupondata.minprice,
+						starttime: date('Y-m-d H:i',coupondata.starttime),
+						endtime: date('Y-m-d H:i',coupondata.endtime)
+					});
+				}
+			}
+		});
+	}
+	$scope.addform = function(Mid){
+		layer.open({type:2,shadeClose:true,area:['920px', '560px'],'title':'选择表单',content:"{:url('Form/chooseform')}/args/"+Mid});
+	}
+	$scope.pushform = function(Mid,formdata){
+		angular.forEach($scope.Items, function(m, index1) {
+			if(m.id == Mid){
+				formdata.content = $.parseJSON(formdata.content);
+				m.data = formdata
+				console.log(m.data)
+			}
+		});
+	}
+
+	$scope.pushVideoList = function(prodata,args){
+		var argsArr = args.split(',');
+		var action = argsArr[0];
+		var Mid = argsArr[1];
+		var oldGid = argsArr[2];
+		angular.forEach($scope.Items, function(m, index1) {
+			if(m.id == Mid){
+				var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+				// 执行添加
+				m.params.src = '[视频ID:'+prodata.id+']';
+			}
+		});
+	}
+	{if getcustom('extend_tour')}
+		//导游商品
+		$scope.gettour = function(Mid) {
+			angular.forEach($scope.Items, function(m, index1) {
+				if (m.id == Mid) {
+					var bid = m.params.bid
+					var category = m.params.category
+					var sortby = m.params.sortby
+					var proshownum = m.params.proshownum
+					$.ajax({
+						type: 'post',
+						dataType: 'json',
+						url: "{:url('DesignerPage/api')}/op/selecttour",
+						data: {
+							bid: bid,
+							cid: category,
+							sortby: sortby,
+							proshownum: proshownum
+						},
+						success: function(data) {
+							m.data = [];
+							angular.forEach(data, function(d, i) {
+								var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+								// 执行添加
+								m.data.push({
+									id: Gid,
+									pic: data[i].pic,
+									proid: data[i].id,
+									name: data[i].name,
+									sell_price: data[i].sell_price,
+									tour_price: data[i].tour_price,
+									sales:data[i].sales
+								});
+							});
+							$("div[mid=" + Mid + "]").mouseover();
+						},
+						error: function() {
+							layer.msg('查询商品信息失败！请刷新页面。');
+						}
+					});
+				}
+			});
+		}
+		$scope.addtour = function(action, Mid, Gid) {
+			layer.open({type:2,shadeClose:true,area:['920px', '560px'],'title':'选择商品',content:"{:url('TourActivity/chooseproduct')}/args/"+action+','+Mid+','+Gid});
+		}
+		$scope.deltour = function(Mid, Gid) {
+			var Items = $scope.Items;
+			angular.forEach(Items, function(m, index1) {
+				if (m.id == Mid) {
+					angular.forEach(m.data, function(g, index2) {
+						if (g.id == Gid) {
+							m.data.splice(index2, 1);
+						}
+					});
+				}
+			});
+		}
+		$scope.pushtour = function(prodata,args){
+			var argsArr = args.split(',');
+			var action = argsArr[0];
+			var Mid = argsArr[1];
+			var oldGid = argsArr[2];
+			angular.forEach($scope.Items, function(m, index1) {
+				if(m.id == Mid){
+					if(action == 'replace' && oldGid){
+						// 执行替换
+						angular.forEach(m.data, function(r, index3){
+							if(r.id == oldGid){
+								var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+								r.id = Gid;
+								r.pic = prodata.pic;
+								r.proid = prodata.id;
+								r.name = prodata.name;
+								r.sell_price = prodata.sell_price;
+								r.vip_price = prodata.vip_price;
+							}
+						});
+					}else if(!action){
+						var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+						// 执行添加
+						m.data.push({
+							id: Gid,
+							pic: prodata.pic,
+							proid: prodata.id,
+							name: prodata.name,
+							sell_price: prodata.sell_price,
+							vip_price: prodata.vip_price,
+						});
+					}
+				}
+			});
+		}
+	{/if}
+
+	{if getcustom('hotel')}
+	//酒店列表
+	$scope.getHotel = function(Mid) {
+		angular.forEach($scope.Items, function(m, index1) {
+			if (m.id == Mid) {
+				var categoryseltype = m.params.categoryseltype?parseInt(m.params.categoryseltype):0;
+				var bid 	 = categoryseltype==1?m.params.bidmore:m.params.bid
+				var category = categoryseltype==1?m.params.categorymore:m.params.category
+				var sortby = m.params.sortby
+				var shownum = m.params.shownum
+				$.ajax({
+					type: 'post',
+					dataType: 'json',
+					url: "{:url('DesignerPage/api')}/op/selectHotel",
+					data: {
+						bid: bid,
+						sortby: sortby,
+						shownum: shownum,
+						cid: category,
+						categoryseltype:categoryseltype,
+					},
+					success: function(data) {
+						m.data = [];
+						angular.forEach(data, function(d, i) {
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							// 执行添加
+							m.data.push({
+								id: Gid,
+								pic: data[i].pic,
+								hotelid: data[i].id,
+								name: data[i].name,
+								sell_price: data[i].sell_price,
+								sales:data[i].sales,
+								address:data[i].address,
+								tag:data[i].tag,
+								hotellist:data[i].hotellist,
+							});
+						});
+						$("div[mid=" + Mid + "]").mouseover();
+					},
+					error: function() {
+						layer.msg('查询列表信息失败！请刷新页面。');
+					}
+				});
+			}
+		});
+	}
+	$scope.addHotel = function(action, Mid, Gid) {
+		layer.open({type:2,shadeClose:true,area:['920px', '560px'],'title':'选择服务',content:"{:url('Hotel/choosehotel')}/args/"+action+','+Mid+','+Gid});
+	}
+	$scope.delHotel = function(Mid, Gid) {
+		var Items = $scope.Items;
+		angular.forEach(Items, function(m, index1) {
+			if (m.id == Mid) {
+				angular.forEach(m.data, function(g, index2) {
+					if (g.id == Gid) {
+						m.data.splice(index2, 1);
+					}
+				});
+			}
+		});
+	}
+	$scope.pushHotel = function(prodata,args){
+		var argsArr = args.split(',');
+		var action = argsArr[0];
+		var Mid = argsArr[1];
+		var oldGid = argsArr[2];
+		angular.forEach($scope.Items, function(m, index1) {
+			if(m.id == Mid){
+				if(action == 'replace' && oldGid){
+					// 执行替换
+					angular.forEach(m.data, function(r, index3){
+						if(r.id == oldGid){
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							r.id = Gid;
+							r.pic = prodata.pic;
+							r.hotelid = prodata.id;
+							r.name = prodata.name;
+							r.sell_price = prodata.sell_price;
+							r.sales = prodata.sales;
+							r.address = prodata.address;
+						}
+					});
+				}else if(!action){
+					var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+					// 执行添加
+					m.data.push({
+						id: Gid,
+						pic: prodata.pic,
+						hotelid: prodata.id,
+						name: prodata.name,
+						sell_price: prodata.sell_price,
+						sales:prodata.sales,
+						address:prodata.address,
+						tag:prodata.tag
+					});
+				}
+			}
+		});
+	}
+
+	//房型列表
+	$scope.getHotelRoom = function(Mid) {
+		angular.forEach($scope.Items, function(m, index1) {
+			if (m.id == Mid) {
+				var categoryseltype = m.params.categoryseltype?parseInt(m.params.categoryseltype):0;
+				var bid 	= categoryseltype==1?m.params.bidmore:m.params.bid
+				var hotelid = m.params.hotelid
+				var group = m.params.group
+				var sortby = m.params.sortby
+				var shownum = m.params.shownum
+				$.ajax({
+					type: 'post',
+					dataType: 'json',
+					url: "{:url('DesignerPage/api')}/op/selectHotelRoom",
+					data: {
+						bid: bid,
+						sortby: sortby,
+						shownum: shownum,
+						gid: group,
+						hotelid: hotelid
+					},
+					success: function(data) {
+						console.log(data);
+						m.data = [];
+						angular.forEach(data, function(d, i) {
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							// 执行添加
+							m.data.push({
+								id: Gid,
+								pic: data[i].pic,
+								roomid: data[i].id,
+								name: data[i].name,
+								sell_price: data[i].sell_price,
+								sales:data[i].sales,
+								address:data[i].address,
+								tag:data[i].tag,
+							});
+						});
+						$("div[mid=" + Mid + "]").mouseover();
+					},
+					error: function() {
+						layer.msg('查询列表信息失败！请刷新页面。');
+					}
+				});
+			}
+		});
+	}
+	$scope.addHotelRoom = function(action, Mid, Gid) {
+		layer.open({type:2,shadeClose:true,area:['920px', '560px'],'title':'选择服务',content:"{:url('HotelRoom/choosehotelroom')}/args/"+action+','+Mid+','+Gid});
+	}
+	$scope.delHotelRoom = function(Mid, Gid) {
+		var Items = $scope.Items;
+		angular.forEach(Items, function(m, index1) {
+			if (m.id == Mid) {
+				angular.forEach(m.data, function(g, index2) {
+					if (g.id == Gid) {
+						m.data.splice(index2, 1);
+					}
+				});
+			}
+		});
+	}
+	$scope.pushHotelRoom = function(prodata,args){
+		var argsArr = args.split(',');
+		var action = argsArr[0];
+		var Mid = argsArr[1];
+		var oldGid = argsArr[2];
+		angular.forEach($scope.Items, function(m, index1) {
+			if(m.id == Mid){
+				if(action == 'replace' && oldGid){
+					// 执行替换
+					angular.forEach(m.data, function(r, index3){
+						if(r.id == oldGid){
+							var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+							r.id = Gid;
+							r.pic = prodata.pic;
+							r.roomid = prodata.id;
+							r.name = prodata.name;
+							r.sell_price = prodata.sell_price;
+							r.sales = prodata.sales;
+							r.address = prodata.address;
+						}
+					});
+				}else if(!action){
+					var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+					// 执行添加
+					m.data.push({
+						id: Gid,
+						pic: prodata.pic,
+						roomid: prodata.id,
+						name: prodata.name,
+						sell_price: prodata.sell_price,
+						sales:prodata.sales,
+						address:prodata.address,
+						tag:prodata.tag
+					});
+				}
+			}
+		});
+	}
+
+	{/if}
+
+	{if getcustom('form_data')}
+		//表单数据
+		$scope.addformdata = function(Mid) {
+			layer.open({type:2,shadeClose:true,area:['920px', '560px'],'title':'选择表单',content:"{:url('Form/chooseform')}/isopen/true/args/"+Mid});
+		}
+		$scope.getformdata = function(args,formdata=''){
+			var argsArr = args.split(',');
+			var Mid     = argsArr[0];
+			angular.forEach($scope.Items, function(m, index1) {
+				if(m.id == Mid){
+					if(!formdata){
+						formid = m.params.formid;
+					}else{
+						formid          = formdata.id;
+						m.params.formid = formdata.id;
+						m.params.name   = formdata.name;
+					}
+					var proshownum = m.params.proshownum;
+					console.log(m.params)
+					$.ajax({
+						type: 'post',
+						dataType: 'json',
+						url: "{:url('DesignerPage/api')}/op/selectformdata",
+						data: {
+							formid: formid,
+							proshownum: proshownum
+						},
+						success: function(data) {
+							m.data = [];
+							angular.forEach(data, function(d, i) {
+								var Gid = 'G' + new Date().getTime() + parseInt(Math.random() * 1000000);
+								// 执行添加
+								m.data.push({
+									id: Gid,
+									logo: data[i].logo,
+									foid: data[i].id,
+									name: data[i].name,
+									address: data[i].address,
+									tel: data[i].tel
+								});
+							});
+							$("div[mid=" + Mid + "]").mouseover();
+						},
+						error: function() {
+							layer.msg('查询信息失败！请刷新页面。');
+						}
+					});
+				}
+			});
+		}
+	{/if}
+	$scope.load = function() {
+		console.log(11)
+	}
+	$scope.changeImg = function(Mid, n) {
+		width = parseInt($(".dsn-mod-move").width());
+		height = (width * parseInt(n.replace("%", "")) / 100) - 16;
+		$("div[mid=" + Mid + "] .dsn-8-main-img img").height(height);
+	};
+	$scope.setimg = function(Mid, n) {
+		width = $(".dsn-mod-move").width();
+		n = n.replace("%", "");
+		n = n / 100;
+		$("div[mid=" + Mid + "] .dsn-12 img").height(width * n - 30);
+	}
+	$scope.setfocus = function(Mid, e) {
+		$scope.focus = Mid;
+		$("#returnIndex").hide();
+		if(Mid.length!=14){
+			let ele = $('.dsn-panel-editor-title').children("#returnIndex");
+			if(!ele.length){
+				$(".dsn-panel-editor-title").css("justify-content","space-between");
+				$(".dsn-panel-editor-title").append("<i class='fa fa-close' style='display: flex;align-items: center;cursor: pointer;' id='returnIndex' onclick='toIndex()'></i>");
+			}
+		}
+		//ccc = $("div[id=" + Mid + "]").offset().top;
+		//ddd = (ccc - 280) >= 0 ? (ccc - 280) : 0;
+	}
+	$scope.addItem = function(Nid,sorttype,click) {
+		var Mid = 'M' + new Date().getTime() + parseInt(Math.random() * 1000000);
+		var Navs = $scope.navs;
+		angular.forEach(Navs, function(n, index) {
+			if (n.id == Nid) {
+				newparams = !clone(n.params) ? '' : clone(n.params);
+				newdata = !n.data ? '' : cloneArr(n.data);
+				newother = !clone(n.other) ? '' : clone(n.other);
+				newcontent = !clone(n.content) ? '' : clone(n.content);
+				if (Nid == 'cube') {
+					for (row = 0; row < 4; row++) {
+						for (newparams.layout[row] = {}, col = 0; col < 4; col++) {
+							newparams.layout[row][col] = {cols: 1,rows: 1,isempty: !0,imgurl: "",classname: ""};
+						}
+					}
+				}
+				var newitem = {id: Mid,temp: Nid,params: newparams,data: newdata,other: newother,content: newcontent};
+				var insertindex = -1;
+				if ($scope.focus != '') {
+					var Items = $scope.Items;
+					angular.forEach(Items, function(a, index) {
+						if (a.id == $scope.focus) {
+							insertindex = index;
+						}
+					});
+				}
+				// 是否有焦点
+				if (insertindex == -1 ) {
+					$scope.Items.push(newitem);
+				} else if(sorttype != 0) {
+					$scope.Items.push(newitem);
+				}else{
+					$scope.Items.splice(insertindex + 1, 0, newitem);
+				}
+				$scope.focus = newitem.id;
+				if(Nid == 'product'){
+					$scope.getgoods(newitem.id);
+				}
+				if(Nid == 'collage'){
+					$scope.getcollage(newitem.id);
+				}
+				if(Nid == 'cycle'){
+					$scope.getcycle(newitem.id);
+				}
+				if(Nid == 'luckycollage'){
+					$scope.getluckycollage(newitem.id);
+				}
+				if(Nid == 'kanjia'){
+					$scope.getkanjia(newitem.id);
+				}
+				if(Nid == 'seckill'){
+					$scope.getseckill(newitem.id);
+				}
+				if(Nid == 'scoreshop'){
+					$scope.getscoreshop(newitem.id);
+				}
+				if(Nid == 'restaurant_product'){
+					$scope.getRestaurantGoods(newitem.id);
+				}
+				if(Nid == 'article'){
+					$scope.getarticle(newitem.id);
+				}
+				if(Nid == 'luntan'){
+					$scope.getluntan(newitem.id);
+				}
+				
+				if(Nid == 'coupon'){
+					$scope.getcoupon(newitem.id);
+				}
+				if(Nid == 'business'){
+					$scope.getbusiness(newitem.id);
+				}
+				if(Nid == 'shortvideo'){
+					$scope.getshortvideo(newitem.id);
+				}
+				if(Nid == 'liveroom'){
+					$scope.getliveroom(newitem.id);
+				}
+				if(Nid == 'yuyue'){
+					$scope.getyuyue(newitem.id);
+				}
+				if(Nid == 'tuangou'){
+					$scope.gettuangou(newitem.id);
+				}
+				if(Nid == 'kecheng'){
+					$scope.getKecheng(newitem.id);
+				}
+				if(Nid == 'zhaopin'){
+					$scope.getZhaopin(newitem.id);
+				}
+				if(Nid == 'qiuzhi'){
+					$scope.getQiuzhi(newitem.id);
+				}
+				if(Nid == 'tour'){
+					$scope.gettour(newitem.id);
+				}
+				if(Nid == 'hotel'){
+					$scope.getHotel(newitem.id);
+				}
+				if(Nid == 'hotelroom'){
+					$scope.getHotelRoom(newitem.id);
+				}
+			}
+		});
+		if(sorttype == 1 || sorttype == 2){	
+			let ItemsArr = JSON.parse(JSON.stringify($scope.Items));
+			angular.forEach($scope.Items, function(item,index){
+				if(item.id == ItemID) {
+					if(sorttype == 1){
+						ItemsArr.splice(index,0,$scope.Items[$scope.Items.length-1])
+					}else{
+						ItemsArr.splice(index+1,0,$scope.Items[$scope.Items.length-1])
+					}
+				}
+			})
+			ItemsArr.splice(ItemsArr.length-1,1)
+			$scope.Items = ItemsArr;
+		}
+		if(!click){
+			$scope.$apply()
+		}
+	}
+	$scope.delItem = function(id) {
+		var Items = $scope.Items;
+		angular.forEach(Items, function(a, index) {
+			if (a.id == id) {
+				Items.splice(index, 1);
+				$scope.focus = '';
+				layer.msg('移除成功');
+			}
+		});
+	}
+	$scope.overphone = function(){
+	}
+	$scope.over = function(id){
+		$("div[id=" + id + "]").parent().find(".dsn-del").stop().show();
+	}
+	$scope.out = function(id){
+		$("div[id=" + id + "]").parent().find(".dsn-del").stop().hide();
+	}
+	$scope.shopImg = function(Mid){
+		fileUploader.show(function(data){
+			var Items = $scope.Items;
+			angular.forEach(Items, function(m, index1){
+				if(m.id == Mid){
+					m.params.bgimg = data['url'];
+					$("div[mid=" + Mid + "]").mouseover();
+				}
+			});
+		},{type: 'image'});
+	}
+	$scope.pageImg = function(Mid, type){
+		fileUploader.show(function(data){
+			if(type == 'floatimg'){
+				$scope.pages[0].params.floatimg = data['url'];
+			}else{
+				$scope.pages[0].params.img = data['url'];
+			}
+			$("div[mid=" + Mid + "]").trigger("click");
+		},{type:'image'});
+	}
+
+	$scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
+		console.log('ngRepeatFinished')
+		layui.form.render();
+		$('.dsn-banner .swipe').each(function() {
+			initswipe($(this));
+		})
+		angular.forEach($scope.Items, function(m, index1) {
+			if(m.temp == 'map'){
+				var center = new qq.maps.LatLng(m.params.latitude,m.params.longitude);
+				var map = new qq.maps.Map(document.getElementById("showmp_"+m.id), {
+					center: center,      // 地图的中心地理坐标。
+					zoom:15              // 地图的中心地理坐标。
+				});
+				var marker = new qq.maps.Marker({ position:center, map: map});
+			}
+		})
+		//$("div[mid=" + Mid + "]").mouseover();
+	});
+
+	$scope.getdata = function(n) {
+		var items = cloneArr($scope.Items);
+		angular.forEach(items, function(m, index1) {
+			if (m.temp == 'richtext') {
+				m.content = encodeURIComponent(m.content);
+			}
+		});
+		var datas = angular.toJson(items);
+		var pageinfo = angular.toJson($scope.pages);
+		return {'datainfo': datas,'pageinfo': pageinfo};
+	}
+}]);
+
+myModel.directive('stringHtml', function() {
+	return function(scope, el, attr) {
+		if (attr.stringHtml) {
+			scope.$watch(attr.stringHtml, function(html) {
+				el.html(html || '');
+			});
+		}
+	};
+});
+
+myModel.directive("onFinishRenderFilters", function($timeout) {
+	return {
+		restrict: 'A',
+		link: function(scope, element, attr) {
+			if (scope.$last === true) {
+				$timeout(function() {
+					if(ngisfinish==0){
+						layui.form.render();
+					}
+					ngisfinish = 1;
+					scope.$emit('ngRepeatFinished');
+				});
+			}
+		}
+	};
+});
+$(function(){
+	changeconentxy();
+	$(window).scroll(function(){
+		changeconentxy();
+	});
+	layui.form.render();
+})
+
+function changeconentxy(){
+		var $scope = angular.element(document.querySelector('[ng-controller=FoxController]')).scope();
+		$scope.contenttop = $('#editor-content').offset().top - $(window).scrollTop();
+		$scope.contentleft = $('#editor-content').offset().left - $(window).scrollLeft();
+		$scope.$apply();
+}
+
+function choosepro(prodata,args) {
+	var $scope = angular.element(document.querySelector('[ng-controller=FoxController]')).scope();
+	$scope.pushGood(prodata.product,args);
+	$scope.$apply();
+}
+function choosescoreshop(prodata,args) {
+	var $scope = angular.element(document.querySelector('[ng-controller=FoxController]')).scope();
+	$scope.pushscoreshop(prodata,args);
+	$scope.$apply();
+}
+function choosecollage(prodata,args) {
+	var $scope = angular.element(document.querySelector('[ng-controller=FoxController]')).scope();
+	$scope.pushcollage(prodata,args);
+	$scope.$apply();
+}
+function chooseluckycollage(prodata,args) {
+	var $scope = angular.element(document.querySelector('[ng-controller=FoxController]')).scope();
+	$scope.pushluckycollage(prodata,args);
+	$scope.$apply();
+}
+function choosekanjia(prodata,args) {
+	var $scope = angular.element(document.querySelector('[ng-controller=FoxController]')).scope();
+	$scope.pushkanjia(prodata,args);
+	$scope.$apply();
+}
+function chooseseckill(prodata,args) {
+	var $scope = angular.element(document.querySelector('[ng-controller=FoxController]')).scope();
+	$scope.pushseckill(prodata,args);
+	$scope.$apply();
+}
+function choosetuangou(prodata,args) {
+	var $scope = angular.element(document.querySelector('[ng-controller=FoxController]')).scope();
+	$scope.pushTuangou(prodata,args);
+	$scope.$apply();
+}
+function chooseArticle(artdata,args) {
+	var $scope = angular.element(document.querySelector('[ng-controller=FoxController]')).scope();
+	$scope.pushArticle(artdata,args);
+	$scope.$apply();
+}
+
+function chooseluntan(artdata,args) {
+	var $scope = angular.element(document.querySelector('[ng-controller=FoxController]')).scope();
+	$scope.pushLuntan(artdata,args);
+	$scope.$apply();
+}
+
+
+function choosecoupon(cpdata,args){
+	var $scope = angular.element(document.querySelector('[ng-controller=FoxController]')).scope();
+	$scope.pushcoupon(cpdata,args);
+	$scope.$apply();
+}
+function chooseform(formdata,args){
+	var $scope = angular.element(document.querySelector('[ng-controller=FoxController]')).scope();
+	$scope.pushform(args,formdata);
+	$scope.$apply();
+}
+function choosebusiness(prodata,args) {
+	var $scope = angular.element(document.querySelector('[ng-controller=FoxController]')).scope();
+	$scope.pushbusiness(prodata,args);
+	$scope.$apply();
+}
+function chooseliveroom(prodata,args) {
+	var $scope = angular.element(document.querySelector('[ng-controller=FoxController]')).scope();
+	$scope.pushliveroom(prodata,args);
+	$scope.$apply();
+}
+function chooseLink(urlname,url,args) {
+	//url =  url + (url.indexOf('?') > -1 ? '&' : '?') + 'x={$x}';
+	var $scope = angular.element(document.querySelector('[ng-controller=FoxController]')).scope();
+	$scope.chooseLink(urlname,url,args);
+	$scope.$apply();
+}
+function chooseshortvideo(prodata,args) {
+	var $scope = angular.element(document.querySelector('[ng-controller=FoxController]')).scope();
+	$scope.pushshortvideo(prodata.product,args);
+	$scope.$apply();
+}
+//预约服务
+function chooseyuyue(prodata,args) {
+	var $scope = angular.element(document.querySelector('[ng-controller=FoxController]')).scope();
+	$scope.pushyuyue(prodata.product,args);
+	$scope.$apply();
+}
+
+function choosekecheng(prodata,args) {
+	var $scope = angular.element(document.querySelector('[ng-controller=FoxController]')).scope();
+	$scope.pushKecheng(prodata.product,args);
+	$scope.$apply();
+}
+
+function geteditordata() {
+	//通过controller来获取Angular应用
+	var appElement = document.querySelector('[ng-controller=FoxController]');
+	//获取$scope变量
+	var $scope = angular.element(appElement).scope();
+	return $scope.getdata()
+}
+function choosetour(prodata,args) {
+	var $scope = angular.element(document.querySelector('[ng-controller=FoxController]')).scope();
+	$scope.pushtour(prodata,args);
+	$scope.$apply();
+}
+function chooseVideoList(vdata,args) {
+	var $scope = angular.element(document.querySelector('[ng-controller=FoxController]')).scope();
+	$scope.pushVideoList(vdata,args);
+	$scope.$apply();
+}
+{if getcustom('form_data')}
+function chooseformdata(formdata,args){
+	var $scope = angular.element(document.querySelector('[ng-controller=FoxController]')).scope();
+	$scope.getformdata(args,formdata);
+	$scope.$apply();
+}
+{/if}
+
+//酒店
+{if getcustom('hotel')}
+function chooseHotel(hoteldata,args){
+	var $scope = angular.element(document.querySelector('[ng-controller=FoxController]')).scope();
+	$scope.pushHotel(hoteldata.hotel,args);
+	$scope.$apply();
+}
+{/if}
+</script>
+

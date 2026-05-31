@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>人员评价</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	.commentinfo{ width:100%;margin-top:5px;padding:0 10px 10px 10px;background: #FFF;box-sizing:border-box;}
+	.commentinfo *{box-sizing:border-box;}
+	.commentinfo .item{display:flex;flex-direction:column;width:100%;padding:5px 0;border-bottom:1px dashed #ededed;}
+	.commentinfo .item:last-child{ border-bottom: 0;}
+	.commentinfo .item .t1{width:100%;color:#333;padding:5px 0}
+	.commentinfo .item .t2{width:100%;color:#888;padding-left:20px}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header">人员评价</div>
+          <div class="layui-card-body" pad15>
+						<div class="layui-col-md4" style="padding-bottom:10px">
+							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="datadel(0)">删除</button>
+						</div>
+						<div class="layui-form layui-col-md8 layui-form-search">
+							<div class="layui-inline">
+								<label class="layui-form-label">人员</label>
+								<div class="layui-input-inline">
+									<select name="worker_id">
+										<option value="">全部</option>
+										{foreach $workerlist as $v}
+										<option value="{$v.id}">{$v.realname}</option>
+										{/foreach}
+									</select>
+								</div>
+							</div>
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">评价内容</label>
+								<div class="layui-input-inline">
+									<input type="text" name="content" autocomplete="off" class="layui-input" value="">
+								</div>
+							</div>
+							
+							<div class="layui-inline">
+								<label class="layui-form-label">评价时间</label>
+								<div class="layui-input-inline">
+									<input type="text" name="ctime" id="ctime" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+
+							<div class="layui-inline">
+								<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+									<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+								</button>
+							</div>
+						</div>
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+  var table = layui.table;
+	var datawhere = {};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: '{$Request.url}' //数据接口
+    ,page: true //开启分页
+    ,cols: [[ //表头
+			{type:"checkbox"},
+      {field: 'id', title: 'ID',  width:60},
+      {field: 'name', title: "人员",width:320,templet: function(d){
+				var html = '';
+				if(d.psuser){
+					html += d.psuser.realname + ' '+d.psuser.tel;
+				}
+				return html;
+			}},
+      {field: 'name', title: '商家',width:320,templet: function(d){
+				var html = '';
+				html += d.business.name;
+				return html;
+			}},
+      {field: 'nickname', title: '评价人信息',templet: function(d){  
+			if(d.headimg){
+				return '<img src="'+d.headimg+'" style="width:40px;height:40px"/> ' + d.nickname
+			}
+			return '';
+		},width:150},
+      {field: 'score', title: '评分',width:80,sort: true,templet:'<div>{{d.score}}星</div>'},
+			{field: 'content', title: '评价内容'},
+      {field: 'createtime', title: '评价时间',sort: true,templet:function(d){ return date('Y-m-d H:i',d.createtime)},width:150},
+      //{field: 'status', title: '状态',templet:function(d){ return d.status==1?'<button class="layui-btn layui-btn-sm layui-btn-normal" onclick="setst('+d.id+',0)">已审核</button>':'<button class="layui-btn layui-btn-sm layui-btn-danger" onclick="setst('+d.id+',1)">未审核</button>'},width:80},
+      {field: 'operation', title: '操作',templet: '<div><button class="table-btn" onclick="showdetail({{d.id}})">详情</button><button class="table-btn" onclick="datadel({{d.id}})">删除</button></div>',width:200}
+    ]]
+  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	//审核状态
+	function setst(id,st){
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			var id = [];
+			for(var i=0;i<checkData.length;i++){
+				id.push(checkData[i]['id']);
+			}
+		}
+		layer.confirm('确定要改为'+(st==0?'未审核':'已审核')+'吗?',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('setst')}",{id:id,st:st},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	//删除
+	function datadel(id){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id);
+		}
+		layer.confirm('确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('del')}",{ids:ids},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	function showdetail(id){
+		var index = layer.load();
+		$.post("{:url('getdetail')}",{id:id},function(data){
+			layer.close(index);
+			var html = '';
+			layui.laytpl(detailtpl.innerHTML).render(data, function(html){
+				detailLayer = layer.open({type:1,title:'评价详情',area:'500px',content:html,resize:true,shadeClose:true});
+			});
+		})
+	}
+	function toreply(id){
+		layui.laytpl(replytpl.innerHTML).render({}, function(html){
+				var toreplyLayer = layer.open({type:1,title:'回复评价',content:html,shadeClose:true,btn:['确定','取消'],yes:function(){
+					var index = layer.load();
+					$.post("{:url('reply')}",{id:id,content:$('#replycontent').val()},function(data){
+						layer.close(index);
+						layer.close(toreplyLayer);
+						dialog(data.msg,data.status);
+					})
+				}});
+			});
+	}
+	</script>
+<script id="replytpl" type="text/html">
+	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">
+		<label class="layui-form-label" style="width:40px">回复内容</label>
+		<div class="layui-input-inline" style="width:250px">
+			<textarea type="text" id="replycontent" class="layui-textarea"></textarea>
+		</div>
+	</div>
+</script>
+<script id="detailtpl" type="text/html">
+<div class="commentinfo">
+	<div class="item">
+		<span class="t1">评价人</span>
+		<span class="t2"><img src="{{d.member.headimg}}" style="width:40px"/> {{d.member.nickname}} {{# if(d.member.realname){ }}[{{d.member.realname}} {{d.member.tel}}]{{#} }}</span>
+	</div>
+	<div class="item">
+		<span class="t1">评价时间</span>
+		<span class="t2">{{date('Y-m-d H:i',d.detail.createtime)}}</span>
+	</div>
+	<div class="item">
+		<span class="t1">内容</span>
+		<span class="t2">{{d.detail.content}}</span>
+	</div>
+	{{# if(d.detail.content_pic){ }}
+	<div class="item">
+		<span class="t1">图片</span>
+		<span class="t2">
+		{{#  $.each(d.detail.content_pic,function(index,item){ }}
+			<img src="{{item}}" style="width:50px;max-height:50px;overflow:hidden;margin:4px;cursor:pointer" onclick="previewImg('{{item}}')"/>
+		{{# });}}
+		</span>
+	</div>
+	{{# } }}
+	{{# if(d.detail.reply_content){ }}
+	<div class="item">
+		<span class="t1">回复内容</span>
+		<span class="t2">{{d.detail.reply_content}}</span>
+	</div>
+	{{# } }}
+</div>
+</script>
+<script>
+function previewImg(url){
+	layer.open({type:1,area:'500px',content:'<div style="margin:auto auto;text-align:center"><img src="'+url+'" style="max-width:100%;max-height:100%"/></div>',title:false,shadeClose:true})
+}
+</script>
+	{include file="public/copyright"/}
+</body>
+</html>

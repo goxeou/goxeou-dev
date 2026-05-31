@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>数据迁移</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+          <div class="layui-card-header">数据迁移</div>
+				<div class="layui-card-body" pad15>
+					<blockquote class="layui-elem-quote">
+						用于将一个账号的数据迁移到另一个账号，迁移后被迁移账号的数据将被覆盖，请做好备份
+					</blockquote>
+					<div class="layui-form form-label-w8" lay-filter="">
+						<div class="layui-form-item">
+							<label class="layui-form-label">来源数据库</label>
+							<div class="layui-input-inline" style="width:300px">
+								<select name="fromtype" lay-filter="changetype">
+									<option value="1">当前数据库</option>
+									<option value="2">其他数据库</option>
+								</select>
+							</div>
+						</div>
+						<div id="fromtype2" style="display:none">
+							 <div class="layui-form-item">
+									<label class="layui-form-label">数据库主机</label>
+									<div class="layui-input-inline" style="width:400px">
+									<input type="text" name="localhost" placeholder="数据库主机地址" class="layui-input" value="127.0.0.1:3306">
+									</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">数据库用户</label>
+								<div class="layui-input-inline" style="width:400px">
+									<input type="text" name="db_username" placeholder="数据库用户" class="layui-input" value="root">
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">数据库密码</label>
+								<div class="layui-input-inline" style="width:400px">
+									<input type="password" name="db_password" placeholder="数据库密码" class="layui-input" value="">
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">数据库名称</label>
+								<div class="layui-input-inline" style="width:400px">
+									<input type="text" name="db_name" placeholder="数据库名称" class="layui-input" value="ddshop">
+								</div>
+							</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">来源账号ID</label>
+							<div class="layui-input-inline" style="width:300px">
+								<input type="text" name="fromid" value="" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">迁移到账号</label>
+							<div class="layui-input-inline" style="width:300px">
+								<select name="toid">
+									{foreach $userlist as $user}
+									<option value="{$user.aid}">{$user.un}</option>
+									{/foreach}
+								</select>
+							</div>
+						</div>
+						
+						<div class="layui-form-item" style="margin-top:20px">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn layui-btn-normal" lay-submit lay-filter="setmypass">开始迁移</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+  </div>
+	<script src="/static/admin/layui/layui.all.js?v=20210223-5"></script>
+	<script src="/static/admin/webuploader/webuploader.js?v=20210223-5"></script>
+	<script>
+	layui.form.on('select(changetype)',function(data){
+		if(data.value==1){
+			$('#fromtype2').hide()
+		}else{
+			$('#fromtype2').show()
+		}
+	})
+	layui.form.on('submit(setmypass)', function(obj){
+		layer.confirm('迁移后被迁移账号的数据将被覆盖，确定要迁移吗？',function(){
+			var field = obj.field
+			var index = layer.load();
+			$.ajax({
+				url:"",
+				type:'POST',
+				data:obj.field,
+				success:function(data){
+					layer.close(index)
+					dialog(data.msg,data.status,data.url);
+				},
+				error:function(res){
+					layer.close(index)
+					layer.open({id:'printcontent',type:1,title:'迁移失败',area:['auto','80%'],content:res.responseText})
+					console.log(res.responseText)
+				}
+			})
+		})
+	})
+  </script>
+</body>
+</html>

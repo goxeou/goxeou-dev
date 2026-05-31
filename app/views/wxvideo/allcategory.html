@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>所有类目</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header"><i class="fa fa-list"></i> 所有类目
+						{if input('param.isopen')==1}<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>{/if}</div>
+          <div class="layui-card-body" pad15>
+						<div class="layui-col-md4" style="padding-bottom:10px">
+							{if session('BST_ID')}<a class="layui-btn layui-btn-primary layuiadmin-btn-list" href="javascript:void(0)" onclick="updatecategory()">更新类目</a>{/if}
+						</div>
+						<div class="layui-form layui-col-md8 layui-form-search">
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">关键字</label>
+								<div class="layui-input-inline">
+									<input type="text" name="keyword" autocomplete="off" class="layui-input" value="">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+									<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+								</button>
+							</div>
+						</div>
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	var mycateids = {:jsonEncode($mycateids)};
+  var table = layui.table;
+	var datawhere = {};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: '{$Request.url}' //数据接口
+    ,page: true //开启分页
+		,limit:20
+    ,cols: [[ //表头
+			//{type:"checkbox"},
+      //{field: 'id', title: 'ID',  width:80},
+      {field: 'third_cat_id', title: '类目ID',  width:80},
+      {field: 'third_cat_name', title: '类目名称',templet:function(d){ return d.first_cat_name + ' > ' + d.second_cat_name + ' > ' + d.third_cat_name;}},
+      {field: 'qualification', title: '类目资质'},
+      {field: 'product_qualification', title: '商品资质'},
+      {field: 'operation', title: '操作',templet:function(d){
+				if(d.qualification_type == 0 ){
+					return '无须申请';
+				}
+				if($.inArray(d.third_cat_id,mycateids) > -1) return '已申请';
+				var html = '';
+				var catename = d.first_cat_name + ' > ' + d.second_cat_name + ' > ' + d.third_cat_name;
+				html += '<button class="table-btn" onclick="addcategory('+d.first_cat_id+','+d.second_cat_id+','+d.third_cat_id+',\''+catename+'\',\''+d.first_cat_name+'\',\''+d.second_cat_name+'\',\''+d.third_cat_name+'\')">申请</button>';
+				return html;
+			}}
+			{if input('param.ischoose')==1}
+			,{field: 'xuanze', title: '选择',templet:function(d){
+				return '<button class="table-btn" onclick="chooseCategory('+d.third_cat_id+')">选择</button>';
+			}}
+			{/if}
+    ]]
+  });
+	function chooseCategory(third_cat_id){
+		window.parent.chooseCategory({third_cat_id:third_cat_id});
+		var index = parent.layer.getFrameIndex(window.name);
+		parent.layer.close(index);
+	}
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+
+	//更新类目
+	function updatecategory(){
+		layer.confirm('更新类目需要较长时间,确定要更新吗?',function(){
+			var index = layer.load();
+			$.post("{:url('updatecategory')}",{},function(res){
+				layer.close(index);
+				dialog(res.msg,res.status);
+				tableIns.reload()
+			})
+		})
+	}
+	//添加类目
+	function addcategory(first_cat_id,second_cat_id,third_cat_id,catename,first_cat_name,second_cat_name,third_cat_name){
+		var html = '<div style="margin:20px" class="layui-form">';
+		html+='<div class="layui-form-item">';
+		html+='		<input type="hidden" name="info[first_cat_id]" value="'+first_cat_id+'">';
+		html+='		<input type="hidden" name="info[second_cat_id]" value="'+second_cat_id+'">';
+		html+='		<input type="hidden" name="info[third_cat_id]" value="'+third_cat_id+'">';
+		html+='		<input type="hidden" name="info[first_cat_name]" value="'+first_cat_name+'">';
+		html+='		<input type="hidden" name="info[second_cat_name]" value="'+second_cat_name+'">';
+		html+='		<input type="hidden" name="info[third_cat_name]" value="'+third_cat_name+'">';
+		html+='		<label class="layui-form-label">所选类目：</label>';
+		html+='		<div class="layui-form-mid">'+catename+'</div>';
+		html+='	</div>';
+		
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">营业执照：</label>';
+		html+='		<input type="hidden" name="info[license]" id="license" lay-verType="tips" class="layui-input" value="">';
+		html+='		<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="license" upload-preview="licensePreview" onclick="uploader(this)">上传图片</button>';
+		html+='		<div id="licensePreview" style="float:left;padding-top:10px;padding-left:110px;clear: both;">';
+		html+='			<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src=""/></div></div>';
+		html+='		</div> ';
+		html+='	</div>';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">资质文件：</label>';
+		html+='		<input type="hidden" name="info[certificate]" value="" id="certificate">';
+		html+='		<button style="float:left" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this,true)" upload-input="certificate" upload-preview="picList" >上传资质图片</button>';
+		html+='		<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>';
+		html+='		<div id="picList" style="float:left;padding-top:10px;padding-left:110px;clear: both;"></div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item" style="margin-top:50px">';
+		html+='		<label class="layui-form-label" style="width:100px"></label>';
+		html+='		<div class="layui-input-inline">';
+		html+='			<button class="layui-btn layui-btn-normal" lay-submit lay-filter="submit_addcategory">确 定</button>';
+		html+='		</div>';
+		html+='	</div>';
+		html+='	</div>';
+		var addcategorylayer = layer.open({type:1,area:['600px','500px'],content:html,title:false,shadeClose:true});
+		layui.form.on('submit(submit_addcategory)', function(obj){
+			var field = obj.field
+			var index = layer.load();
+			$.post("{:url('addcategory')}",field,function(data){
+				layer.close(index);
+				layer.close(addcategorylayer);
+				dialog(data.msg,data.status,data.url);
+			});
+		});
+	}
+	</script>
+</body>
+</html>

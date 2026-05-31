@@ -1,0 +1,44 @@
+{if getcustom('zhaopin')}
+<div class="dsn-mod dp-article" ng-class="{'dsn-mod-select':Item.id == focus}" ng-style="{'background-color':Item.params.bgcolor,'margin':Item.params.margin_y+'px '+Item.params.margin_x+'px 0','padding':Item.params.padding_y+'px '+Item.params.padding_x+'px'}">
+    <div style="line-height: 170px; text-align: center; color: #999; font-size: 16px;" ng-show="Item.data == ''">一条求职都没有...</div>
+    <!--单排-->
+    <div ng-show="Item.params.style=='1'" ng-repeat="item in Item.data" class="article-itemlist">
+        <div class="article-pic">
+            <img class="image" ng-src="{{item.thumb}}" style="{{(item.secret_type==2 || item.secret_type==3)?('filter: blur('+item.mohu+'px);-webkit-filter: blur('+item.mohu+'px);-moz-filter: blur('+item.mohu+'px)'):''}}"/>
+        </div>
+        <div class="article-info">
+            <div class="p1">{{item.title}}</div>
+            <div class="p2">
+                <span style="overflow:hidden" class="flex1">{{item.name}}
+                    <span ng-if="item.sex=='1'">/男</span>
+                    <span ng-if="item.sex=='2'">/女</span>
+                    /{{item.age}}岁</span>
+                <span style="overflow:hidden">{{item.salary}}</span>
+            </div>
+            <div class="p3" style="color: #666666">
+                {{item.cnames}}
+            </div>
+<!--            <div class="p3" style="color: #666666">-->
+<!--                {{item.area}}-->
+<!--            </div>-->
+        </div>
+    </div>
+    <!--双排-->
+    <div ng-show="Item.params.style=='2'" ng-repeat="item in Item.data" class="article-item2" ng-init="index = $index" style="margin-right:{{index%2==0?'2%':'0'}}">
+        <div class="article-pic">
+            <img class="image" ng-src="{{item.thumb}}"/>
+        </div>
+        <div class="article-info">
+            <div class="p1">{{item.name}}</div>
+            <div class="p2">
+<!--                <span style="overflow:hidden" class="flex1" >-->
+<!--                    <span ng-if="item.sex=='1'">/男</span>-->
+<!--                    <span ng-if="item.sex=='2'">/女</span>-->
+<!--                    /{{item.age}}岁</span>-->
+<!--                </span>-->
+                <span style="overflow:hidden" >{{item.cnames}}</span>
+            </div>
+        </div>
+    </div>
+</div>
+{/if}

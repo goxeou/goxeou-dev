@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>提现记录</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header"><i class="fa fa-list"></i> 提现记录</div>
+          <div class="layui-card-body" pad15>
+                        <div class="layui-col-md6" style="padding-bottom:10px">
+                            <!-- <button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="setst(0,1)">审核</button>
+                            <button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="setst(0,2)">驳回</button> -->
+                            <button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="datadel(0)">删除</button>
+                            <button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="location.href='{:url('withdrawlogexcel')}'+urlEncode(datawhere)">导出EXCEL</button>
+                        </div>
+                        <div class="layui-form layui-col-md6 layui-form-search">
+                            <div class="layui-inline layuiadmin-input-useradmin">
+                                <label class="layui-form-label">{:t('会员')}ID</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="mid" autocomplete="off" class="layui-input" value="{$Request.param.mid}">
+                                </div>
+                            </div>
+                            <div class="layui-inline layuiadmin-input-useradmin">
+                                <label class="layui-form-label">昵称</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="nickname" autocomplete="off" class="layui-input" value="{$Request.param.nickname}">
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <label class="layui-form-label">状态</label>
+                                <div class="layui-input-inline">
+                                    <select name="status">
+                                        <option value="">全部</option>
+                                        <option value="0">审核中</option>
+                                        <option value="1">已审核</option>
+                                        <option value="2">已驳回</option>
+                                        <option value="3">已打款</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+                                    <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="layui-col-md12">
+                            <table id="tabledata" lay-filter="tabledata"></table>
+                        </div>
+          </div>
+        </div>
+    </div>
+  </div>
+    {include file="public/js"/}
+    <script>
+    layui.laydate.render({
+        elem: '#ctime',
+        trigger: 'click',
+        range: '~' //或 range: '~' 来自定义分割字符
+    });
+    var table = layui.table;
+    var datawhere = {};
+    //数据表
+    var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: '{$Request.url}' //数据接口
+    ,page: true //开启分页
+    ,cols: [[ //表头
+            {type:"checkbox"},
+      //{field: 'id', title: 'ID',sort:true,width:80},
+      {field: 'mid', title: '{:t('会员')}ID',width:80},
+      {field: 'nickname', title: '{:t('会员')}信息',templet:'<div>{{# if(d.nickname){ }}<img src="{{d.headimg}}" style="width:50px"> {{d.nickname}}{{# } }}</div>'},
+      {field: 'txmoney', title: '提现金额',width:120},
+      {field: 'money', title: '打款金额',sort:true,width:120},
+      {field: 'paytype', title: '提现方式',width:120},
+      {field: 'aliaccount', title: '收款账号',templet:'<div>{{# if(d.paytype=="支付宝"){ }}{{d.aliaccountname}}<br>{{d.aliaccount}}{{# }else if(d.paytype=="银行卡"){ }}{{d.bankname}}<br>{{d.bankcarduser}} {{d.bankcardnum}}{{# }else{ }}{{# } }}</div>'},
+      {field: 'createtime', title: '提现时间',sort:true,templet:function(d){ return date('Y-m-d H:i',d.createtime)}},
+      {field: 'status', title: '状态',width:150,templet:function(d){
+                if(d.status==0) return '<span style="color:#555">审核中</span>';
+                if(d.status==1) return '<span style="color:#58a">已审核</span>';
+                if(d.status==2) return '<span style="color:#aaa">已驳回</span>';
+                if(d.status==3) return '<span style="color:green">已打款</span>';
+            }},
+      {field: 'operation', title: '操作',templet:function(d){
+                var ht = '';
+                if(d.status==0) ht+= '<button class="table-btn" onclick="setst('+d.id+',1)">审核</button><button class="table-btn" onclick="setst('+d.id+',2)">驳回</button>';
+                if(d.status==1){
+                    ht+= '<button class="table-btn" onclick="setst('+d.id+',3)">改为已打款</button>';
+                    if(d.paytype=='微信钱包')
+                    ht+= '<button class="table-btn" onclick="setst('+d.id+',10)">微信打款</button>';
+                }
+                if(d.status==2) {};
+                if(d.status==3) {};
+                ht+= '<button class="table-btn" onclick="datadel('+d.id+')">删除</button>';
+                return ht;
+            },width:200}
+    ]]
+    });
+    //排序
+    table.on('sort(tabledata)', function(obj){
+        datawhere.field = obj.field;
+        datawhere.order = obj.type;
+        tableIns.reload({
+            initSort: obj,
+            where: datawhere
+        });
+    });
+    //检索
+    layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+        var field = obj.field
+        var olddatawhere = datawhere
+        datawhere = field
+        datawhere.field = olddatawhere.field
+        datawhere.order = olddatawhere.order
+        tableIns.reload({
+            where: datawhere,
+            page: {curr: 1}
+        });
+    })
+    //删除
+    function datadel(id){
+        var ids = [];
+        if(id==0){
+            var checkStatus = table.checkStatus('tabledata')
+            var checkData = checkStatus.data; //得到选中的数据
+            if(checkData.length === 0){
+                 return layer.msg('请选择数据');
+            }
+            var ids = [];
+            for(var i=0;i<checkData.length;i++){
+                ids.push(checkData[i]['id']);
+            }
+        }else{
+            ids.push(id)
+        }
+        layer.confirm('确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+            //do something
+            layer.close(index);
+            var index = layer.load();
+            $.post("{:url('withdrawlogdel')}",{ids:ids},function(data){
+                layer.close(index);
+                dialog(data.msg,data.status);
+                tableIns.reload()
+            })
+        });
+    }
+    //改状态
+    function setst(id,st){
+        if(st==2){ //驳回
+            var html = '';
+            html+=' <div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+            html+='     <label class="layui-form-label" style="width:80px">驳回原因</label>';
+            html+='     <div class="layui-input-inline" style="width:350px">';
+            html+='         <input type="text" id="tuireason" class="layui-input"/>';
+            html+='     </div>';
+            html+=' </div>';
+            var refundLayer = layer.open({type:1,area:['500px','250px'],title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+                yes:function(){
+                    var index = layer.load();
+                    $.post("{:url('withdrawlogsetst')}",{id:id,st:st,reason:$('#tuireason').val()},function(res){
+                        layer.close(index);
+                        dialog(res.msg,res.status);
+                        layer.close(refundLayer);
+                        tableIns.reload()
+                    })
+                }
+            })
+        }else{
+            var msg = '';
+            if(st==1){
+                msg = '确定要审核通过吗?';
+            }
+            if(st==2){
+                msg = '确定要驳回吗?';
+            }
+            if(st==3){
+                msg = '确定您已经通过其他方式打款给用户了吗？此操作仅修改状态，并不会进行打款。';
+            }
+            if(st==10){
+                msg = '确定要微信打款吗?';
+            }
+            layer.confirm(msg,{icon: 7, title:'操作确认'}, function(index){
+                //do something
+                layer.close(index);
+                var index = layer.load();
+                $.post("{:url('withdrawlogsetst')}",{id:id,st:st,reason:''},function(data){
+                    layer.close(index);
+                    dialog(data.msg,data.status);
+                    tableIns.reload()
+                })
+            });
+        }
+    }
+    </script>
+    {include file="public/copyright"/}
+</body>
+</html>

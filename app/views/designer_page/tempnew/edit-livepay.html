@@ -1,0 +1,184 @@
+<style>
+	.slider .layui-slider .layui-slider-bar{background: rgb(55, 114, 232) !important;}
+	.slider .layui-slider .layui-slider-wrap .layui-slider-wrap-btn{border: 2px solid #3772E8 !important;}
+	.dsn-panel-editor-relative {width:100%;height: auto;position: relative;border-bottom: 1px solid #e5e5e5;margin-bottom:5px;}
+	.dsn-panel-editor-line {overflow: hidden;background: #fff;border:none;border-radius: 3px;margin-top: 0px;padding: 0px;}
+	.dsn-panel-editor-goodimg {overflow: hidden;width:88px;height:88px;border: none;float: left;position: relative;background: #fff;cursor: pointer;}
+	.title-div{font-size: 14px;font-weight: bold;color: #2D2D2D;width: 100%;padding: 9px 0;box-sizing: border-box;}
+	.title-div .icon-div {cursor: pointer;}
+	.title-div .icon-div img{width: 10px;height: 10px;}
+	.dsn-panel-editor-goodimg-t2{height: 22px;width: 88px;background: rgba(0,0,0,0.5);position: absolute;left: 0px;bottom: 0px;font-size: 12px;text-align: center;line-height: 22px;color: #fff;}
+	.dsn-panel .slider-span input{border-radius: 5px;height: 30px;line-height: 30px;}
+	.dsn-panel .slider{width: 150px;}
+	.layui-btn-primary:hover {border-color: #3772E8;color: #333}
+	.dsn-panel-editor-line-right{margin-left: 10px;}
+	.layui-form-item .layui-input-inline .layui-input{background: #F7F7F7;border:none;font-size:12px;color: #3D3D3D;}
+	.icon-input img{width: 12px;height: 12px;margin-right:10px;cursor: pointer;padding-left: 10px;}
+</style>
+
+<div class="dsn-panel-editor-title">按钮导航设置</div>
+<div class="dsn-panel-editor-content">
+	<!-- <div class="layui-form-item">
+    <div class="layui-form-label">图标样式</div>
+    <div class="layui-input-inline">
+        <input class="radio" type="radio" name="{{Edit.id}}_style" value="0" ng-model="Edit.params.style"> 正方形
+        <input class="radio" type="radio" name="{{Edit.id}}_style" value="100%" ng-model="Edit.params.style"> 圆形
+    </div>
+	</div> -->
+	<div class="layui-form-item" style="margin-top: 15px;">
+    <div class="layui-form-label">与上方距离</div>
+    <div class="slider" min="0" max="40" ng-model="Edit.params.margin_y"></div>
+		<span class="slider-span"><input ng-model="Edit.params.margin_y"/> px</span>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">图标</div>
+    <div class="layui-input-inline">
+      <input class="radio" type="radio" name="{{Edit.id}}_showicon" value="1" ng-model="Edit.params.showicon" title="显示">
+      <input class="radio" type="radio" name="{{Edit.id}}_showicon" value="0" ng-model="Edit.params.showicon" title="不显示">
+    </div>
+	</div>
+	<div class="layui-form-item" ng-show="Edit.params.showicon==1">
+		<div class="layui-form-label">图标大小</div>
+		<div class="slider" min="10" max="60" ng-model="Edit.params.iconsize"></div>
+		<span class="slider-span"><input ng-model="Edit.params.iconsize"/> px</span>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">选项圆角度数</div>
+		<div class="slider" max="40" ng-model="Edit.params.radius"></div>
+		<span class="slider-span"><input ng-model="Edit.params.radius"/> px</span>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">标题内容</div>
+    <div class="layui-input-inline">
+			<input class="layui-input" ng-model="Edit.params.title"/>
+    </div>
+	</div>
+	<div class="layui-form-item">
+    <div class="layui-form-label">标题大小</div>
+    <div class="slider" min="10" max="40" ng-model="Edit.params.titlesize"></div>
+		<span class="slider-span"><input ng-model="Edit.params.titlesize"/> px</span>
+	</div>
+	<div class="layui-form-item">
+    <div class="layui-form-label" ng-model="Edit.params.bgcolor">标题颜色</div>
+    <div class="layui-input-inline" style="width:180px">
+			<input class="layui-input" value="{{Edit.params.titlecolor}}" ng-model="Edit.params.titlecolor"/>
+    </div>
+		<span class="colorpicker" coloralpha="1" ng-model="Edit.params.titlecolor"></span>
+	</div>
+	<div class="layui-form-item">
+    <div class="layui-form-label" ng-model="Edit.params.bgcolor">背景颜色</div>
+    <div class="layui-input-inline" style="width:180px">
+			<input class="layui-input" value="{{Edit.params.bgcolor}}" ng-model="Edit.params.bgcolor"/>
+    </div>
+		<span class="colorpicker" coloralpha="1" ng-model="Edit.params.bgcolor"></span>
+	</div>
+	<div class="layui-form-item">
+    <div class="layui-form-label">字体大小</div>
+    <div class="slider" min="10" max="40" ng-model="Edit.params.fontsize"></div>
+		<span class="slider-span"><input ng-model="Edit.params.fontsize"/> px</span>
+	</div>
+	<div class="layui-form-item">
+    <div class="layui-form-label">字体行高</div>
+    <div class="slider" min="20" max="60" ng-model="Edit.params.fontheight"></div>
+		<span class="slider-span"><input ng-model="Edit.params.fontheight"/> px</span>
+	</div>
+	<div class="layui-form-item">
+    <div class="layui-form-label">圆角度</div>
+    <div class="slider" min="0" max="40" ng-model="Edit.params.boxradius"></div>
+		<span class="slider-span"><input ng-model="Edit.params.boxradius"/> px</span>
+	</div>
+	<div class="title-div flex-box">
+		<div>按钮设置</div>
+		<!-- <div class="icon-div"><img src="{$Think.const.PRE_URL}/static/admin/img/diyadd.png" /></div> -->
+	</div>
+	<div ng-repeat="menu in Edit.data" class="dsn-panel-editor-relative">
+    <div class="dsn-panel-editor-del" style="font-size:12px" title="上移" ng-click="upItemChild(Edit.id,menu.id)"><i class="fa fa-arrow-up"></i></div>
+    <!-- <div class="dsn-panel-editor-del" title="移除" style="top:6px" ng-click="delItemChild(Edit.id,menu.id)">×</div> -->
+    <div class="dsn-panel-editor-line flex">
+			<div class="dsn-panel-editor-goodimg flex0" ng-click="uploadImgChild(Edit.id, menu.id)"
+			ng-style="{'background':'url(' + menu.imgurl + ')','backgroundRepeat':'no-repeat','backgroundPosition':'center','backgroundSize': 'contain'}">
+				<!-- <img ng-src="{{menu.imgurl}}" width="100%" ng-show="menu.imgurl" /> -->
+				<div class="dsn-panel-editor-goodimg-t1" ng-show="!menu.imgurl" style="line-height:120px;"><i class="fa fa-plus-circle"></i> 选择图片</div>
+				<div class="dsn-panel-editor-goodimg-t2" ng-show="menu.imgurl">重新选择图片</div>
+			</div>
+			<div class="dsn-panel-editor-line-right ">
+				<div class="layui-form-item">
+					<div class="layui-form-label">按钮文字</div>
+					<div class="layui-input-inline">
+						<input class="layui-input" value="" ng-model="menu.text" placeholder="请填写按钮文字" />
+          </div>
+				</div>
+				<div class="layui-form-item">
+					<div class="layui-form-label">文字颜色</div>
+					<div class="layui-input-inline">
+						<input class="layui-input" value="{{menu.color}}" ng-model="menu.color" style="width:180px;display: inline;" />
+						<span class="colorpicker" coloralpha="1" ng-model="menu.color" style="float: right;margin: 0px 0px;"></span>
+					</div>
+				</div>
+				<div class="layui-form-item">
+					<div class="layui-form-label">跳转链接</div>
+					<div class="layui-input-inline flex-y-center" style="background: #F7F7F7">
+						<input class="layui-input" value="" ng-model="menu.hrefurl" placeholder="跳转链接"/>
+						<div class="icon-input" ng-click="chooseUrl(Edit.id,menu.id)">
+							<img src="{$Think.const.PRE_URL}/static/admin/img/diyadd.png"/>
+						</div>
+					</div>
+					<div class="layui-form-mid layui-word-aux" style="float: left">{{menu.hrefname}}</div>
+				</div>
+			</div>
+    </div>
+	</div>
+	<!-- <div ng-show="Edit.data.length < 6" class="layui-btn layui-btn-primary" style="display: block;margin-top: 5px;border-radius:5px ;" ng-click="addItemChild('menu', Edit.id)")">添加按钮</div> -->
+	<hr ng-show="Edit.data.length < 6">
+	<div class="layui-form-item">
+    <div class="layui-form-label">左右边距</div>
+    <div class="slider" min="0" max="40" ng-model="Edit.params.margin_x"></div>
+		<span class="slider-span"><input ng-model="Edit.params.margin_x"/> px</span>
+	</div>
+	<div class="layui-form-item">
+    <div class="layui-form-label">左右内边距</div>
+    <div class="slider" min="0" max="40" ng-model="Edit.params.padding_x"></div>
+		<span class="slider-span"><input ng-model="Edit.params.padding_x"/> px</span>
+	</div>
+	<div class="layui-form-item">
+    <div class="layui-form-label">上下内边距</div>
+		<div class="slider" min="0" max="40" ng-model="Edit.params.padding_y"></div>
+		<span class="slider-span"><input ng-model="Edit.params.padding_y"/> px</span>
+	</div>
+	{if !$type}
+	{if !$noshow_modules || !in_array('ModulePlatform',$noshow_modules)}
+	<div class="layui-form-item">
+		<div class="layui-form-label">显示平台</div>
+		<div class="layui-input-inline" style="border-radius: 0;padding: 2px;">
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="所有平台" name="{{Edit.id}}_platform['all']" ng-model="Edit.params.platform['all']"/>
+			{foreach $platform as $pl}
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="{:getplatformname($pl)}" name="{{Edit.id}}_platform['{$pl}']" ng-model="Edit.params.platform['{$pl}']"/>
+			{/foreach}
+		</div>
+	</div>
+	{/if}
+	{if !$noshow_modules || !in_array('ModuleQuanxian',$noshow_modules)}
+	<div class="layui-form-item">
+		<div class="layui-form-label">显示范围</div>
+		<div class="layui-input-inline" style="border-radius: 0;padding: 2px;">
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="所有人" name="{{Edit.id}}_quanxian['all']" ng-model="Edit.params.quanxian['all']"/>
+			{foreach $memberlevelList as $lv}
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="{$lv.name}" name="{{Edit.id}}_quanxian[{$lv.id}]" ng-model="Edit.params.quanxian[{$lv.id}]"/>
+			{/foreach}
+		</div>
+	</div>
+	{/if}
+	{include file="designer_page/tempnew/edit-plugin-mendian" /}
+	<div class="layui-form-item" ng-show="!Edit.params.quanxian['all']">
+    <div class="layui-form-label">显示用户</div>
+    <div class="layui-input-inline" style="border-radius: 0;padding: 2px;">
+			<input class="layui-input" ng-model="Edit.params.showmids"/>
+    </div>
+		<div class="layui-form-mid layui-word-aux">填写用户ID，多个用英文标点逗号(,)分割
+	</div>
+	{else}
+		<input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有平台" name="{{Edit.id}}_platform['all']" ng-model="Edit.params.platform['all']"/>
+		<input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有人" name="{{Edit.id}}_quanxian['all']" ng-model="Edit.params.quanxian['all']"/>
+		<input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有门店" name="{{Edit.id}}_mendian['all']" ng-model="Edit.params.mendian['all']"/>
+	{/if}
+</div>

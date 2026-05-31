@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>素材管理</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header">素材管理</div>
+          <div class="layui-card-body" pad15>
+						<!-- <div class="layui-col-md4" style="padding-bottom:10px">
+							<a class="layui-btn layuiadmin-btn-list" href="javascript:void(0)" onclick="openmax('{:url('edit')}')">添加</a>
+							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="datadel(0)">删除</button>
+						</div>
+						<div class="layui-form layui-col-md8 layui-form-search">
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">名称</label>
+								<div class="layui-input-inline">
+									<input type="text" name="name" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label">状态</label>
+								<div class="layui-input-inline">
+									<select name="status">
+										<option value="">全部</option>
+										<option value="1">已开启</option>
+										<option value="0">已关闭</option>
+									</select>
+								</div>
+							</div>
+							<div class="layui-inline">
+								<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+									<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+								</button>
+							</div>
+						</div> -->
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+  var table = layui.table;
+	var datawhere = {};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{$Request.url}" //数据接口
+    ,page: true //开启分页
+    ,cols: [[ //表头
+			//{type:"checkbox"},
+      //{field: 'media_id', title: '素材ID',width:180},
+      {field: 'content', title: '素材内容',width:350,templet:function(d){
+				var news_item = d.content.news_item;
+				var html ='<div style="width:312px;padding:12px;border:1px solid #ddd">';
+				for(var i in news_item){
+					var m = news_item[i]
+					if(i==0){
+						html+='<div style="width:100%">';
+						html+='<div style="position:relative"><img src="'+m.thumb_url+'" style="width:288px;height:160px;max-width:288px"/><div style="height:40px;padding:0 10px;width:100%;position:absolute;bottom:0;left:0;color:#fff;background:rgba(100,100,100,0.5);display:flex;align-items:center;word-wrap: break-word;word-break: break-all;overflow:hidden;">'+m.title+'</div></div>';
+						html+='';
+						html+='</div>';
+					}else{
+						html+='<div style="width:100%;margin-top:5px;padding-top:5px;border-top:1px solid #ddd;display:flex">';
+						html+='<div style="flex:1;display:flex;align-items:center;">'+m.title+'</div>';
+						html+='<div><img src="'+m.thumb_url+'" style="width:50px;height:50px"/></div>';
+						html+='</div>';
+					}
+				}
+				html+='</div>';
+				return html;
+      }},
+      {field: 'create_time', title: '创建时间',templet:function(d){ return date('Y-m-d H:i',d.content.create_time)}},
+      {field: 'update_time', title: '更新时间',templet:function(d){ return date('Y-m-d H:i',d.content.update_time)}},
+      {field: 'operation', title: '操作',templet:function(d){
+				return '<button class="table-btn" onclick="choosenews(\''+d.media_id+'\')">选择</button></div>';
+      }}
+    ]]
+  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	function choosenews(media_id){
+		window.parent.choosenews(media_id);
+		closeself();
+	}
+	</script>
+</body>
+</html>

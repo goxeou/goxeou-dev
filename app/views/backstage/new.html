@@ -1,0 +1,548 @@
+<fieldset class="layui-elem-field layui-field-title"  style="margin-top: 30px;">
+	<legend>其它设置</legend>
+</fieldset>
+ <div class="layui-form-item">
+	  <label class="layui-form-label">支付密码：</label>
+	  <div class="layui-input-inline">
+		  <input type="radio"  name="info[money_pwd]" title="开启" value="1" {if $info['money_pwd']==1}checked{/if}/>
+		  <input type="radio"  name="info[money_pwd]" title="关闭" value="0" {if $info['money_pwd']==0}checked{/if}/>
+	  </div>
+  </div>
+  <div class="layui-form-item">
+	<label class="layui-form-label">转账支付密码：</label>
+	<div class="layui-input-inline">
+		<input type="radio" lay-filter="transfer_pwd" name="info[transfer_pwd]" title="开启" value="1" {if $info['transfer_pwd']==1}checked{/if}/>
+		<input type="radio" lay-filter="transfer_pwd" name="info[transfer_pwd]" title="关闭" value="0" {if $info['transfer_pwd']==0}checked{/if}/>
+	</div>
+</div>
+<!--<div class="layui-form-item">-->
+<!--	<label class="layui-form-label">转账范围：</label>-->
+<!--	<div class="layui-input-inline" style="width: 60%">-->
+<!--		<input type="radio" name="info[transfer_range]" title="全站" value="0" {if $info['transfer_range']==0}checked{/if}/>-->
+<!--		<input type="radio" name="info[transfer_range]" title="所有上下级" value="1" {if $info['transfer_range']==1}checked{/if}/>-->
+<!--	</div>-->
+<!--</div>-->
+ <div class="layui-form-item">
+	<label class="layui-form-label">转账范围：</label>
+	<div class="layui-input-inline" style="width: 60%">
+		{if getcustom('money_transfer')}
+		<input type="radio" name="info[transfer_range]" title="全站" value="0" {if $info['transfer_range']==0}checked{/if}/>
+		<input type="radio" name="info[transfer_range]" title="所有上下级" value="1" {if $info['transfer_range']==1}checked{/if}/>
+		{/if}
+		{if getcustom('money_friend_transfer')}
+		<input type="radio" name="info[transfer_range]" title="好友" value="2" {if $info['transfer_range']==2}checked{/if}/>
+		{/if}
+	</div>
+</div>
+<!--<div class="layui-form-item">-->
+<!--	<label class="layui-form-label"  style="width:130px">转账方式：</label>-->
+<!--	<div class="layui-input-inline" style="width: 220px">-->
+<!--		<input type="radio" name="info[transfer_type]" title="ID" value="0" {if $info['transfer_type']==0}checked{/if}/>-->
+<!--		<input type="radio" name="info[transfer_type]" title="手机号" value="1" {if $info['transfer_type']==1}checked{/if}/>-->
+<!--			<input type="radio" name="info[transfer_type]" title="账号" value="2" {if $info['transfer_type']==2}checked{/if}/>-->
+<!--	</div>-->
+<!-- </div>-->
+<div class="layui-form-item">
+	<label class="layui-form-label">转账方式：</label>
+	<div class="layui-input-inline" style="width:300px">
+		<input type="checkbox" name="info[transfer_type][]" title="{:t('会员')}ID" value="id" {if in_array('id',explode(',',$info['transfer_type']))}checked{/if}/>
+		<input type="checkbox" name="info[transfer_type][]" title="手机号" value="tel" {if in_array('tel',explode(',',$info['transfer_type']))}checked{/if}/>
+	</div>
+</div>
+ 
+ 
+ 
+ 
+ 
+ 
+ <div class="layui-form-item">
+	<label class="layui-form-label"  style="width:130px">转账手续费扣除：</label>
+	<div class="layui-input-inline" style="width: 220px">
+		<input type="radio" name="info[transfer_fee_type]" title="转账方" value="0" {if $info['transfer_fee_type']==0}checked{/if}/>
+		<input type="radio" name="info[transfer_fee_type]" title="接收方" value="1" {if $info['transfer_fee_type']==1}checked{/if}/>
+	</div>
+ </div>
+<div class="layui-form-item">
+	<label class="layui-form-label" style="width:130px">提现转账倍数：</label>
+	<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important"> 提现倍数 </div>
+	<div class="layui-input-inline" style="width:120px">
+		<input type="number" min="0" name="info[withdraw_rate]" value="{$info['withdraw_rate']}" class="layui-input"/>
+	</div>
+	<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+		<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">转赠倍数 </div>
+	<div class="layui-input-inline" style="width:120px">
+		<input type="number" min="0" name="info[transfer_rate]" value="{$info['transfer_rate']}" class="layui-input"/>
+	</div>
+	<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+</div>
+<div class="layui-form-item">
+	<label class="layui-form-label">免密登录：</label>
+	<div class="layui-input-inline" style="width: 40%;">
+		<textarea style="height: 90px" class="layui-textarea" name="info[ips]">{$info.ips}</textarea>
+	</div>
+	<div class="layui-form-mid layui-word-aux">多个以&分开  本机IP {$_SERVER['REMOTE_ADDR']}</div>
+</div> 
+
+
+
+{if getcustom('choujiang_zd')}
+<div class="layui-form-item">
+	<label class="layui-form-label" style="width:130px">固定抽奖ID：</label>
+	<div class="layui-input-inline" style="width:120px">
+		<input type="number" min="0" name="info[cjid]" value="{$info['cjid']}" class="layui-input"/>
+	</div>
+	<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+</div>
+
+{/if}
+
+
+{if getcustom('credit_dk')}
+<div class="layui-form-item">
+	<label class="layui-form-label">{:t('credit2')}抵扣：</label>
+	<div class="layui-input-inline layui-module-itemL">
+		<div>每{:t('credit2')}抵扣</div>
+		<input type="text" name="info[credit2money]" class="layui-input" value="{$info.credit2money}">
+		元
+	</div>
+	<div class="layui-form-mid layui-word-aux">付款时一个{:t('credit2')}可抵扣多少元，0表示不开启{:t('credit2')}抵扣</div>
+</div>
+<div class="layui-form-item">
+	<label class="layui-form-label"></label>
+	<div class="layui-input-inline layui-module-itemL">
+		<div>最多抵扣百分比</div>
+		<input type="text" name="info[creditdkmaxpercent]" class="layui-input" value="{$info.creditdkmaxpercent}">
+		%
+	</div>
+	<div class="layui-form-mid layui-word-aux">选择使用{:t('credit2')}抵扣时，最多可抵扣订单额的百分之多少</div>
+</div>
+{/if}
+
+
+
+
+
+
+
+{if getcustom('gongpai')}
+<div class="layui-form-item">
+	<label class="layui-form-label">39公排：</label>
+	<div class="layui-input-inline layui-module-itemL">
+		<div>第一单</div>
+		<input type="text" name="info[pai_1]" class="layui-input" value="{$info.pai_1}">
+		%
+	</div>
+	<div class="layui-input-inline layui-module-itemL">
+		<div>上一</div>
+		<input type="text" name="info[pai_2]" class="layui-input" value="{$info.pai_2}">
+		%
+	</div>
+		<div class="layui-input-inline layui-module-itemL">
+		<div>下三</div>
+		<input type="text" name="info[pai_3]" class="layui-input" value="{$info.pai_3}">
+		%
+	</div>
+</div>
+<div class="layui-form-item">
+	<label class="layui-form-label">34排：</label>
+	<!--<div class="layui-input-inline layui-module-itemL">-->
+	<!--	<div>第一单</div>-->
+	<!--	<input type="text" name="info[pai2_1]" class="layui-input" value="{$info.pai2_1}">-->
+	<!--	%-->
+	<!--</div>-->
+	<div class="layui-input-inline layui-module-itemL">
+		<div>上一</div>
+		<input type="text" name="info[pai2_2]" class="layui-input" value="{$info.pai2_2}">
+		%
+	</div>
+		<div class="layui-input-inline layui-module-itemL">
+		<div>下三</div>
+		<input type="text" name="info[pai2_3]" class="layui-input" value="{$info.pai2_3}">
+		%
+	</div>
+</div>
+{/if}
+
+
+
+
+
+
+
+<div class="layui-form-item">
+	<label class="layui-form-label">统计：</label>
+	<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important"> {:t('credit1')}(%) </div>
+	<div class="layui-input-inline" style="width: 100px;">
+		<input style="border-radius:0 2px 2px 0" type="text" name="info[tongji_3]" class="layui-input" value="{$info['tongji_3']}">
+	</div>
+    <div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important"> {:t('资金池')}(%) </div>
+	<div class="layui-input-inline" style="width: 100px;">
+		<input style="border-radius:0 2px 2px 0" type="text" name="info[tongji_2]" class="layui-input" value="{$info['tongji_2']}">
+	</div>
+    
+</div>
+
+
+<fieldset class="layui-elem-field layui-field-title"  style="margin-top: 30px;">
+	<legend>{:t('分红')}</legend>
+</fieldset>
+
+
+{if getcustom('240308.fqywl.com')}
+<div class="layui-form-item">
+	<label class="layui-form-label">升级到</label>
+		<div class="layui-input-inline">
+			<select name="info[give_lvid]" lay-verify="required"  class="levelid">
+			    <option value="0" {if $info['storelevel']==0}selected{/if}>无</option>
+				{foreach $levellist as $v}
+				<option value="{$v.id}" {if $v['id'] == $info['give_lvid']}selected{/if}>{$v.name}</option>
+				{/foreach}
+			</select>
+         </div>
+    	<label class="layui-form-label" style="width:130px">奖励：</label>
+    	<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important"> {:t('credit1')}</div>
+    	<div class="layui-input-inline" style="width:120px">
+    		<input type="number" min="0" name="info[give_credit1]" value="{$info['give_credit1']}" class="layui-input"/>
+    	</div>
+    	<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">倍 </div>
+    		<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">{:t('credit2')} </div>
+    	<div class="layui-input-inline" style="width:120px">
+    		<input type="number" min="0" name="info[give_credit2]" value="{$info['give_credit2']}" class="layui-input"/>
+    	</div>
+    	
+</div>
+<div class="layui-form-item">
+    	<label class="layui-form-label">复购</label>
+	<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">复购需大于 </div>
+	<div class="layui-input-inline" style="width:120px">
+		<input type="number" min="0" name="info[give_min]" value="{$info['give_min']}" class="layui-input"/>
+	</div>
+	<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">元</div>
+</div>
+<div class="layui-form-item">
+	<label class="layui-form-label" style="width:130px">{:t('资金池')}日分红比例：</label>
+	<div class="layui-input-inline" style="width:120px">
+		<input type="number" min="0" name="info[team_rate]" value="{$info['team_rate']}" class="layui-input"/>
+	</div>
+	<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">%</div>
+</div>
+<div class="layui-form-item">
+	<label class="layui-form-label" >{:t('credit1')}小于：</label>
+	<div class="layui-input-inline" style="width:120px">
+		<input type="number" min="0" name="info[credit1_min]" value="{$info['credit1_min']}" class="layui-input"/>
+	</div>
+	<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+</div>
+<div class="layui-form-item">
+	<div class="layui-form-label">{:t('credit1')}提示：</div>
+	<div class="layui-input-inline" style="width:280px">
+		<input class="layui-input" name="info[credit1_tip]" value="{if !$info['id']}您没有权限进入{else}{$info.credit1_tip}{/if}"/>
+	</div>
+	<div class="layui-form-mid"></div>
+</div>
+{/if}
+
+
+{if getcustom('credit_fenhong')}
+<div id="giveset_div">
+	{php} $givedata = json_decode($info['givedata'],true);{/php}
+	{if $givedata}
+	{foreach $givedata as $k=>$give}
+	<div class="layui-form-item">
+		<label class="layui-form-label" style="width:100px">{if $k==0}业绩设置：{/if}</label>
+		<div class="layui-form-mid">业绩满</div>
+		<div class="layui-input-inline" style="width:70px"><input type="text" name="moneys[]" value="{$give.money}" class="layui-input"></div>
+		<div class="layui-form-mid">元，店补</div>
+		<div class="layui-input-inline" style="width:70px"><input type="text" name="gives[]" value="{$give.give}" class="layui-input"></div>
+		<div class="layui-form-mid">%</div>
+		{if $k==0}
+		<button type="button" class="layui-btn layui-btn-primary" onclick="adddata()">新增</button>
+		{else}
+		<button type="button" class="layui-btn layui-btn-primary" onclick="deldata(this)">删除</button>
+		{/if}
+	</div>
+	{/foreach}
+	{else}
+	<div class="layui-form-item">
+		<label class="layui-form-label" style="width:100px">业绩设置：</label>
+		<div class="layui-form-mid">业绩满</div>
+		<div class="layui-input-inline" style="width:70px"><input type="text" name="moneys[]" value="" class="layui-input"></div>
+		<div class="layui-form-mid">元，店补</div>
+		<div class="layui-input-inline" style="width:70px"><input type="text" name="gives[]" value="" class="layui-input"></div>
+		<div class="layui-form-mid">%</div>
+		<button type="button" class="layui-btn layui-btn-primary" onclick="adddata()">新增</button>
+	</div>
+	{/if}
+</div>
+<script>
+function adddata(){
+	var html = '';
+	html+='<div class="layui-form-item">';
+	html+='	<label class="layui-form-label" style="width:100px"></label>';
+	html+='	<div class="layui-form-mid">业绩满</div>';
+	html+='	<div class="layui-input-inline" style="width:70px"><input type="text" name="moneys[]" value="" class="layui-input"></div>';
+	html+='	<div class="layui-form-mid">元，店补</div>';
+	html+='	<div class="layui-input-inline" style="width:70px"><input type="text" name="gives[]" value="" class="layui-input"></div>';
+	html+='	<div class="layui-form-mid">%</div>';
+	html+='	<button type="button" class="layui-btn layui-btn-primary" onclick="deldata(this)">删除</button>';
+	html+='</div>';
+	$('#giveset_div').append(html);
+}
+function deldata(obj){
+	$(obj).parent().remove();
+}
+</script>
+
+{/if}
+
+
+
+<div class="layui-form-item">
+	<label class="layui-form-label" style="width:130px">分红比例：</label>
+	<div class="layui-input-inline" style="width:120px">
+		<input type="number" min="0" name="info[team_rate]" value="{$info['team_rate']}" class="layui-input"/>
+	</div>
+	<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">%</div>
+</div>
+
+<div class="layui-form-item">
+	<label class="layui-form-label" style="width:130px">分红等级ID：</label>
+	<div class="layui-input-inline" style="width:220px">
+		<input type="text"  name="info[team_lvids]" value="{$info['team_lvids']}" class="layui-input"/>
+	</div>
+	<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+</div>
+<!--<div class="layui-form-item">-->
+<!--	<label class="layui-form-label">统计：</label>-->
+<!--	<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important"> 销售额(%) </div>-->
+<!--	<div class="layui-input-inline" style="width: 100px;">-->
+<!--		<input style="border-radius:0 2px 2px 0" type="text" name="info[tongji_1]" class="layui-input" value="{$info['tongji_1']}">-->
+<!--	</div>-->
+<!--    <div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important"> 资金池(%) </div>-->
+<!--	<div class="layui-input-inline" style="width: 100px;">-->
+<!--		<input style="border-radius:0 2px 2px 0" type="text" name="info[tongji_2]" class="layui-input" value="{$info['tongji_2']}">-->
+<!--	</div>-->
+<!--    <div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important"> 慈善基金会(%) </div>-->
+<!--	<div class="layui-input-inline" style="width: 100px;">-->
+<!--		<input style="border-radius:0 2px 2px 0" type="text" name="info[tongji_3]" class="layui-input" value="{$info['tongji_3']}">-->
+<!--	</div>-->
+<!--	 <div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important"> 静态(%) </div>-->
+<!--	<div class="layui-input-inline" style="width: 100px;">-->
+<!--		<input style="border-radius:0 2px 2px 0" type="text" name="info[tongji_4]" class="layui-input" value="{$info['tongji_4']}">-->
+<!--	</div>-->
+<!--    <div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important"> 动态 (%) </div>-->
+<!--	<div class="layui-input-inline" style="width: 100px;">-->
+<!--		<input style="border-radius:0 2px 2px 0" type="text" name="info[tongji_5]" class="layui-input" value="{$info['tongji_5']}">-->
+<!--	</div>-->
+<!--</div>-->
+
+
+
+
+<fieldset class="layui-elem-field layui-field-title"  style="margin-top: 30px;">
+	<legend>{:t('余额')}</legend>
+</fieldset>
+<div class="layui-form-item">
+	<label class="layui-form-label" style="width:130px">{:t('余额')}转账：</label>
+	<div class="layui-input-inline">
+		<input type="radio" name="info[money_transfer]" title="开启" value="1" {if $info['money_transfer']==1}checked{/if} lay-filter="diandaSwitch"/>
+		<input type="radio" name="info[money_transfer]" title="关闭" value="0" {if $info['money_transfer']==0}checked{/if} lay-filter="diandaSwitch"/>
+	</div>
+</div>
+<div diandaSwitch="info[money_transfer]" {if $info['money_transfer'] != 1} style="display:none"{/if}>
+      <div class="layui-form-item">
+        	<label class="layui-form-label" style="width:130px">{:t('余额')}转账手续费：</label>
+        	<div class="layui-input-inline" style="width:120px">
+        		<input type="number" min="0" name="info[money_transfer_fee]" value="{$info['money_transfer_fee']}" class="layui-input"/>
+        	</div>
+        	<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+      </div>
+</div>
+   
+
+<fieldset class="layui-elem-field layui-field-title"  style="margin-top: 30px;">
+	<legend>{:t('积分')}</legend>
+</fieldset>
+<div class="layui-form-item">
+	<label class="layui-form-label" style="width:130px">{:t('积分')}转赠：</label>
+	<div class="layui-input-inline">
+		<input type="radio" name="info[score_transfer]" title="开启" value="1" {if $info['score_transfer']==1}checked{/if} lay-filter="diandaSwitch"/>
+		<input type="radio" name="info[score_transfer]" title="关闭" value="0" {if $info['score_transfer']==0}checked{/if} lay-filter="diandaSwitch"/>
+	</div>
+</div>
+<div diandaSwitch="info[score_transfer]" {if $info['score_transfer'] != 1} style="display:none"{/if}>
+   
+    <div class="layui-form-item">
+    	<label class="layui-form-label" style="width:130px">{:t('积分')}转赠手续费：</label>
+    	<div class="layui-input-inline" style="width:120px">
+    		<input type="number" min="0" name="info[score_transfer_fee]" value="{$info['score_transfer_fee']}" class="layui-input"/>
+    	</div>
+    	<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+    </div>
+</div>
+
+   
+<fieldset class="layui-elem-field layui-field-title"  style="margin-top: 30px;">
+	<legend>{:t('佣金')}</legend>
+</fieldset>
+
+<div class="layui-form-item">
+	<label class="layui-form-label" style="width:130px">{:t('佣金')}转赠：</label>
+	<div class="layui-input-inline">
+		<input type="radio" name="info[commission_transfer]" title="开启" value="1" {if $info['commission_transfer']==1}checked{/if}  lay-filter="diandaSwitch"/>
+		<input type="radio" name="info[commission_transfer]" title="关闭" value="0" {if $info['commission_transfer']==0}checked{/if}  lay-filter="diandaSwitch"/>
+	</div>
+</div>
+<div diandaSwitch="info[commission_transfer]" {if $info['commission_transfer'] != 1} style="display:none"{/if}>
+    <div class="layui-form-item">
+    	<label class="layui-form-label" style="width:130px">{:t('佣金')}转赠手续费：</label>
+    	<div class="layui-input-inline" style="width:120px">
+    		<input type="number" min="0" name="info[commission_transfer_fee]" value="{$info['commission_transfer_fee']}" class="layui-input"/>
+    	</div>
+    	<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+    </div>
+</div>
+<!-- <div class="layui-form-item">-->
+<!--	<label class="layui-form-label" style="width:130px">{:t('佣金')}转{:t('余额')}手续费：</label>-->
+<!--	<div class="layui-input-inline" style="width:120px">-->
+<!--		<input type="number" min="0" name="info[commission_money_fee]" value="{$info['commission_money_fee']}" class="layui-input"/>-->
+<!--	</div>-->
+<!--	<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>-->
+<!--</div>-->
+{if getcustom('credit1')}
+<fieldset class="layui-elem-field layui-field-title"  style="margin-top: 30px;">
+	<legend>{:t('credit1')}</legend>
+</fieldset>
+
+{if getcustom('credit1_transfer')}
+	<div class="layui-form-item">
+		<label class="layui-form-label" style="width:130px">{:t('credit1')}转赠：</label>
+		<div class="layui-input-inline">
+			<input type="radio" name="info[credit1_transfer]" title="开启" value="1" {if $info['credit1_transfer']==1}checked{/if} lay-filter="diandaSwitch"/>
+			<input type="radio" name="info[credit1_transfer]" title="关闭" value="0" {if $info['credit1_transfer']==0}checked{/if} lay-filter="diandaSwitch"/>
+		</div>
+	</div>
+	<div diandaSwitch="info[credit1_transfer]" {if $info['credit1_transfer'] != 1} style="display:none"{/if}>
+	    {if getcustom('transfer')}
+	    <div class="layui-form-item">
+    		<label class="layui-form-label"  style="width:130px">{:t('credit1')}转账方式：</label>
+    		<div class="layui-input-inline" style="width: 220px">
+    			<input type="radio" name="info[credit1_transfer_type]" title="ID" value="0" {if $info['credit1_transfer_type']==0}checked{/if}/>
+    			<input type="radio" name="info[credit1_transfer_type]" title="手机号" value="1" {if $info['credit1_transfer_type']==1}checked{/if}/>
+    		</div>
+    	 </div>
+		<div class="layui-form-item">
+			<label class="layui-form-label"  style="width:130px">{:t('credit1')}转赠范围：</label>
+			<div class="layui-input-inline" style="width: 220px">
+				<input type="radio" name="info[credit1_transfer_range]" title="全站" value="0" {if $info['credit1_transfer_range']==0}checked{/if}/>
+				<input type="radio" name="info[credit1_transfer_range]" title="所有上下级" value="1" {if $info['credit1_transfer_range']==1}checked{/if}/>
+			</div>
+		</div>
+		 <div class="layui-form-item">
+        	  <label class="layui-form-label" style="width:130px">{:t('credit1')}转赠支付密码：</label>
+        	  <div class="layui-input-inline">
+        		  <input type="radio" lay-filter="credit1_transfer_pwd" name="info[credit1_transfer_pwd]" title="开启" value="1" {if $info['credit1_transfer_pwd']==1}checked{/if}/>
+        		  <input type="radio" lay-filter="credit1_transfer_pwd" name="info[credit1_transfer_pwd]" title="关闭" value="0" {if $info['credit1_transfer_pwd']==0}checked{/if}/>
+        	  </div>
+        </div>
+        {/if}
+        <div class="layui-form-item">
+        	<label class="layui-form-label" style="width:130px">{:t('credit1')}转赠手续费：</label>
+        	<div class="layui-input-inline" style="width:120px">
+        		<input type="number" min="0" name="info[credit1_transfer_fee]" value="{$info['credit1_transfer_fee']}" class="layui-input"/>
+        	</div>
+        	<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+        </div>
+	</div>
+   
+{/if}
+{if getcustom('credit1_money')}
+<div class="layui-form-item">
+	<label class="layui-form-label" style="width:130px">{:t('credit1')}单价：</label>
+	<div class="layui-input-inline" style="width:120px">
+		<input type="text" name="info[credit1_money]" value="{$info['credit1_money']}" class="layui-input"/>
+	</div>
+	<div class="layui-form-mid">元</div>
+	<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">单次最高涨价(%) </div>
+    <div class="layui-input-inline" style="width: 100px;">
+    	<input style="border-radius:0 2px 2px 0" type="text" name="info[tongji_1]" class="layui-input" value="{$info['tongji_1']}">
+    </div>
+</div>
+
+{/if}
+{if getcustom('credit1_withdraw')}{/if}
+<div class="layui-form-item">
+	<label class="layui-form-label" style="width:130px">{:t('credit1')}提现：</label>
+    	<div class="layui-input-inline">
+    		<input type="radio" name="info[credit1_withdraw]" title="开启" value="1" {if $info['credit1_withdraw']==1}checked{/if} lay-filter="credit1_withdraw"/>
+    		<input type="radio" name="info[credit1_withdraw]" title="关闭" value="0" {if $info['credit1_withdraw']==0}checked{/if} lay-filter="credit1_withdraw"/>
+    	</div>
+    </div>
+    
+    <div class="layui-form-item">
+    	<label class="layui-form-label" style="width:130px">提现最小金额：</label>
+    	<div class="layui-input-inline" style="width:120px">
+    		<input type="text" name="info[credit1_withdrawmin]" value="{$info['credit1_withdrawmin']}" class="layui-input"/>
+    	</div>
+    	<div class="layui-form-mid">个</div>
+    </div>
+    <div class="layui-form-item">
+    	<label class="layui-form-label" style="width:130px">提现手续费：</label>
+    	<div class="layui-input-inline" style="width:120px">
+    		<input type="text" name="info[credit1_withdrawfee]" value="{$info['credit1_withdrawfee']}" class="layui-input"/>
+    	</div>
+    	<div class="layui-form-mid">%</div>
+    </div>
+    <!--<div class="layui-form-item">-->
+    <!--	<label class="layui-form-label" style="width:130px">回流{:t('资金池')}：</label>-->
+    <!--	<div class="layui-input-inline" style="width:120px">-->
+    <!--		<input type="text" name="info[credit2_admin]" value="{$info['credit2_admin']}" class="layui-input"/>-->
+    <!--	</div>-->
+    <!--	<div class="layui-form-mid">%</div>-->
+    <!--</div>-->
+    <!--<div class="layui-form-item">-->
+    <!--	<label class="layui-form-label" style="width:130px">{:t('credit1')}提现{:t('积分')}：</label>-->
+    <!--	<div class="layui-input-inline" style="width:120px">-->
+    <!--		<input type="text" name="info[credit1_to_score]" value="{$info['credit1_to_score']}" class="layui-input"/>-->
+    <!--	</div>-->
+    <!--	<div class="layui-form-mid">%</div>-->
+    <!--</div>-->
+    <!--<div class="layui-form-item">-->
+    <!--	<label class="layui-form-label" style="width:130px">{:t('credit1')}提现{:t('credit2')}：</label>-->
+    <!--	<div class="layui-input-inline" style="width:120px">-->
+    <!--		<input type="text" name="info[credit1_to_credit2]" value="{$info['credit1_to_credit2']}" class="layui-input"/>-->
+    <!--	</div>-->
+    <!--	<div class="layui-form-mid">%</div>-->
+    <!--</div>-->
+
+
+{/if}
+
+  {if getcustom('credit2')}  
+ <fieldset class="layui-elem-field layui-field-title"  style="margin-top: 30px;">
+	<legend>{:t('credit2')}</legend>
+</fieldset>
+     {if getcustom('credit2_withdraw')}   
+        <div class="layui-form-item">
+           <label class="layui-form-label" style="width:130px">{:t('credit2')}转{:t('积分')}：</label>
+           	<div class="layui-input-inline">
+        		<input type="radio" name="info[credit2_withdraw]" title="开启" value="1" {if $info['credit2_withdraw']==1}checked{/if} lay-filter="credit2_withdraw"/>
+        		<input type="radio" name="info[credit2_withdraw]" title="关闭" value="0" {if $info['credit2_withdraw']==0}checked{/if} lay-filter="credit2_withdraw"/>
+        	</div>
+        </div>
+        
+        <div class="layui-form-item">
+        	<label class="layui-form-label">{:t('credit2')}{:t('积分')}兑换比例：</label>
+        	<div class="layui-input-inline" style="width: 120px;">
+        		<input type="number" class="layui-input" name="info[credit2_money_exchange_num]" value="{$info.credit2_money_exchange_num}">
+        	</div>
+        	<div class="layui-form-mid layui-word-aux">1{:t('credit2')}可兑换{:t('积分')}</div>
+        </div>
+    {/if}
+{/if}
+
+
+
+
+
+    

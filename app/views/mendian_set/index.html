@@ -1,0 +1,177 @@
+<!DOCTYPE html><!--custom_file(mendian_upgrade)-->
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>系统设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+		.layui-form-item .layui-form-label{width: 200px;}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header"><i class="fa fa-cog"></i> 系统设置</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form" lay-filter="">
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">{:t('门店')}申请开关：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="radio" name="info[apply_status]" value="1" title="开启" {if $info['apply_status']==1}checked{/if}/>
+								<input type="radio" name="info[apply_status]" value="0" title="关闭" {if $info['apply_status']==0}checked{/if}/>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">{:t('门店')}服务距离：</label>
+							<div class="layui-input-inline" style="width:120px">
+								<input type="text" name="info[fwdistance]" value="{$info['fwdistance']}" class="layui-input"/>
+							</div>
+							<div class="layui-form-mid">km</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">{:t('门店')}服务距离 0为不限制</div>
+						</div>
+					
+						<div class="layui-form-item">
+							<label class="layui-form-label">前端添加核销员：</label>
+							<div class="layui-input-inline" >
+								<input type="radio" name="info[addhxuser_status]" value="1" title="开启" {if $info['addhxuser_status']==1}checked{/if}/>
+								<input type="radio" name="info[addhxuser_status]" value="0" title="关闭" {if $info['addhxuser_status']==0}checked{/if}/>
+							</div>
+						</div>
+					
+						<div class="layui-form-item">
+							<label class="layui-form-label">显示详细地址</label>
+							<div class="layui-input-inline" >
+								<input type="radio" name="info[showaddress_status]" value="1" title="开启" {if $info['showaddress_status']==1}checked{/if}/>
+								<input type="radio" name="info[showaddress_status]" value="0" title="关闭" {if $info['showaddress_status']==0}checked{/if}/>
+							</div>
+						</div>
+					
+						<div class="layui-form-item">
+							<label class="layui-form-label">订单通知</label>
+							<div class="layui-input-inline" >
+								<input type="radio" name="info[notice_status]" value="1" title="开启" {if $info['notice_status']==1}checked{/if}/>
+								<input type="radio" name="info[notice_status]" value="0" title="关闭" {if $info['notice_status']==0}checked{/if}/>
+							</div>
+						</div>
+							
+						<div class="layui-form-item">
+							<label class="layui-form-label">显示{:t('门店')}等级</label>
+							<div class="layui-input-inline" >
+								<input type="radio" name="info[showLevel_status]" value="1" title="开启" {if $info['showLevel_status']==1}checked{/if}/>
+								<input type="radio" name="info[showLevel_status]" value="0" title="关闭" {if $info['showLevel_status']==0}checked{/if}/>
+							</div>
+						</div>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">设置{:t('会员')}等级</label>
+							<div class="layui-input-inline" >
+									<select name="info[member_levelid]" lay-verify="required" class="levelid">
+										{foreach $levelList as $v}
+										<option value="{$v.id}" {if $v['id'] == $info['member_levelid']}selected{/if}>{$v.name}</option>
+										{/foreach}
+									</select>
+							</div>
+						</div>
+
+						<div id="can_commission">
+							<span style="color:#333">{:t('门店')}分销</span><hr/>
+							<div class="layui-form-item">
+								<label class="layui-form-label">分销权限</label>
+								<div class="layui-input-inline" style="width:70%">
+									<input type="radio" name="info[can_agent]" value="0" title="无权限" {if $info['can_agent']==0 || $info['can_agent']==''}checked{/if} lay-filter="can_agent">
+									<input type="radio" name="info[can_agent]" value="1" title="一级" {if $info['can_agent']==1}checked{/if} lay-filter="can_agent">
+									<input type="radio" name="info[can_agent]" value="2" title="二级" {if $info['can_agent']==2}checked{/if} lay-filter="can_agent">
+									<input type="radio" name="info[can_agent]" value="3" title="三级" {if $info['can_agent']==3}checked{/if} lay-filter="can_agent">
+								</div>
+								<div class="layui-form-mid layui-word-aux ">开启则表示该级别的{:t('门店')}有分销权限，可以发展下级，拿相应提成</div>
+							</div>
+		
+
+							<div class="layui-form-item" id="can_agentset"  style="border:0px dashed #f0cccc;padding-top:10px;margin-bottom:20px;{if	$info['can_agent']==0 || $info['can_agent']==''}display:none{/if}">
+								<div class="layui-form-item">
+									<label class="layui-form-label">提成方式</label>
+									<div class="layui-input-inline" style="width:70%">
+										<input type="radio" class="canAgentF-radio" name="info[commissiontype]" value="0" title="百分比" {if $info['commissiontype']==0}checked{/if}  lay-filter="commissiontype">
+										<input type="radio" class="canAgentF-radio" name="info[commissiontype]" value="1" title="固定金额" {if $info['commissiontype']==1}checked{/if}  lay-filter="commissiontype">
+									</div>
+									<div class="layui-form-mid layui-word-aux">设置固定金额时按单返{:t('佣金')},和购买数量无关</div>
+								</div>
+
+
+								<div class="layui-form-item" id="tichengBox1" {if $info.commissiontype==2}style="display:none;"{/if}>
+									<label class="layui-form-label">提成金额</label>
+									<div class="layui-input-inline layui-module-itemL" commission1>
+										<div commission1 >一级(<span class="commissionunit">{$info['commissiontype']==1 ? '元':'%'}</span>) </div>
+										<input type="text" name="info[commission1]" class="layui-input" value="{$info.commission1}">
+									</div>
+									<div class="layui-input-inline layui-module-itemL" commission2 style="{if $info['can_agent']<2}display:none;{/if}">
+										<div commission2 style="{if $info['can_agent']<2}display:none;{/if}">二级(<span class="commissionunit">{$info['commissiontype']==1 ? '元':'%'}</span>)</div>
+										<input type="text" name="info[commission2]" class="layui-input" value="{$info.commission2}">
+									</div>
+									<div class="layui-input-inline layui-module-itemL" commission3 style="{if $info['can_agent']<3}display:none;{/if}">
+											<div commission3 style="{if $info['can_agent']<3}display:none;{/if}">三级(<span class="commissionunit">{$info['commissiontype']==1 ? '元':'%'}</span>)</div>
+										<input type="text" name="info[commission3]" class="layui-input" value="{$info.commission3}">
+									</div>
+								</div>
+							</div>
+						</div>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+      </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.form.on('radio(can_agent)', function(data){
+		if(data.value != '0'){
+			if(data.value=='1'){
+				$('*[commission2]').hide();
+				$('[commission3]').hide();
+			}else if(data.value=='2'){
+				$('*[commission2]').show();
+				$('[commission3]').hide();
+			}else if(data.value=='3'){
+				$('*[commission2]').show();
+				$('[commission3]').show();
+			}
+			$('#can_agentset').show();
+		}else{
+			$('#can_agentset').hide();
+		}
+	})
+	layui.form.on('radio(commissiontype)', function(data){
+		if(data.value == '1'){
+			$('.commissionunit').html('元');
+		}else{
+			$('.commissionunit').html('%');
+		}
+		if(data.value==2){
+			$('#tichengBox2').show();
+			$('#tichengBox1').hide();
+		}else {
+			$('#tichengBox1').show();
+			$('#tichengBox2').hide();
+		}
+	})
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		$.post('',field,function(data){
+			dialog(data.msg,data.status,data.url);
+		})
+	})
+    </script>
+   {include file="public/copyright"/}
+</body>
+</html>

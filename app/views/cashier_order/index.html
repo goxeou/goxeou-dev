@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>收银台订单</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header">
+						<i class="fa fa-list"></i> 收银台订单
+			  {if input('param.isopen')==1}<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>{/if}
+					</div>
+          <div class="layui-card-body" pad15>
+			<div class="layui-col-md4" style="padding-bottom:10px">
+				<button class="layui-btn layui-btn-primary layuiadmin-btn-list" data-form-export="{:url('excel')}">导出EXCEL</button>
+			</div>
+			<div class="layui-form layui-col-md8 layui-form-search">
+				<div class="layui-inline layuiadmin-input-useradmin">
+					<label class="layui-form-label">{:t('会员')}ID</label>
+					<div class="layui-input-inline">
+						<input type="text" name="mid" value="{$Request.param.mid}" autocomplete="off" class="layui-input">
+					</div>
+				</div>
+				<div class="layui-inline layuiadmin-input-useradmin">
+					<label class="layui-form-label">订单号</label>
+					<div class="layui-input-inline" style="width: 180px;">
+						<input type="text" name="ordernum" value="{$Request.param.ordernum}" autocomplete="off" class="layui-input">
+					</div>
+				</div>
+				<div class="layui-inline">
+					<label class="layui-form-label">下单时间</label>
+					<div class="layui-input-inline" style="width: 180px;">
+						<input type="text" name="ctime" id="ctime" autocomplete="off" class="layui-input">
+					</div>
+				</div>
+				<div class="layui-inline layuiadmin-input-useradmin">
+					<label class="layui-form-label">状态</label>
+					<div class="layui-input-inline">
+						<select name="status" class="layui-select">
+							<option value="">全部</option>
+							<option value="0">待支付</option>
+							<option value="1">已支付</option>
+							<option value="2">挂单</option>
+							<option value="10">已退款</option>
+							<option value="4">已关闭</option>
+						</select>
+					</div>
+				</div>
+				<div class="layui-inline">
+					<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+						<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+					</button>
+				</div>
+			</div>
+			<div class="layui-col-md12">
+				<table id="tabledata" lay-filter="tabledata"></table>
+			</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.laydate.render({ 
+		elem: '#ctime',
+		trigger: 'click',
+		range: '~' //或 range: '~' 来自定义分割字符
+	});
+  var table = layui.table;
+	var datawhere = '{$where}';
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{$Request.url}" //数据接口
+    ,page: true //开启分页
+    ,cols: [[ //表头
+			// {type:"checkbox"},
+      {field: 'id', title: 'ID',width:80},
+      {field: 'ordernum', title: '订单编号',width:180},
+      {field: 'mid', title: '{:t(\'会员\')}信息',width:180,templet:function(d){
+			  var html = '';
+			  if(d.headimg) html +='<img src="'+d.headimg+'" style="height:50px"/> ';
+			  if(d.nickname) html += d.nickname;
+			  return html;
+		  }},
+      {field: 'totalprice', title: '实付金额'},
+      {field: 'paytime', title: '创建时间',templet:function(d){ return date('Y-m-d H:i:s',d.createtime)},width:180},
+      {field: 'paytime', title: '付款时间',templet:function(d){
+      	if(d.paytime){
+
+			return date('Y-m-d H:i:s',d.paytime)
+		}else{
+      		return ''
+		}
+		  },width:180},
+		  {field: 'paytype', title: '支付方式'},
+		  {field: 'admin_user', title: '收银员'},	
+      {field: 'status', title: '状态',templet:function(d){
+			  if(d.status==1){
+				  return '<span style="color:green">已支付</span>';
+			  }else if(d.status==10){
+				  return '<span style="color:#aba6a6">已退款（￥'+d.refund_money+'）</span>';
+			  }else if(d.status==2){
+				  return '<span style="color:orange">挂单</span>';
+			  }else if(d.status==4){
+				  return '<span style="color:grey">已关闭</span>';
+			  }else{
+				  return '<span style="color:red">未支付</span>';
+			  }
+			}},
+		  {field: 'remark', title: '备注'},
+      {field: 'operation', title: '操作',width:200,templet:function(d){
+				var html = '';
+			  html += '<button class="table-btn" onclick="openmax(\'{:url('edit')}/id/'+d.id+'\')">详情</button>';
+			  if(d.status==1 && (d.refund_status==0 || d.refund_status==3)){
+				  html += `<button class="table-btn" onclick="refund(`+d.id+`,`+d.totalprice+`,'`+d.paytype+`')">退款</button>`;
+			  }
+			  {if $hasprint}
+			  html += '<button class="table-btn" onclick="wifiprint('+d.id+')">打印小票</button>';
+			  {/if}
+				html += '<button class="table-btn" onclick="datadel('+d.id+')">删除</button>';
+				return html;
+			}}
+    ]]
+  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	});
+	//打印小票
+	function wifiprint(id){
+		layer.confirm('确定要打印小票吗?',{icon: 7, title:'操作确认'}, function(index){
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('wifiprint')}",{id:id},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+			})
+		})
+	}
+	//删除
+	function datadel(id){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			var ids = [];
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id)
+		}
+		layer.confirm('确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('del')}",{ids:ids},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+
+	function refund(id=0,totalprice='',paytype){
+		var html = '<div class="layui-form">';
+		html+='	<div class="layui-form-item" style="margin-top:40px;">';
+		html+='		<label class="layui-form-label" style="width:80px">实际支付：</label>';
+		html+='		<div class="layui-input-inline" style="line-height: 36px">';
+		html+=	'￥'+totalprice;
+		html+='		</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label" style="width:80px">付款方式：</label>';
+		html+='		<div class="layui-input-inline" style="line-height: 36px">';
+		html+=	paytype;
+		html+='		</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label" style="width:80px">退款金额：</label>';
+		html+='		<div class="layui-form-mid layui-word-aux" >￥</div>'
+		html+='		<div class="layui-input-inline" style="width:100px">';
+		html+='			<input type="number" id="refund_money" name="refund_money" class="layui-input" value="'+totalprice+'"/>';
+		html+='		</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label" style="width:80px">退款备注：</label>';
+		html+='		<div class="layui-input-inline" style="width:260px">';
+		html+='			<textarea name="remark" class="layui-textarea" id="remark"></textarea>';
+		html+='		</div>';
+		html+='	</div>';
+		html+='	</div>';
+		var oplayer = layer.open({type:1,area:['500px','380px'],title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+			yes:function(){
+				var index = layer.load();
+				$.post("{:url('refund')}",{id:id,refund_money:$('#refund_money').val(),remark:$('#remark').val()},function(res){
+					layer.close(index);
+					dialog(res.msg,res.status);
+					if(res.status==1){
+						layer.close(oplayer);
+						tableIns.reload()
+					}
+				})
+			}
+		})
+	}
+	</script>
+	{include file="public/copyright"/}
+	<div id="NewsToolBox"></div>
+</body>
+</html>

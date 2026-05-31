@@ -1,0 +1,280 @@
+<style>
+	.slider .layui-slider .layui-slider-bar{background: rgb(55, 114, 232) !important;}
+	.slider .layui-slider .layui-slider-wrap .layui-slider-wrap-btn{border: 2px solid #3772E8 !important;}
+	.editor-goodimg{height: 22px;width: 100% !important;background: rgba(0,0,0,0.5);position: absolute;left: 0px;bottom: 0px;font-size: 12px;text-align: center;line-height: 22px;color: #fff;}
+	.dsn-panel .slider-span input{border-radius: 5px;height: 30px;line-height: 30px;}
+	.dsn-panel .slider{width: 150px;}
+	.layui-btn-primary:hover {border-color: #3772E8;color: #333}
+	.layui-form-item .layui-input-inline{width: 230px;border-radius: 5px;overflow: hidden;}
+	.dsn-panel-editor-relative {width:100%;height: auto;position: relative;margin-bottom:0px;border: none !important;}
+	.dsn-panel-editor-line {overflow: hidden;background: #fff;border:none;border-radius: 3px;margin-top: 0px;padding: 0px;}
+	.dsn-panel-editor-goodimg {overflow: hidden;width:88px;height:88px;border: none;float: left;position: relative;background: #fff;cursor: pointer;}
+	.title-div{font-size: 14px;font-weight: bold;color: #2D2D2D;width: 100%;padding: 9px 0;box-sizing: border-box;}
+	.title-div .icon-div {cursor: pointer;}
+	.title-div .icon-div img{width: 10px;height: 10px;}
+	.dsn-panel-editor-goodimg-t2{height: 22px;width: 88px;background: rgba(0,0,0,0.5);position: absolute;left: 0px;bottom: 0px;font-size: 12px;text-align: center;line-height: 22px;color: #fff;}
+</style>
+<div class="dsn-panel-editor-title">{:t('会员')}信息设置</div>
+<div class="dsn-panel-editor-content">
+	<div class="layui-form-item">
+	  <div class="layui-form-label">与上方距离</div>
+	  <div class="slider" min="0" max="40" ng-model="Edit.params.margin_y"></div>
+		<span class="slider-span"><input ng-model="Edit.params.margin_y"/> px</span>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">标题样式</div>
+		<div class="layui-input-inline">
+			<input class="radio" type="radio" name="{{Edit.id}}_style" value="1" ng-model="Edit.params.style" title="样式一"/>
+			<input class="radio" type="radio" name="{{Edit.id}}_style" value="2" ng-model="Edit.params.style" title="样式二"/>
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">背景图片</div>
+		<div class="layui-input-inline"  style="background: linear-gradient(45deg, {:t('color1')} 0%, rgba({:t('color1rgb')}, 0.8) 100%);">
+			<div class="img-div" ng-click="uploadImg(Edit.id,'bgimg')" style="width: 230px;height:146px;cursor: pointer;background: none;">
+				<img ng-show="Edit.params.bgimg" ng-src="{{Edit.params.bgimg}}" style="width: 230px;height:146px;">
+				<img ng-show="!Edit.params.bgimg" src="{$Think.const.PRE_URL}/static/admin/img/uploadimg.png" style="width: 230px;height:146px;" />
+				<div ng-show="Edit.params.bgimg" class="editor-goodimg">重新选择图片</div>
+			</div>
+		</div>
+		<div class="layui-form-mid layui-word-aux" style="float: left;">建议尺寸：600*450像素</div>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">{:t('会员')}等级</div>
+		<div class="layui-input-inline">
+			<input class="radio" type="radio" name="{{Edit.id}}_levelshow" value="1" ng-model="Edit.params.levelshow" title="显示"/>
+			<input class="radio" type="radio" name="{{Edit.id}}_levelshow" value="0" ng-model="Edit.params.levelshow" title="不显示"/>
+		</div>
+	</div>
+	<div class="layui-form-item" ng-show="Edit.params.levelshow == 1">
+		<div class="layui-form-label">点击等级打开升级</div>
+		<div class="layui-input-inline" style="padding: 9px 0px;">
+			<input class="radio" type="radio" name="{{Edit.id}}_levelclick" value="1" ng-model="Edit.params.levelclick" title="是"/>
+			<input class="radio" type="radio" name="{{Edit.id}}_levelclick" value="0" ng-model="Edit.params.levelclick" title="否"/>
+		</div>
+		<div class="layui-form-mid layui-word-aux" style="float: left;">关闭后，点击无法打开{:t('会员')}升级页面</div>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">{:t('会员')}ID</div>
+		<div class="layui-input-inline">
+			<input class="radio" type="radio" name="{{Edit.id}}_midshow" value="1" ng-model="Edit.params.midshow" title="显示"/>
+			<input class="radio" type="radio" name="{{Edit.id}}_midshow" value="0" ng-model="Edit.params.midshow" title="不显示"/>
+		</div>
+	</div>
+	
+	<div class="layui-form-item">
+		<div class="layui-form-label">设置图标</div>
+		<div class="layui-input-inline">
+			<input class="radio" type="radio" name="{{Edit.id}}_seticonshow" value="1" ng-model="Edit.params.seticonshow" title="显示"/>
+			<input class="radio" type="radio" name="{{Edit.id}}_seticonshow" value="0" ng-model="Edit.params.seticonshow" title="不显示"/>
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">设置图标图片</div>
+		<div class="layui-input-inline">
+			<input class="dsn-panel-editor-input3 hide"  value="" ng-model="Edit.params.seticon" placeholder=""/>
+		</div>
+		<span class="layui-btn layui-btn-sm layui-btn-primary" ng-click="uploadImg(Edit.id,'seticon')">上传图片</span>
+		<img ng-src="{{Edit.params.seticon?Edit.params.seticon:'__STATIC__/img/set.png'}}" style="width:30px;height:30px;margin-top:4px;margin-left:10px;border: 1px solid #ccc">
+	</div>
+	<div class="layui-form-item" style="margin-top: 15px;">
+		<div class="layui-form-label">设置图标图片大小</div>
+		<div class="layui-input-inline" style="padding: 9px 0px;">
+			<div class="slider" min="10" max="60" ng-model="Edit.params.seticonsize" style="width: 130px;" ></div>
+			<span class="slider-span"><input ng-model="Edit.params.seticonsize"/> px</span>
+		</div>
+		<div class="layui-form-mid layui-word-aux" style="float: left;">设置大小大于0后生效</div>
+	</div>
+	{if in_array('mp',$platform)}
+	<div class="layui-form-item">
+		<div class="layui-form-label">会员卡</div>
+		<div class="layui-input-inline" style="padding: 3px 0px;">
+			<input class="radio" type="radio" name="{{Edit.id}}_cardshow" value="1" ng-model="Edit.params.cardshow" title="显示"/>
+			<input class="radio" type="radio" name="{{Edit.id}}_cardshow" value="0" ng-model="Edit.params.cardshow" title="不显示"/>
+		</div>
+		<div class="layui-form-mid layui-word-aux" style="float: left;">仅微信端有效，请先在[<a href="javascript:void(0)" onclick="openmax('{:url('membercard/index')}/isopen/1')">微信-微信会员卡</a>]中创建会员卡</div>
+	</div>
+	{/if}
+	
+	<div class="layui-form-item">
+		<div class="layui-form-label">{:t('余额')}</div>
+		<div class="layui-input-inline">
+			<input class="radio" type="radio" name="{{Edit.id}}_moneyshow" value="1" ng-model="Edit.params.moneyshow" title="显示"/>
+			<input class="radio" type="radio" name="{{Edit.id}}_moneyshow" value="0" ng-model="Edit.params.moneyshow" title="不显示"/>
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">{:t('佣金')}</div>
+		<div class="layui-input-inline" style="padding: 3px 0px;">
+			<input class="radio" type="radio" name="{{Edit.id}}_commissionshow" value="1" ng-model="Edit.params.commissionshow" title="显示"/>
+			<input class="radio" type="radio" name="{{Edit.id}}_commissionshow" value="0" ng-model="Edit.params.commissionshow" title="不显示"/>
+		</div>
+		<div class="layui-form-mid layui-word-aux" style="float: left;">该项开启时,仅有分销权限的{:t('会员')}才会显示</div>
+	</div>
+	
+
+	
+	<div class="layui-form-item">
+		<div class="layui-form-label">{:t('积分')}</div>
+		<div class="layui-input-inline">
+			<input class="radio" type="radio" name="{{Edit.id}}_scoreshow" value="1" ng-model="Edit.params.scoreshow" title="显示"/>
+			<input class="radio" type="radio" name="{{Edit.id}}_scoreshow" value="0" ng-model="Edit.params.scoreshow" title="不显示"/>
+		</div>
+	</div>
+	
+	
+	
+
+	
+	
+	
+	
+	<div class="layui-form-item">
+		<div class="layui-form-label">{:t('优惠券')}</div>
+		<div class="layui-input-inline">
+			<input class="radio" type="radio" name="{{Edit.id}}_couponshow" value="1" ng-model="Edit.params.couponshow" title="显示"/>
+			<input class="radio" type="radio" name="{{Edit.id}}_couponshow" value="0" ng-model="Edit.params.couponshow" title="不显示"/>
+		</div>
+	</div>
+	
+	
+	
+	{if getcustom('product_givetongzheng')}
+	<div class="layui-form-item">
+		<div class="layui-form-label">{:t('通证')}</div>
+		<div class="layui-input-inline">
+			<input class="radio" type="radio" name="{{Edit.id}}_tongzhengshow" value="1" ng-model="Edit.params.tongzhengshow" title="显示"/>
+			<input class="radio" type="radio" name="{{Edit.id}}_tongzhengshow" value="0" ng-model="Edit.params.tongzhengshow" title="不显示"/>
+		</div>
+	</div>
+	{/if}
+	{if $canshowsilvermoney}
+	<div class="layui-form-item">
+		<div class="layui-form-label">{:t('银值')}</div>
+		<div class="layui-input-inline">
+			<input class="radio" type="radio" name="{{Edit.id}}_showsilvermoney" value="1" ng-model="Edit.params.showsilvermoney" title="显示"/>
+			<input class="radio" type="radio" name="{{Edit.id}}_showsilvermoney" value="0" ng-model="Edit.params.showsilvermoney" title="不显示"/>
+		</div>
+	</div>
+	{/if}
+	{if $canshowgoldmoney}
+	<div class="layui-form-item">
+		<div class="layui-form-label">{:t('金值')}</div>
+		<div class="layui-input-inline">
+			<input class="radio" type="radio" name="{{Edit.id}}_showgoldmoney" value="1" ng-model="Edit.params.showgoldmoney" title="显示"/>
+			<input class="radio" type="radio" name="{{Edit.id}}_showgoldmoney" value="0" ng-model="Edit.params.showgoldmoney" title="不显示"/>
+		</div>
+	</div>
+	{/if}
+	
+	<div class="layui-form-item">
+		<div class="layui-form-label">我的订单</div>
+		<div class="layui-input-inline">
+			<input class="radio" type="radio" name="{{Edit.id}}_ordershow" value="1" ng-model="Edit.params.ordershow" title="显示"/>
+			<input class="radio" type="radio" name="{{Edit.id}}_ordershow" value="0" ng-model="Edit.params.ordershow" title="不显示"/>
+		</div>
+	</div>
+	<div class="layui-form-item" ng-show="Edit.params.ordershow==1">
+		<div class="layui-form-label">订单样式</div>
+		<div class="layui-input-inline">
+			<input class="radio" type="radio" name="{{Edit.id}}_showtype" value="0" ng-model="Edit.params.showtype" title="默认"/>
+			<input class="radio" type="radio" name="{{Edit.id}}_showtype" value="1" ng-model="Edit.params.showtype" title="自定义"/>
+		</div>
+	</div>
+<!-- 	<div class="title-div flex-box" ng-show="Edit.data.showtype==1">
+		<div>选项设置</div>
+	</div> -->
+	<div class="layui-form-item" ng-show="Edit.params.showtype==1">
+	  <div class="layui-form-label">订单标题</div>
+	  <div class="layui-input-inline">
+	      <input class="layui-input" ng-model="Edit.params.ordertitle" />
+	  </div>
+	</div>
+	<div ng-repeat="menu in Edit.params.orderData" class="dsn-panel-editor-relative" ng-show="Edit.params.showtype==1">
+	  <!-- <div class="dsn-panel-editor-del" style="font-size:12px" title="上移" ng-click="upItemChild(Edit.id,menu.id)"><i class="fa fa-arrow-up"></i></div> -->
+	  <!-- <div class="dsn-panel-editor-del" title="移除" style="top:6px" ng-click="delItemChild(Edit.id,menu.id)">×</div> -->
+	  <div class="dsn-panel-editor-line flex">
+			<div class="dsn-panel-editor-goodimg flex0" ng-click="uploadImgChild(Edit.id, menu.id,'userinfo')"
+			ng-style="{'background':'url(' + menu.imgurl + ')','backgroundRepeat':'no-repeat','backgroundPosition':'center','backgroundSize': 'contain'}">
+				<!-- <img ng-src="{{menu.imgurl}}" width="100%" ng-show="menu.imgurl" /> -->
+				<div class="dsn-panel-editor-goodimg-t1" ng-show="!menu.imgurl" style="line-height:120px;"><i class="fa fa-plus-circle"></i> 选择图片</div>
+				<div class="dsn-panel-editor-goodimg-t2" ng-show="menu.imgurl">重新选择图片</div>
+			</div>
+			<div class="dsn-panel-editor-line-right ">
+				<div class="layui-form-item">
+					<div class="layui-form-label">按钮文字</div>
+					<div class="layui-input-inline">
+						<input class="layui-input" value="" ng-model="menu.text" placeholder="请填写按钮文字" />
+	        </div>
+				</div>
+				<div class="layui-form-item">
+					<div class="layui-input-inline">
+						<input class="radio" type="radio" name="{{menu.id}}_menushow" value="1" ng-model="menu.show" title="显示"/>
+						<input class="radio" type="radio" name="{{menu.id}}_menushow" value="0" ng-model="menu.show" title="不显示"/>
+					</div>
+				</div>
+			</div>
+	  </div>
+		<hr>
+	</div>
+
+	<div class="layui-form-item">
+		<div class="layui-form-label">{:t('积分')}兑换订单</div>
+		<div class="layui-input-inline">
+			<input class="radio" type="radio" name="{{Edit.id}}_scoreshopordershow" value="1" ng-model="Edit.params.scoreshopordershow" title="显示"/>
+			<input class="radio" type="radio" name="{{Edit.id}}_scoreshopordershow" value="0" ng-model="Edit.params.scoreshopordershow" title="不显示"/>
+		</div>
+	</div>
+	<hr>
+	<div class="layui-form-item">
+    <div class="layui-form-label">左右外边距</div>
+    <div class="slider" min="0" max="40" ng-model="margin_x"></div>
+		<span class="slider-span"><input ng-model="Edit.params.margin_x"/> px</span>
+	</div>
+	<div class="layui-form-item">
+    <div class="layui-form-label">左右内边距</div>
+    <div class="slider" min="0" max="40" ng-model="Edit.params.padding_x"></div>
+		<span class="slider-span"><input ng-model="Edit.params.padding_x"/> px</span>
+	</div>
+	<div class="layui-form-item">
+    <div class="layui-form-label">上下内边距</div>
+    <div class="slider" min="0" max="40" ng-model="Edit.params.padding_y"></div>
+		<span class="slider-span"><input ng-model="Edit.params.padding_y"/> px</span>
+	</div>
+	{if !$type}
+	{if !$noshow_modules || !in_array('ModulePlatform',$noshow_modules)}
+	<div class="layui-form-item">
+		<div class="layui-form-label">显示平台</div>
+		<div class="layui-input-inline" style="border-radius: 0;padding: 2px;">
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="所有平台" name="{{Edit.id}}_platform['all']" ng-model="Edit.params.platform['all']"/>
+			{foreach $platform as $pl}
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="{:getplatformname($pl)}" name="{{Edit.id}}_platform['{$pl}']" ng-model="Edit.params.platform['{$pl}']"/>
+			{/foreach}
+		</div>
+	</div>
+	{/if}
+	{if !$noshow_modules || !in_array('ModuleQuanxian',$noshow_modules)}
+	<div class="layui-form-item">
+		<div class="layui-form-label">显示范围</div>
+		<div class="layui-input-inline" style="border-radius: 0;padding: 2px;">
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="所有人" name="{{Edit.id}}_quanxian['all']" ng-model="Edit.params.quanxian['all']"/>
+			{foreach $memberlevelList as $lv}
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="{$lv.name}" name="{{Edit.id}}_quanxian[{$lv.id}]" ng-model="Edit.params.quanxian[{$lv.id}]"/>
+			{/foreach}
+		</div>
+	</div>
+	{/if}
+	{include file="designer_page/tempnew/edit-plugin-mendian" /}
+	<div class="layui-form-item" ng-show="!Edit.params.quanxian['all']">
+    <div class="layui-form-label">显示用户</div>
+    <div class="layui-input-inline" style="border-radius: 0;padding: 2px;">
+			<input class="layui-input" ng-model="Edit.params.showmids"/>
+    </div>
+		<div class="layui-form-mid layui-word-aux">填写用户ID，多个用英文标点逗号(,)分割
+	</div>
+	{else}
+        <input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有平台" name="{{Edit.id}}_platform['all']" ng-model="Edit.params.platform['all']"/>
+        <input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有人" name="{{Edit.id}}_quanxian['all']" ng-model="Edit.params.quanxian['all']"/>
+        <input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有门店" name="{{Edit.id}}_mendian['all']" ng-model="Edit.params.mendian['all']"/>
+    {/if}
+</div>

@@ -1,0 +1,63 @@
+<!DOCTYPE html >
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0,viewport-fit=cover">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="format-detection" content="telephone=no">
+	<title>授权码</title>
+	<link rel="stylesheet" href="__STATIC__/m/css/weui.min.css">
+	<link rel="stylesheet" href="__STATIC__/m/css/jquery-weui.min.css">
+	<link rel="stylesheet" href="__STATIC__/m/css/common.css">
+  <link rel="stylesheet" href="__STATIC__/m/css/font-awesome.min.css">
+	<style>
+	.nav{display:flex;width: 100%;padding:0.1rem;}
+	.nav .item{flex:1;width: 50%;line-height:0.35rem;height:0.35rem;text-align:center;background:#fff;border-top:1px solid #ccc;border-bottom:1px solid #ccc;}
+	.nav .item:first-child{border:1px solid #ccc;border-radius:0.05rem 0 0 0.05rem;}
+	.nav .item:last-child{border:1px solid #ccc;border-radius:0 0.05rem 0.05rem 0}
+	.nav .on{background: #ff6801;color: #fff;}
+
+	.content{ width:100%;margin:0;background:#fff}
+	.content .item{ width:100%;padding:0.1rem 0.1rem;border-bottom:1px solid #ccc;display:flex;align-items:center}
+	.content .item:last-child{border:0}
+	.content .item .f1{display:flex;flex-direction:column}
+	.content .item .f1 .t1{color:#000000;font-size:0.15rem;word-break:break-all;overflow:hidden;text-overflow:ellipsis;}
+	.content .item .f1 .t2{color:#666666}
+	.content .item .f1 .t3{color:#666666}
+	.content .item .f2{ flex:1;font-size:0.18rem;text-align:right}
+	.content .item .f2 .t1{color:#03bc01}
+	.content .item .f2 .t2{color:#000000}
+	.content .item .f3{ flex:1;font-size:0.16rem;text-align:right}
+	.content .item .f3 .t1{color:#03bc01}
+	.content .item .f3 .t2{color:#000000}
+	</style>
+</head>
+<body>
+<div class="container">
+	<div class="content" id="datalist">
+		{foreach $codelist as $item}
+		<div class='item'>
+			<div class='f1'>
+					<span class='t1'>{$item.code}</span>
+					<span class='t2'>授权域名：{$item.authdomain}</span>
+					<span class='t2'>授权主体：{$item.authname}</span>
+					<span class='t2'>授权时间：{:date('Y-m-d H:i:s',$item['authtime'])}</span>
+			</div>
+			<div class='f2'>
+				<span class='t2'>{if $item.status==1}<span style="color:#aaa">已使用</span>{else}{if $item.isff==1}<span style="color:red">已发放{else}<span style="color:#111">未使用{/if}</span>{/if}</span>
+			</div>
+		</div>
+		{/foreach}
+		{if !$codelist}
+		<div class="data-empty">
+			<img src="__STATIC__/m/images/empty2.png" class='data-empty-img'/>
+			<p class="data-empty-text">暂无相关数据！</p>
+		</div>
+		{/if}
+	</div>
+</div>
+
+</body>
+</html>

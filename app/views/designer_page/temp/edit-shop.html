@@ -1,0 +1,116 @@
+<div class="dsn-panel-editor-title">店招设置</div>
+<div class="dsn-panel-editor-content">
+	<div class="layui-form-item">
+		<div class="layui-form-label">选择样式</div>
+		<div class="layui-input-inline">
+			<input class="radio" type="radio" title="样式一" name="{{Edit.id}}_style" value="1" ng-model="Edit.params.style" />
+			<input class="radio" type="radio" title="样式二" name="{{Edit.id}}_style" value="2" ng-model="Edit.params.style" />
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">商城logo</div>
+		<div class="layui-input-inline">
+			<input class="radio" type="radio" title="显示" name="{{Edit.id}}_logo" value="1" ng-model="Edit.params.logo" />
+			<input class="radio" type="radio" title="不显示" name="{{Edit.id}}_logo" value="2" ng-model="Edit.params.logo" />
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">商城名称</div>
+		<div class="layui-input-inline">
+			<input class="radio" type="radio" title="显示" name="{{Edit.id}}_name" value="1" ng-model="Edit.params.name" />
+			<input class="radio" type="radio" title="不显示" name="{{Edit.id}}_name" value="2" ng-model="Edit.params.name" />
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">默认导航</div>
+		<div class="layui-input-inline">
+			<input class="radio" type="radio" title="显示" name="{{Edit.id}}_menu" value="1" ng-model="Edit.params.menu" />
+			<input class="radio" type="radio" title="不显示" name="{{Edit.id}}_menu" value="2" ng-model="Edit.params.menu" />
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">按钮颜色</div>
+		<div class="layui-input-inline">
+			<input class="layui-input" value="{{Edit.params.navcolor}}" ng-model="Edit.params.navcolor"/>
+		</div>
+		<span class="colorpicker" ng-model="Edit.params.navcolor"></span>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">背景图片</div>
+		<div class="layui-input-inline">
+			<div class="dsn-panel-editor-upload" ng-click="shopImg(Edit.id)">
+				<img ng-src="{{Edit.params.bgimg}}" width="100%" ng-show="Edit.params.bgimg" />
+				<div class="dsn-panel-editor-upload-choose2" ng-show="Edit.params.bgimg">重新选择背景图片</div>
+				<div class="dsn-panel-editor-upload-choose1" ng-show="!Edit.params.bgimg"><i class="fa fa-plus-circle"></i> 选择图片</div>
+			</div>
+		</div>
+	</div>
+	<div ng-repeat="menu in Edit.data" ng-show="Edit.params.menu == 1" class="dsn-panel-editor-relative" style="width:600px">
+		<div class="dsn-panel-editor-line flex">
+			<div class="dsn-panel-editor-line-right">
+				<div class="layui-form-item" style="margin-bottom:5px">
+					<div class="layui-form-label">按钮文字</div>
+					<div class="layui-input-inline">
+						<input class="layui-input" value="" ng-model="menu.text" placeholder="请填写按钮文字" />
+					</div>
+				</div>
+				<div class="layui-form-item" style="margin-bottom:5px">
+					<div class="layui-form-label">链接地址</div>
+					<div class="layui-input-inline">
+						<input class="layui-input"  value="" ng-model="menu.hrefurl" placeholder=""/>
+					</div>
+					<div class="layui-btn layui-btn-primary" style="float:left" ng-click="chooseUrl(Edit.id, menu.id)">选择链接</div>
+					<div class="layui-form-mid">
+						<span style="margin-left:10px">{{menu.hrefname}}</span>
+					</div>
+				</div>
+				<div class="layui-form-item" style="margin-bottom:5px">
+					<div class="layui-form-label">图 标</div>
+					<div class="layui-form-mid" style="margin-top:-5px">
+						<input class="hide"  value="" ng-model="menu.icon" placeholder=""/>
+						<div class="layui-btn layui-btn-sm layui-btn-primary" ng-click="uploadImgChild(Edit.id, menu.id)">选择图标</div>
+						<span style="margin-left:10px;font-size:18px"><img ng-src="{{menu.imgurl}}" style="width:30px;height:30px"/></span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<hr>
+	{if !$type}
+	{if !$noshow_modules || !in_array('ModulePlatform',$noshow_modules)}
+	<div class="layui-form-item">
+		<div class="layui-form-label">显示平台</div>
+		<div class="layui-input-inline" style="width:500px">
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="所有平台" name="{{Edit.id}}_platform['all']" ng-model="Edit.params.platform['all']"/>
+			{foreach $platform as $pl}
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="{:getplatformname($pl)}" name="{{Edit.id}}_platform['{$pl}']" ng-model="Edit.params.platform['{$pl}']"/>
+			{/foreach}
+
+		</div>
+	</div>
+	{/if}
+	{if !$noshow_modules || !in_array('ModuleQuanxian',$noshow_modules)}
+	<div class="layui-form-item">
+		<div class="layui-form-label">显示范围</div>
+		<div class="layui-input-inline" style="width:500px">
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="所有人" name="{{Edit.id}}_quanxian['all']" ng-model="Edit.params.quanxian['all']"/>
+			{foreach $memberlevelList as $lv}
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="{$lv.name}" name="{{Edit.id}}_quanxian[{$lv.id}]" ng-model="Edit.params.quanxian[{$lv.id}]"/>
+			{/foreach}
+		</div>
+	</div>
+	{/if}
+	{include file="designer_page/temp/edit-plugin-mendian" /}
+	<div class="layui-form-item" ng-show="!Edit.params.quanxian['all']">
+    <div class="layui-form-label">显示用户</div>
+    <div class="layui-input-inline">
+			<input class="layui-input" ng-model="Edit.params.showmids"/>
+    </div>
+		<div class="layui-form-mid layui-word-aux">填写用户ID，多个用英文标点逗号(,)分割
+	</div>
+	{else}
+        <input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有平台" name="{{Edit.id}}_platform['all']" ng-model="Edit.params.platform['all']"/>
+        <input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有人" name="{{Edit.id}}_quanxian['all']" ng-model="Edit.params.quanxian['all']"/>
+        <input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有门店" name="{{Edit.id}}_mendian['all']" ng-model="Edit.params.mendian['all']"/>
+    {/if}
+</div>

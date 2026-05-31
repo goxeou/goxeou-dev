@@ -1,0 +1,360 @@
+<div class="layui-form-item">
+  <label class="layui-form-label">短信验证码</label>
+  <div class="layui-input-inline" style="width:300px">
+    <input class="layui-input" name="info[tmpl_smscode]" value="{$info.tmpl_smscode}" {if $ainfo.sms_system_status == 1 && !$webset }disabled{/if}/>
+  </div>
+  <div class="layui-input-inline" style="width:100px">
+    <input type="checkbox" name="info[tmpl_smscode_st]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $info.tmpl_smscode_st==1}checked{/if}>
+  </div>
+  <div class="layui-form-mid layui-word-aux smstip1" style="margin-left:10px;{if $info['smstype']!=1}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：您的验证码：${code}，该验证码5分钟内有效，请勿泄漏于他人！</div>
+  <div class="layui-form-mid layui-word-aux smstip2" style="margin-left:10px;{if $info['smstype']!=2}display:none{/if}"><span style="color:#666">请填写模板ID</span> 模板内容示例：您的验证码：{1}，该验证码5分钟内有效，请勿泄漏于他人！</div>
+</div>
+<!-- <div class="layui-form-item">
+    <label class="layui-form-label">订单提交成功</label>
+    <div class="layui-input-inline" style="width:300px">
+        <input class="layui-input" name="info[tmpl_orderconfirm]" value="{$info.tmpl_orderconfirm}"/>
+    </div>
+    <div class="layui-input-inline" style="width:100px">
+        <input type="checkbox" name="info[tmpl_orderconfirm_st]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $info.tmpl_orderconfirm_st==1}checked{/if}>
+    </div>
+    <div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+</div> -->
+<div class="layui-form-item">
+  <label class="layui-form-label">订单支付成功</label>
+  <div class="layui-input-inline" style="width:300px">
+    <input class="layui-input" name="info[tmpl_orderpay]" value="{$info.tmpl_orderpay}" {if $ainfo.sms_system_status == 1 && !$webset }disabled{/if}/>
+  </div>
+  <div class="layui-input-inline" style="width:100px">
+    <input type="checkbox" name="info[tmpl_orderpay_st]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $info.tmpl_orderpay_st==1}checked{/if}>
+  </div>
+  <div class="layui-form-mid layui-word-aux smstip1" style="margin-left:10px;{if $info['smstype']!=1}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：恭喜您订单支付成功，订单号：${ordernum}，我们会尽快为您准备发货。</div>
+  <div class="layui-form-mid layui-word-aux smstip2" style="margin-left:10px;{if $info['smstype']!=2}display:none{/if}"><span style="color:#666">请填写模板ID</span> 模板内容示例：恭喜您订单支付成功，订单号：{1}，我们会尽快为您准备发货。</div>
+</div>
+<div class="layui-form-item">
+  <label class="layui-form-label">订单发货通知</label>
+  <div class="layui-input-inline" style="width:300px">
+    <input class="layui-input" name="info[tmpl_orderfahuo]" value="{$info.tmpl_orderfahuo}" {if $ainfo.sms_system_status == 1 && !$webset }disabled{/if}/>
+  </div>
+  <div class="layui-input-inline" style="width:100px">
+    <input type="checkbox" name="info[tmpl_orderfahuo_st]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $info.tmpl_orderfahuo_st==1}checked{/if}>
+  </div>
+  <div class="layui-form-mid layui-word-aux smstip1" style="margin-left:10px;{if $info['smstype']!=1}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：您的订单${ordernum}已发货，快递公司：${express_com}，快递单号：${express_no}，请留意查收。</div>
+  <div class="layui-form-mid layui-word-aux smstip2" style="margin-left:10px;{if $info['smstype']!=2}display:none{/if}"><span style="color:#666">请填写模板ID</span> 模板内容示例：您的订单{1}已发货，快递公司：{2}，快递单号：{3}，请留意查收。</div>
+</div>
+<div class="layui-form-item">
+  <label class="layui-form-label">拼团成功通知</label>
+  <div class="layui-input-inline" style="width:300px">
+    <input class="layui-input" name="info[tmpl_collagesuccess]" value="{$info.tmpl_collagesuccess}" {if $ainfo.sms_system_status == 1 && !$webset }disabled{/if}/>
+  </div>
+  <div class="layui-input-inline" style="width:100px">
+    <input type="checkbox" name="info[tmpl_collagesuccess_st]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $info.tmpl_collagesuccess_st==1}checked{/if}>
+  </div>
+  <div class="layui-form-mid layui-word-aux smstip1" style="margin-left:10px;{if $info['smstype']!=1}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：恭喜您的订单${ordernum}拼团成功，我们会尽快为您准备发货。</div>
+  <div class="layui-form-mid layui-word-aux smstip2" style="margin-left:10px;{if $info['smstype']!=2}display:none{/if}"><span style="color:#666">请填写模板ID</span> 模板内容示例：恭喜您的订单{1}拼团成功，我们会尽快为您准备发货。</div>
+</div>
+<div class="layui-form-item">
+  <label class="layui-form-label">退款成功通知</label>
+  <div class="layui-input-inline" style="width:300px">
+    <input class="layui-input" name="info[tmpl_tuisuccess]" value="{$info.tmpl_tuisuccess}" {if $ainfo.sms_system_status == 1 && !$webset }disabled{/if}/>
+  </div>
+  <div class="layui-input-inline" style="width:100px">
+    <input type="checkbox" name="info[tmpl_tuisuccess_st]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $info.tmpl_tuisuccess_st==1}checked{/if}>
+  </div>
+  <div class="layui-form-mid layui-word-aux smstip1" style="margin-left:10px;{if $info['smstype']!=1}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：您的订单${ordernum}退款成功，退款金额：${money}元，请留意查收。</div>
+  <div class="layui-form-mid layui-word-aux smstip2" style="margin-left:10px;{if $info['smstype']!=2}display:none{/if}"><span style="color:#666">请填写模板ID</span> 模板内容示例：您的订单{1}退款成功，退款金额：{2}元，请留意查收。</div>
+</div>
+<div class="layui-form-item">
+  <label class="layui-form-label">退款驳回通知</label>
+  <div class="layui-input-inline" style="width:300px">
+    <input class="layui-input" name="info[tmpl_tuierror]" value="{$info.tmpl_tuierror}" {if $ainfo.sms_system_status == 1 && !$webset }disabled{/if}/>
+  </div>
+  <div class="layui-input-inline" style="width:100px">
+    <input type="checkbox" name="info[tmpl_tuierror_st]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $info.tmpl_tuierror_st==1}checked{/if}>
+  </div>
+  <div class="layui-form-mid layui-word-aux smstip1" style="margin-left:10px;{if $info['smstype']!=1}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：抱歉您的订单${ordernum}退款申请失败，原因：${reason}。</div>
+  <div class="layui-form-mid layui-word-aux smstip2" style="margin-left:10px;{if $info['smstype']!=2}display:none{/if}"><span style="color:#666">请填写模板ID</span> 模板内容示例：抱歉您的订单{1}退款申请失败，原因：{2}。</div>
+</div>
+<div class="layui-form-item">
+  <label class="layui-form-label">提现成功通知</label>
+  <div class="layui-input-inline" style="width:300px">
+    <input class="layui-input" name="info[tmpl_tixiansuccess]" value="{$info.tmpl_tixiansuccess}" {if $ainfo.sms_system_status == 1 && !$webset }disabled{/if}/>
+  </div>
+  <div class="layui-input-inline" style="width:100px">
+    <input type="checkbox" name="info[tmpl_tixiansuccess_st]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $info.tmpl_tixiansuccess_st==1}checked{/if}>
+  </div>
+  <div class="layui-form-mid layui-word-aux smstip1" style="margin-left:10px;{if $info['smstype']!=1}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：恭喜您提现成功，打款金额：${money}，请留意查收。</div>
+  <div class="layui-form-mid layui-word-aux smstip2" style="margin-left:10px;{if $info['smstype']!=2}display:none{/if}"><span style="color:#666">请填写模板ID</span> 模板内容示例：恭喜您提现成功，打款金额：{1}，请留意查收。</div>
+</div>
+<div class="layui-form-item">
+  <label class="layui-form-label">提现失败通知</label>
+  <div class="layui-input-inline" style="width:300px">
+    <input class="layui-input" name="info[tmpl_tixianerror]" value="{$info.tmpl_tixianerror}" {if $ainfo.sms_system_status == 1 && !$webset }disabled{/if}/>
+  </div>
+  <div class="layui-input-inline" style="width:100px">
+    <input type="checkbox" name="info[tmpl_tixianerror_st]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $info.tmpl_tixianerror_st==1}checked{/if}>
+  </div>
+  <div class="layui-form-mid layui-word-aux smstip1" style="margin-left:10px;{if $info['smstype']!=1}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：抱歉您的提现申请失败，原因：${reason}。</div>
+  <div class="layui-form-mid layui-word-aux smstip2" style="margin-left:10px;{if $info['smstype']!=2}display:none{/if}"><span style="color:#666">请填写模板ID</span> 模板内容示例：抱歉您的提现申请失败，原因：{1}。</div>
+</div>
+<div class="layui-form-item">
+  <label class="layui-form-label">分销成功提醒</label>
+  <div class="layui-input-inline" style="width:300px">
+    <input class="layui-input" name="info[tmpl_fenxiaosuccess]" value="{$info.tmpl_fenxiaosuccess}" {if $ainfo.sms_system_status == 1 && !$webset }disabled{/if}/>
+  </div>
+  <div class="layui-input-inline" style="width:100px">
+    <input type="checkbox" name="info[tmpl_fenxiaosuccess_st]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $info.tmpl_fenxiaosuccess_st==1}checked{/if}>
+  </div>
+  <div class="layui-form-mid layui-word-aux smstip1" style="margin-left:10px;{if $info['smstype']!=1}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：恭喜您成功获得佣金：${money}元，请留意查收。</div>
+  <div class="layui-form-mid layui-word-aux smstip2" style="margin-left:10px;{if $info['smstype']!=2}display:none{/if}"><span style="color:#666">请填写模板ID</span> 模板内容示例：恭喜您成功获得佣金：{1}元，请留意查收。</div>
+</div>
+{if getcustom('plug_zhangyuan')}
+<div class="layui-form-item">
+  <label class="layui-form-label">审核通过通知</label>
+  <div class="layui-input-inline" style="width:300px">
+    <input class="layui-input" name="info[tmpl_checksuccess]" value="{$info.tmpl_checksuccess}" {if $ainfo.sms_system_status == 1 && !$webset }disabled{/if}/>
+  </div>
+  <div class="layui-input-inline" style="width:100px">
+    <input type="checkbox" name="info[tmpl_checksuccess_st]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $info.tmpl_checksuccess_st==1}checked{/if}>
+  </div>
+  <div class="layui-form-mid layui-word-aux smstip1" style="margin-left:10px;{if $info['smstype']!=1}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：恭喜您的注册审核已通过。</div>
+  <div class="layui-form-mid layui-word-aux smstip2" style="margin-left:10px;{if $info['smstype']!=2}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：恭喜您的注册审核已通过。</div>
+</div>
+<div class="layui-form-item">
+  <label class="layui-form-label">审核驳回通知</label>
+  <div class="layui-input-inline" style="width:300px">
+    <input class="layui-input" name="info[tmpl_checkerror]" value="{$info.tmpl_checkerror}" {if $ainfo.sms_system_status == 1 && !$webset }disabled{/if}/>
+  </div>
+  <div class="layui-input-inline" style="width:100px">
+    <input type="checkbox" name="info[tmpl_checkerror_st]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $info.tmpl_checkerror_st==1}checked{/if}>
+  </div>
+  <div class="layui-form-mid layui-word-aux smstip1" style="margin-left:10px;{if $info['smstype']!=1}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：抱歉您的注册审核未通过，驳回原因${reason}。</div>
+  <div class="layui-form-mid layui-word-aux smstip2" style="margin-left:10px;{if $info['smstype']!=2}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：抱歉您的注册审核未通过，驳回原因{1}。</div>
+</div>
+{/if}
+{if getcustom('form_submit_notice')}
+<div class="layui-form-item">
+  <label class="layui-form-label">表单提交通知</label>
+  <div class="layui-input-inline" style="width:300px">
+    <input class="layui-input" name="info[tmpl_formsubmit]" value="{$info.tmpl_formsubmit}" {if $ainfo.sms_system_status == 1 && !$webset }disabled{/if}/>
+  </div>
+  <div class="layui-input-inline" style="width:100px">
+    <input type="checkbox" name="info[tmpl_formsubmit_st]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $info.tmpl_formsubmit_st==1}checked{/if}>
+  </div>
+  <div class="layui-form-mid layui-word-aux smstip1" style="margin-left:10px;{if $info['smstype']!=1}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：您的表单${ordernum}，已提交成功。</div>
+  <div class="layui-form-mid layui-word-aux smstip2" style="margin-left:10px;{if $info['smstype']!=2}display:none{/if}"><span style="color:#666">请填写模板ID</span> 模板内容示例：您的表单{1}，已提交成功。</div>
+</div>
+{/if}
+{if $auth_data=='all' || in_array('Restaurant/*',$auth_data)}
+<div class="layui-form-item">
+  <label class="layui-form-label">餐饮预定成功提醒</label>
+  <div class="layui-input-inline" style="width:300px">
+    <input class="layui-input" name="info[tmpl_restaurant_booking]" value="{$info.tmpl_restaurant_booking}" {if $ainfo.sms_system_status == 1 && !$webset }disabled{/if}/>
+  </div>
+  <div class="layui-input-inline" style="width:100px">
+    <input type="checkbox" name="info[tmpl_restaurant_booking_st]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $info.tmpl_restaurant_booking_st==1}checked{/if}>
+  </div>
+  <div class="layui-form-mid layui-word-aux smstip1" style="margin-left:10px;{if $info['smstype']!=1}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：恭喜您预定成功，餐厅名称：${restaurant_name}，订位信息：${table}，预定时间：${time_range}，请准时到达。</div>
+  <div class="layui-form-mid layui-word-aux smstip2" style="margin-left:10px;{if $info['smstype']!=2}display:none{/if}"><span style="color:#666">请填写模板ID</span> 模板内容示例：恭喜您预定成功，餐厅名称：{1}，订位信息：{2}，预定时间：{3}，请准时到达。</div>
+</div>
+<div class="layui-form-item">
+  <label class="layui-form-label">餐饮预定失败提醒</label>
+  <div class="layui-input-inline" style="width:300px">
+    <input class="layui-input" name="info[tmpl_restaurant_booking_fail]" value="{$info.tmpl_restaurant_booking_fail}" {if $ainfo.sms_system_status == 1 && !$webset }disabled{/if}/>
+  </div>
+  <div class="layui-input-inline" style="width:100px">
+    <input type="checkbox" name="info[tmpl_restaurant_booking_fail_st]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $info.tmpl_restaurant_booking_fail_st==1}checked{/if}>
+  </div>
+  <div class="layui-form-mid layui-word-aux smstip1" style="margin-left:10px;{if $info['smstype']!=1}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：抱歉您的预定失败，餐厅名称：${restaurant_name}，请重新预定。</div>
+  <div class="layui-form-mid layui-word-aux smstip2" style="margin-left:10px;{if $info['smstype']!=2}display:none{/if}"><span style="color:#666">请填写模板ID</span> 模板内容示例：抱歉您的预定失败，餐厅名称：{1}，请重新预定。</div>
+</div>
+{/if}
+
+{if getcustom('yuyue_sms')}
+<div class="layui-form-item">
+  <label class="layui-form-label">预约成功通知</label>
+  <div class="layui-input-inline" style="width:300px">
+    <input class="layui-input" name="info[tmpl_yysucess]" value="{$info.tmpl_yysucess}" {if $ainfo.sms_system_status == 1 && !$webset }disabled{/if}/>
+  </div>
+  <div class="layui-input-inline" style="width:100px">
+    <input type="checkbox" name="info[tmpl_yysucess_st]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $info.tmpl_yysucess_st==1}checked{/if}>
+  </div>
+  <div class="layui-form-mid layui-word-aux smstip1" style="margin-left:10px;{if $info['smstype']!=1}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：恭喜您预定的${name}，已为您准备好，预定时间：${time}，敬请准时赴约。</div>
+  <div class="layui-form-mid layui-word-aux smstip2" style="margin-left:10px;{if $info['smstype']!=2}display:none{/if}"><span style="color:#666">请填写模板ID</span> 模板内容示例：恭喜您预定的{1}，已为您准备好，预定时间：{2}，敬请准时赴约。</div>
+</div>
+{/if}
+{if getcustom('zhaopin')}
+<div class="layui-form-item">
+  <label class="layui-form-label">充值成功通知</label>
+  <div class="layui-input-inline" style="width:300px">
+    <input class="layui-input" name="info[tmpl_recharge]" value="{$info.tmpl_recharge}" {if $ainfo.sms_system_status == 1 && !$webset }disabled{/if}/>
+  </div>
+  <div class="layui-input-inline" style="width:100px">
+    <input type="checkbox" name="info[tmpl_recharge_st]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $info.tmpl_recharge_st==1}checked{/if}>
+  </div>
+  <div class="layui-form-mid layui-word-aux smstip1" style="margin-left:10px;{if $info['smstype']!=1}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：会员充值成功，请登录查看。</div>
+  <div class="layui-form-mid layui-word-aux smstip2" style="margin-left:10px;{if $info['smstype']!=2}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：会员充值成功，请登录查看。</div>
+</div>
+<div class="layui-form-item">
+  <label class="layui-form-label">审核通过通知</label>
+  <div class="layui-input-inline" style="width:300px">
+    <input class="layui-input" name="info[tmpl_checksuccess]" value="{$info.tmpl_checksuccess}" {if $ainfo.sms_system_status == 1 && !$webset }disabled{/if}/>
+  </div>
+  <div class="layui-input-inline" style="width:100px">
+    <input type="checkbox" name="info[tmpl_checksuccess_st]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $info.tmpl_checksuccess_st==1}checked{/if}>
+  </div>
+  <div class="layui-form-mid layui-word-aux smstip1" style="margin-left:10px;{if $info['smstype']!=1}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：恭喜您的注册审核已通过。</div>
+  <div class="layui-form-mid layui-word-aux smstip2" style="margin-left:10px;{if $info['smstype']!=2}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：恭喜您的注册审核已通过。</div>
+</div>
+<div class="layui-form-item">
+  <label class="layui-form-label">审核驳回通知</label>
+  <div class="layui-input-inline" style="width:300px">
+    <input class="layui-input" name="info[tmpl_checkerror]" value="{$info.tmpl_checkerror}" {if $ainfo.sms_system_status == 1 && !$webset }disabled{/if}/>
+  </div>
+  <div class="layui-input-inline" style="width:100px">
+    <input type="checkbox" name="info[tmpl_checkerror_st]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $info.tmpl_checkerror_st==1}checked{/if}>
+  </div>
+  <div class="layui-form-mid layui-word-aux smstip1" style="margin-left:10px;{if $info['smstype']!=1}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：抱歉您的注册审核未通过，驳回原因${reason}。</div>
+  <div class="layui-form-mid layui-word-aux smstip2" style="margin-left:10px;{if $info['smstype']!=2}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：抱歉您的注册审核未通过，驳回原因{1}。</div>
+</div>
+<div class="layui-form-item">
+  <label class="layui-form-label">待审核通知</label>
+  <div class="layui-input-inline" style="width:300px">
+    <input class="layui-input" name="info[tmpl_checknotice]" value="{$info.tmpl_checknotice}" {if $ainfo.sms_system_status == 1 && !$webset }disabled{/if}/>
+  </div>
+  <div class="layui-input-inline" style="width:100px">
+    <input type="checkbox" name="info[tmpl_checknotice_st]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $info.tmpl_checknotice_st==1}checked{/if}>
+  </div>
+  <div class="layui-form-mid layui-word-aux smstip1" style="margin-left:10px;{if $info['smstype']!=1}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：您有一条新的审核信息，请登录查看。</div>
+  <div class="layui-form-mid layui-word-aux smstip2" style="margin-left:10px;{if $info['smstype']!=2}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：您有一条新的审核信息，请登录查看。</div>
+</div>
+<div class="layui-form-item">
+  <label class="layui-form-label">新私信提醒</label>
+  <div class="layui-input-inline" style="width:300px">
+    <input class="layui-input" name="info[tmpl_sysmsg_notice]" value="{$info.tmpl_sysmsg_notice}" {if $ainfo.sms_system_status == 1 && !$webset }disabled{/if}/>
+  </div>
+  <div class="layui-input-inline" style="width:100px">
+    <input type="checkbox" name="info[tmpl_sysmsg_notice_st]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $info.tmpl_sysmsg_notice_st==1}checked{/if}>
+  </div>
+  <div class="layui-form-mid layui-word-aux smstip1" style="margin-left:10px;{if $info['smstype']!=1}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：您有一条来自于新的私信未读，请登录查看。</div>
+  <div class="layui-form-mid layui-word-aux smstip2" style="margin-left:10px;{if $info['smstype']!=2}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：您有一条来自于新的私信未读，请登录查看。</div>
+</div>
+{/if}
+{if getcustom('lot_cerberuse')}
+<div class="layui-form-item">
+  <label class="layui-form-label">消费时间到期提醒</label>
+  <div class="layui-input-inline" style="width:300px">
+    <input class="layui-input" name="info[tmpl_use_expire]" value="{$info.tmpl_use_expire}" {if $ainfo.sms_system_status == 1 && !$webset }disabled{/if}/>
+  </div>
+  <div class="layui-input-inline" style="width:100px">
+    <input type="checkbox" name="info[tmpl_use_expire_st]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $info.tmpl_use_expire_st==1}checked{/if}>
+  </div>
+  <div class="layui-form-mid layui-word-aux smstip1" style="margin-left:10px;{if $info['smstype']!=1}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：您消费的时间即将到期，为不影响您正常的使用，如有需要，请及时续费！</div>
+  <div class="layui-form-mid layui-word-aux smstip2" style="margin-left:10px;{if $info['smstype']!=2}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：您消费的时间即将到期，为不影响您正常的使用，如有需要，请及时续费。</div>
+</div>
+{/if}
+{if getcustom('car_hailing')}
+<div class="layui-form-item">
+  <label class="layui-form-label">约车支付成功提醒</label>
+  <div class="layui-input-inline" style="width:300px">
+    <input class="layui-input" name="info[tmpl_carhailing_sucess]" value="{$info.tmpl_carhailing_sucess}" {if $ainfo.sms_system_status == 1 && !$webset }disabled{/if}/>
+  </div>
+  <div class="layui-input-inline" style="width:100px">
+    <input type="checkbox" name="info[tmpl_carhailing_sucess_st]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $info.tmpl_carhailing_sucess_st==1}checked{/if}>
+  </div>
+  <div class="layui-form-mid layui-word-aux smstip1" style="margin-left:10px;{if $info['smstype']!=1}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：恭喜您！约车订单(${ordernum})已支付成功！我们会尽快提前安排，祝您旅途愉快！</div>
+  <div class="layui-form-mid layui-word-aux smstip2" style="margin-left:10px;{if $info['smstype']!=2}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：恭喜您！约车订单({1})已支付成功！我们会尽快提前安排，祝您旅途愉快！</div>
+</div>
+{/if}
+
+{if getcustom('sms_temp_money_recharge')}
+<div class="layui-form-item">
+  <label class="layui-form-label">充值通知提醒</label>
+  <div class="layui-input-inline" style="width:300px">
+    <input class="layui-input" name="info[tmpl_money_recharge]" value="{$info.tmpl_money_recharge}" {if $ainfo.sms_system_status == 1 && !$webset }disabled{/if}/>
+  </div>
+  <div class="layui-input-inline" style="width:100px">
+    <input type="checkbox" name="info[tmpl_money_recharge_st]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $info.tmpl_money_recharge_st==1}checked{/if}>
+  </div>
+  <div class="layui-form-mid layui-word-aux smstip1" style="margin-left:10px;{if $info['smstype']!=1}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：您本次储值${money}元，赠送${givemoney}元，如有疑问，请联系店员核对您的储值金额。</div>
+  <div class="layui-form-mid layui-word-aux smstip2" style="margin-left:10px;{if $info['smstype']!=2}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：您本次储值{1}元，赠送{2}元，如有疑问，请联系店员核对您的储值金额。</div>
+</div>
+{/if}
+{if getcustom('sms_temp_money_use')}
+<div class="layui-form-item">
+  <label class="layui-form-label">消费通知提醒</label>
+  <div class="layui-input-inline" style="width:300px">
+    <input class="layui-input" name="info[tmpl_money_use]" value="{$info.tmpl_money_use}" {if $ainfo.sms_system_status == 1 && !$webset }disabled{/if}/>
+  </div>
+  <div class="layui-input-inline" style="width:100px">
+    <input type="checkbox" name="info[tmpl_money_use_st]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $info.tmpl_money_use_st==1}checked{/if}>
+  </div>
+  <div class="layui-form-mid layui-word-aux smstip1" style="margin-left:10px;{if $info['smstype']!=1}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：您本次的消费总额${money}元，实收${real_money}元，储值余额${sy_money}元。</div>
+  <div class="layui-form-mid layui-word-aux smstip2" style="margin-left:10px;{if $info['smstype']!=2}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：您本次的消费总额{1}元，实收{2}元，储值余额{3}元。</div>
+</div>
+{/if}
+{if getcustom('sms_temp_coupon_get')}
+<div class="layui-form-item">
+  <label class="layui-form-label">发券通知提醒</label>
+  <div class="layui-input-inline" style="width:300px">
+    <input class="layui-input" name="info[tmpl_coupon_get]" value="{$info.tmpl_coupon_get}" {if $ainfo.sms_system_status == 1 && !$webset }disabled{/if}/>
+  </div>
+  <div class="layui-input-inline" style="width:100px">
+    <input type="checkbox" name="info[tmpl_coupon_get_st]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $info.tmpl_coupon_get_st==1}checked{/if}>
+  </div>
+  <div class="layui-form-mid layui-word-aux smstip1" style="margin-left:10px;{if $info['smstype']!=1}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：${bname}送您${num}张${coupon_name}，期待您的光临!</div>
+  <div class="layui-form-mid layui-word-aux smstip2" style="margin-left:10px;{if $info['smstype']!=2}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：{1}送您{2}张{3}，期待您的光临!</div>
+</div>
+{/if}
+{if getcustom('restaurant_finance_notice_switch')}
+<div class="layui-form-item">
+  <label class="layui-form-label">消费通知提醒</label>
+  <div class="layui-input-inline" style="width:300px">
+    <input class="layui-input" name="info[tmpl_money_change]" value="{$info.tmpl_money_change}" {if $ainfo.sms_system_status == 1 && !$webset }disabled{/if}/>
+  </div>
+  <div class="layui-input-inline" style="width:100px">
+    <input type="checkbox" name="info[tmpl_money_change_st]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $info.tmpl_money_change_st==1}checked{/if}>
+  </div>
+  <div class="layui-form-mid layui-word-aux smstip1" style="margin-left:10px;{if $info['smstype']!=1}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：您本次消费${money}元，会员余额${sy_money}元。如不是本人消费请2分钟内立即致电我们。
+  </div>
+  <div class="layui-form-mid layui-word-aux smstip2" style="margin-left:10px;{if $info['smstype']!=2}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：您本次消费{1}元，会员余额{2}元。如不是本人消费请2分钟内立即致电我们。</div>
+</div>
+{/if}
+{if getcustom('product_pickup_device')}
+<div class="layui-form-item">
+  <label class="layui-form-label">设备缺货通知</label>
+  <div class="layui-input-inline" style="width:300px">
+    <input class="layui-input" name="info[tmpl_device_addstock_remind]" value="{$info.tmpl_device_addstock_remind}" {if $ainfo.sms_system_status == 1 && !$webset }disabled{/if}/>
+  </div>
+  <div class="layui-input-inline" style="width:100px">
+    <input type="checkbox" name="info[tmpl_device_addstock_remind_st]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $info.tmpl_device_addstock_remind_st==1}checked{/if}>
+  </div>
+  <div class="layui-form-mid layui-word-aux smstip1" style="margin-left:10px;{if $info['smstype']!=1}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：位于${address}的${name}自提柜已缺货，请及时进行补货。</div>
+  <div class="layui-form-mid layui-word-aux smstip2" style="margin-left:10px;{if $info['smstype']!=2}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：位于{1}的{2}自提柜已缺货，请及时进行补货。</div>
+</div>
+{/if}
+{if getcustom('yx_queue_free_multi_team')}
+<div class="layui-form-item">
+  <label class="layui-form-label">排队返利出局前通知</label>
+  <div class="layui-input-inline" style="width:300px">
+    <input class="layui-input" name="info[tmpl_queue_free_before_quit]" value="{$info.tmpl_queue_free_before_quit}" {if $ainfo.tmpl_queue_free_before_quit == 1 && !$webset }disabled{/if}/>
+  </div>
+  <div class="layui-input-inline" style="width:100px">
+    <input type="checkbox" name="info[tmpl_queue_free_before_quit_st]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $info.tmpl_queue_free_before_quit_st==1}checked{/if}>
+  </div>
+  <div class="layui-form-mid layui-word-aux smstip1" style="margin-left:10px;{if $info['smstype']!=1}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：您好!您的账户将未返红包将于${date}到期，到期后将自动清零，请尽快消费保号使用。</div>
+  <div class="layui-form-mid layui-word-aux smstip2" style="margin-left:10px;{if $info['smstype']!=2}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：您好!您的账户将未返红包将于{1}到期，到期后将自动清零，请尽快消费保号使用。</div>
+</div>
+{/if}
+{if getcustom('yuyue_before_starting')}
+<div class="layui-form-item">
+  <label class="layui-form-label">预约服务开始前通知</label>
+  <div class="layui-input-inline" style="width:300px">
+    <input class="layui-input" name="info[tmpl_yuyue_before_starting]" value="{$info.tmpl_yuyue_before_starting}" {if $ainfo.tmpl_yuyue_before_starting == 1 && !$webset }disabled{/if}/>
+  </div>
+  <div class="layui-input-inline" style="width:100px">
+    <input type="checkbox" name="info[tmpl_yuyue_before_starting_st]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $info.tmpl_yuyue_before_starting_st==1}checked{/if}>
+  </div>
+  <div class="layui-form-mid layui-word-aux smstip1" style="margin-left:10px;{if $info['smstype']!=1}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：服务项目${title}，订单号 ${ordernum}，将于${begintime}开始，请合理安排时间和准备。</div>
+  <div class="layui-form-mid layui-word-aux smstip2" style="margin-left:10px;{if $info['smstype']!=2}display:none{/if}"><span style="color:#666">请填写模板编号</span> 模板内容示例：服务项目{1}，订单号 {2}，将于{3}开始，请合理安排时间和准备。</div>
+</div>
+{/if}

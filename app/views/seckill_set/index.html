@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>秒杀设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header"><i class="fa fa-cog"></i> 秒杀设置</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w6" lay-filter="">
+						<div class="layui-form-item">
+							<label class="layui-form-label">秒杀状态：</label>
+							<div class="layui-input-inline">
+								<input type="checkbox" name="info[status]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $info['status']==1}checked{/if}>
+							</div>
+							<div class="layui-form-mid layui-word-aux">秒杀总开关，关闭后所有秒杀活动将关闭</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">秒杀场次：</label>
+							<div class="layui-input-block" style="margin-left:130px;width:600px">
+								<input type="checkbox" name="timeset[]" title="00:00" {if in_array('0',$timeset)}checked{/if}>
+								<input type="checkbox" name="timeset[]" title="01:00" {if in_array('1',$timeset)}checked{/if}>
+								<input type="checkbox" name="timeset[]" title="02:00" {if in_array('2',$timeset)}checked{/if}>
+								<input type="checkbox" name="timeset[]" title="03:00" {if in_array('3',$timeset)}checked{/if}>
+								<input type="checkbox" name="timeset[]" title="04:00" {if in_array('4',$timeset)}checked{/if}>
+								<input type="checkbox" name="timeset[]" title="05:00" {if in_array('5',$timeset)}checked{/if}>
+								<input type="checkbox" name="timeset[]" title="06:00" {if in_array('6',$timeset)}checked{/if}>
+								<input type="checkbox" name="timeset[]" title="07:00" {if in_array('7',$timeset)}checked{/if}>
+								<input type="checkbox" name="timeset[]" title="08:00" {if in_array('8',$timeset)}checked{/if}>
+								<input type="checkbox" name="timeset[]" title="09:00" {if in_array('9',$timeset)}checked{/if}>
+								<input type="checkbox" name="timeset[]" title="10:00" {if in_array('10',$timeset)}checked{/if}>
+								<input type="checkbox" name="timeset[]" title="11:00" {if in_array('11',$timeset)}checked{/if}>
+								<input type="checkbox" name="timeset[]" title="12:00" {if in_array('12',$timeset)}checked{/if}>
+								<input type="checkbox" name="timeset[]" title="13:00" {if in_array('13',$timeset)}checked{/if}>
+								<input type="checkbox" name="timeset[]" title="14:00" {if in_array('14',$timeset)}checked{/if}>
+								<input type="checkbox" name="timeset[]" title="15:00" {if in_array('15',$timeset)}checked{/if}>
+								<input type="checkbox" name="timeset[]" title="16:00" {if in_array('16',$timeset)}checked{/if}>
+								<input type="checkbox" name="timeset[]" title="17:00" {if in_array('17',$timeset)}checked{/if}>
+								<input type="checkbox" name="timeset[]" title="18:00" {if in_array('18',$timeset)}checked{/if}>
+								<input type="checkbox" name="timeset[]" title="19:00" {if in_array('19',$timeset)}checked{/if}>
+								<input type="checkbox" name="timeset[]" title="20:00" {if in_array('20',$timeset)}checked{/if}>
+								<input type="checkbox" name="timeset[]" title="21:00" {if in_array('21',$timeset)}checked{/if}>
+								<input type="checkbox" name="timeset[]" title="22:00" {if in_array('22',$timeset)}checked{/if}>
+								<input type="checkbox" name="timeset[]" title="23:00" {if in_array('23',$timeset)}checked{/if}>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">秒杀时长：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[duration]" class="layui-input" value="{$info['duration']}"/>
+							</div>
+							<div class="layui-form-mid">小时</div>
+							<div class="layui-form-mid layui-word-aux">注：开始后多久结束</div>
+						</div>
+
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">自动收货天数：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[autoshdays]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.autoshdays}">
+							</div>
+							<div class="layui-form-mid">天</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">发货后多少天用户未确认收货自动完成收货</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">自动关闭订单：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[autoclose]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.autoclose}">
+							</div>
+							<div class="layui-form-mid">分钟</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">下单后多久不支付自动关闭订单，释放占用的库存</div>
+						</div>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">商品评价：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[comment]" value="1" {if $info['comment']==1}checked{/if} title="开启" lay-filter="comment"/>
+								<input type="radio" name="info[comment]" value="0" {if $info['comment']==0}checked{/if} title="关闭" lay-filter="comment"/>
+							</div>
+						</div>
+						<div class="layui-form-item" id="commentset" {if $info['comment']==0}style="display:none"{/if}>
+							<label class="layui-form-label">评价审核：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[comment_check]" value="1" {if $info['comment_check']==1}checked{/if} title="开启" lay-filter="comment_check"/>
+								<input type="radio" name="info[comment_check]" value="0" {if $info['comment_check']==0}checked{/if} title="关闭" lay-filter="comment_check"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">关闭后用户的评价将直接显示,不需要后台审核</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">店铺信息：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[showjd]" value="1" {if $info['showjd']==1}checked{/if} title="显示"/>
+								<input type="radio" name="info[showjd]" value="0" {if $info['showjd']==0}checked{/if} title="不显示"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">商品详情页是否显示店铺信息</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">是否显示{:t('佣金')}：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[showcommission]" value="1" {if $info['showcommission']==1}checked{/if} title="显示"/>
+								<input type="radio" name="info[showcommission]" value="0" {if $info['showcommission']==0}checked{/if} title="不显示"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">开启后商品详情页显示分销{:t('佣金')}</div>
+						</div>
+						
+
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+					
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		//console.log(field);return
+		$.post("{:url('save')}",field,function(data){
+			dialog(data.msg,data.status,data.url);
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

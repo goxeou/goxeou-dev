@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>添加评价</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+		.layui-table .layui-input { width: 120px;}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加评价{else}<i class="fa fa-pencil"></i> 编辑评价{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form">
+						<div class="layui-tab" lay-filter="mytab">
+							<div class="layui-tab-content">
+								<div class="layui-tab-item layui-show">
+									<input type="hidden" name="id" value="{$info['id']}"/>
+									<div class="layui-form-item">
+										<label class="layui-form-label">商品：</label>
+										<div class="layui-input-inline" style="width:300px">
+											<input type="text" name="info[proname]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.proname}">
+											<input type="hidden" name="info[proid]" class="layui-input" value="{$info.proid}">
+											<input type="hidden" name="info[propic]" class="layui-input" value="{$info.propic}">
+										</div>
+										<button type="button" class="layui-btn layui-btn-primary" onclick="showChooseProduct()">选择商品</button>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label">评分：</label>
+										<div class="layui-input-inline" style="width:400px">
+											<input type="radio" name="info[score]" value="1" title="1星" {if $info['id'] && $info['score']==1}checked{/if}>
+											<input type="radio" name="info[score]" value="2" title="2星" {if $info['id'] && $info['score']==2}checked{/if}>
+											<input type="radio" name="info[score]" value="3" title="3星" {if $info['id'] && $info['score']==3}checked{/if}>
+											<input type="radio" name="info[score]" value="4" title="4星" {if $info['id'] && $info['score']==4}checked{/if}>
+											<input type="radio" name="info[score]" value="5" title="5星" {if $info['score']==5 || !$info['id']}checked{/if}>
+										</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label">内容：</label>
+										<div class="layui-input-inline">
+											<textarea class="layui-textarea" name="info[content]" lay-verify="required" lay-verType="tips" style="width: 400px;"></textarea>
+										</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label">图片：</label>
+										<input type="hidden" name="info[content_pic]" value="{$info['content_pic']}" id="pics">
+										<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this,true)" upload-input="pics" upload-preview="picList" >批量上传</button>
+<!--										<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：640×640像素</div>-->
+										<div id="picList" class="picsList-class-110">
+											{if $info['content_pic']}
+											{php}$pics = explode(',',$info['content_pic']);{/php}
+											{foreach $pics as $pic}
+											<div class="layui-imgbox">
+												<a class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().remove();getpicsval('pics','picList')" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+												<span class="layui-imgbox-img"><img src="{$pic}"></span>
+											</div>
+											{/foreach}{/if}
+										</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label">昵称：</label>
+										<div class="layui-input-inline">
+											<input type="text" name="info[nickname]" autocomplete="off" value="{$info.nickname}" lay-verify="required" lay-verType="tips" class="layui-input">
+										</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label">头像：</label>
+										<input type="hidden" name="info[headimg]" value="{$info['headimg']}" id="pics2">
+										<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this)" upload-input="pics2" upload-preview="picList2" >上传</button>
+										<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：640×640像素</div>
+										<div id="picList2" style="float:left;padding-top:10px;padding-left:110px;clear: both;">
+											<div class="layui-imgbox">
+												<span class="layui-imgbox-img"><img src="{$info['headimg']}"></span>
+											</div>
+										</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label">时间：</label>
+										<div class="layui-input-inline">
+											<input type="text" name="info[createtime]" autocomplete="off" value="{$info.createtime}" class="layui-input" id="starttime">
+										</div>
+									</div>
+
+									<div class="layui-form-item">
+										<div class="layui-input-block">
+											<button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+										</div>
+									</div>
+
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+  </div>
+
+  {include file="public/js"/}
+	<script>
+		layui.laydate.render({
+			elem: '#starttime'
+			,type: 'datetime'
+			,range: false,
+			trigger: 'click'
+		});
+	function gonext(layid){
+		$(window).scrollTop(0);
+		layui.element.tabChange('mytab', layid);
+	}
+		
+	function showChooseProduct(){
+		layer.open({type:2,title:'选择商品',content:"{:url('YuyueList/chooseproduct')}",area:['900px','600px'],shadeClose:true});
+	}
+	function chooseyuyue(data){
+		$("input[name='info[proid]']").val(data.product.id);
+		$("input[name='info[proname]']").val(data.product.name);
+		$("input[name='info[propic]']").val(data.product.pic);
+		// $('#picPreview img').attr('src',data.product.pic)
+		// $("input[name='info[pics]']").val(data.product.pics);
+		// if(data.product.pics!=''){
+		// 	var pics = data.product.pics.split(',');
+		// 	var picshtml = '';
+		// 	for(var i=0;i<pics.length;i++){
+		// 		picshtml+='<div class="layui-imgbox">';
+		// 		picshtml+='	<a class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().remove();getpicsval(\'pics\',\'picList\')" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>';
+		// 		picshtml+='	<span class="layui-imgbox-img"><img src="'+pics[i]+'"></span>';
+		// 		picshtml+='</div>';
+		// 	}
+		// 	$('#picList').html(picshtml);
+		// }
+
+	}
+	</script>
+	<script>
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.closeAll();
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

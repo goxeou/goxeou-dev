@@ -1,0 +1,29 @@
+{if getcustom('show_location')}
+{if $sysset.mode==3}
+<hr>
+<div class="layui-form-item">
+	<div class="layui-form-label">显示门店</div>
+	<div class="layui-input-inline" style="border-radius: 0;padding: 2px;">
+		<input class="checkbox" type="checkbox" lay-skin="primary" title="所有门店" name="{{Edit.id}}_mendian['all']" ng-model="Edit.params.mendian['all']"/>
+		{if !$type}
+			{foreach $mendianlist as $md}
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="{$md.name}" name="{{Edit.id}}_mendian['md_{$md.id}']" ng-model="Edit.params.mendian['md_{$md.id}']"/>
+			{/foreach}
+		{/if}
+	</div>
+</div>
+<!--<div class="layui-form-item">
+	<div class="layui-form-label">显示类型</div>
+	<div class="layui-input-inline" style="width:500px">
+		<input class="radio" type="radio"  title="全部" name="{{Edit.id}}_mendian_sort" value="sort" ng-model="Edit.params.mendian_sort" ng-change="getMendianSort(Edit.id)"/>
+		<input class="radio" type="radio"  title="按距离" name="{{Edit.id}}_mendian_sort" value="juli" ng-model="Edit.params.mendian_sort" ng-change="getMendianSort(Edit.id)"/>
+	</div>
+</div>
+<div class="layui-form-item" ng-show="Edit.params.mendian_sort == 'juli'">
+	<div class="layui-form-label">显示范围</div>
+	<div class="slider" min="1" max="100" ng-model="Edit.params.mendian_distance"></div>
+	<span class="slider-span"><input ng-model="Edit.params.mendian_distance"/> km</span>
+</div>-->
+<hr>
+{/if}
+{/if}

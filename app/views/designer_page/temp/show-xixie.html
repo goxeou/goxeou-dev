@@ -1,0 +1,24 @@
+<div class="dsn-mod dp-collage" ng-class="{'dsn-mod-select':Item.id == focus}" ng-style="{'background-color':Item.params.bgcolor,'margin':Item.params.margin_y+'px '+Item.params.margin_x+'px 0','padding':Item.params.padding_y+'px '+Item.params.padding_x+'px'}">
+    <div style="line-height: 170px; text-align: center; color: #999; font-size: 16px;width:100%" ng-show="Item.data == ''">一个商品都没有...</div>
+    <div class="dp-collage-itemlist">
+        <div class="item" ng-repeat="item in Item.data">
+            <div class="product-pic">
+                <img class="image" ng-src="{{item.pic}}" mode="widthFix"/>
+                <img class="saleimg" ng-src="{{saleimg}}" ng-if="Item.params.saleimg!=''"/>
+            </div>
+            <div class="product-info">
+                <div class="p1" ng-if="Item.params.showname == 1">{{item.name}}</div>
+                <div class="p2" ng-if="Item.params.showprice != '0'">
+                    <div class="t1" style="color:{:t('color1')}">
+                        <span style="font-size:12px;padding-right:1px">￥</span>{{item.sell_price}}
+                    </div>
+                </div>
+                <div class="p2" ng-if="Item.params.showprice == '1'">
+                    <div class="t1" style="color:{:t('color1')}">
+                        <span style="font-size:12px;padding-right:1px">会员价￥</span>{{item.vip_price}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

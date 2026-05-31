@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>设置商家信息</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<script src="/static/admin/js/address3.js?v=20220330"></script>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header"><i class="fa fa-cog"></i> 设置商家信息</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w6" lay-filter="">
+						客服设置<span style="color:#999">&nbsp;&nbsp;(小程序客服、客服电话、客服路径 最少填写一个)</span>
+						<hr/>
+						<div class="layui-form-item">
+							<label class="layui-form-label">小程序客服：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="radio" name="info[service_agent_wx]" value="1" title="开启" {if in_array(0,$service_data['service_agent_type'])}checked{/if}/>
+								<input type="radio" name="info[service_agent_wx]" value="0" title="关闭" {if !in_array(0,$service_data['service_agent_type'])}checked{/if}/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">客服电话：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[service_agent_phone]" value="{if in_array(2,$service_data['service_agent_type'])}{$service_data.service_agent_phone}{/if}" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<div class="layui-form-label">客服路径：</div>
+							<div class="layui-input-inline">
+								<input class="layui-input" name="info[service_agent_path]" value="{$service_data.service_agent_path}" id="service_agent_path"/>
+							</div>
+							<div class="layui-btn layui-btn-primary" style="float:left" onclick="chooseUrl2('service_agent_path')">选择链接</div>
+						</div>
+						默认退货地址
+						<hr/>
+						<div class="layui-form-item">
+							<label class="layui-form-label">收件人姓名：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[receiver_name]" value="{$shopset.receiving_address_name}" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">收件人手机号：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[tel_number]" value="{$shopset.receiving_address_tel}" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">收货地址：</label>
+							<div class="layui-input-inline" style="width:150px">
+								<select name="info[province]" id="province" lay-filter="province"></select>
+							</div>
+							<div class="layui-input-inline" style="width:150px">
+								<select name="info[city]" id="city" lay-filter="city"></select>
+							</div>
+							<div class="layui-input-inline" style="width:150px">
+								<select name="info[area]" id="area" ></select>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">详细收货地址：</label>
+							<div class="layui-input-inline" style="width:300px">
+								<input type="text" name="info[detailed_address]" value="{$shopset.receiving_address_address}" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	address3('province','city','area',"{$shopset['receiving_address_province']}","{$shopset['receiving_address_city']}","{$shopset['receiving_address_area']}");
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		$.post("",field,function(data){
+			dialog(data.msg,data.status,true);
+		})
+	})
+	
+	var chooseUrlField = '';
+	function chooseUrl2(field){
+		chooseUrlField = field;
+		layer.open({type:2,shadeClose:true,area:['1200px', '650px'],'title':'选择链接',content:"{:url('DesignerPage/chooseurl')}&callback=chooseLink2"})
+	}
+	function chooseLink2(urlname,url){
+		$("#"+chooseUrlField).val(url);
+	}
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

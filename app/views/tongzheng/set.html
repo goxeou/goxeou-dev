@@ -1,0 +1,75 @@
+<!--custom_file(product_givetongzheng)-->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{:t('通证')}设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					<i class="fa fa-cog"></i> {:t('通证')}设置
+				</div>
+				<div class="layui-card-body" pad15>
+					<blockquote class="layui-elem-quote">说明：购买订单赠送{:t('通证')}，赠送不是直接到账，每日按百分比递减释放到{:t('通证')}钱包</blockquote>
+					<div class="layui-form form-label-w6" lay-filter="">
+						<div class="layui-form-item">
+							<label class="layui-form-label">每日释放比例</label>
+							<div class="layui-input-inline layui-module-itemL">
+								<input   type="text" name="info[tongzheng_release_bili]" class="layui-input" value="{$info.tongzheng_release_bili}"> %
+							</div>
+							<div class="layui-form-mid layui-word-aux layui-clear"></div>
+						</div>
+						<div class="layui-form-item">
+							<div class="layui-form-item">
+								<label class="layui-form-label">转账：</label>
+								<div class="layui-input-inline">
+									<input type="radio" name="info[tongzheng_transfer]" title="开启" value="1" {if $info['tongzheng_transfer']==1}checked{/if} />
+									<input type="radio" name="info[tongzheng_transfer]" title="关闭" value="0" {if $info['tongzheng_transfer']==0}checked{/if} />
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">转账支付密码：</label>
+								<div class="layui-input-inline">
+									<input type="radio" name="info[tongzheng_transfer_pwd]" title="开启" value="1" {if $info['tongzheng_transfer_pwd']==1}checked{/if} />
+									<input type="radio" name="info[tongzheng_transfer_pwd]" title="关闭" value="0" {if $info['tongzheng_transfer_pwd']==0}checked{/if} />
+								</div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+					
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		var index = layer.load();
+		$.post('',field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status==1){
+				setTimeout(function(){
+					location.href = location.href
+				},1000)
+			}
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

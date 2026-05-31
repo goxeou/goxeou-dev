@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>,秒杀商品管理</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-body" pad15>
+						<div class="layui-form layui-col-md12 layui-form-search">
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">商品名称</label>
+								<div class="layui-input-inline">
+									<input type="text" name="name" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label">状态</label>
+								<div class="layui-input-inline">
+									<select name="status">
+										<option value="">全部</option>
+										<option value="1">已上架</option>
+										<option value="0">未上架</option>
+									</select>
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label">秒杀日期</label>
+								<div class="layui-input-inline">
+									<input type="text" name="seckill_date" id="seckill_date" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label">秒杀时间</label>
+								<div class="layui-input-inline">
+									<select name="seckill_time">
+										<option value="">请选择</option>
+										{foreach $systimeset as $v}
+										<option value="{$v}">{if strlen($v)==1}0{/if}{$v}:00</option>
+										{/foreach}
+									</select>
+								</div>
+							</div>
+							<div class="layui-inline">
+								<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+									<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+								</button>
+							</div>
+						</div>
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script type="text/html" id="nameTpl">
+		<img src="{{d.pic}}" style="max-width:70px;float:left"/>
+		<div style="float: left;width:200px;margin-left: 10px;white-space:normal;line-height:20px;">
+			<div style="width:100%;">{{# if(d.cid!=0){ }}<span style="color:red">[{{d.cname}}]</span>{{# } }}{{d.name}}</div>
+			<div style="padding-top:5px;color:#f60">￥{{d.sell_price}}</div></div>
+		</div>
+	</script>
+	<script>
+  var table = layui.table;
+	var datawhere = {};
+	var nowtime = {:time()};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{:url('index')}" //数据接口
+    ,page: true //开启分页
+    ,cols: [[ //表头
+			//{type:"checkbox"},
+      {field: 'id', title: 'ID',  sort: true,width:80},
+      {field: 'name', title: '商品信息',width:320,templet:function(d){
+				var html = '';
+				html += '<img src="'+d.pic+'" style="max-width:70px;float:left"/>';
+				html += '<div style="float: left;width:200px;margin-left: 10px;white-space:normal;line-height:20px;">';
+				html += '	<div style="width:100%;">'+d.name+'</div>';
+				html += '	<div style="color:#666;font-size:12px">原价￥'+d.market_price+'</div>';
+				html += '	<div style="padding-top:5px;color:#f60;font-size:12px">秒杀价￥'+d.sell_price+'</div>';
+				html += '</div>';
+				return html;
+			}},
+			{field: 'seckill_date',sort:true, title: '场次',templet: function(d){ 
+				return d.seckill_date + ' ' + (d.seckill_time<10?'0':'') + d.seckill_time + ':00'
+			}},
+      {field: 'status', title: '状态',templet:function(d){ 
+				if(d.status == 0) return '<button class="layui-btn layui-btn-sm" style="background-color:#888">未上架</button>';
+				if(d.starttime > nowtime ) return '<button class="layui-btn layui-btn-sm" style="background-color:#888">未开始</button>';
+				if(d.starttime < nowtime && d.starttime + {$sysset['duration']}*3600 > nowtime){
+					if(d.nextstarttime > nowtime){
+						return '<button class="layui-btn layui-btn-sm" style="background-color:#f55">抢购中</button>';
+					}else{
+						return '<button class="layui-btn layui-btn-sm" style="background-color:#5FB878">已开抢</button>';
+					}
+				}
+				if(d.starttime + {$sysset['duration']}*3600 < nowtime) return '<button class="layui-btn layui-btn-sm layui-btn-disabled">已结束</button>';
+			}},
+      {field: 'operation', title: '操作',templet: '<div><button class="table-btn" onclick="choosepro(\'{{d.id}}\')">选择</button></div>',align:'center'}
+    ]]
+  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	function choosepro(id){
+		var index = layer.load();
+		$.post("{:url('getproduct')}",{proid:id},function(res){
+			layer.close(index);
+			window.parent.chooseseckill(res.product,"{$Request.param.args}");
+			var index = parent.layer.getFrameIndex(window.name);
+			parent.layer.close(index);
+		});
+	}
+	</script>
+</body>
+</html>

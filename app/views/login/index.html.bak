@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{$webname}-管理登录</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <link rel="stylesheet" href="__STATIC__/admin/layui/css/layui.css" media="all">
+  <!--<link rel="stylesheet" href="__STATIC__/admin/css/login.css" media="all">-->
+  <link rel="stylesheet" href="__STATIC__/admin/css/login.css?v={$version}" media="all">
+	{if $webinfo.ico}<link rel="shortcut icon" type="image/x-icon" href="{$webinfo.ico}" />{/if}
+</head>
+<body>
+   <div class="layadmin-user-login layadmin-user-display-show" id="LAY-user-login" style="padding-top:calc(50vh - 250px);{if $webinfo['adminloginbg']}background:url('{$webinfo.adminloginbg}');background-size:100% auto;{else}background:linear-gradient(#2D8CF0,#2D8CF0);{/if}" >
+    <div class="main-body" >
+    <div class="login-main">
+        <div class="login-top">
+            <span>{$webname}</span>
+            <span class="bg1"></span>
+            <span class="bg2"></span>
+        </div>
+        <div class="layui-form login-bottom">
+            <div class="demo{if !$demo} layui-hide{/if}"></div>
+            <div class="center">
+                <div class="item">
+                    <span class="icon icon-2"></span>
+                    <input  type="text" name="username" id="LAY-user-login-username" lay-verify="required" placeholder="用户名/手机号" maxlength="24"  value=""/>
+                </div>
+                <div class="item">
+                    <span class="icon icon-3"></span>
+                    <input type="password" name="password" id="LAY-user-login-password" lay-verify="required" placeholder="登录密码"  maxlength="20" value="">
+                    <!--<span class="bind-password icon icon-4"></span>-->
+                </div>
+                <div id="validatePanel" class="item" style="width: 137px;">
+                    <input type="text" name="captcha" id="LAY-user-login-vercode" lay-verify="required" placeholder="图形验证码" maxlength="4">
+                    <img src="{:captcha_src()}" class="validateImg"  id="LAY-user-get-vercode">
+                </div>
+            </div>
+            
+            <div class="tip">
+                 <input type="checkbox" class="login-tip" name="remember" lay-skin="primary" title="下次自动登录" {if cookie('remember')==1}checked{/if}>
+                <!--<a href="{:url('getpwd')}" class="forget-password">忘记密码？</a>-->
+            </div>
+            
+             <div class="layui-form-item" style="text-align:center; width:100%;height:100%;margin:0px;">
+                <button class="login-btn"   lay-submit lay-filter="LAY-user-login-submit" >立即登录</button>
+            </div>
+             <div class="layui-form-item" style="margin-top:12px">
+               <blockquote class="layui-elem-quote">  请您在使用程序的过程中应当遵守国家法律法规，一切行为应当符合法律法规的要求。您充分了解并同意，您必须为自己的一切行为负责，并承担由此产生的一切后果。如您存在违法违规行为，本公司有权单方面终止与您的合作。您的违法违规行为造成第三方损失的，与本公司无关！</blockquote>
+             </div>
+        	{if $reg_open}
+                    <div class="layui-form-item">
+                      <a href="{:url('reg')}" class="layadmin-user-jump-change layadmin-link" style="margin-top: 7px;">没有账号？前往注册</a>
+                    </div>
+			{/if}
+        </div>
+    </div>
+</div>
+		{if $webinfo['copyright'] || $webinfo['beian']}
+    <div class="layui-trans layadmin-user-login-footer" id="slideTest1" style="background:rgba(0,0,0,0.1);color:#eee;height:48px;line-height:48px;padding:0">
+			{$webinfo.copyright}&nbsp;&nbsp;&nbsp;<a href="http://beian.miit.gov.cn/" target="_blank" style="color:#eee">{$webinfo.beian}</a>
+    </div>
+
+    {/if}
+    
+</div>  
+    
+    
+ 
+ {include file="public/js"/}
+  <script>
+	$(function(){
+		$('#LAY-user-get-vercode').click(function(){
+			this.src = '{:captcha_src()}&t='+ new Date().getTime();
+		})
+	});
+	//提交
+	var loading = false;
+	var form = layui.form
+	layui.form.on('submit(LAY-user-login-submit)', function(obj){
+		if(loading) return;
+		loading = true;
+		var index = layer.load();
+		$.post("",obj.field,function(data){
+			layer.close(index)
+			if(data.status==2){
+				$('#LAY-user-get-vercode').attr('src','{:captcha_src()}&t='+ new Date().getTime());
+			}
+			dialog(data.msg,data.status);
+			if (typeof(data.url) != "undefined" && data.url != ""){
+				setTimeout(function(){
+					if(window.parent != this.window){
+						window.parent.location.href = data.url;
+					}else{
+						window.location.href = data.url;
+					}
+				},1000)
+			}else{
+				loading = false;
+			}
+		})
+	});
+	$(document).keydown(function (e) {
+		if (e.keyCode === 13){
+			if($('.layui-layer-dialog').length==0){
+				$("button[lay-filter='LAY-user-login-submit']").trigger("click");
+			}else{
+				$('.layui-layer-btn0').trigger('click');
+			}
+		}
+	});
+  </script>
+	
+</body>
+</html>

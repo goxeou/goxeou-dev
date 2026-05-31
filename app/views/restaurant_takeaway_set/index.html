@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>外卖设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header"><i class="fa fa-cog"></i> 外卖设置</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w8" lay-filter="">
+						<div class="layui-form-item">
+							<label class="layui-form-label">外卖状态：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[status]" title="开启" value="1" {if $info['status']==1}checked{/if}/>
+								<input type="radio" name="info[status]" title="关闭" value="0" {if $info['status']==0}checked{/if}/>
+							</div>
+						</div>
+<!--						<div class="layui-form-item">-->
+<!--							<label class="layui-form-label">是否显示顶部banner：</label>-->
+<!--							<div class="layui-input-inline">-->
+<!--								<input type="radio" name="info[banner_show]" title="显示" value="1" {if $info['banner_show']==1}checked{/if}/>-->
+<!--								<input type="radio" name="info[banner_show]" title="不显示" value="0" {if $info['banner_show']==0}checked{/if}/>-->
+<!--							</div>-->
+<!--						</div>-->
+						<div class="layui-form-item">
+							<label class="layui-form-label">banner图：</label>
+							<input type="hidden" name="info[banner]" id="banner" class="layui-input" value="{$info['banner']}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="banner" upload-preview="bannerPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：750×240像素</div>
+							<div id="bannerPreview" style="float:left;padding-top:10px;margin-left:160px;clear: both;">
+								<div class="layui-imgbox" style="width:162px;height:50px">
+									<a {if $info['banner']}style="display: block;" {else /} style="display: none;"  {/if} class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().find('img').attr('src','').hide();getpicsval('pic','bannerPreview');$(this).hide();$('#banner').val('')" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+									<div class="layui-imgbox-img"><img src="{$info['banner']}"/></div>
+								</div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">接单时间：</label>
+							<div class="layui-input-inline" style="width:150px">
+								<input type="text" name="info[start_hours]" class="layui-input" value="{$info.start_hours}" id="start_hours" autocomplete="off">
+							</div>
+							<div class="layui-form-mid">到</div>
+							<div class="layui-input-inline" style="width:150px">
+								<input type="text" name="info[end_hours]" class="layui-input" value="{$info.end_hours}" id="end_hours" autocomplete="off">
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="clear:left;margin-left:160px">结束时间小于或等于开始时间表示跨天,如:00:00到00:00点表示全天接单,16:00到06:00表示下午4点到次日早晨6点</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">自动接单：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[confirm_auto]" title="自动" value="1" {if $info['confirm_auto']==1}checked{/if}/>
+								<input type="radio" name="info[confirm_auto]" title="手动" value="0" {if $info['confirm_auto']==0}checked{/if}/>
+							</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">自动发单：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[auto_send_order]" title="开启" value="1" {if $info['auto_send_order']==1}checked{/if}/>
+								<input type="radio" name="info[auto_send_order]" title="关闭" value="0" {if $info['auto_send_order']==0}checked{/if}/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">自动发单到接单大厅,仅配送员抢单模式时生效</div>
+						</div>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">整单打包费：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[pack_fee]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.pack_fee}">
+							</div>
+							<div class="layui-form-mid">元</div><div class="layui-form-mid layui-word-aux">打包费=菜品打包费+整单打包费</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">起送价格：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[min_price]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.min_price}">
+							</div>
+							<div class="layui-form-mid">元</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">自动收货天数：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[autoshdays]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.autoshdays}">
+							</div>
+							<div class="layui-form-mid">天</div>
+							<div class="layui-form-mid layui-word-aux">发货后多少天用户未确认收货自动完成收货</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">是否显示点外卖：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[takeaway_show]" title="显示" value="1" {if $info['takeaway_show']==1}checked{/if}/>
+								<input type="radio" name="info[takeaway_show]" title="不显示" value="0" {if $info['takeaway_show']==0}checked{/if}/>
+							</div>
+							<div class="layui-input-inline" style="width: 220px">
+								自定义名字 
+								<input style="display: inline-block;width: 120px;" type="text" name="info[takeaway_name]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.takeaway_name?$info.takeaway_name:'点外卖'}">
+							</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">是否显示商家信息：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[business_info_show]" title="显示" value="1" {if $info['business_info_show']==1}checked{/if}/>
+								<input type="radio" name="info[business_info_show]" title="不显示" value="0" {if $info['business_info_show']==0}checked{/if}/>
+							</div>
+							<div class="layui-input-inline" style="width: 220px;display: none">
+								自定义名字
+								<input style="display: inline-block;width: 120px;" type="hidden" name="info[business_info_name]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.business_info_name?$info.business_info_name:'商家信息'}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">是否显示评论：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[comment_show]" title="显示" value="1" {if $info['comment_show']==1}checked{/if}/>
+								<input type="radio" name="info[comment_show]" title="不显示" value="0" {if $info['comment_show']==0}checked{/if}/>
+							</div>
+							<div class="layui-input-inline" style="width: 220px;display: none">
+								自定义名字
+								<input style="display: inline-block;width: 120px;" type="hidden" name="info[comment_name]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.comment_name?$info.comment_name:'评价'}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">显示菜品详情页：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[open_restaurant_detail_status]" title="开启" value="1" {if $info['open_restaurant_detail_status']==1}checked{/if}/>
+								<input type="radio" name="info[open_restaurant_detail_status]" title="关闭" value="0" {if $info['open_restaurant_detail_status']==0}checked{/if}/>
+							</div>
+						</div>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.laydate.render({ 
+		elem: '#start_hours',
+		type: 'time',
+		format:'HH:mm',
+		trigger: 'click'
+	});
+	layui.laydate.render({ 
+		elem: '#end_hours',
+		type: 'time',
+		format:'HH:mm',
+		trigger: 'click'
+	});
+	layui.form.on('radio(freightfree)', function(data){
+		if(data.value == '1'){
+			$('#freightfreemoneyset').show();
+		}else{
+			$('#freightfreemoneyset').hide();
+		}
+	});
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		if(field['info[logo]'] == ''){
+			dialog('请上传商家LOGO',0);return;
+		}
+		$.post("{:url('save')}",field,function(data){
+			dialog(data.msg,data.status,data.url);
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

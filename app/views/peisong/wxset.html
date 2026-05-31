@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>即时配送设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header"><i class="fa fa-cog"></i> 即时配送设置</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w6" lay-filter="">
+						<blockquote class="layui-elem-quote">用于对接微信小程序即时配送，不需要对接不用配置，开启后则使用即时配送进行配送，不再使用本系统自带的同城配送模块<br>
+							申请位置：小程序后台-功能-物流服务-即时配送<a href="https://developers.weixin.qq.com/miniprogram/dev/platform-capabilities/industry/immediate-delivery/overview.html" target="_blank">【官方接入文档】</a><br>
+						使用前请先在小程序后台绑定配送公司，然后点击下方的”同步微信数据“，然后修改，填写配送公司的AppSecret
+						</blockquote>
+						<div class="layui-form-item">
+							<label class="layui-form-label">状态：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[express_wx_status]" value="1" {if $info['express_wx_status']==1}checked{/if} title="开启"/>
+								<input type="radio" name="info[express_wx_status]" value="0" {if $info['express_wx_status']==0}checked{/if} title="关闭"/>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">扣商家配送费：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[express_wx_shopkoufei]" value="1" {if $info['express_wx_shopkoufei']==1}checked{/if} title="开启"/>
+								<input type="radio" name="info[express_wx_shopkoufei]" value="0" {if $info['express_wx_shopkoufei']==0}checked{/if} title="关闭"/>
+							</div>
+							<div class="layui-form-mid">开启后商家选择即时配送时需要扣配送费（扣多商户的余额，请在系统使用前配置，以免影响商家结算）</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">派单方式：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[express_wx_paidan]" value="0" {if $info['express_wx_paidan']==0}checked{/if} title="手动"/>
+								<input type="radio" name="info[express_wx_paidan]" value="1" {if $info['express_wx_paidan']==1}checked{/if} title="自动"/>
+							</div>
+							<div class="layui-form-mid">自动派单需开启计划任务，开启商家扣费后自动扣除账户余额，余额不足无法派单</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">门店编号：</label>
+							<div class="layui-input-inline">
+								<input type="text" class="layui-input" name="info[express_wx_shop_no]" value="{$info['express_wx_shop_no']}"/>
+							</div>
+							<div class="layui-form-mid">商家门店编号，在配送公司登记，如果只有一个门店，美团闪送必填，值为店铺id；多商户在商户编辑中设置</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+  <div class="layui-fluid">
+	  <div class="layui-row layui-col-space15">
+		  <div class="layui-card layui-col-md12">
+			  <div class="layui-card-header"><i class="fa fa-list"></i> 已绑定账号
+				  <button class="table-btn" onclick="refresh()">同步微信数据</button></div>
+			  <div class="layui-card-body" pad15>
+				  <div class="layui-col-md12">
+					  <table id="tabledata" lay-filter="tabledata"></table>
+				  </div>
+			  </div>
+		  </div>
+	  </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+		var table = layui.table;
+		var datawhere = {};
+		//数据表
+		var tableIns = table.render({
+			elem: '#tabledata'
+			,url: "{$Request.url}" //数据接口
+			,page: false //开启分页
+			,cols: [[ //表头
+				{field: 'shopid', title: '商家ID/AppKey',width:300},
+				{field: 'appsecret', title: 'AppSecret',width:300,templet:function(d){
+						if(d.appsecret) return '已填写';
+						else return '';
+					}},
+				{field: 'delivery_name', title: '配送公司'},
+				{field: 'audit_result', title: '审核状态',templet:function(d){
+						if(d.audit_result==0){
+							return '<span style="color:green">审核通过</span>';
+						}
+						if(d.audit_result==1){
+							return '<span style="">审核中</span>';
+						}
+						if(d.audit_result==2){
+							return '<span style="color:red">审核不通过</span>';
+						}
+					}},
+				{field: 'createtime', title: '时间',templet:function(d){ return date('Y-m-d H:i',d.createtime)}},
+				{field: 'remark', title: '备注'},
+				{field: 'status', title: '操作',templet:function(d) {
+						var html = '';
+						html += '<button class="table-btn" onclick="openmax(\'{:url('wx_edit')}/id/'+d.id+'\')">修改</button>';
+						if(d.status==0){
+							html += '<button class="table-btn" onclick="sel('+d.id+')">设为默认配送</button>';
+						} else {
+							html +='默认配送方式';
+						}
+						return html;
+					}
+				}
+			]]
+		});
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		$.post("{:url('wxset_save')}",field,function(data){
+			dialog(data.msg,data.status,data.url);
+		})
+	})
+	function sel(id){
+		layer.confirm('确定要选择此方式为默认配送方式吗?',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('wx_set_status')}",{id:id},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+
+	function refresh(){
+		var index = layer.load();
+		$.post("{:url('wxset_refresh')}",{},function(data){
+			layer.close(index);
+			if(data.status == 1){
+				tableIns.reload();
+			}else{
+				dialog(data.msg,data.status);
+			}
+		})
+	}
+
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

@@ -1,0 +1,290 @@
+{if getcustom('business_fenxiao')}
+<span style="color:#333">股东设置</span><hr/>
+<div class="layui-form-item">
+    <label class="layui-form-label">发起人：</label>
+    <div class="layui-input-inline" style="width:auto; overflow: hidden;">
+        <div class="layui-tab">
+            <div class="layui-tab-content">
+                <div class="layui-tab-item layui-show">
+                    <table class="layui-table choose-promoter-up" style="width:600px" id="choose-promoter-up">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>昵称</th>
+                            <th>分佣比例(%)</th>
+                            <th>上级ID</th>
+                            <th>上级昵称</th>
+                            <th>分佣比例(%)</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        {if $promoters}
+                        {foreach $promoters as $k=>$item}
+                        <tr class="choose-tr-list">
+                            <td>{$item.id}</td>
+                            <td>{$item.nickname}</td>
+                            <td>
+                                <input type="text" name="promoter[{$item.id}][promoter_bili]" value="{$item.promoter_bili}" class="layui-input promoter_bili" style="width:70px;display: inline;"/>
+                                {if $k==0}<i class="fa fa-hand-o-down" style="cursor:pointer" title="批量设置" onclick="plset('promoter_bili')"></i>{/if}
+                            </td>
+                            <td>{$item.pid}</td>
+                            <td>{$item.pid_nickname}</td>
+                            <td>
+                                <input type="text" name="promoter[{$item.id}][promoter_tj_bili]" value="{$item.promoter_tj_bili}" class="layui-input promoter_tj_bili" style="width:70px;display: inline;"/>
+                                {if $k==0}<i class="fa fa-hand-o-down" style="cursor:pointer" title="批量设置" onclick="plset('promoter_tj_bili')"></i>{/if}
+                            </td>
+                            <td>
+                                <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delChooseTrUp(this)">删除</button>
+                            </td>
+                        </tr>
+                        {/foreach}
+                        {/if}
+                        <tr class="choose-tr-add">
+                            <td colspan="7" align="center"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="choosePromoterShow()">添加</button></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="layui-form-item">
+    <label class="layui-form-label">合伙人：</label>
+    <div class="layui-input-inline" style="width:auto; overflow: hidden;">
+        <div class="layui-tab">
+            <div class="layui-tab-content">
+                <div class="layui-tab-item layui-show give-coupon-shop">
+                    <table class="layui-table choose-partner-up" style="width:500px" id="choose-partner-up">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>昵称</th>
+                            <th>上级ID</th>
+                            <th>上级昵称</th>
+                            <th>份额</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        {if $partner_arr}
+                        {foreach $partner_arr as $k=>$item}
+                        <tr class="choose-tr-list">
+                            <td>{$item.id}</td>
+                            <td>{$item.nickname}</td>
+                            <td>{$item.pid}</td>
+                            <td>{$item.pid_nickname}</td>
+                            <td>
+                                <input type="hidden" name="partner[ids][]" value="{$item.id}">
+                                <input type="text" name="partner[nums][]" value="{$item.num}" class="layui-input" style="width:70px"/>
+                            </td>
+                            <td>
+                                <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delChooseTrUp(this)">删除</button>
+                            </td>
+                        </tr>
+                        {/foreach}
+                        {/if}
+                        <tr class="choose-tr-add">
+                            <td colspan="6" align="center"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="choosePartnerShow()">添加</button></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<span style="color:#333">保护期</span><hr/>
+<div class="layui-form-item">
+    <label class="layui-form-label">开启保护期：</label>
+    <div class="layui-input-inline">
+        <input type="radio" name="info[protect_status]" value="1" title="开启" {if $info['protect_status']==1}checked{/if} lay-filter="protect_status" />
+        <input type="radio" name="info[protect_status]" value="0" title="关闭" {if $info['protect_status']==0}checked{/if} lay-filter="protect_status" />
+    </div>
+</div>
+<div class="protect_div" {if empty($info['protect_status'])}style="display:none;"{/if} >
+<div class="layui-form-item">
+    <label class="layui-form-label">保护期每日业绩：</label>
+    <div class="layui-input-inline">
+        <input type="text" name="info[protect_yeji]" lay-verType="tips" class="layui-input" value="{$info['protect_yeji']}">
+    </div>
+    <div class="layui-form-mid">每日达不到该业绩系统自动补足</div>
+</div>
+<div class="layui-form-item">
+    <label class="layui-form-label">保护期天数：</label>
+    <div class="layui-input-inline">
+        <input type="text" name="info[protect_day]" lay-verType="tips" class="layui-input" value="{$info['protect_day']}">
+    </div>
+    <div class="layui-form-mid"></div>
+</div>
+<div class="layui-form-item">
+    <label class="layui-form-label">保护期结算比例：</label>
+    <div class="layui-input-inline layui-module-itemL">
+        <div>成本(%)</div>
+        <input   type="text" name="info[protect_cost_bili]" class="layui-input" value="{$info.protect_cost_bili}">
+    </div>
+    <div class="layui-input-inline layui-module-itemL">
+        <div>平台(%)</div>
+        <input   type="text" name="info[protect_plate_bili]" class="layui-input" value="{$info.protect_plate_bili}">
+    </div>
+    <div class="layui-input-inline layui-module-itemL">
+        <div>店铺(%)</div>
+        <input   type="text" name="info[protect_business_bili]" class="layui-input" value="{$info.protect_business_bili}">
+    </div>
+    <div class="layui-input-inline layui-module-itemL">
+        <div>店铺发放比例(%)</div>
+        <input   type="text" name="info[protect_business_send_bili]" class="layui-input" value="{$info.protect_business_send_bili}">
+    </div>
+    <div class="layui-form-mid layui-word-aux layui-clear">
+        营业额*（100%-成本-店铺)*店铺发放比例
+    </div>
+</div>
+</div>
+<span style="color:#333">成熟期</span><hr/>
+<div class="layui-form-item">
+    <label class="layui-form-label">成熟期业绩：</label>
+    <div class="layui-input-inline">
+        <input type="text" name="info[mature_yeji]" lay-verType="tips" class="layui-input" value="{$info['mature_yeji']}">
+    </div>
+    <div class="layui-form-mid">累计业绩达到该值进入成熟期</div>
+</div>
+<div class="layui-form-item">
+    <label class="layui-form-label">成熟期结算比例：</label>
+    <div class="layui-input-inline layui-module-itemL">
+        <div>成本(%)</div>
+        <input   type="text" name="info[mature_cost_bili]" class="layui-input" value="{$info.mature_cost_bili}">
+    </div>
+    <div class="layui-input-inline layui-module-itemL">
+        <div>平台(%)</div>
+        <input   type="text" name="info[mature_plate_bili]" class="layui-input" value="{$info.mature_plate_bili}">
+    </div>
+    <div class="layui-input-inline layui-module-itemL">
+        <div>店铺(%)</div>
+        <input   type="text" name="info[mature_business_bili]" class="layui-input" value="{$info.mature_business_bili}">
+    </div>
+    <div class="layui-input-inline layui-module-itemL">
+        <div>店铺发放比例(%)</div>
+        <input   type="text" name="info[mature_business_send_bili]" class="layui-input" value="{$info.mature_business_send_bili}">
+    </div>
+    <div class="layui-form-mid layui-word-aux layui-clear">
+        营业额*（100%-成本-店铺)*店铺发放比例
+    </div>
+</div>
+<span style="color:#333">分销设置</span><hr/>
+<div class="layui-form-item">
+    <label class="layui-form-label">营业数据来源：</label>
+    <div class="layui-input-inline">
+        <input type="radio" name="info[count_yeji]" value="0" title="自动" {if $info['count_yeji']==0}checked{/if} />
+        <input type="radio" name="info[count_yeji]" value="1" title="手动录入" {if $info['count_yeji']==1}checked{/if} />
+    </div>
+    <div class="layui-form-mid layui-word-aux layui-clear">
+<!--        切记只能设置一次，不能修改，选择错误请删除店铺重新添加-->
+    </div>
+</div>
+<div class="layui-form-item">
+    <label class="layui-form-label">分销比例：</label>
+<!--    <div class="layui-input-inline layui-module-itemL">-->
+<!--        <div>发起人(%)</div>-->
+<!--        <input type="text" name="info[promoter_bili]" class="layui-input" value="{$info.promoter_bili}">-->
+<!--    </div>-->
+<!--    <div class="layui-input-inline layui-module-itemL">-->
+<!--        <div>发起人推荐人比例(%)</div>-->
+<!--        <input type="text" name="info[promoter_tj_bili]" class="layui-input" value="{$info.promoter_tj_bili}">-->
+<!--    </div>-->
+    <div class="layui-input-inline layui-module-itemL">
+        <div>合伙人比例和(%)</div>
+        <input type="text" name="info[partner_bili]" class="layui-input" value="{$info.partner_bili}">
+    </div>
+    <div class="layui-input-inline layui-module-itemL">
+        <div>合伙人推荐人比例和(%)</div>
+        <input type="text" name="info[partner_tj_bili]" class="layui-input" value="{$info.partner_tj_bili}">
+    </div>
+    <div class="layui-form-mid layui-word-aux layui-clear">
+        1、发起人收益=营业额*（100%-成本-店铺)*店铺发放比例*发起人比例<br/>
+        2、发起人推荐人收益=营业额*（100%-成本-店铺)*店铺发放比例*发起人推荐人比例<br/>
+        3、合伙人收益=营业额*（100%-成本-店铺)*店铺发放比例*合伙人比例和/合伙人人数<br/>
+        4、合伙人推荐人收益=营业额*（100%-成本-店铺)*店铺发放比例*推荐人比例和/合伙人人数（注意是合伙人人数，不是合伙人邀请人数）<br/>
+    </div>
+
+</div>
+<script>
+function choosePromoterShow(){
+    layer.open({type:2,title:'选择会员',content:"{:url('Member/choosemember')}/args/promoter",area:['900px','600px'],shadeClose:true});
+}
+function choosePartnerShow(){
+    layer.open({type:2,title:'选择会员',content:"{:url('Member/choosemember')}/args/partner",area:['900px','600px'],shadeClose:true});
+}
+function choosemember(data,args){
+    console.log(args);
+    console.log(data);
+    if(args=='promoter'){
+        var detail = data;
+        var chooseClassName = '.choose-promoter-up';
+        var isadd = 0;
+        var i = 0
+        $(chooseClassName).find('.choose-tr-list').each(function(){
+            var thisfid = $(this).find('td:eq(0)').html();
+            if(thisfid == detail.id){
+                isadd = 1
+                dialog('该项已添加过了');
+            }
+            i++;
+        });
+        if(isadd == 0){
+            var tr = '<tr class="choose-tr-list">' +
+                '<td>'+detail.id+'</td>' +
+                '<td>'+detail.nickname+'</td>' +
+                '<td>' +
+                '<input type="text" name="promoter['+detail.id+'][promoter_bili]" value="0" class="layui-input promoter_bili" style="width:70px;display: inline;"/>';
+            if(i==0){
+                tr += ' <i class="fa fa-hand-o-down" style="cursor:pointer" title="批量设置" onclick="plset(\'promoter_bili\')"></i>';
+            }
+            tr += '</td>' +
+                '<td>'+detail.pid+'</td>' +
+                '<td>'+detail.pid_nickname+'</td>' +
+                '<td>' +
+                '<input type="text" name="promoter['+detail.id+'][promoter_tj_bili]" value="0" class="layui-input promoter_tj_bili" style="width:70px;display: inline;"/>';
+            if(i==0){
+                tr += ' <i class="fa fa-hand-o-down" style="cursor:pointer" title="批量设置" onclick="plset(\'promoter_tj_bili\')"></i>';
+            }
+            tr += '</td>' +
+                '<td>' +
+                '<button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delChooseTrUp(this)">删除</button>' +
+                '</td>' +
+                '</tr>';
+            $(chooseClassName).find('.choose-tr-add').before(tr);
+        }
+    }else if(args=='partner'){
+        var detail = data;
+        var chooseClassName = '.choose-partner-up';
+        var isadd = 0;
+        $(chooseClassName).find('.choose-tr-list').each(function(){
+            var thisfid = $(this).find('td:eq(0)').html();
+            if(thisfid == detail.id){
+                isadd = 1
+                dialog('该项已添加过了');
+            }
+        });
+        if(isadd == 0){
+            var tr = '<tr class="choose-tr-list">' +
+                '<td>'+detail.id+'</td>' +
+                '<td>'+detail.nickname+'</td>' +
+                '<td>'+detail.pid+'</td>' +
+                '<td>'+detail.pid_nickname+'</td>' +
+                '<td>' +
+                '<input type="hidden" name="partner[ids][]" value="'+detail.id+'">' +
+                '<input type="text" name="partner[nums][]" class="layui-input" style="width:70px" value="1">' +
+                '</td>' +
+                '<td>' +
+                '<button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delChooseTrUp(this)">删除</button>' +
+                '</td>' +
+                '</tr>';
+            $(chooseClassName).find('.choose-tr-add').before(tr);
+        }
+    }
+}
+function delChooseTrUp(obj){
+    $(obj).closest('.choose-tr-list').remove();
+}
+function plset(name){
+    $("."+name).val($("."+name).eq(0).val());
+}
+</script>
+{/if}

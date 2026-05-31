@@ -1,0 +1,27 @@
+<div class="dsn-mod dsn-banner" ng-class="{'dsn-mod-select':Item.id == focus}" ng-style="{'background-color':Item.params.bgcolor,'margin':Item.params.margin_y+'px '+Item.params.margin_x+'px 0','padding':Item.params.padding_y+'px '+Item.params.padding_x+'px','font-size':Item.params.fontsize+'px'}">
+		<div class="swipe" ng-style="{'border-radius':Item.params.borderradius+'px'}">
+			<div class="swipe-wrap" ng-style="{'background-color':Item.params.bgcolor,'height':Item.params.height * 1.08 +'px'}">
+				<li ng-repeat="d in Item.data">
+					<a href="javascript:void(0);"><img ng-src="{{d.imgurl}}" /></a>
+				</li>
+			</div>
+		</div>
+		<div class='dsn-banner-dots' ng-show="Item.data.length > 1 && Item.params.indicatordots=='1'" ng-style="{'left':Item.params.padding_x+'px','bottom':Item.params.dotSite+'px','justify-content':Item.params.align=='center'?'center':(Item.params.align=='left'?'flex-start':'flex-end')}" indicatorcolor="{{Item.params.indicatorcolor}}" indicatoractivecolor="{{Item.params.indicatoractivecolor}}" dotactivewidth="{{Item.params.shape==''?'13px':'6px'}}" dotwidth="{{Item.params.shape==''?'3px':'6px'}}"> 
+			<div ng-if="Item.params.shape==''" ng-repeat="d in Item.data" style="display:inline-block; list-style: none;display:flex">
+				<a ng-if="$index==0" class="shape0" ng-style="{'background-color':Item.params.indicatoractivecolor,'width':'13px'}"></a>
+				<a ng-if="$index!=0" class="shape0" ng-style="{'background-color':Item.params.indicatorcolor}"></a>
+			</div>
+			<div ng-if="Item.params.shape=='shape1'" ng-repeat="d in Item.data" style="display:inline-block; list-style: none;display:flex">
+				<a ng-if="$index==0" class="shape1" ng-style="{'background-color':Item.params.indicatoractivecolor}"></a>
+				<a ng-if="$index!=0" class="shape1" ng-style="{'background-color':Item.params.indicatorcolor}"></a>
+			</div>
+			<div ng-if="Item.params.shape=='shape2'" ng-repeat="d in Item.data" style="display:inline-block; list-style: none;display:flex">
+				<a ng-if="$index==0" class="shape2" ng-style="{'background-color':Item.params.indicatoractivecolor}"></a>
+				<a ng-if="$index!=0" class="shape2" ng-style="{'background-color':Item.params.indicatorcolor}"></a>
+			</div>
+			<div ng-if="Item.params.shape=='shape3'" ng-repeat="d in Item.data" style="display:inline-block; list-style: none;display:flex">
+				<a ng-if="$index==0" class="shape3" ng-style="{'background-color':Item.params.indicatoractivecolor}"></a>
+				<a ng-if="$index!=0" class="shape3" ng-style="{'background-color':Item.params.indicatorcolor}"></a>
+			</div>
+		</div>
+</div>

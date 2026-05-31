@@ -1,0 +1,162 @@
+<!DOCTYPE html><!--custom_file(mendian_upgrade)-->
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{:t('门店')}等级设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	#ggtable .layui-input{ display:inline;height:30px}
+	#ggtable .layui-btn{ margin-top:-3px;margin-left:1px}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加{:t('门店')}等级{else}<i class="fa fa-pencil"></i> 编辑{:t('门店')}等级{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w6" lay-filter="">
+						<input type="hidden" name="info[id]" value="{$info.id}"/>
+						<span style="color:#333">基础设置</span><hr/>
+						<div class="layui-form-item">
+							<label class="layui-form-label">排序</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[sort]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.sort}">
+							</div>
+							<div class="layui-form-mid layui-word-aux">用于升级顺序判断，数字越大等级越高</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">等级名称</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[name]" class="layui-input" value="{$info.name}" lay-verify="required" lay-verType="tips">
+							</div>
+						</div>
+	                    {if $info['isdefault'] != 1}
+						<span style="color:#333">升级设置</span><hr/>
+						<div class="layui-form-item">
+							<label class="layui-form-label">是否可自动升级</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[can_up]" value="1" title="是" {if $info['can_up']==1}checked{/if} lay-filter="can_up">
+								<input type="radio" name="info[can_up]" value="0" title="否" {if $info['can_up']!=1}checked{/if} lay-filter="can_up">
+							</div>
+							<div class="layui-form-mid layui-word-aux">开启后则达到设置条件自动升级为该级别</div>
+						</div>
+
+						<div id="can_upset" style="border:0px dashed #f0cccc;padding-top:10px;margin-bottom:20px;{if $info['can_up']!=1}display:none{/if}">
+							<div class="layui-form-item" style="margin-bottom:5px">
+								<label class="layui-form-label">升级条件</label>
+								<div class="layui-input-inline layui-module-itemL">
+									<div>订单总金额满</div>
+									<input type="text" name="info[up_ordermoney]" class="layui-input" value="{$info.up_ordermoney}">
+								</div>
+							</div>
+						</div>
+						{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label">提成方式</label>
+							<div class="layui-input-inline"  style="width:300px">
+								<input type="radio" class="canAgentF-radio" name="info[commissiontype]" value="0" title="百分比" {if $info['commissiontype']==0}checked{/if}  lay-filter="commissiontype">
+								<input type="radio" class="canAgentF-radio" name="info[commissiontype]" value="1" title="固定金额" {if $info['commissiontype']==1}checked{/if}  lay-filter="commissiontype">
+							</div>
+							<div class="layui-form-mid layui-word-aux">设置固定金额时按单返{:t('佣金')},和购买数量无关</div>
+
+						</div>
+						<div class="layui-form-item" id="tichengBox1" {if $info.commissiontype==2}style="display:none;"{/if}>
+							<label class="layui-form-label">提成金额</label>
+							<div class="layui-input-inline layui-module-itemL" >
+							
+								<input type="text" name="info[commission]" class="layui-input" style="margin-right:0;width:200px" value="{$info.commission}">
+								<div class="input-group-addon commissionunit" >{$info['commissiontype']==1 ? '元':'%'}</div>
+							</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		//return;
+		var index = layer.load();
+	  // console.log(obj)
+	  //return;
+		$.post("{:url('save')}",obj.field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.closeAll();
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+	//自定义表单验证
+	layui.form.verify({
+		Ndouble:[
+			/^[0-9]\d*$/
+			,'只能输入整数哦'
+		]
+	});
+	layui.form.on('radio(can_apply)', function(data){
+		if(data.value == '1'){
+			$('#can_applyset').show();
+		}else{
+			$('#can_applyset').hide();
+		}
+	})
+
+	layui.form.on('radio(can_up)', function(data){
+		if(data.value == '1'){
+			$('#can_upset').show();
+		}else{
+			$('#can_upset').hide();
+		}
+	})
+
+	layui.form.on('radio(commissiontype)', function(data){
+		if(data.value == '1'){
+			$('.commissionunit').html('元');
+		}else{
+			$('.commissionunit').html('%');
+		}
+
+	})
+	function toup(obj){
+		var onthis=$(obj).parent().parent();
+		var getUp=onthis.prev();
+		if (getUp.length<=0)  {
+			layer.msg("到顶了");
+			return;
+		}
+		onthis.after(getUp);
+	}
+	function todown(obj){
+		var onthis=$(obj).parent().parent();
+		var getdown=onthis.next();
+		if (getdown.length<=0){
+			layer.msg("到底了");
+			return;
+		}
+		getdown.after(onthis);
+	}
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

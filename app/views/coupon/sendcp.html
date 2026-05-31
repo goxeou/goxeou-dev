@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{:t('会员')}列表</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	.layui-table-body .layui-table .layui-table-cell{height:auto;line-height:auto}
+	.orderdetail{background:#fff;width: 94%;box-sizing:border-box;margin:0 10px;display:flex;flex-direction:column;}
+	.orderdetail *{box-sizing:border-box;}
+	.orderinfo{ width:100%;margin-top:5px;padding: 5px;background: #FFF;}
+	.orderinfo .item{display:flex;width:100%;padding:5px 0;border-bottom:1px dashed #ededed;}
+	.orderinfo .item:last-child{ border-bottom: 0;}
+	.orderinfo .item .t1{width:100px;}
+	.orderinfo .item .t2{flex:1;text-align:right}
+	.orderinfo .item .red{color:red}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+			<div class="layui-card-header">
+				{:t('会员')}列表
+				{if input('param.isopen')==1}<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>{/if}
+			</div>
+          	<div class="layui-card-body" pad15>
+			<!-- <blockquote class="layui-elem-quote">已领取会员卡的用户将收到会员卡的{:t('优惠券')}变动通知</blockquote> -->
+			<div class="layui-col-md3" style="padding-bottom:10px">
+				<button class="layui-btn layui-btn-primary" onclick="sendopen(0)">推送选中项</button>
+				<button class="layui-btn layui-btn-primary" onclick="sendopen(1)">推送全部</button>
+			</div>
+			<div class="layui-form layui-col-md9 layui-form-search">
+				<div class="layui-inline layuiadmin-input-useradmin">
+					<label class="layui-form-label">关键字</label>
+					<div class="layui-input-inline">
+						<input type="text" name="nickname" autocomplete="off" class="layui-input">
+					</div>
+				</div>
+			
+				<div class="layui-inline">
+					<label class="layui-form-label">推荐人ID</label>
+					<div class="layui-input-inline">
+						<input type="text" name="pid" autocomplete="off" class="layui-input">
+					</div>
+				</div>
+				<div class="layui-inline">
+					<label class="layui-form-label">等级</label>
+					<div class="layui-input-inline">
+						<select name="levelid">
+							<option value="">全部</option>
+							{foreach $levelArr as $k=>$v}
+							<option value="{$k}">{$v}</option>
+							{/foreach}
+						</select>
+					</div>
+				</div>
+				<div class="layui-inline">
+					<label class="layui-form-label">加入时间</label>
+					<div class="layui-input-inline" style="width:180px">
+						<input type="text" name="ctime" id="ctime" autocomplete="off" class="layui-input">
+					</div>
+				</div>
+				<div class="layui-inline">
+					<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+						<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+					</button>
+				</div>
+			</div>
+			<div class="layui-col-md12">
+				<table id="tabledata" lay-filter="tabledata"></table>
+			</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	<div id="sendModel" style="width:500px;display:none;margin-top:30px">
+		<div class="layui-form form-label-w6" lay-filter="">
+			<input type="hidden" name="cpid" value="{$coupon.id}"/>
+			<input type="hidden" name="sendtype" id="sendtype" value="0"/>
+			<div class="layui-form-item">
+				<label class="layui-form-label">{:t('优惠券')}名称：</label>
+				<div class="layui-form-mid" style="color:#000">{$coupon.name}</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">每人发送数量：</label>
+				<div class="layui-input-inline" style="width:100px">
+					<input type="text" name="persendnum" id="persendnum" value="1" lay-verify="required" lay-verType="tips" autocomplete="off" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">共计发送人数：</label>
+				<div class="layui-form-mid" id="sendnum">0</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label"></label>
+				<div class="layui-input-block">
+					<button class="layui-btn layui-btn-normal" lay-submit lay-filter="formsend">发送</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	{include file="public/js"/}
+	<script>
+  var table = layui.table;
+	var datawhere = {};
+	var totalnum = 0;
+	var dataurl = "{:url('Member/index')}";
+	
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: dataurl //数据接口
+    ,page: true //开启分页
+		,checkbox: true
+    ,cols: [[ //表头
+		{type:"checkbox"},
+      {field: 'id', title: 'ID',sort: true,templet: function(d){
+			  if(d.mid &&  d.mid > 0)
+				  return d.mid;
+			  else
+				  return d.id;
+		  },width:60},
+      {field: 'nickname', title: '推荐人',templet: function(d){ 
+				if(d.parent && d.parent.id){
+					return '<img src="'+d.parent.headimg+'" style="height:30px"/><br>'+d.parent.nickname;
+				}else{
+					return '无';
+				}
+			},width:70},
+      {field: 'nickname', title: '头像昵称',templet: '<div><img src="{{d.headimg}}" style="height:50px"/> {{d.nickname}}</div>'},
+	  {if !getcustom('business_member_send_coupon') && $bid == 0}
+	  {field: 'platform', title: '来源',templet:function(d){
+			if(d.platform=='wx') return '小程序';
+			if(d.platform=='mp') return '公众号';
+			if(d.platform=='h5') return 'H5';
+			//if(d.platform=='tt') return '头条小程序';
+			return d.platform;
+		}},
+      {field: 'area', title: '地区',templet: function(d){ return (d.province!==null?d.province:'') + (d.city!==null?d.city:'')}},
+      {field: 'card_code', title: '会员卡号',templet: function(d){
+				if(d.card_code){
+					return d.card_code + '<br><a href="javascript:void(0)" onclick="showcarddetail(\''+d.card_id+'\',\''+d.card_code+'\')">查看</a>';
+				}else{
+					return '未领取';
+				}
+      }},
+	  {/if}
+      {field: 'realname', title: '姓名'},
+      {field: 'tel', title: '电话'},
+      {field: 'money', title: "{:t('余额')}",sort: true,width:100},
+      {field: 'score', title: '{:t('积分')}',sort: true,width:100},
+      {field: 'commission', title: '{:t('佣金')}',sort: true,width:100},
+      {field: 'levelname', title: '等级',width:100},
+      {field: 'subscribe', title: '关注状态',width:100,templet:function(d){
+				if(d.subscribe==0){
+					return '<span style="color:red">未关注</span>';
+				}else{
+					return '<span style="color:green">已关注</span>';
+				}
+			}},
+      {field: 'createtime', title: '加入时间',sort: true,templet:function(d){ return date('Y-m-d H:i',d.createtime)}},
+    ]],
+		done: function(res, curr, count){
+			totalnum = count;
+			console.log(totalnum)
+		}
+  });
+	
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//日期范围选择
+	layui.laydate.render({ 
+		elem: '#ctime',
+		trigger: 'click',
+		range: '~' //或 range: '~' 来自定义分割字符
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	//查看详情
+	function showcarddetail(card_id,card_code){
+		var index = layer.load();
+		$.post("{:url('Member/getcarddetail')}",{card_id:card_id,card_code:card_code},function(res){
+			layer.close(index);
+			var info = res.data
+			var html='';
+			html+='<div class="orderdetail">';
+			html+='<div class="orderinfo">';
+			html+='<div class="item">';
+			html+='	<span class="t1">粉丝信息</span>';
+			html+='	<span class="t2"><img src="'+info.headimg+'" style="width:40px"/> '+info.nickname+'</span>';
+			html+='</div>';
+			if(info.card_id){
+				html+='<div class="item">';
+				html+='	<span class="t1">卡券ID</span>';
+				html+='	<span class="t2">'+info.card_id+'</span>';
+				html+='</div>';
+			}
+			if(info.card_code){
+				html+='<div class="item">';
+				html+='	<span class="t1">会员卡号</span>';
+				html+='	<span class="t2">'+info.card_code+'</span>';
+				html+='</div>';
+			}
+			if(info.name){
+				html+='<div class="item">';
+				html+='	<span class="t1">姓名</span>';
+				html+='	<span class="t2">'+info.name+'</span>';
+				html+='</div>';
+			}
+			if(info.mobile){
+				html+='<div class="item">';
+				html+='	<span class="t1">手机号</span>';
+				html+='	<span class="t2">'+info.mobile+'</span>';
+				html+='</div>';
+			}
+			if(info.sex){
+				html+='<div class="item">';
+				html+='	<span class="t1">性别</span>';
+				html+='	<span class="t2">'+info.sex+'</span>';
+				html+='</div>';
+			}
+			if(info.birthday){
+				html+='<div class="item">';
+				html+='	<span class="t1">生日</span>';
+				html+='	<span class="t2">'+info.birthday+'</span>';
+				html+='</div>';
+			}
+			if(info.email){
+				html+='<div class="item">';
+				html+='	<span class="t1">邮箱</span>';
+				html+='	<span class="t2">'+info.email+'</span>';
+				html+='</div>';
+			}
+			if(info.idcard){
+				html+='<div class="item">';
+				html+='	<span class="t1">身份证</span>';
+				html+='	<span class="t2">'+info.idcard+'</span>';
+				html+='</div>';
+			}
+			if(info.education){
+				html+='<div class="item">';
+				html+='	<span class="t1">学历</span>';
+				html+='	<span class="t2">'+info.education+'</span>';
+				html+='</div>';
+			}
+			if(info.industry){
+				html+='<div class="item">';
+				html+='	<span class="t1">行业</span>';
+				html+='	<span class="t2">'+info.industry+'</span>';
+				html+='</div>';
+			}
+			if(info.income){
+				html+='<div class="item">';
+				html+='	<span class="t1">年收入</span>';
+				html+='	<span class="t2">'+info.income+'</span>';
+				html+='</div>';
+			}
+			if(info.habit){
+				html+='<div class="item">';
+				html+='	<span class="t1">爱好</span>';
+				html+='	<span class="t2">'+info.habit+'</span>';
+				html+='</div>';
+			}
+			if(info.location){
+				html+='<div class="item">';
+				html+='	<span class="t1">地址</span>';
+				html+='	<span class="t2">'+info.location+'</span>';
+				html+='</div>';
+			}
+			if(info.sex){
+				html+='<div class="item">';
+				html+='	<span class="t1">性别</span>';
+				html+='	<span class="t2">'+info.sex+'</span>';
+				html+='</div>';
+			}
+			if(info.field1){
+				var field1 = (info.field1).split(' :  ');
+				html+='<div class="item">';
+				html+='	<span class="t1">'+field1[0]+'</span>';
+				html+='	<span class="t2">'+field1[1]+'</span>';
+				html+='</div>';
+			}
+			if(info.field2){
+				var field2 = (info.field2).split(' :  ');
+				html+='<div class="item">';
+				html+='	<span class="t1">'+field2[0]+'</span>';
+				html+='	<span class="t2">'+field2[1]+'</span>';
+				html+='</div>';
+			}
+			if(info.field3){
+				var field3 = (info.field3).split(' :  ');
+				html+='<div class="item">';
+				html+='	<span class="t1">'+field3[0]+'</span>';
+				html+='	<span class="t2">'+field3[1]+'</span>';
+				html+='</div>';
+			}
+			if(info.field4){
+				var field4 = (info.field4).split(' :  ');
+				html+='<div class="item">';
+				html+='	<span class="t1">'+field4[0]+'</span>';
+				html+='	<span class="t2">'+field4[1]+'</span>';
+				html+='</div>';
+			}
+			if(info.field5){
+				var field5 = (info.field5).split(' :  ');
+				html+='<div class="item">';
+				html+='	<span class="t1">'+field5[0]+'</span>';
+				html+='	<span class="t2">'+field5[1]+'</span>';
+				html+='</div>';
+			}
+			html+='<div class="item">';
+			html+='	<span class="t1">领取时间</span>';
+			html+='	<span class="t2">'+date('Y-m-d H:i:s',info.createtime)+'</span>';
+			html+='</div>';
+			html+='<div class="item">';
+			html+='	<span class="t1">状态</span>';
+			if(info.status==1){
+				html+='	<span class="t2">正常</span>';
+			}
+			if(info.status==2){
+				html+='	<span class="t2">已删除</span>';
+			}
+			if(info.status==3){
+				html+='	<span class="t2">已注销</span>';
+			}
+			html+='</div>';
+			html+='</div>';
+			html+='</div>';
+			layer.open({type:1,area:['300px'],content:html,title:false,shadeClose:true});
+		})
+	}
+
+	var sendlayer
+	var sendids
+	function sendopen(type){
+		if(type==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			var id = [];
+			for(var i=0;i<checkData.length;i++){
+				if(checkData[i]['mid'])
+					id.push(checkData[i]['mid']);
+				else
+					id.push(checkData[i]['id']);
+			}
+			sendids = id;
+			$('#sendnum').html(sendids.length+'人');
+		}else{
+			sendids = []
+			$('#sendnum').html(totalnum+'人');
+		}
+		$('#sendtype').val(type);
+		sendlayer = layer.open({type:1,area: '500px',title:'推送{:t('优惠券')}',content:$('#sendModel'),shadeClose:true})
+	}
+	var pagenum = 0;
+	var pagelimit = 20;
+	//发送提交
+	  layui.form.on('submit(formsend)', function(obj){
+			pagenum = 0;
+			var index= layer.load();
+			var field = obj.field
+			field.ids = sendids
+			field.datawhere = datawhere
+			console.log(field)
+			_tplsend(field);
+	  });
+	
+	function _tplsend(field){
+		var index = layer.load();
+		pagenum++;
+		$.ajax({
+			type:'POST',
+			url:"{:url('send')}/pagenum/"+pagenum+'/pagelimit/'+pagelimit,
+			dataType:'json',
+			data:field,
+			success:function(data){
+				layer.close(index);
+				if(field.sendtype == 1){
+					var hassendtplcount = pagenum * pagelimit
+					if(hassendtplcount > totalnum) hassendtplcount = totalnum
+					if(data.status==1){
+						layer.msg('已发送'+data.sucnum+'条数据',{offset:'100px'});
+					}
+					if(pagenum * pagelimit < totalnum && data.status==1){
+						_tplsend(field);
+					}else{
+						dialog(data.msg,data.status);
+						setTimeout(function(){
+							parent.layer.closeAll();
+							parent.tableIns.reload()
+						},1000);
+					}
+				}else{
+					dialog(data.msg,data.status);
+					setTimeout(function(){
+						parent.layer.closeAll();
+						parent.tableIns.reload()
+					},1000);
+				}
+			},
+			error:function(){
+				layer.close(index);
+				dialog('未知错误',0);
+			}
+		})
+	}
+	</script>
+	{include file="public/copyright"/}
+</body>
+</html>

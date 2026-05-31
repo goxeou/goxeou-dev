@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>H5设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header"><i class="fa fa-cog"></i> H5支付设置</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w8" lay-filter="">
+						<span style="color:#333">微信支付设置</span><hr/>
+						<div class="layui-form-item">
+							<label class="layui-form-label">支付状态：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[wxpay]" title="开启" value="1" {if $info['wxpay']==1}checked{/if}/>
+								<input type="radio" name="info[wxpay]" title="关闭" value="0" {if $info['wxpay']==0}checked{/if}/>
+							</div>
+							<div class="layui-form-mid">JSAPI支付授权目录：<b>{$Think.const.PRE_URL2}/</b></div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">支付APPID：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[appid]" value="{$info['appid']}" class="layui-input"/>
+							</div>
+							<div class="layui-form-mid">公众号的appid</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">微支付模式：</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="radio" name="info[wxpay_type]" title="普通模式" value="0" {if $info['wxpay_type']==0}checked{/if} lay-filter="diandaSwitchMulti"/>
+								<input type="radio" name="info[wxpay_type]" title="服务商模式" value="1" {if $info['wxpay_type']==1}checked{/if} lay-filter="diandaSwitchMulti"/>
+								{if getcustom('pay_huifu')}
+								<input type="radio" name="info[wxpay_type]" title="汇付天下斗拱" value="4" {if $info['wxpay_type']==4}checked{/if} lay-filter="diandaSwitchMulti"/>
+								{/if}
+							</div>
+						</div>
+						<div class="layui-form-item"  diandaSwitchMulti="info[wxpay_type]" data-val="1" {if $info['wxpay_type']!=1}style="display:none"{/if}>
+							<label class="layui-form-label">支付商户号：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[wxpay_sub_mchid]" value="{$info['wxpay_sub_mchid']}" class="layui-input"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">必须填子商户的商户号</div>
+						</div>
+						<div diandaSwitchMulti="info[wxpay_type]" data-val="0" {if $info['wxpay_type']!=0}style="display:none"{/if}>
+							<div class="layui-form-item">
+								<label class="layui-form-label">支付商户号：</label>
+								<div class="layui-input-inline">
+									<input type="text" name="info[wxpay_mchid]" value="{$info['wxpay_mchid']}" class="layui-input"/>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">支付密钥：</label>
+								<div class="layui-input-inline" style="width:280px">
+									<input type="text" name="info[wxpay_mchkey]" value="{$info['wxpay_mchkey']}" class="layui-input"/>
+									{if $info['wxpay_mchkey']}<div style="position: absolute;left: 0;top: 0;right: 0;bottom: 0; background: #fff;padding: .35rem .7rem;border: 1px solid rgba(0, 0, 0, .15);border-radius: .15rem;color: #636c72;" onclick="$(this).hide()">已隐藏内容，点击查看或编辑</div>{/if}
+								</div>
+								<div class="layui-form-mid layui-word-aux">请在 <a href="https://pay.weixin.qq.com" target="_blank">微信支付商户平台</a> [账户中心]-[API安全]中设置[APIv2密钥]</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">PEM证书：</label>
+								<div class="layui-input-inline" style="width:450px">
+									<input style="float:left;" readonly="readonly" class="layui-input" type="text" name="info[wxpay_apiclient_cert]" value="{$info['wxpay_apiclient_cert']}" id="wxpay_apiclient_cert"/>
+								</div>
+								<button style="float:left;" type="button" class="layui-btn layui-btn-primary uploadfile" upload-input="wxpay_apiclient_cert" upload-preview="certPreview">上传</button>
+								<div id="certPreview" class="layui-form-mid" style="margin-left:20px;">{if $info['wxpay_apiclient_cert']}已上传{/if}</div>
+								<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">apiclient_cert.pem 请在 <a href="https://pay.weixin.qq.com" target="_blank">微信支付商户平台</a> [账户中心]-[API安全]中设置[API证书]，设置完成后上传</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">证书密钥：</label>
+								<div class="layui-input-inline" style="width:450px">
+									<input style="float:left;" readonly="readonly" class="layui-input" type="text" name="info[wxpay_apiclient_key]" value="{$info['wxpay_apiclient_key']}" id="wxpay_apiclient_key"/>
+								</div>
+								<button style="float:left;" type="button" class="layui-btn layui-btn-primary uploadfile" upload-input="wxpay_apiclient_key" upload-preview="keyPreview">上传</button>
+								<div id="keyPreview" class="layui-form-mid" style="margin-left:20px;">{if $info['wxpay_apiclient_key']}已上传{/if}</div>
+								<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">apiclient_key.pem 请在 <a href="https://pay.weixin.qq.com" target="_blank">微信支付商户平台</a> [账户中心]-[API安全]中设置[API证书]，设置完成后上传</div>
+							</div>
+						</div>
+
+						  {if getcustom('pay_huifu')}
+						  <div  diandaSwitchMulti="info[wxpay_type]" data-val="4" {if $info['wxpay_type'] !=4}style="display:none"{/if}>
+							  <div class="layui-form-item">
+								  <label class="layui-form-label">汇付天下斗拱设置：</label>
+								  <div class="layui-form-mid layui-word-aux"><a href="#huifuset">点击进行配置</a></div>
+							  </div>
+						  </div>
+						  {/if}
+						<span style="color:#333">支付宝支付设置</span><hr/>
+						<div class="layui-form-item">
+							<label class="layui-form-label">支付状态：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[alipay]" title="开启" value="1" {if $info['alipay']==1}checked{/if}/>
+								<input type="radio" name="info[alipay]" title="关闭" value="0" {if $info['alipay']==0}checked{/if}/>
+							</div>
+							<div class="layui-form-mid layui-word-aux"><a href="https://opendocs.alipay.com/open/203/107084" target="_blank">接入指引</a></div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">APPID：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[ali_appid]" value="{$info['ali_appid']}" class="layui-input"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">支付宝分配给开发者的应用ID</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">支付模式：</label>
+							<div class="layui-input-inline" style="width:560px">
+								<input type="radio" name="info[alipay_type]" title="普通模式" value="0" {if !$info['alipay_type'] || $info['alipay_type']==0}checked{/if} lay-filter="diandaSwitchMulti"/>
+								<!-- <input type="radio" name="info[alipay_type]" title="服务商模式" value="2" {if $info['alipay_type']==2}checked{/if}  lay-filter="alipay_type"/> -->
+								{if getcustom('sxpay_h5')}
+								<input type="radio" name="info[alipay_type]" title="随行付模式" value="3" {if $info['alipay_type']==3}checked{/if} lay-filter="diandaSwitchMulti"/>
+								{/if}
+								{if getcustom('pay_adapay')}
+								<input type="radio" name="info[alipay_type]" title="汇付天下Adapay" value="1" {if $info['alipay_type']==1}checked{/if} lay-filter="diandaSwitchMulti"/>
+								{/if}
+								{if getcustom('pay_huifu')}
+								<input type="radio" name="info[alipay_type]" title="汇付天下斗拱" value="4" {if $info['alipay_type']==4}checked{/if} lay-filter="diandaSwitchMulti"/>
+								{/if}
+							</div>
+						</div>
+					
+						<div diandaSwitchMulti="info[alipay_type]" data-val="0" {if $info['alipay_type']!=0}style="display:none"{/if}>
+							<div class="layui-form-item" >
+								<label class="layui-form-label">应用私钥：</label>
+								<div class="layui-input-inline" style="width:500px">
+									<input type="text" name="info[ali_privatekey]" value="{$info['ali_privatekey']}" class="layui-input"/>
+									{if $info['ali_privatekey']}<div style="position: absolute;left: 0;top: 0;right: 0;bottom: 0; background: #fff;padding: .35rem .7rem;border: 1px solid rgba(0, 0, 0, .15);border-radius: .15rem;color: #636c72;" onclick="$(this).hide()">已隐藏内容，点击查看或编辑</div>{/if}
+								</div>
+								<div class="layui-form-mid layui-word-aux">请填写应用私钥去头去尾去回车，一行字符串</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">支付宝公钥：</label>
+								<div class="layui-input-inline" style="width:500px">
+									<input type="text" name="info[ali_publickey]" value="{$info['ali_publickey']}" class="layui-input"/>
+									{if $info['ali_publickey']}<div style="position: absolute;left: 0;top: 0;right: 0;bottom: 0; background: #fff;padding: .35rem .7rem;border: 1px solid rgba(0, 0, 0, .15);border-radius: .15rem;color: #636c72;" onclick="$(this).hide()">已隐藏内容，点击查看或编辑</div>{/if}
+								</div>
+								<div class="layui-form-mid layui-word-aux">请填写支付宝公钥，一行字符串</div>
+							</div>
+						</div>
+						{if getcustom('sxpay_h5')}
+						<div diandaSwitchMulti="info[alipay_type]" data-val="3" {if $info['alipay_type']!=3}style="display:none"{/if}>
+							<div class="layui-form-item">
+								<label class="layui-form-label">商户编号：</label>
+								<div class="layui-input-inline">
+									<input type="text" name="info[alisxpay_mno]" value="{$info['alisxpay_mno']}" class="layui-input"/>
+								</div>
+								<div class="layui-form-mid layui-word-aux"> <a href="javascript:void(0)" onclick="openmax('{:url('SxpayIncome/index')}&isopen=1')">点击申请入驻</a></div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">支付密钥：</label>
+								<div class="layui-input-inline" style="width:280px">
+									<input type="text" name="info[alisxpay_mchkey]" value="{$info['alisxpay_mchkey']}" class="layui-input"/>
+									{if $info['alisxpay_mchkey']}<div style="position: absolute;left: 0;top: 0;right: 0;bottom: 0; background: #fff;padding: .35rem .7rem;border: 1px solid rgba(0, 0, 0, .15);border-radius: .15rem;color: #636c72;" onclick="$(this).hide()">已隐藏内容，点击查看或编辑</div>{/if}
+								</div>
+							</div>
+						</div>
+						{/if}
+						{if getcustom('pay_adapay')}
+					 	<div  diandaSwitchMulti="info[alipay_type]" data-val="1" {if $info['alipay_type'] !=1}style="display:none"{/if}>
+							<div class="layui-form-item">
+								<label class="layui-form-label"> 汇付天下<br>Adapay设置：</label>
+								<div class="layui-form-mid layui-word-aux"><a href="#adapayset">点击进行配置</a></div>
+							</div>
+							      
+					 	</div>
+		  				{/if}
+						  {if getcustom('pay_huifu')}
+						  <div  diandaSwitchMulti="info[alipay_type]" data-val="4" {if $info['alipay_type'] !=4}style="display:none"{/if}>
+						  <div class="layui-form-item">
+							  <label class="layui-form-label"> 汇付天下斗拱设置：</label>
+							  <div class="layui-form-mid layui-word-aux"><a href="#huifuset">点击进行配置</a></div>
+						  </div>
+						  </div>
+						  {/if}
+						{if getcustom('plug_more_alipay')}
+							{for start="2" end="31"}
+							<span style="color:#333">支付宝支付{$i}设置</span><hr/>
+							<div class="layui-form-item">
+								<label class="layui-form-label">支付状态：</label>
+								<div class="layui-input-inline">
+									<input type="radio" name="info[alipay{$i}]" title="开启" value="1" {if $info['alipay'.$i]==1}checked{/if}/>
+									<input type="radio" name="info[alipay{$i}]" title="关闭" value="0" {if $info['alipay'.$i]==0}checked{/if}/>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">支付名称：</label>
+								<div class="layui-input-inline">
+									<input type="text" name="info[alipayname{$i}]" value="{$info['alipayname'.$i]}" class="layui-input"/>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">APPID：</label>
+								<div class="layui-input-inline">
+									<input type="text" name="info[ali_appid{$i}]" value="{$info['ali_appid'.$i]}" class="layui-input"/>
+								</div>
+								<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">应用私钥：</label>
+								<div class="layui-input-inline" style="width:500px">
+									<input type="text" name="info[ali_privatekey{$i}]" value="{$info['ali_privatekey'.$i]}" class="layui-input"/>
+									{if $info['ali_privatekey'.$i]}<div style="position: absolute;left: 0;top: 0;right: 0;bottom: 0; background: #fff;padding: .35rem .7rem;border: 1px solid rgba(0, 0, 0, .15);border-radius: .15rem;color: #636c72;" onclick="$(this).hide()">已隐藏内容，点击查看或编辑</div>{/if}
+								</div>
+								<div class="layui-form-mid layui-word-aux"></div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">支付宝公钥：</label>
+								<div class="layui-input-inline" style="width:500px">
+									<input type="text" name="info[ali_publickey{$i}]" value="{$info['ali_publickey'.$i]}" class="layui-input"/>
+									{if $info['ali_publickey'.$i]}<div style="position: absolute;left: 0;top: 0;right: 0;bottom: 0; background: #fff;padding: .35rem .7rem;border: 1px solid rgba(0, 0, 0, .15);border-radius: .15rem;color: #636c72;" onclick="$(this).hide()">已隐藏内容，点击查看或编辑</div>{/if}
+								</div>
+								<div class="layui-form-mid layui-word-aux"></div>
+							</div>
+							{/for}
+						{/if}
+
+						{if getcustom('paypal')}
+							<span style="color:#333">PayPal支付设置</span><hr/>
+							<div class="layui-form-item">
+								<label class="layui-form-label">支付状态：</label>
+								<div class="layui-input-inline">
+									<input type="radio" name="info[paypal]" title="开启" value="1" {if $info['paypal']==1}checked{/if}/>
+									<input type="radio" name="info[paypal]" title="关闭" value="0" {if $info['paypal']==0}checked{/if}/>
+								</div>
+								<!-- <div class="layui-form-mid layui-word-aux"><a href="https://opendocs.alipay.com/open/203/107084" target="_blank">接入指引</a></div> -->
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">Client ID：</label>
+								<div class="layui-input-inline" style="width:500px">
+									<input type="text" name="info[paypal_clientid]" value="{$info['paypal_clientid']}" class="layui-input"/>
+									{if $info['paypal_clientid']}<div style="position: absolute;left: 0;top: 0;right: 0;bottom: 0; background: #fff;padding: .35rem .7rem;border: 1px solid rgba(0, 0, 0, .15);border-radius: .15rem;color: #636c72;" onclick="$(this).hide()">已隐藏内容，点击查看或编辑</div>{/if}
+								</div>
+								<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">在paypal开发者中心My Apps & Credentials中查找 <a href="https://developer.paypal.com/developer/applications/" target="_blank">去查看</a></div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">Secret：</label>
+								<div class="layui-input-inline" style="width:500px">
+									<input type="text" name="info[paypal_clientsecret]" value="{$info['paypal_clientsecret']}" class="layui-input"/>
+									{if $info['paypal_clientsecret']}<div style="position: absolute;left: 0;top: 0;right: 0;bottom: 0; background: #fff;padding: .35rem .7rem;border: 1px solid rgba(0, 0, 0, .15);border-radius: .15rem;color: #636c72;" onclick="$(this).hide()">已隐藏内容，点击查看或编辑</div>{/if}
+								</div>
+								<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">在paypal开发者中心My Apps & Credentials中查找 <a href="https://developer.paypal.com/developer/applications/" target="_blank">去查看</a></div>
+							</div>
+						{/if}
+						
+						
+						{if getcustom('pay_adapay')}
+						  <span style="color:#333" id="adapayset">汇付天下Adapay支付设置</span><hr/>
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">银联支付状态：</label>
+							  <div class="layui-input-inline">
+								  <input type="radio" name="info[adapay_union]" title="开启" value="1" {if $info['adapay_union']==1}checked{/if}/>
+								  <input type="radio" name="info[adapay_union]" title="关闭" value="0" {if $info['adapay_union']==0}checked{/if}/>
+							  </div>
+						  </div>
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">APPID：</label>
+							  <div class="layui-input-inline">
+								  <input type="text" name="info[adapay_appid]" value="{$info['adapay_appid']}" class="layui-input"/>
+							  </div>
+							  <div class="layui-form-mid layui-word-aux" style="margin-left:10px;">汇付天下分配给开发者的应用ID，请在<a href="https://console.adapay.tech/merconsole/agent/manage/storeManage">Adapay支付</a>[管理]-[应用管理]中查找</div>
+						  </div>
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">API_KEY：</label>
+							  <div class="layui-input-inline" style="width:500px">
+								  <input type="text" name="info[adapay_api_key_live]" value="{$info['adapay_api_key_live']}" class="layui-input"/>
+								  {if $info['adapay_api_key_live']}<div style="position: absolute;left: 0;top: 0;right: 0;bottom: 0; background: #fff;padding: .35rem .7rem;border: 1px solid rgba(0, 0, 0, .15);border-radius: .15rem;color: #636c72;" onclick="$(this).hide()">已隐藏内容，点击查看或编辑</div>{/if}
+							  </div>
+							  <div class="layui-form-mid layui-word-aux">请填写API_KEY，请在<a href="https://console.adapay.tech/merconsole/agent/manage/storeManage">Adapay聚合支付</a>[开发]-[证书管理]-[导出配置文件]中查找[api_key_live]</div>
+						  </div>
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">商户RSA私钥：</label>
+							  <div class="layui-input-inline" style="width:500px">
+								  <input type="text" name="info[adapay_rsa_private_key]" value="{$info['adapay_rsa_private_key']}" class="layui-input"/>
+								  {if $info['adapay_rsa_private_key']}<div style="position: absolute;left: 0;top: 0;right: 0;bottom: 0; background: #fff;padding: .35rem .7rem;border: 1px solid rgba(0, 0, 0, .15);border-radius: .15rem;color: #636c72;" onclick="$(this).hide()">已隐藏内容，点击查看或编辑</div>{/if}
+							  </div>
+							  <div class="layui-form-mid layui-word-aux">请填写商户RSA私钥，商户RSA公钥所对应的私钥，使用生成工具所生成的秘钥</div>
+						  </div>
+						{/if}
+
+					  {if getcustom('pay_huifu')}
+					  <span style="color:#333" id="huifuset">汇付天下斗拱支付设置</span><hr/>
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">系统号sys_id：</label>
+						  <div class="layui-input-inline">
+							  <input type="text" name="info[huifu_sys_id]" value="{$info['huifu_sys_id']}" class="layui-input"/>
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">渠道商/商户的huifu_id，请在<a href="https://dashboard.huifu.com/customers/login">商户后台</a>[开发设置]-[开发者信息]查找</div>
+					  </div>
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">产品号product_id：</label>
+						  <div class="layui-input-inline">
+							  <input type="text" name="info[huifu_product_id]" value="{$info['huifu_product_id']}" class="layui-input"/>
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">请在<a href="https://dashboard.huifu.com/customers/login">商户后台</a>[开发设置]-[开发者信息]查找</div>
+					  </div>
+
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">商户公钥：</label>
+						  <div class="layui-input-inline" style="width:500px">
+							  <input type="text" name="info[huifu_merch_public_key]" value="{$info['huifu_merch_public_key']}" class="layui-input"/>
+							  {if $info['huifu_merch_public_key']}<div style="position: absolute;left: 0;top: 0;right: 0;bottom: 0; background: #fff;padding: .35rem .7rem;border: 1px solid rgba(0, 0, 0, .15);border-radius: .15rem;color: #636c72;" onclick="$(this).hide()">已隐藏内容，点击查看或编辑</div>{/if}
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">请在<a href="https://dashboard.huifu.com/customers/login">商户后台</a>[开发设置]-[密钥管理]查找</div>
+					  </div>
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">商户私钥：</label>
+						  <div class="layui-input-inline" style="width:500px">
+							  <input type="text" name="info[huifu_merch_private_key]" value="{$info['huifu_merch_private_key']}" class="layui-input"/>
+							  {if $info['huifu_merch_private_key']}<div style="position: absolute;left: 0;top: 0;right: 0;bottom: 0; background: #fff;padding: .35rem .7rem;border: 1px solid rgba(0, 0, 0, .15);border-radius: .15rem;color: #636c72;" onclick="$(this).hide()">已隐藏内容，点击查看或编辑</div>{/if}
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">请在<a href="https://dashboard.huifu.com/customers/login">商户后台</a>[开发设置]-[密钥管理]查找</div>
+					  </div>
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">汇付公钥：</label>
+						  <div class="layui-input-inline" style="width:500px">
+							  <input type="text" name="info[huifu_public_key]" value="{$info['huifu_public_key']}" class="layui-input"/>
+							  {if $info['huifu_public_key']}<div style="position: absolute;left: 0;top: 0;right: 0;bottom: 0; background: #fff;padding: .35rem .7rem;border: 1px solid rgba(0, 0, 0, .15);border-radius: .15rem;color: #636c72;" onclick="$(this).hide()">已隐藏内容，点击查看或编辑</div>{/if}
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">请在<a href="https://dashboard.huifu.com/customers/login">商户后台</a>[开发设置]-[密钥管理]查找</div>
+					  </div>
+					  {/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+      </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.form.on('radio(wxpay_type)', function(data){
+		if(data.value == '0'){
+			$('#wxpay_type1set').hide();
+			$('#wxpay_type0set').show();
+		}else{
+			$('#wxpay_type1set').show();
+			$('#wxpay_type0set').hide();
+		}
+	})
+		
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		$.post('',field,function(data){
+			dialog(data.msg,data.status,data.url);
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

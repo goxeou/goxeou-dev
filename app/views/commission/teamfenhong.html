@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>团队分红</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	.orderdetail{background:#f7f7f8;width: 94%;box-sizing:border-box;margin:0 10px;display:flex;flex-direction:column;}
+	.orderdetail *{box-sizing:border-box;}
+	.address{ display:flex;align-items:center;width: 100%; padding:10px 0; background: #FFF;color:#222}
+	.address .img{width:45px;padding:0 10px}
+	.address img{width:25px; height:25px;}
+	.address .info{flex:1;display:flex;flex-direction:column;}
+	.address .info .t1{ font-weight:bold}
+
+	.express { width:100%;background: #fff; padding:10px;display:flex;align-items:center;margin-top:5px;color:#333}
+	.express .f1{ width:40px;font-size:20px;color:#999}
+	.express .f2{display:flex;flex-direction:column;flex:auto}
+
+	.product{width:100%; padding:5px;background: #FFF;margin-top:5px;}
+	.product .content{display:flex;position:relative;width: 100%; padding:5px 0px;border-bottom: 1px #e5e5e5 dashed;position:relative}
+	.product .content:last-child{ border-bottom: 0; }
+	.product .content img{ width: 70px; height: 70px;}
+	.product .content .detail{display:flex;flex-direction:column;margin-left:7px;flex:1}
+	.product .content .detail .t1{height: 30px;line-height: 15px;color: #000;}
+	.product .content .detail .t2{height: 23px;line-height: 23px;color: #999;overflow: hidden;font-size:13px;}
+	.product .content .detail .t3{display:flex;height:15px;line-height:15px;color: #ff4246;}
+	.product .content .detail .x1{ flex:1}
+	.product .content .detail .x2{ width:50px;font-size:16px;text-align:right;margin-right:4px}
+	.product .content .comment{position:absolute;top:32px;right:5px;border: 1px #ffc702 solid; border-radius:5px;background:#fff; color: #ffc702;  padding: 0 5px; height: 23px; line-height: 23px;}
+
+	.orderinfo{ width:100%;margin-top:5px;padding: 5px;background: #FFF;}
+	.orderinfo .item{display:flex;width:100%;padding:10px 0;border-bottom:1px dashed #ededed;overflow:hidden}
+	.orderinfo .item:last-child{ border-bottom: 0;}
+	.orderinfo .item .t1{width:100px;flex-shrink:0}
+	.orderinfo .item .t2{flex:1;text-align:right;}
+	.orderinfo .item .red{color:red}
+
+	.logistics{ width: 94%;  background: #fff; padding: 0 10px;display:flex;flex-direction:column;color: #979797;}
+	.logistics .on{color: #23aa5e;}
+	.logistics .item{display:flex;width: 96%;  margin: 0 2%;/*border-left: 1px #dadada solid;*/padding:0 0}
+	.logistics .item .f1{ width:30px;position:relative}
+	/*.logistics img{width: 15px; height: 15px; position: absolute; left: -8px; top:11px;}*/
+	.logistics .item .f1 img{ width: 15px; height: 100%;}
+
+	.logistics .item .f2{display:flex;flex-direction:column;flex:auto;padding:5px 0}
+	.logistics .item .f2 .t1{font-size: 15px;}
+	.logistics .item .f2 .t1{font-size: 13px;}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header">
+						<div class="layui-tab layui-tab-brief">
+							<ul class="layui-tab-title">
+								<li {if input('param.type')==='1' || !input('?param.type')}class="layui-this"{/if} onclick="location.href='{:url('teamfenhong')}/type/1'">上月</li>
+								<li {if input('param.type')=='2'}class="layui-this"{/if} onclick="location.href='{:url('teamfenhong')}/type/2'">本月</li>
+								<li {if input('param.type')=='3'}class="layui-this"{/if} onclick="location.href='{:url('teamfenhong')}/type/3'">昨日</li>
+								<li {if input('param.type')=='4'}class="layui-this"{/if} onclick="location.href='{:url('teamfenhong')}/type/4'">今日</li>
+								<li {if input('param.type')=='10'}class="layui-this"{/if} onclick="location.href='{:url('teamfenhong')}/type/10'">全部</li>
+							</ul>
+						</div>
+						{if input('param.isopen')==1}<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>{/if}
+          </div>
+          <div class="layui-card-body" pad15>
+						<div class="layui-col-md12">
+							<div class="layui-col-md3" style="padding-bottom:10px">
+								<button class="layui-btn layuiadmin-btn-list" onclick="fafang()">发放</button>
+							</div>
+						</div>
+						<div class="layui-col-md12" style="margin:10px 0">
+							订单数：<b id="totalcount"></b>，预计分红金额：<b id="commissionyj"></b>
+						</div>
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+  var table = layui.table;
+	var datawhere = {};
+	{if input('?param.status') && input('param.status')!==''}
+	datawhere['status'] = "{$Request.param.status}";
+	{/if}
+	{if input('?param.showtype') && input('param.showtype')!==''}
+	datawhere['showtype'] = "{$Request.param.showtype}";
+	{/if}
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{$Request.url}" //数据接口
+    ,page: true //开启分页
+		//,size:'sm'
+    ,cols: [[ //表头
+			//{type:"checkbox"},
+      {field: 'id', title: 'ID',  sort: true,width:60},
+      {field: 'goodsdata', title: '商品名称',width:370,templet:function(d){
+				return '<div class="flex"><img src="'+d.pic+'" style="width:50px;height:50px"/><div style="width:300px;margin-left:10px">' + d.name + '['+d.ggname+']' + '</div></div>';
+      }},
+      {field: 'ordernum', title: '订单号/下单时间',sort: true,width:160,templet:function(d){ return d.ordernum +'<div style="color:#080">'+ date('Y年m月d日 H:i',d.createtime)+'</div>'}},
+      {field: 'num', title: '购买数量'},
+      {field: 'totalprice', title: '金额'},
+		  {field: 'totalscore', title: '{:t('积分')}'},
+      {field: 'status', title: '状态',templet:function(d){
+				var html = '';
+				if(d.status==0) html+='<div style="color:#ff8758">未支付</span>';
+				if(d.status==1) html+='<div style="color:#008000">已支付</span>';
+				if(d.status==2) html+='<div style="color:#ff4246">已发货</span>';
+				if(d.status==3) html+='<div style="color:#999">已完成</span>';
+				if(d.status==4) html+='<div style="color:#bbb">已关闭</span>';
+				return html;
+			}},
+			{field: 'commission', title: '预计分红'},
+      {field: 'op', title: '操作',templet:'<div><button class="table-btn" onclick="openmax(\'{:url('ShopOrder/index')}&isopen=1&showtype=all&ogid={{d.id}}\')">查看订单</button>',width:100}
+    ]]
+		,done:function(res){
+			var commissionyj = res.commissionyj
+			var totalcount = res.count
+			$('#commissionyj').html(commissionyj + '元');
+			$('#totalcount').html(totalcount);
+		}
+  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//日期范围选择
+	layui.laydate.render({ 
+		elem: '#ctime',
+		trigger: 'click',
+		range: '~' //或 range: '~' 来自定义分割字符
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+
+	function fafang(){
+		layer.confirm('确定要发放吗?',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('teamfenhongfafang')}",{ 
+				type:'{$Request.param.type}'
+			},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

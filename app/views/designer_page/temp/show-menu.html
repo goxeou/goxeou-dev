@@ -1,0 +1,7 @@
+<div class="dsn-mod dsn-menu" ng-class="{'dsn-mod-select':Item.id == focus}" ng-style="{'font-size':Item.params.fontsize+'px','background-color':Item.params.bgcolor,'margin':Item.params.margin_y+'px '+Item.params.margin_x+'px 0','padding':(Item.params.padding_y*1+8)+'px '+Item.params.padding_x+'px '+Item.params.padding_y+'px '+Item.params.padding_x+'px','border-radius':Item.params.boxradius + 'px'}">
+	<div class="dsn-menu-title" ng-if="Item.params.showtitle==1" style="color:{{Item.params.titlecolor}};font-size:{{Item.params.titlesize}}px">{{Item.params.title}}</div>
+	<div class="dsn-menu-nav{{Item.params.num}} {{Item.params.showicon==0 && Item.params.showline==1?'showline':''}}" href="{{menu.hrefurl|| 'javascript:void(0);'}}" ng-repeat="menu in Item.data" ng-hide="$index >= Item.params.pernum">
+		<img ng-show="Item.params.showicon==1" ng-src="{{menu.imgurl|| '__STATIC__/imgsrc/picture-1.jpg'}}" style="border-radius:{{Item.params.radius/2}}%;width:{{Item.params.iconsize}}px;height:{{Item.params.iconsize}}px"/>
+		<div class="dsn-menu-text" ng-style="{'color':menu.color,'height':Item.params.fontheight+'px','line-height':Item.params.fontheight+'px'}">{{menu.text|| '按钮文字'}}</div>
+	</div>
+</div>

@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>订单管理</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	.orderdetail{background:#f7f7f8;width: 94%;box-sizing:border-box;margin:0 10px;display:flex;flex-direction:column;}
+	.orderdetail *{box-sizing:border-box;}
+	.address{ display:flex;align-items:center;width: 100%; padding:10px 0; background: #FFF;color:#222}
+	.address .img{width:45px;padding:0 10px}
+	.address img{width:25px; height:25px;}
+	.address .info{flex:1;display:flex;flex-direction:column;}
+	.address .info .t1{ font-weight:bold}
+
+	.express { width:100%;background: #fff; padding:10px;display:flex;align-items:center;margin-top:5px;color:#333}
+	.express .f1{ width:40px;font-size:20px;color:#999}
+	.express .f2{display:flex;flex-direction:column;flex:auto}
+
+	.product{width:100%; padding:5px;background: #FFF;margin-top:5px;}
+	.product .content{display:flex;position:relative;width: 100%; padding:5px 0px;border-bottom: 1px #e5e5e5 dashed;position:relative}
+	.product .content:last-child{ border-bottom: 0; }
+	.product .content img{ width: 70px; height: 70px;}
+	.product .content .detail{display:flex;flex-direction:column;margin-left:7px;flex:1}
+	.product .content .detail .t1{height: 30px;line-height: 15px;color: #000;}
+	.product .content .detail .t2{height: 23px;line-height: 23px;color: #999;overflow: hidden;font-size:13px;}
+	.product .content .detail .t3{display:flex;height:15px;line-height:15px;color: #ff4246;}
+	.product .content .detail .x1{ flex:1}
+	.product .content .detail .x2{ width:50px;font-size:16px;text-align:right;margin-right:4px}
+	.product .content .comment{position:absolute;top:32px;right:5px;border: 1px #ffc702 solid; border-radius:5px;background:#fff; color: #ffc702;  padding: 0 5px; height: 23px; line-height: 23px;}
+
+	.orderinfo{ width:100%;margin-top:5px;padding: 5px;background: #FFF;}
+	.orderinfo .item{display:flex;width:100%;padding:10px 0;border-bottom:1px dashed #ededed;}
+	.orderinfo .item:last-child{ border-bottom: 0;}
+	.orderinfo .item .t1{width:100px;}
+	.orderinfo .item .t2{flex:1;text-align:right}
+	.orderinfo .item .red{color:red}
+
+	.logistics{ width: 94%;  background: #fff; padding: 0 10px;display:flex;flex-direction:column;color: #979797;}
+	.logistics .on{color: #23aa5e;}
+	.logistics .item{display:flex;width: 96%;  margin: 0 2%;/*border-left: 1px #dadada solid;*/padding:0 0}
+	.logistics .item .f1{ width:30px;position:relative}
+	/*.logistics img{width: 15px; height: 15px; position: absolute; left: -8px; top:11px;}*/
+	.logistics .item .f1 img{ width: 15px; height: 100%;}
+
+	.logistics .item .f2{display:flex;flex-direction:column;flex:auto;padding:5px 0}
+	.logistics .item .f2 .t1{font-size: 15px;}
+	.logistics .item .f2 .t1{font-size: 13px;}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header">
+			  <div class="layui-tab layui-tab-brief">
+				  <ul class="layui-tab-title">
+					  <li {if $status=='1' }class="layui-this"{/if} onclick="location.href='{:url('cycle_list')}/status/1/showtype/{$Request.param.showtype}'">待发货</li>
+					  <li {if input('param.status')=='2'}class="layui-this"{/if} onclick="location.href='{:url('cycle_list')}/status/2/showtype/{$Request.param.showtype}'">已发货</li>
+					  <li {if !input('param.status')}class="layui-this"{/if} onclick="location.href='{:url('cycle_list')}/showtype/{$Request.param.showtype}'">全部订单</li>
+				
+				  </ul>
+			  </div>
+			{if input('param.teamid') || input('param.isopen')==1}<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>{/if}</div>
+			
+          <div class="layui-card-body" pad15>
+			<div class="layui-form layui-col-md12 layui-form-search">
+				<div class="layui-inline layuiadmin-input-useradmin">
+					<label class="layui-form-label">订单号</label>
+					<div class="layui-input-inline">
+						<input type="text" name="ordernum" autocomplete="off" class="layui-input">
+					</div>
+				</div>
+				<div class="layui-inline">
+					<label class="layui-form-label">收货人</label>
+					<div class="layui-input-inline">
+						<input type="text" name="linkman" autocomplete="off" class="layui-input">
+					</div>
+				</div>
+				<div class="layui-inline">
+					<label class="layui-form-label">手机号</label>
+					<div class="layui-input-inline">
+						<input type="text" name="tel" autocomplete="off" class="layui-input">
+					</div>
+				</div>
+				<div class="layui-inline">
+					<label class="layui-form-label">下单时间</label>
+					<div class="layui-input-inline" style="width:180px">
+						<input type="text" name="ctime" id="ctime" autocomplete="off" class="layui-input">
+					</div>
+				</div>
+				<div class="layui-inline">
+					<label class="layui-form-label">状态</label>
+					<div class="layui-input-inline">
+						<select name="status">
+							<option value="">全部</option>
+							<option value="1">待发货</option>
+							<option value="2">已发货</option>
+							<option value="3">已完成</option>
+						</select>
+					</div>
+				</div>
+				<div class="layui-inline">
+					<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+						<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+					</button>
+				</div>
+			</div>
+			<div class="layui-col-md12">
+				<table id="tabledata" lay-filter="tabledata"></table>
+			</div>
+
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+  var table = layui.table;
+	var datawhere = {};
+	{if isset($_GET['status']) && $_GET['status']!==''}
+	datawhere['status'] = "{$_GET['status']}";
+	{/if}
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{$Request.url}" //数据接口
+    ,page: true //开启分页
+		//,size:'sm'
+    ,cols: [[ //表头
+			//{type:"checkbox"},
+      {field: 'id', title: 'ID',  sort: true,width:60},
+      {field: 'title', title: '商品信息',width:240},
+	  {field: 'cycle_number', width:100, title: '周期',templet:function(d){
+	 		return  '<div>'+d.cycle_number+'期</div>';
+	  }},
+      {field: 'ordernum', title: '订单号/下单时间',sort: true,width:200,templet:function(d){ return d.ordernum +'<div style="color:#080">'+ date('Y年m月d日 H:i',d.createtime)+'</div>'}},
+
+      	{field: 'address', title: '收货人信息',templet: '<div><div style="font-weight:bold">{{d.linkman}} {{d.tel}} </div><div style="line-height:20px;font-size:12px">{{d.area}} {{d.address}}</div>{{#if(d.message){ }}<!-- <div style="line-height:20px;font-size:12px;color:#e55555">客户留言：{{d.message}}</div> -->{{# } }}</div>'},
+			{field: 'freight_text', title: '配送方式'},
+		   {field: 'cycle_date', title: '发货日期'},
+      		{field: 'status', title: '状态',templet:function(d){
+				var html = '';
+				if(d.freight_type ==0 ||d.freight_type ==2){
+					if(d.status==1)
+						html+='<div style="color:#ff8758">待发货</span>';
+					if(d.status==2){
+						html+='<div style="color:#008000">已发货</span>';
+					}
+				}
+				if(d.freight_type ==1){
+					if(d.status==1)
+						html+='<div style="color:#ff8758">待提货</span>';
+				}
+				if(d.status==3) html+='<div style="color:#ff4246">已完成</span>';
+				return html;
+			},width:80},
+      {field: 'operation', title: '操作',templet:function(d){
+				var html = '';
+
+
+				if(d.status==1){ //已支付
+					if(d.freight_type==0 || d.freight_type=='' )  {
+						html += '<button class="table-btn" onclick="doOperation('+d.id+',\'发货\')">发货</button>';
+						html += '<button class="table-btn" onclick="openmax(\'{:url('shd')}/id/'+d.id+'\')">送货单</button>';
+					}
+					
+					if(d.freight_type==1)
+						html += '<button class="table-btn" onclick="doOperation('+d.id+',\'核销\')">核销</button>';
+					if(d.freight_type==2 && '{$peisong_set.status}'==1){
+						if('{$peisong_set.myt_status}'==1){
+							//html += '<button class="table-btn" onclick="doOperation('+d.id+',\'麦芽田配送\')">麦芽田配送</button>';
+							html += '<button class="table-btn" onclick="showmyt('+d.id+',\'麦芽田配送\')">麦芽田配送</button>';
+						}else{
+							html += '<button class="table-btn" onclick="doOperation('+d.id+',\'配送员配送\')">配送</button>';
+						}
+					}
+					if(d.team && d.team.status==2) {
+						html += '<button class="table-btn" onclick="doOperation(' + d.id + ',\'退款\')">退款</button>';
+					}
+				}
+				if(d.status==2){ //已发货
+					if(d.freight_type==1 ||d.freight_type==0 )
+					html += '<button class="table-btn" onclick="doOperation('+d.id+',\'查物流\')">查物流</button>';
+					if(d.freight_type ==2)
+						html += '<button class="table-btn" onclick="openmax(\'{:url('shd')}/id/'+d.id+'\')">送货单</button>';
+					html += '<button class="table-btn" onclick="doOperation('+d.id+',\'确认收货\')">确认收货</button>';
+				}
+				if(d.status==3 && d.freight_type == 2){ //已完成
+					html += '<button class="table-btn" onclick="doOperation('+d.id+',\'查物流\')">配送信息</button>';
+				}
+			  if(d.status==3 && d.freight_type == 0){ //已完成
+				  html += '<button class="table-btn" onclick="doOperation('+d.id+',\'查物流\')">查物流</button>';
+			  }
+				return html;
+      },minWidth:130}
+    ]]
+  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//日期范围选择
+	layui.laydate.render({
+		elem: '#ctime',
+		trigger: 'click',
+		range: '~' //或 range: '~' 来自定义分割字符
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	//删除
+	function datadel(id){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			var ids = [];
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id)
+		}
+		layer.confirm('确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('del')}",{ids:ids},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	var detailLayer;
+	function showdetail(orderid){
+		var index = layer.load();
+		$.post("{:url('getStatedetail')}",{orderid:orderid},function(data){
+			layer.close(index);
+			var html = '';
+			//var data = { //数据
+			//	"title":"Layui常用模块",
+			//	"list":[{"modname":"弹层","alias":"layer","site":"layer.layui.com"},{"modname":"表单","alias":"form"}]
+			//}
+			layui.laytpl(detailtpl.innerHTML).render(data, function(html){
+				//view.innerHTML = html;
+				var detailBtn = [];
+				if(data.order.refund_status==1){ //退款待审核
+					detailBtn.push('退款审核');
+				}
+				if(data.order.status==0){ //未支付
+					detailBtn.push('关闭订单');
+					//detailBtn.push('改为已支付');
+					detailBtn.push('改价');
+				}
+				if(data.order.status==1){ //已支付
+					detailBtn.push('发货');
+					if(data.order.freight_type==1) detailBtn.push('核销');
+					if(data.order.freight_type==2 &&'{$peisong_set.status}'==1){
+						if('{$peisong_set.myt_status}'==1){
+							detailBtn.push('麦芽田配送');
+						}else{
+							detailBtn.push('配送员配送');
+						}
+					}
+				}
+				if(data.order.status==2){ //已发货
+					if(data.order.freight_type==1) detailBtn.push('核销');
+					detailBtn.push('查物流');
+				}
+				if(data.order.status==3){ //已完成
+					detailBtn.push('查物流');
+				}
+				if(data.order.status==4){ //已关闭
+					detailBtn.push('删除');
+				}
+				detailBtn.push('设置备注');
+				detailLayer = layer.open({type:1,title:'订单详情',area:'420px',content:html,resize:true,shadeClose:true,maxmin:true,btn:detailBtn,
+					yes:function(){
+						return btnOperation(detailBtn[0],data);
+					},
+					btn2:function(){
+						return btnOperation(detailBtn[1],data);
+					},
+					btn3:function(){
+						return btnOperation(detailBtn[2],data);
+					},
+					btn4:function(){
+						return btnOperation(detailBtn[3],data);
+					},
+					btn5:function(){
+						return btnOperation(detailBtn[4],data);
+					}
+				});
+			});
+			//layer.open({type:1,area:['600px','600px'],title:false,shadeClose:true,btn: ['发货', '退款审核', '设置备注']});
+		})
+	}
+	function doOperation(orderid,type){
+		$.post("{:url('getStatedetail')}",{orderid:orderid},function(data){
+			btnOperation(type,data);
+		})
+	}
+	function btnOperation(type,data){
+		var orderid = data.order.id;
+		var state_id = data.state.id;
+		if(type=='退款审核'){
+			layui.laytpl(refundCheckTpl.innerHTML).render(data.order, function(html){
+				var refundCheckLayer = layer.open({type:1,title:false,content:html,shadeClose:true,btn: ['同意并退款', '驳回退款申请'],
+					yes:function(){
+						var index = layer.load();
+						$.post("{:url('refundCheck')}",{orderid:orderid,st:1,remark:$('input[name=refund_checkremark]').val()},function(res){
+							layer.close(index);
+							dialog(res.msg,res.status);
+							layer.close(refundCheckLayer);
+							layer.close(detailLayer);
+							tableIns.reload()
+						})
+					},
+					btn2:function(){
+						var index = layer.load();
+						$.post("{:url('refundCheck')}",{orderid:orderid,st:2,remark:$('input[name=refund_checkremark]').val()},function(res){
+							layer.close(index);
+							dialog(res.msg,res.status);
+							layer.close(refundCheckLayer);
+							layer.close(detailLayer);
+							tableIns.reload()
+						})
+					}
+				})
+			})
+		}else if(type == '退款'){
+			var html = '';
+			html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+			html+='		<label class="layui-form-label" style="width:80px">退款原因</label>';
+			html+='		<div class="layui-input-inline" style="width:350px">';
+			html+='			<textarea type="text" id="tuireason" class="layui-textarea"></textarea>';
+			html+='		</div>';
+			html+='	</div>';
+			var refundLayer = layer.open({type:1,area:['500px','250px'],title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+				yes:function(){
+					var index = layer.load();
+					$.post("{:url('refund')}",{orderid:orderid,reason:$('#tuireason').val()},function(res){
+						layer.close(index);
+						dialog(res.msg,res.status);
+						layer.close(refundLayer);
+						layer.close(detailLayer);
+						tableIns.reload()
+					})
+				}
+			})
+
+		}else if(type == '发货'){
+			if(data.order.freight_type==10){ //货运托运
+				var html = '<div style="margin:20px auto;">';
+				html+='<div class="layui-form" lay-filter="">';
+				html+='	<div class="layui-form-item">';
+				html+='		<label class="layui-form-label" style="width:110px">物流单照片：</label>';
+				html+='		<div class="layui-input-inline" style="width:300px">';
+				html+='			<input type="text" name="express_pic" id="express_pic" class="layui-input">';
+				html+='		</div>';
+				html+='		<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="express_pic" upload-preview="express_picPreview" onclick="uploader(this)">上传</button>';
+				html+='		<div id="express_picPreview" style="float:left;padding-top:10px;padding-left:140px;clear: both;">';
+				html+='			<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src=""/></div></div>';
+				html+='		</div>';
+				html+='	</div>';
+				html+='	<div class="layui-form-item">';
+				html+='		<label class="layui-form-label" style="width:110px">发货人</label>';
+				html+='		<div class="layui-input-inline" style="width:300px">';
+				html+='			<input type="text" name="express_fhname" id="express_fhname" class="layui-input">';
+				html+='		</div>';
+				html+='	</div>';
+				html+='	<div class="layui-form-item">';
+				html+='		<label class="layui-form-label" style="width:110px">发货地点</label>';
+				html+='		<div class="layui-input-inline" style="width:300px">';
+				html+='			<input type="text" name="express_fhaddress" id="express_fhaddress" class="layui-input">';
+				html+='		</div>';
+				html+='		<div class="layui-form-mid"></div>';
+				html+='	</div>';
+				html+='	<div class="layui-form-item">';
+				html+='		<label class="layui-form-label" style="width:110px">收货人</label>';
+				html+='		<div class="layui-input-inline" style="width:300px">';
+				html+='			<input type="text" name="express_shname" id="express_shname" class="layui-input">';
+				html+='		</div>';
+				html+='	</div>';
+				html+='	<div class="layui-form-item">';
+				html+='		<label class="layui-form-label" style="width:110px">收货地点</label>';
+				html+='		<div class="layui-input-inline" style="width:300px">';
+				html+='			<input type="text" name="express_shaddress" id="express_shaddress" class="layui-input">';
+				html+='		</div>';
+				html+='		<div class="layui-form-mid"></div>';
+				html+='	</div>';
+				html+='	<div class="layui-form-item">';
+				html+='		<label class="layui-form-label" style="width:110px">备注</label>';
+				html+='		<div class="layui-input-inline" style="width:300px">';
+				html+='			<input type="text" name="express_remark" id="express_remark" class="layui-input">';
+				html+='		</div>';
+				html+='		<div class="layui-form-mid"></div>';
+				html+='	</div>';
+				//html+='	<div class="layui-form-item" style="margin-top:30px">';
+				//html+='		<label class="layui-form-label" style="width:110px"></label>';
+				//html+='		<div class="layui-input-inline">';
+				//html+='			<button class="layui-btn layui-btn-normal" lay-submit lay-filter="submit_excel">确定</button>';
+				//html+='		</div>';
+				//html+='	</div>';
+				html+='</div>';
+				html+='</div>'
+				var sendExpressLayer = layer.open({type:1,area: ['600px', '530px'],title:false,content:html,shadeClose:true,btn: ['确定', '取消'],yes:function(){
+						var index = layer.load();
+
+						$.post("{:url('sendExpress')}",{orderid:orderid,pic:$('#express_pic').val(),fhname:$('#express_fhname').val(),fhaddress:$('#express_fhaddress').val(),shname:$('#express_shname').val(),shaddress:$('#express_shaddress').val(),remark:$('#express_remark').val()},function(res){
+							layer.close(index);
+							dialog(res.msg,res.status);
+							layer.close(sendExpressLayer);
+							layer.close(detailLayer);
+							tableIns.reload()
+						});
+					}
+				});
+				layui.form.render();
+				return;
+			}
+			layui.laytpl(sendExpressTpl.innerHTML).render({}, function(html){
+				var sendExpressLayer = layer.open({type:1,title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+					yes:function(){
+						var index = layer.load();
+						$.post("{:url('sendExpress')}",{orderid:state_id,express_com:$('#send_express').val(),express_no:$('#send_express_no').val()},function(res){
+							layer.close(index);
+							dialog(res.msg,res.status);
+							layer.close(sendExpressLayer);
+							layer.close(detailLayer);
+							tableIns.reload()
+						})
+					}
+				})
+			});
+		}else if(type == '配送员配送'){
+			var index = layer.load();
+			$.post("{:url('Peisong/getpeisonguser')}",{type:'cycle_order_stage',orderid:orderid},function(res){
+				layer.close(index);
+				var peisonguser = res.peisonguser
+				var paidantype = res.paidantype
+				var psfee = res.psfee
+				var ticheng = res.ticheng
+				var html = '';
+				html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+				if(paidantype == 1){
+					html+='		<label class="layui-form-label" style="width:80px">选择配送员</label>';
+					html+='		<div class="layui-input-inline" style="width:350px">';
+					html+='			<select id="peisonguser" style="width:100%;height: 38px;line-height: 38px;border:1px solid #e6e6e6;background-color: #fff;border-radius: 2px;">';
+					for(var i in peisonguser){
+						html+='			<option value="'+peisonguser[i].id+'">'+peisonguser[i].title+'</option>';
+					}
+					html+='			</select>';
+					html+='		</div>';
+				}else{
+					if(data.order.bid == 0){
+						html+='		<div class="layui-form-mid" style="margin:0 20px">选择配送员配送，订单将发布到抢单大厅由配送员抢单，配送员提成￥'+ticheng+'，确定要配送员配送吗？</div>';
+					}else{
+						html+='		<div class="layui-form-mid" style="margin:0 20px">选择配送员配送，订单将发布到抢单大厅由配送员抢单，需扣除配送费￥'+psfee+'，确定要配送员配送吗？</div>';
+					}
+				}
+				html+='	</div>';
+				var peisongLayer = layer.open({type:1,area:['500px','250px'],title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+					yes:function(){
+						var index = layer.load();
+						if(paidantype == 1){
+							var psid = $('#peisonguser').val();
+						}else if(paidantype == 2){
+							var psid = '-1';
+						}else{
+							var psid = '0';
+						}
+						$.post("{:url('Peisong/peisong')}",{type:'cycle_order_stage',orderid:state_id,psid:psid},function(res){
+							layer.close(index);
+							dialog(res.msg,res.status);
+							layer.close(peisongLayer);
+							layer.close(detailLayer);
+							tableIns.reload()
+						})
+					}
+				})
+				layui.form.render();
+			})
+		}else if(type == '麦芽田配送'){
+			showmyt(state_id);
+			return
+			var html = '';
+			html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+			html+='		<label class="layui-form-label" style="width:80px">重量</label>';
+			html+='		<div class="layui-input-inline" >';
+			html+='			<input type="text" id="weight" class="layui-input" placeholder="请输入重量(选填)" value="">';
+			html+='		</div>';
+			html+='	</div>';
+			html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+			html+='		<label class="layui-form-label" style="width:80px">备注</label>';
+			html+='		<div class="layui-input-inline" >';
+			html+='			<input type="text" id="remark" class="layui-input" placeholder="请输入备注(选填)" value="">';
+			html+='		</div>';
+			html+='	</div>';
+			var refundLayer = layer.open({type:1,area:['500px','250px'],title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+				yes:function(){
+					var index = layer.load();
+					$.post("{:url('Peisong/peisong')}",{type:'cycle_order_stage',orderid:state_id,myt_weight:$('#weight').val(),myt_remark:$('#remark').val(),myt_shop_id:0,psid:-2},function(res){
+						layer.close(index);
+						dialog(res.msg,res.status);
+						layer.close(refundLayer);
+						layer.close(detailLayer);
+						tableIns.reload()
+					})
+				}
+			})
+
+		}else if(type == '查物流'){
+			var index = layer.load();
+			$.post("{:url('getExpress')}",{orderid:state_id},function(res){
+				var expressdata = res.data
+				layer.close(index);
+				if(data.order.freight_type==10){
+					var html = '';
+					html+='<div class="orderinfo" style="width:450px;margin-left:20px">';
+					html+='	<div class="item">';
+					html+='		<span class="t1">物流单照片</span>';
+					html+='		<span class="t2"><img src="'+expressdata.pic+'" style="width:350px;height:auto"/></span>';
+					html+='	</div>';
+					html+='	<div class="item">';
+					html+='		<span class="t1">发货人</span>';
+					html+='		<span class="t2">'+expressdata.fhname+'</span>';
+					html+='	</div>';
+					html+='	<div class="item">';
+					html+='		<span class="t1">发货地址</span>';
+					html+='		<span class="t2">'+expressdata.fhaddress+'</span>';
+					html+='	</div>';
+					html+='	<div class="item">';
+					html+='		<span class="t1">收货人</span>';
+					html+='		<span class="t2">'+expressdata.shname+'</span>';
+					html+='	</div>';
+					html+='	<div class="item">';
+					html+='		<span class="t1">收货地址</span>';
+					html+='		<span class="t2">'+expressdata.shaddress+'</span>';
+					html+='	</div>';
+					html+='	<div class="item">';
+					html+='		<span class="t1">备注</span>';
+					html+='		<span class="t2">'+expressdata.remark+'</span>';
+					html+='	</div>';
+					html+='</div>';
+					var logisticsLayer = layer.open({type:1,area:['500px','650px'],title:false,content:html,shadeClose:true,btn: ['修改', '关闭'],
+						yes:function(){
+							layer.close(logisticsLayer);
+							doOperation(orderid,'发货');
+						}
+					})
+					return ;
+				}
+				
+				layui.laytpl(logisticsTpl.innerHTML).render(res, function(html){
+					var logisticsLayer = layer.open({type:1,title:false,content:html,area:"800px",shadeClose:true,btn: ['确定', '关闭'],
+						yes:function(){
+							layer.close(logisticsLayer);
+							// doOperation(orderid,'发货');
+						}
+					})
+				})
+			});
+		}else if(type == '设置备注'){
+			layui.laytpl(remarktpl.innerHTML).render({remark:data.order.remark}, function(html){
+				var remarkLayer = layer.open({type:1,title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+					yes:function(){
+						var index = layer.load();
+						$.post("{:url('setremark')}",{orderid:orderid,content:$('#remarkcontent').val()},function(res){
+							layer.close(index);
+							dialog(res.msg,res.status);
+							layer.close(remarkLayer);
+							layer.close(detailLayer);
+						})
+					}
+				})
+			});
+		}else if(type == '改为已支付'){
+			layer.confirm('确定要改为已支付吗?',{icon: 7, title:'操作确认'}, function(index){
+				layer.close(index);
+				var index = layer.load();
+				$.post("{:url('ispay')}",{orderid:orderid},function(res){
+					layer.close(index);
+					dialog(res.msg,res.status);
+					layer.close(detailLayer);
+					tableIns.reload()
+				})
+			})
+		}else if(type == '改价'){
+			layui.laytpl(changepricetpl.innerHTML).render({totalprice:data.order.totalprice}, function(html){
+				var changepriceLayer = layer.open({type:1,title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+					yes:function(){
+						var index = layer.load();
+						$.post("{:url('changeprice')}",{orderid:orderid,newprice:$('#changepricecontent').val()},function(res){
+							layer.close(index);
+							dialog(res.msg,res.status);
+							layer.close(changepriceLayer);
+							layer.close(detailLayer);
+							tableIns.reload()
+						})
+					}
+				})
+			});
+		}else if(type == '关闭订单'){
+			layer.confirm('确定要关闭该订单吗?',{icon: 7, title:'操作确认'}, function(index){
+				layer.close(index);
+				var index = layer.load();
+				$.post("{:url('closeOrder')}",{orderid:orderid},function(res){
+					layer.close(index);
+					dialog(res.msg,res.status);
+					layer.close(detailLayer);
+					tableIns.reload()
+				})
+			})
+		}else if(type == '删除'){
+			layer.confirm('确定要删除该订单吗?',{icon: 7, title:'操作确认'}, function(index){
+				layer.close(index);
+				var index = layer.load();
+				$.post("{:url('del')}",{id:orderid},function(res){
+					layer.close(index);
+					dialog(res.msg,res.status);
+					layer.close(detailLayer);
+					tableIns.reload()
+				})
+			})
+		}else if(type == '核销'){
+			layer.confirm('确定要核销并改为已完成状态吗?',{icon: 7, title:'操作确认'}, function(index){
+				layer.close(index);
+				var index = layer.load();
+				$.post("{:url('orderHexiao')}",{orderid:state_id},function(res){
+					layer.close(index);
+					dialog(res.msg,res.status);
+					layer.close(detailLayer);
+					tableIns.reload()
+				})
+			})
+		}else if(type == '确认收货'){
+			layer.confirm('确定客户已收到货吗?',{icon: 7, title:'操作确认'}, function(index){
+				layer.close(index);
+				var index = layer.load();
+				$.post("{:url('orderStageCollect')}",{orderid:state_id},function(res){
+					layer.close(index);
+					dialog(res.msg,res.status);
+					layer.close(detailLayer);
+					tableIns.reload()
+				})
+			})
+		}
+		return false
+	}
+	{if getcustom('express_maiyatian')}
+	function showmyt(orderid){
+		var go_url = "{:url('Peisong/mytprice')}/orderid/"+orderid+"/type/cycle_order_stage";
+		layer.open({type:2,shadeClose:true,area:['1100px', '800px'],'title':'麦芽田配送',content:go_url})
+	}
+	{/if}
+	</script>
+	<script id="refundCheckTpl" type="text/html">
+	<div class="orderdetail">
+	<div class="orderinfo">
+			<div class="item">
+				<span class="t1">申请退款金额</span>
+				<span class="t2 red">￥{{d.refund_money}}</span>
+			</div>
+			<div class="item">
+				<span class="t1">申请退款原因</span>
+				<span class="t2 red">{{d.refund_reason}}</span>
+			</div>
+			<div class="item">
+				<span class="t1">申请退款时间</span>
+				<span class="t2">{{date('Y-m-d H:i:s',d.refund_time)}}</span>
+			</div>
+			<div class="item">
+				<span class="t1">审核备注</span>
+				<span class="t2"><input type="text" name="refund_checkremark" value="{{d.refund_checkremark ? d.refund_checkremark : ''}}" style="height:30px"/></span>
+			</div>
+	</div>
+	</div>
+	</script>
+	<script id="logisticsTpl" type="text/html">
+	<div style="padding:5px"></div>
+	{{# if(d.data.length==0){ }}<div style="font-size:14px;color:#f05555;padding:10px;"><i class="fa fa-info-circle"></i> 暂未查到物流信息</div>{{# } }}
+	{{#  layui.each(d.data, function(index, item){ }}
+	<div class="logistics">
+		<div class="item {{index==0?'on':''}}">
+			<div class="f1"><img src="__STATIC__/admin/img/dot{{index==0?'2':'1'}}.png"></div>
+			<div class="f2">
+				<span class="t2">{{item.time}}</span>
+				<span class="t1">{{item.context}}</span>
+			</div>
+		</div>
+	</div>
+	{{# }); }}
+	</script>
+
+	<script id="sendExpressTpl" type="text/html">
+	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">
+		<label class="layui-form-label" style="width:60px">快递公司</label>
+		<div class="layui-input-inline" style="width:180px">
+			<select id="send_express" style="width:100%;height: 38px;line-height: 38px;border:1px solid #e6e6e6;background-color: #fff;border-radius: 2px;">
+				{foreach $express_data as $k=>$v}
+				<option>{$k}</option>
+				{/foreach}
+			</select>
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<label class="layui-form-label" style="width:60px">快递单号</label>
+		<div class="layui-input-inline" style="width:180px">
+			<input type="text" id="send_express_no" class="layui-input" value="">
+		</div>
+	</div>
+	</script>
+
+	<script id="remarktpl" type="text/html">
+	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">
+		<label class="layui-form-label" style="width:40px">备注</label>
+		<div class="layui-input-inline" style="width:180px">
+			<input type="text" id="remarkcontent" class="layui-input" value="{{d.remark?d.remark : ''}}">
+		</div>
+	</div>
+	</script>
+	<script id="changepricetpl" type="text/html">
+	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">
+		<label class="layui-form-label" style="width:40px">价格</label>
+		<div class="layui-input-inline" style="width:180px">
+			<input type="text" id="changepricecontent" class="layui-input" value="{{d.totalprice?d.totalprice : ''}}">
+		</div>
+	</div>
+	</script>
+
+	<script id="detailtpl" type="text/html">
+	<div class="orderdetail">
+		<div class="address">
+			<div class="img">
+				<img src="__STATIC__/admin/img/address.png" class="buy-addimg"></img>
+			</div>
+			<div class="info">
+				<span class="t1">{{d.order.linkman}} {{d.order.tel}}</span>
+				<span class="t2">{{d.order.area}}{{d.order.address}}</span>
+			</div>
+		</div>
+		{{# if(d.order.send_time && d.order.freight_type!=3 && d.order.freight_type!=4){ }}
+		<div class="express">
+			<div class="f1"><i class="fa fa-truck"></i></div>
+			<div class="f2">
+				<span class="log-te1">快递公司：{{d.order.express_com}}</span>
+				<span class="log-te1">快递单号：{{d.order.express_no}}</span>
+			</div>
+		</div>
+		{{# } }}
+		{{# if(d.order.send_time && (d.order.freight_type==3 || d.order.freight_type==4)){ }}
+		<div class="express">
+			<div class="f1"><i class="fa fa-file-text"></i></div>
+			<div class="f2"><pre>{{d.order.freight_content}}</pre></div>
+		</div>
+		{{# } }}
+
+		<div class="product">
+			<div class="content">
+				<div>
+					<img src="{{d.order.propic}}"/>
+				</div>
+				<div class="detail">
+					<span class="t1">{{d.order.proname}}</span>
+					<span class="t2">{{d.order.ggname}}</span>
+					<div class="t3"><span class="x1 flex1">￥{{d.order.sell_price}}</span><span class="x2">×{{d.order.num}}</span></div>
+				</div>
+			</div>
+		</div>
+
+		{{#  if((d.order.formdata).length>0){ }}
+		<div class="orderinfo">
+			{{#  layui.each(d.order.formdata, function(index, item){ }}
+			<div class="item">
+				<span class="t1">{{item[0]}}</span>
+				{{#  if(item[2]=='upload'){ }}
+				<span class="t2"><img src="{{item[1]}}" style="width:150px;height:auto" onclick="preview(this)"/></span>
+				{{# }else{ }}
+				<span class="t2">{{item[1]}}</span>
+				{{# } }}
+			</div>
+			{{# }); }}
+		</div>
+		{{# } }}
+
+		{{#  if(d.order.remark){ }}
+		<div class="orderinfo">
+			{{#  if(d.order.remark){ }}
+			<div class="item">
+				<span class="t1">后台备注</span>
+				<span class="t2 red">{{d.order.remark ? d.order.remark : '无'}}</span>
+			</div>
+			{{# } }}
+		</div>
+		{{# } }}
+		<div class="orderinfo">
+			<div class="item">
+				<span class="t1">下单人</span>
+				<span class="t2"><img src="{{d.member.headimg}}" style="width:40px"/> {{d.member.nickname}} {{# if(d.member.realname){ }}[{{d.member.realname}} {{d.member.tel}}]{{#} }}</span>
+			</div>
+			<div class="item">
+				<span class="t1">{:t('会员')}ID</span>
+				<span class="t2">{{d.member.id}}</span>
+			</div>
+		</div>
+		<div class="orderinfo">
+			<div class="item">
+				<span class="t1">订单编号</span>
+				<span class="t2">{{d.order.ordernum}}</span>
+			</div>
+			<div class="item">
+				<span class="t1">下单时间</span>
+				<span class="t2">{{date('Y-m-d H:i:s',d.order.createtime)}}</span>
+			</div>
+			{{#  if(d.order.status>0 && d.order.paytime){ }}
+			<div class="item">
+				<span class="t1">支付时间</span>
+				<span class="t2">{{date('Y-m-d H:i:s',d.order.paytime)}}</span>
+			</div>
+			<div class="item">
+				<span class="t1">支付方式</span>
+				<span class="t2">{{d.order.paytype}}</span>
+			</div>
+			{{# } }}
+			{{#  if(d.order.status>1 && d.order.send_time){ }}
+			<div class="item">
+				<span class="t1">发货时间</span>
+				<span class="t2">{{date('Y-m-d H:i:s',d.order.send_time)}}</span>
+			</div>
+			{{# } }}
+			{{#  if(d.order.status==3 && d.order.collect_time){ }}
+			<div class="item">
+				<span class="t1">收货时间</span>
+				<span class="t2">{{date('Y-m-d H:i:s',d.order.collect_time)}}</span>
+			</div>
+			{{# } }}
+		</div>
+		<div class="orderinfo">
+			<div class="item">
+				<span class="t1">商品金额</span>
+				<span class="t2 red">¥{{d.order.product_price}}</span>
+			</div>
+			{{#  if(d.order.leveldk_money > 0){ }}
+			<div class="item">
+				<span class="t1">{:t('会员')}折扣</span>
+				<span class="t2 red">-¥{{d.order.leveldk_money}}</span>
+			</div>
+			{{# } }}
+			<div class="item">
+				<span class="t1">配送方式</span>
+				<span class="t2">{{d.order.freight_text}}</span>
+			</div>
+			{{#  if(d.order.freight_time){ }}
+			<div class="item">
+				<span class="t1">{{d.order.freighttype!=1?'配送':'提货'}}时间</span>
+				<span class="t2">{{d.order.freight_time}}</span>
+			</div>
+			{{# } }}
+			{{#  if(d.order.coupon_money > 0){ }}
+			<div class="item">
+				<span class="t1">{:t('优惠券')}抵扣</span>
+				<span class="t2 red">-¥{{d.order.coupon_money}}</span>
+			</div>
+			{{#  if(d.couponrecord){ }}
+			<div class="item">
+				<span class="t1">{:t('优惠券')}名称</span>
+				<span class="t2">{{d.couponrecord.couponname}}</span>
+			</div>
+			{{# } }}
+			{{# } }}
+			{{#  if(d.order.scoredk_money > 0){ }}
+			<div class="item">
+				<span class="t1">{:t('积分')}抵扣</span>
+				<span class="t2 red">-¥{{d.order.scoredk_money}}</span>
+			</div>
+			{{# } }}
+			<div class="item">
+				<span class="t1">实付款</span>
+				<span class="t2 red">¥{{d.order.totalprice}}</span>
+			</div>
+
+
+			<div class="item">
+				<span class="t1">订单状态</span>
+				{{#  if(d.order.status==0){ }}
+				<span class="t2" style="color:#ff8758">未付款</span>
+				{{# } }}
+				{{#  if(d.order.status==1){ }}
+				<span class="t2" style="color:#008000">已付款</span>
+				{{# } }}
+				{{#  if(d.order.status==2){ }}
+				<span class="t2" style="color:#ff4246">已发货</span>
+				{{# } }}
+				{{#  if(d.order.status==3){ }}
+				<span class="t2" style="color:#999">已收货</span>
+				{{# } }}
+				{{#  if(d.order.status==4){ }}
+				<span class="t2" style="color:#bbb">已关闭</span>
+				{{# } }}
+			</div>
+			{{#  if(d.order.refund_status>0){ }}
+			<div class="item">
+				<span class="t1">退款状态</span>
+				{{#  if(d.order.refund_status==1){ }}
+				<span class="t2 red">审核中,¥{{d.order.refund_money}}</span>
+				{{# } }}
+				{{#  if(d.order.refund_status==2){ }}
+				<span class="t2 red">已退款,¥{{d.order.refund_money}}</span>
+				{{# } }}
+				{{#  if(d.order.refund_status==3){ }}
+				<span class="t2 red">已驳回,¥{{d.order.refund_money}}</span>
+				{{# } }}
+			</div>
+			{{# } }}
+		</div>
+		{{#  if(d.comdata.parent1.mid){ }}
+		<div class="orderinfo">
+			<div class="item">
+				<span class="t1">一级{:t('佣金')}</span>
+				<span class="t2"><img src="{{d.comdata.parent1.headimg}}" style="width:30px"/> {{d.comdata.parent1.nickname}} <span style="color:#ff8758">¥{{d.comdata.parent1.money}}</span></span>
+			</div>
+			<div class="item">
+				<span class="t1">二级{:t('佣金')}</span>
+				<span class="t2"><img src="{{d.comdata.parent2.headimg}}" style="width:30px"/> {{d.comdata.parent2.nickname}}  <span style="color:#ff8758">¥{{d.comdata.parent2.money}}</span></span>
+			</div>
+			<div class="item">
+				<span class="t1">三级{:t('佣金')}</span>
+				<span class="t2"><img src="{{d.comdata.parent3.headimg}}" style="width:30px"/> {{d.comdata.parent3.nickname}}  <span style="color:#ff8758">¥{{d.comdata.parent3.money}}</span></span>
+			</div>
+		</div>
+		{{# } }}
+	</div>
+	</script>
+	{include file="public/copyright"/}
+</body>
+</html>

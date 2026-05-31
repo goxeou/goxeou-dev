@@ -1,0 +1,208 @@
+<div class="dsn-mod" ng-class="{'dsn-mod-select':Item.id == focus}">
+	<div ng-show="Item.params.style==1" style="background: linear-gradient(180deg, {:t('color1')} 0%, rgba({:t('color1rgb')},0) 100%);">
+		<div class="dp-userinfo" ng-style="{'background':'url('+Item.params.bgimg+') no-repeat', 'background-size':'cover','margin':Item.params.margin_y+'px '+Item.params.margin_x+'px '+ '0px','padding':Item.params.padding_y+'px '+Item.params.padding_x+'px '+'0px','overflow':'hidden'}">
+			<div class="banner">
+				<div class="info">
+					<div class="f1">
+						<img src="__STATIC__/img/touxiang.png" background-size="cover" class="headimg"/>
+						<div class="flex-y-center">
+							<div class="nickname">昵称</div>
+							<div class='user-level' ng-show="Item.params.levelshow==1">
+								<img class="level-img" src="__STATIC__/imgsrc/level_1.png" />
+								<div class='level-name'>普通{:t('会员')}</div>
+							</div>
+						</div>
+					</div>
+					<div class='usercard' ng-show="Item.params.cardshow==1">
+						<img src="__STATIC__/img/ico-card.png" class="img"/>
+						<span class="t1">会员卡</span>
+					</div>
+				</div>
+				<div class="custom_field" ng-show="Item.params.moneyshow==1 || Item.params.scoreshow==1 || Item.params.couponshow==1 || Item.params.commissionshow==1 || Item.params.overdraftmoneyshow==1 ">
+					<div class='item' ng-show="Item.params.moneyshow==1">
+						<span class='t2'>0.00</span>
+						<span class="t1">{:t('余额')}</span>
+					</div>
+					<div class='item' ng-show="Item.params.commissionshow==1">
+						<span class='t2'>0</span>
+						<span class="t1">{:t('佣金')}</span>
+					</div>
+					<div class='item' ng-show="Item.params.scoreshow==1">
+						<span class='t2'>0</span>
+						<span class="t1">{:t('积分')}</span>
+					</div>
+					<div class='item' ng-show="Item.params.bscoreshow==1">
+						<span class='t2'>0</span>
+						<span class="t1">总{:t('积分')}</span>
+					</div>
+					<div class='item' ng-show="Item.params.couponshow==1">
+						<span class='t2'>0</span>
+						<span class="t1">{:t('优惠券')}</span>
+					</div>
+					<div class='item' ng-show="Item.params.xiaofeishow==1">
+						<span class='t2'>0</span>
+						<span class="t1">{:t('冻结佣金')}</span>
+					</div>
+					<div class='item' ng-show="Item.params.bonuspoolshow==1">
+						<span class='t2'>0</span>
+						<span class="t1">{:t('贡献值')}</span>
+					</div>
+					<div class='item' ng-show="Item.params.overdraftmoneyshow==1">
+						<span class='t2'>0</span>
+						<span class="t1">{:t('信用额度')}</span>
+					</div>
+					
+					{if getcustom('product_givetongzheng')}
+    				<div class='item' ng-show="Item.params.tongzhengshow==1">
+    					<span class='t2'>0</span>
+    					<span class="t1">{:t('通证')}</span>
+    				</div>
+			     	{/if}
+					
+					
+				</div>
+			</div>
+			<div ng-if="Item.params.seticonsize && Item.params.seticonsize>0">
+				<div class="userset usersetl" ng-show="Item.params.membercodeshow=='1'" style="right: {{(Item.params.seticonsize) * 2.8}}px">
+					<img ng-src="__STATIC__/img/qrcode.png" class="img" style="width: {{Item.params.seticonsize}}px;height: {{Item.params.seticonsize}}px;" />
+				</div>
+			</div>
+			<div ng-if="Item.params.seticonsize && Item.params.seticonsize>0">
+				<div class="userset" ng-show="Item.params.seticonshow!=='0'" style="right: {{Item.params.seticonsize}}px">
+					<img ng-src="{{Item.params.seticon?Item.params.seticon:'__STATIC__/img/set.png'}}" class="img" style="width: {{Item.params.seticonsize}}px;height: {{Item.params.seticonsize}}px;"/>
+				</div>
+			</div>
+			<div ng-if="!Item.params.seticonsize">
+				<div class="userset" ng-show="Item.params.seticonshow!=='0'">
+					<img ng-src="{{Item.params.seticon?Item.params.seticon:'__STATIC__/img/set.png'}}" class="img"/>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div ng-show="Item.params.style==2" style="background: linear-gradient(45deg, {:t('color1')} 0%, rgba({:t('color1rgb')}, 0.8) 100%);">
+		<div class="dp-userinfo2" ng-style="{'background':'url('+Item.params.bgimg+') no-repeat', 'background-size':'cover','margin':Item.params.margin_y+'px '+Item.params.margin_x+'px '+'0px','padding':Item.params.padding_y+'px '+Item.params.padding_x+'px'}">
+			<div class="info">
+				<img src="__STATIC__/img/touxiang.png" background-size="cover" class="headimg"/>
+				<div class="nickname">
+					<div class="nick">昵称</div>
+					<div class='user-level' ng-show="Item.params.levelshow==1">
+						<img class="level-img" src="__STATIC__/imgsrc/level_1.png" />
+						<div class='level-name'>普通{:t('会员')}</div>
+					</div>
+				</div>
+			</div>
+			<div class='usercard' ng-show="Item.params.cardshow==1">
+				<img src="__STATIC__/img/ico-card2.png" class="img"/>
+				<span class="t1">会员卡</span>
+			</div>
+			<div class="custom_field" ng-show="Item.params.moneyshow==1 || Item.params.scoreshow==1 || Item.params.couponshow==1 || Item.params.commissionshow==1">
+				<div class='item' ng-show="Item.params.moneyshow==1">
+					<span class='t2'>0.00</span>
+					<span class="t1">{:t('余额')}</span>
+				</div>
+				<div class='item' ng-show="Item.params.commissionshow==1">
+					<span class='t2'>0</span>
+					<span class="t1">{:t('佣金')}</span>
+				</div>
+				<div class='item' ng-show="Item.params.scoreshow==1">
+					<span class='t2'>0</span>
+					<span class="t1">{:t('积分')}</span>
+				</div>
+				<div class='item' ng-show="Item.params.bscoreshow==1">
+					<span class='t2'>0</span>
+					<span class="t1">总{:t('积分')}</span>
+				</div>
+				<div class='item' ng-show="Item.params.couponshow==1">
+					<span class='t2'>0</span>
+					<span class="t1">{:t('优惠券')}</span>
+				</div>
+				<div class='item' ng-show="Item.params.xiaofeishow==1">
+					<span class='t2'>0</span>
+					<span class="t1">{:t('冻结佣金')}</span>
+				</div>
+				<div class='item' ng-show="Item.params.bonuspoolshow==1">
+					<span class='t2'>0</span>
+					<span class="t1">{:t('贡献值')}</span>
+				</div>
+				<div class='item' ng-show="Item.params.overdraftmoneyshow==1">
+					<span class='t2'>0</span>
+					<span class="t1">{:t('信用额度')}</span>
+				</div>
+				{if getcustom('product_givetongzheng')}
+					<div class='item' ng-show="Item.params.tongzhengshow==1">
+						<span class='t2'>0</span>
+						<span class="t1">{:t('通证')}</span>
+					</div>
+					{/if}
+				
+				
+				
+			</div>
+
+			<div ng-if="Item.params.seticonsize && Item.params.seticonsize>0">
+				<div class="userset usersetl" ng-show="Item.params.membercodeshow=='1'" style="right: {{(Item.params.seticonsize) * 2.8}}px">
+					<img ng-src="__STATIC__/img/qrcode.png" class="img" style="width: {{Item.params.seticonsize}}px;height: {{Item.params.seticonsize}}px;" />
+				</div>
+			</div>
+			<div ng-if="Item.params.seticonsize && Item.params.seticonsize>0">
+				<div class="userset" ng-show="Item.params.seticonshow!=='0'" style="right: {{Item.params.seticonsize}}px">
+					<img ng-src="{{Item.params.seticon?Item.params.seticon:'__STATIC__/img/set.png'}}" class="img" style="width: {{Item.params.seticonsize}}px;height: {{Item.params.seticonsize}}px;" />
+				</div>
+			</div>
+			<div ng-if="!Item.params.seticonsize" >
+				<div class="userset" ng-show="Item.params.seticonshow!=='0'">
+					<img ng-src="{{Item.params.seticon?Item.params.seticon:'__STATIC__/img/set.png'}}" class="img"/>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- ,'margin-top': Item.params.style==2 ? (Item.params.moneyshow==1 || Item.params.scoreshow==1 || Item.params.couponshow==1 || Item.params.commissionshow==1) ? (Item.params.padding_y ==0 && ) ? '-30px':Item.params.padding_y+'px':'-128px' : Item.params.padding_y ? Item.params.padding_y+'px':'10px'  -->
+	<div class="dp-userinfo-order" ng-style="{'margin':(Item.params.padding_y || 10)+'px '+Item.params.padding_x+'px','margin-top':Item.params.style==2 ? (((Item.params.moneyshow==1 || Item.params.scoreshow==1 || Item.params.couponshow==1 || Item.params.commissionshow==1) ? -75 : -110 )+ Item.params.padding_y*2.2)+'px':(Item.params.padding_y || 10)+'px'}" ng-show="Item.params.ordershow==1">
+		<div class="head">
+			<span class="f1">我的订单</span>
+			<div class="f2"><span>查看全部订单</span><img src="__STATIC__/img/arrowright.png" class="image"/></div>
+		</div>
+		<div class="content">
+			 <div class="item">
+					<span class="iconfont icondaifukuan" style="font-size:30px;color:{:t('color1')};"></span>
+					<span class="t3">待付款</span>
+			 </div>
+			 <div class="item">
+					<span class="iconfont icondaifahuo" style="font-size:30px;color:{:t('color1')};"></span>
+					<span class="t3">待发货</span>
+			 </div>
+			 <div class="item">
+					<span class="iconfont icondaishouhuo" style="font-size:30px;color:{:t('color1')};"></span>
+					<span class="t3">待收货</span>
+			 </div>
+			 <div class="item">
+					<span class="iconfont iconyiwancheng" style="font-size:30px;color:{:t('color1')};"></span>
+					<span class="t3">退款/售后</span>
+			 </div>
+		</div>
+	</div>
+	<div class="dp-userinfo-order" ng-style="{'margin':Item.params.padding_y+'px '+Item.params.padding_x+'px','margin-top':Item.params.style==2 ? (Item.params.ordershow==1 ? (Item.params.padding_y || 10)+'px':((Item.params.moneyshow==1 || Item.params.scoreshow==1 || Item.params.couponshow==1 || Item.params.commissionshow==1) ? -75 + Item.params.padding_y*2.2+'px':-110 + Item.params.padding_y*2.2+'px')):(Item.params.padding_y || 10)+'px'}" ng-show="Item.params.scoreshopordershow==1">
+		<div class="head">
+			<span class="f1">积分兑换订单</span>
+			<div class="f2"><span>查看全部订单</span><img src="__STATIC__/img/arrowright.png" class="image"/></div>
+		</div>
+		<div class="content">
+			 <div class="item">
+					<span class="iconfont icondaifukuan" style="font-size:30px;color:{:t('color1')};"></span>
+					<span class="t3">待付款</span>
+			 </div>
+			 <div class="item">
+					<span class="iconfont icondaifahuo" style="font-size:30px;color:{:t('color1')};"></span>
+					<span class="t3">待发货</span>
+			 </div>
+			 <div class="item">
+					<span class="iconfont icondaishouhuo" style="font-size:30px;color:{:t('color1')};"></span>
+					<span class="t3">待收货</span>
+			 </div>
+			 <div class="item">
+					<span class="iconfont iconyiwancheng" style="font-size:30px;color:{:t('color1')};"></span>
+					<span class="t3">退款/售后</span>
+			 </div>
+		</div>
+	</div>
+</div>

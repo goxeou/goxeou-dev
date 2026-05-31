@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>档案编辑</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	#ggnamediv .layui-input,#ggvaldiv .layui-input{ display:inline;height:30px}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加档案{else}<i class="fa fa-pencil"></i> 编辑档案{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form">
+						<div class="layui-tab" lay-filter="mytab">
+							<ul class="layui-tab-title">
+								<li class="layui-this" lay-id="1">基本信息</li>
+								<li lay-id="2">内容编辑</li>
+							</ul>
+							<div class="layui-tab-content">
+								<div class="layui-tab-item layui-show">
+									<input type="hidden" name="info[id]" value="{$info.id}"/>
+									<div class="layui-form-item">
+										<label class="layui-form-label">标题：</label>
+										<div class="layui-input-inline" style="width:500px">
+											<input type="text" name="info[name]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.name}">
+										</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label">{:t('会员')}ID：</label>
+										<div class="layui-input-inline">
+											<input type="text" name="info[mid]" class="layui-input" value="{$info.mid}">
+										</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label">序号：</label>
+										<div class="layui-input-inline">
+											<input type="text" name="info[sort]" value="{$info.sort|default=0}" class="layui-input">
+										</div>
+										<div class="layui-form-mid layui-word-aux">用于排序,越大越靠前</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label">发布时间：</label>
+										<div class="layui-input-inline">
+											<input type="text" name="info[createtime]" value="{:date('Y-m-d H:i:s',$info['createtime'])}" id="createtime" class="layui-input">
+										</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label">状态：</label>
+										<div class="layui-input-inline">
+											<input type="radio" name="info[status]" value="1" title="开启" {if !$info['id'] || $info['status']==1}checked{/if}/>
+											<input type="radio" name="info[status]" value="0" title="关闭" {if $info['id'] && $info['status']==0}checked{/if}/>
+										</div>
+									</div>
+									<div class="layui-form-item">
+										<div class="layui-input-block">
+											<button class="layui-btn layui-btn-normal" onclick="gonext(2)">下一步:编辑档案详情</button>
+											<button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+										</div>
+									</div>
+								</div>
+								<div class="layui-tab-item">
+									<!-- 详情编辑器 -->
+									<?php 
+									$pagetitle='档案详情';
+									$pagedata= $info['content'] && json_decode($info['content']) ? $info['content'] : '[{"id":"M0000000000000","temp":"richtext","params":{bgcolor:"#FFFFFF",margin_x:"0",margin_y:"5",padding_x:"10",padding_y:"10","quanxian":{"all":true},"platform":{"all":true}},"data":"","other":"","content":""}]';
+									?>
+									{include file="designer_page/designer_editor" /}
+
+									<div class="layui-form-item">
+										<div class="layui-input-block">
+											<button class="layui-btn layui-btn-normal" onclick="gonext(1)">上一步:编辑基本信息</button>
+											<button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						
+					</div>
+					
+				</div>
+			</div>
+    </div>
+  </div>
+	<script>
+	layui.laydate.render({ 
+		elem: '#createtime'
+		,type: 'datetime'
+		,range: false,
+		trigger: 'click'
+	});
+	function gonext(layid){
+		$(window).scrollTop(0);
+		layui.element.tabChange('mytab', layid);
+	}
+	</script>
+
+	<script>
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		//field['info[content]'] = ueditor.getContent();
+		field['info[content]'] = geteditordata();
+		//console.log(field);return;
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.close(parent.layer.getFrameIndex(window.name));
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

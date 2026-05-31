@@ -1,0 +1,13 @@
+<div ng-if="!show">
+	<div class="dsn-mod dsn-cover" ng-click="setfocus(Item.id,$event)" style="cursor:move;color:{{Item.params.color}};background-color:{{Item.params.bgcolor}};width:{{Item.params.width}}px;height:{{Item.params.height}}px;margin:{{Item.params.margin_y}}px {{Item.params.margin_x}}px;padding:{{Item.params.padding_y}}px {{Item.params.padding_x}}px;font-size:{{Item.params.fontsize}}px;border:{{Item.params.border}}px solid {{Item.params.bordercolor}};border-radius:{{Item.params.radius}}px;">
+		<span ng-show="Item.params.style==1" style="padding:0 2px">{{Item.params.text}}</span>
+		<img ng-show="Item.params.style==2" ng-src="{{Item.params.pic}}" style="width:{{Item.params.picwidth}}px;height:{{Item.params.picheight}}px;"/>
+	</div>
+</div>
+
+<div ng-if="show">
+	<div class="dsn-mod dsn-cover" style="position:fixed;z-index:99999;top:{{Item.params.top*5.6}}px;left:{{Item.params.left*3.4}}px;color:{{Item.params.color}};background-color:{{Item.params.bgcolor}};width:{{Item.params.width}}px;height:{{Item.params.height}}px;margin:{{Item.params.margin_y}}px {{Item.params.margin_x}}px;padding:{{Item.params.padding_y}}px {{Item.params.padding_x}}px;font-size:{{Item.params.fontsize}}px;border:{{Item.params.border}}px solid {{Item.params.bordercolor}};border-radius:{{Item.params.radius}}px;">
+		<span ng-show="Item.params.style==1" style="padding:0 2px">{{Item.params.text}}</span>
+		<img ng-show="Item.params.style==2" ng-src="{{Item.params.pic}}" style="width:{{Item.params.picwidth}}px;height:{{Item.params.picheight}}px;"/>
+	</div>
+</div>

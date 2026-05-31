@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>订阅消息设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">订阅消息设置</div>
+				<div class="layui-card-body" pad15>
+					<!-- <blockquote class="layui-elem-quote">服务类目请添加[商家自营 > 服饰内衣]</blockquote> -->
+					<blockquote class="layui-elem-quote">服务类目请增加[生活服务 > 百货/超市/便利店]，否则添加不成功</blockquote>
+
+					<div class="layui-form form-label-w8" lay-filter="">
+						<div class="layui-form-item">
+							<label class="layui-form-label">发货通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_orderfahuo_new]" value="{$info.tmpl_orderfahuo_new}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'1458','29,1,2,9')">添加</button>
+							<div class="layui-form-mid " style="margin-left:10px;">配置关键字：商品名称、快递公司、快递单号、收货地址</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">退款成功通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_tuisuccess_new]" value="{$info.tmpl_tuisuccess_new}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'9244','3,6,4')">添加</button>
+							<div class="layui-form-mid " style="margin-left:10px;">配置关键字：退款金额、退货商品、订单编号</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">退款拒绝通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_tuierror_new]" value="{$info.tmpl_tuierror_new}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'8746','3,8,4')">添加</button>
+							<div class="layui-form-mid " style="margin-left:10px;">配置关键字：退款金额、商品名称、订单编号</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">提现到账通知	</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_tixiansuccess_new]" value="{$info.tmpl_tixiansuccess_new}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'5263','3,9,8')">添加</button>
+							<div class="layui-form-mid " style="margin-left:10px;">配置关键字：提现金额、打款方式、到账时间</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">提现结果通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_tixianerror_new]" value="{$info.tmpl_tixianerror_new}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'1470','1,2,4,12')">添加</button>
+							<div class="layui-form-mid " style="margin-left:10px;">配置关键字：提现状态、提现金额、提现时间、失败原因</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">拼团成功通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_collagesuccess_new]" value="{$info.tmpl_collagesuccess_new}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'3098','7,12,2')">添加</button>
+							<div class="layui-form-mid " style="margin-left:10px;">配置关键字：商品名称、团长昵称、成团人数</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">审核结果通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_shenhe_new]" value="{$info.tmpl_shenhe_new}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'4082','2,1,5')">添加</button>
+							<div class="layui-form-mid " style="margin-left:10px;">配置关键字：审核内容、审核结果、备注</div>
+						</div>
+						
+						
+						
+						
+						
+						
+						管理员通知<span style="color:#999">(需要在管理员手机端点击增加接收次数)</span><hr/>
+						<div class="layui-form-item">
+							<label class="layui-form-label">订单下单提醒</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_orderconfirm]" value="{$info.tmpl_orderconfirm}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'585','11,2,10,13,27')">添加</button>
+							<div class="layui-form-mid " style="margin-left:10px;">配置关键字：商品名称、订单编号、订单状态、订单金额、客户名称</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">收货结果通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_ordershouhuo]" value="{$info.tmpl_ordershouhuo}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'1481','2,6,3,5')">添加</button>
+							<div class="layui-form-mid " style="margin-left:10px;">配置关键字：订单商品、订单编号、买家信息、收货时间</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">申请退款通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_ordertui]" value="{$info.tmpl_ordertui}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'1468','1,4,2,9,10')">添加</button>
+							<div class="layui-form-mid " style="margin-left:10px;">配置关键字：订单商品、订单编号、订单金额、退款金额、退款原因</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">提现申请通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_withdraw]" value="{$info.tmpl_withdraw}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'6789','3,1,2,4')">添加</button>
+							<div class="layui-form-mid " style="margin-left:10px;">配置关键字：用户昵称、提现金额、发起时间、备注</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">收到留言通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_kehuzixun]" value="{$info.tmpl_kehuzixun}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'3840','1,3,2')">添加</button>
+							<div class="layui-form-mid " style="margin-left:10px;">配置关键字：留言者、留言内容、留言时间</div>
+						</div>
+						
+						<!-- <div class="layui-form-item">
+							<label class="layui-form-label">订单发货通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_orderfahuo]" value="{$info.tmpl_orderfahuo}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'855','1,7,4,11')">添加</button>
+							<div class="layui-form-mid " style="margin-left:10px;">配置关键字：商品名称、快递公司、快递单号、收货地址</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">退款成功通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_tuisuccess]" value="{$info.tmpl_tuisuccess}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'7517','6,3,2')">添加</button>
+							<div class="layui-form-mid " style="margin-left:10px;">配置关键字：退款金额、商品名称、订单编号</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">退款申请驳回通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_tuierror]" value="{$info.tmpl_tuierror}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'4493','3,2,1')">添加</button>
+							<div class="layui-form-mid " style="margin-left:10px;">配置关键字：退款金额、商品名称、订单编号</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">提现成功通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_tixiansuccess]" value="{$info.tmpl_tixiansuccess}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'2001','1,3,5')">添加</button>
+							<div class="layui-form-mid " style="margin-left:10px;">配置关键字：提现金额、打款方式、发放时间</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">提现失败通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_tixianerror]" value="{$info.tmpl_tixianerror}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'3173','1,3,4')">添加</button>
+							<div class="layui-form-mid " style="margin-left:10px;">配置关键字：提现金额、申请时间、原因</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">拼团成功通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_collagesuccess]" value="{$info.tmpl_collagesuccess}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'980','1,10,12')">添加</button>
+							<div class="layui-form-mid " style="margin-left:10px;">配置关键字：商品名称、团长、成团人数</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">审核结果通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_shenhe]" value="{$info.tmpl_shenhe}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'818','8,2,4')">添加</button>
+							<div class="layui-form-mid " style="margin-left:10px;">配置关键字：审核内容、审核结果、审核说明</div>
+						</div> -->
+						<!-- <div class="layui-form-item">
+							<label class="layui-form-label">订单到期提醒</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_fuwudaoqi]" value="{$info.tmpl_fuwudaoqi}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'12624','1,3')">添加</button>
+							<div class="layui-form-mid " style="margin-left:10px;">配置关键字：订单编号、过期时间<span class="layui-word-aux">用于服务型商品到期提醒</span></div>
+						</div> -->
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="setmypass">保 存</button>
+							</div>
+						</div>
+					</div>
+				</div>
+      </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.form.on('submit(setmypass)', function(obj){
+		var field = obj.field
+		$.post('',field,function(data){
+			dialog(data.msg,data.status,data.url);
+		})
+	})
+	function gettmplid(obj,template_no,keywords){
+		if($(obj).parent().find('input').val() != ''){
+			layer.confirm('已填写模板ID，确定要重新添加吗？',function(index){
+				layer.close(index)
+				var index = layer.load();
+				$.post("{:url('gettmplid')}",{template_no:template_no,keywords:keywords},function(res){
+					layer.close(index)
+					if(res.status==0){
+						dialog(res.msg);
+					}else{
+						$(obj).parent().find('input').val(res.data);
+						layer.tips('已添加', $(obj).parent().find('input'));
+					}
+				});
+			});
+		}else{
+			var index = layer.load();
+			$.post("{:url('gettmplid')}",{template_no:template_no,keywords:keywords},function(res){
+				layer.close(index)
+				if(res.status==0){
+					dialog(res.msg);
+				}else{
+					$(obj).parent().find('input').val(res.data);
+				}
+			});
+		}
+	}
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

@@ -1,0 +1,213 @@
+<div class="dsn-panel-editor-title">文章列表设置</div>
+<div class="dsn-panel-editor-content">
+	<div class="layui-form-item">
+		<div class="layui-form-label">与上方距离</div>
+		<div class="slider" min="0" max="40" ng-model="Edit.params.margin_y"></div>
+		<span class="slider-span"><input ng-model="Edit.params.margin_y"/> px</span>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">样式选择</div>
+		<div class="layui-input-inline" style="width:500px">
+			<input class="radio" type="radio" name="{{Edit.id}}_style" value="4" ng-model="Edit.params.style" title="左图"/>
+			<input class="radio" type="radio" name="{{Edit.id}}_style" value="5" ng-model="Edit.params.style" title="右图"/>
+			<input class="radio" type="radio" name="{{Edit.id}}_style" value="1" ng-model="Edit.params.style" title="单排"/>
+			<input class="radio" type="radio" name="{{Edit.id}}_style" value="2" ng-model="Edit.params.style" title="双排"/>
+			<input class="radio" type="radio" name="{{Edit.id}}_style" value="6" ng-model="Edit.params.style" title="瀑布流"/>
+			<input class="radio" type="radio" name="{{Edit.id}}_style" value="7" ng-model="Edit.params.style" title="三排"/>
+			
+			<input class="radio" type="radio" name="{{Edit.id}}_style" value="9" ng-model="Edit.params.style" title="左右滑动"/>
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">标题大小</div>
+		<div class="layui-input-inline">
+			<input class="layui-input" ng-model="Edit.params.title_size" value="0"/>
+		</div>
+		<span class="layui-form-mid layui-word-aux">px 大于0时生效</span>
+	</div>
+	<div class="layui-form-item" ng-show="Edit.params.style != 6">
+		<div class="layui-form-label">图片</div>
+		<div class="layui-input-inline" style="width:500px">
+			<input class="radio" type="radio" name="{{Edit.id}}_showpic" value="1" ng-model="Edit.params.showpic" title="显示"/>
+			<input class="radio" type="radio" name="{{Edit.id}}_showpic" value="0" ng-model="Edit.params.showpic" title="不显示"/>
+		</div>
+	</div>
+	<div class="layui-form-item" ng-show="Edit.params.style != 6">
+		<div class="layui-form-label">图片大小(宽X高)</div>
+		<div class="layui-input-inline" style="width:500px">
+			<input class="layui-input" ng-model="Edit.params.pic_width" value="0" style="width: 100px;display: inline-block;" /> px X <input class="layui-input" ng-model="Edit.params.pic_height" value="0" style="width: 100px;display: inline-block;"/> px
+		</div>
+		<span class="layui-form-mid layui-word-aux">宽高都大于0时生效</span>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">背景颜色</div>
+		<div class="layui-input-inline">
+			<input class="layui-input" value="{{Edit.params.bgcolor}}" ng-model="Edit.params.bgcolor"/>
+		</div>
+		<span class="colorpicker" ng-model="Edit.params.bgcolor"></span>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">发布时间</div>
+		<div class="layui-input-inline" style="width:500px">
+				<input class="radio" type="radio" name="{{Edit.id}}_showtime" value="1" ng-model="Edit.params.showtime" title="显示"/>
+				<input class="radio" type="radio" name="{{Edit.id}}_showtime" value="0" ng-model="Edit.params.showtime" title="不显示"/>
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">阅读量</div>
+		<div class="layui-input-inline" style="width:500px">
+				<input class="radio" type="radio" name="{{Edit.id}}_showreadcount" value="1" ng-model="Edit.params.showreadcount" title="显示"/>
+				<input class="radio" type="radio" name="{{Edit.id}}_showreadcount" value="0" ng-model="Edit.params.showreadcount" title="不显示"/>
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">文章来源</div>
+		<div class="layui-input-inline" style="width:500px">
+			{if !$type}
+			<input class="radio" type="radio" name="{{Edit.id}}_articlefrom" value="0" ng-model="Edit.params.articlefrom" title="手动选择"/>
+			{/if}
+			<input class="radio" type="radio" name="{{Edit.id}}_articlefrom" value="1" ng-model="Edit.params.articlefrom" ng-change="getarticle(Edit.id)" title="选择分类"/>
+		</div>
+	</div>
+	<div ng-show="Edit.params.articlefrom == '0'">
+		<div ng-repeat="article in Edit.data" class="dsn-panel-editor-relative">
+			<div class="dsn-panel-editor-line flex">
+				<div class="dsn-panel-editor-del" style="right:30px;font-size:12px" title="上移" ng-click="upItemChild(Edit.id,article.id)"><i class="fa fa-arrow-up"></i></div>
+				<div class="dsn-panel-editor-del" title="移除" ng-click="delGood(Edit.id, article.id)">×</div>
+				<div class="dsn-panel-editor-goodimg" style="height:120px; width: 120px; position: relative;" ng-click="addArticle('replace', Edit.id, article.id)">
+						<img ng-src="{{article.pic}}" width="100%" height="100%" />
+						<div style="height:24px; width:100%; color:#fff; line-height:24px; font-size:14px; background:rgba(0,0,0,0.4); text-align:center; left:0px; bottom:0px; position: absolute;">重新选择文章</div>
+				</div>
+				<div class="dsn-panel-editor-line-right">
+					<div class="layui-form-item" style="margin-left:10px">{{article.name}}</div>
+					<div class="layui-form-item" style="margin-left:10px;color:#999">{{article.subname}}</div>
+				</div>
+			</div>
+		</div>
+		<div class="layui-btn layui-btn-primary" style="width:500px;margin-top:10px" ng-click="addArticle('', Edit.id, '')"><i class="fa fa-plus-circle"></i> 添加一篇文章</div>
+	</div>
+	<div ng-show="Edit.params.articlefrom == '1'">
+		{if !$categroy_selmore }
+			<div class="layui-form-item">
+				<div class="layui-form-label">文章分类</div>
+				<div class="layui-input-inline">
+					<select class="layui-input" style="-webkit-appearance:menulist" lay-ignore ng-model="Edit.params.category" ng-change="getarticle(Edit.id)">
+						<option value="">全部分类</option>
+						{if !$type}
+						{foreach $aclist as $cv}
+							<option value="{$cv['id']}">{$cv['name']}</option>
+							{foreach $cv['child'] as $v}
+							<option value="{$v['id']}">&nbsp;&nbsp;&nbsp;{$v['name']}</option>
+							{/foreach}
+						{/foreach}
+						{/if}
+					</select>
+				</div>
+			</div>
+		{else}
+			<div class="layui-form-item">
+				<div class="layui-form-label" style="width:180px">分类模式(默认单选模式)</div>
+				<div class="layui-input-inline">
+					<input class="radio" type="radio" name="{{Edit.id}}_categoryseltype" value="0" ng-model="Edit.params.categoryseltype" ng-checked="!Edit.params.categoryseltype || Edit.params.categoryseltype == '0'" ng-change="getarticle(Edit.id)" title="单选模式"/>
+					<input class="radio" type="radio" name="{{Edit.id}}_categoryseltype" value="1" ng-model="Edit.params.categoryseltype" ng-checked="Edit.params.categoryseltype && Edit.params.categoryseltype == '1'" ng-change="getarticle(Edit.id)" title="多选模式"/>
+				</div>
+			</div>
+			<div ng-show="!Edit.params.categoryseltype || Edit.params.categoryseltype != '1'" class="layui-form-item">
+				<div class="layui-form-label">文章分类</div>
+				<div class="layui-input-inline">
+					<select class="layui-input" style="-webkit-appearance:menulist" lay-ignore ng-model="Edit.params.category" ng-change="getarticle(Edit.id)">
+						<option value="">全部分类</option>
+						{if !$type}
+						{foreach $aclist as $cv}
+							<option value="{$cv['id']}">{$cv['name']}</option>
+							{foreach $cv['child'] as $v}
+							<option value="{$v['id']}">&nbsp;&nbsp;&nbsp;{$v['name']}</option>
+							{/foreach}
+						{/foreach}
+						{/if}
+					</select>
+				</div>
+			</div>
+			<div ng-show="Edit.params.categoryseltype && Edit.params.categoryseltype == '1'" class="layui-form-item">
+				<div class="layui-form-item">
+					<div class="layui-form-label">文章分类</div>
+					<div class="layui-input-inline">
+						{foreach $aclist as $cv}
+							<input class="checkbox" type="checkbox" lay-skin="primary" title="{$cv['name']}" ng-model="Edit.params.categorymore[{$cv['id']}]" ng-change="getarticle(Edit.id)"/>
+						{/foreach}
+					</div>
+				</div>
+			</div>
+		{/if}
+
+		<div class="layui-form-item">
+			<div class="layui-form-label">排序方式</div>
+			<div class="layui-input-inline" style="width:500px">
+				<input class="radio" type="radio" name="{{Edit.id}}_sortby" value="sort" ng-model="Edit.params.sortby" ng-change="getarticle(Edit.id)" title="按排序"/>
+				<input class="radio" type="radio" name="{{Edit.id}}_sortby" value="sendtimedesc" ng-model="Edit.params.sortby" ng-change="getarticle(Edit.id)" title="发布时间↓"/></i>
+				<input class="radio" type="radio" name="{{Edit.id}}_sortby" value="sendtime" ng-model="Edit.params.sortby" ng-change="getarticle(Edit.id)" title="发布时间↑"/></i>
+				<input class="radio" type="radio" name="{{Edit.id}}_sortby" value="readcount" ng-model="Edit.params.sortby" ng-change="getarticle(Edit.id)" title="阅读量"/>
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<div class="layui-form-label">显示数量</div>
+			<div class="layui-input-inline">
+				<input class="layui-input" ng-model="Edit.params.shownum" ng-blur="getarticle(Edit.id)"/>
+			</div>
+		</div>
+	</div>
+	<hr>
+	<div class="layui-form-item">
+    <div class="layui-form-label">左右边距</div>
+    <div class="slider" min="0" max="40" ng-model="Edit.params.margin_x"></div>
+		<span class="slider-span"><input ng-model="Edit.params.margin_x"/> px</span>
+	</div>
+	<div class="layui-form-item">
+    <div class="layui-form-label">左右内边距</div>
+    <div class="slider" min="0" max="40" ng-model="Edit.params.padding_x"></div>
+		<span class="slider-span"><input ng-model="Edit.params.padding_x"/> px</span>
+	</div>
+	<div class="layui-form-item">
+    <div class="layui-form-label">上下内边距</div>
+		<div class="slider" min="0" max="40" ng-model="Edit.params.padding_y"></div>
+		<span class="slider-span"><input ng-model="Edit.params.padding_y"/> px</span>
+	</div>
+	{if !$type}
+	{if !$noshow_modules || !in_array('ModulePlatform',$noshow_modules)}
+	<div class="layui-form-item">
+		<div class="layui-form-label">显示平台</div>
+		<div class="layui-input-inline" style="width:500px">
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="所有平台" name="{{Edit.id}}_platform['all']" ng-model="Edit.params.platform['all']"/>
+			{foreach $platform as $pl}
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="{:getplatformname($pl)}" name="{{Edit.id}}_platform['{$pl}']" ng-model="Edit.params.platform['{$pl}']"/>
+			{/foreach}
+
+		</div>
+	</div>
+	{/if}
+	{if !$noshow_modules || !in_array('ModuleQuanxian',$noshow_modules)}
+	<div class="layui-form-item">
+		<div class="layui-form-label">显示范围</div>
+		<div class="layui-input-inline" style="width:500px">
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="所有人" name="{{Edit.id}}_quanxian['all']" ng-model="Edit.params.quanxian['all']"/>
+			{foreach $memberlevelList as $lv}
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="{$lv.name}" name="{{Edit.id}}_quanxian[{$lv.id}]" ng-model="Edit.params.quanxian[{$lv.id}]"/>
+			{/foreach}
+		</div>
+	</div>
+	{/if}
+	{include file="designer_page/temp/edit-plugin-mendian" /}
+	<div class="layui-form-item" ng-show="!Edit.params.quanxian['all']">
+    <div class="layui-form-label">显示用户</div>
+    <div class="layui-input-inline">
+			<input class="layui-input" ng-model="Edit.params.showmids"/>
+    </div>
+		<div class="layui-form-mid layui-word-aux">填写用户ID，多个用英文标点逗号(,)分割
+	</div>
+	{else}
+		<input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有平台" name="{{Edit.id}}_platform['all']" ng-model="Edit.params.platform['all']"/>
+		<input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有人" name="{{Edit.id}}_quanxian['all']" ng-model="Edit.params.quanxian['all']"/>
+		<input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有门店" name="{{Edit.id}}_mendian['all']" ng-model="Edit.params.mendian['all']"/>
+	{/if}
+
+</div>

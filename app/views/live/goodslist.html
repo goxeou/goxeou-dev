@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>商品库</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header">
+						<div class="layui-tab layui-tab-brief">
+							<ul class="layui-tab-title">
+								<!-- <li {if input('param.st')==='0'}class="layui-this"{/if} onclick="location.href='{:url('goodslist')}/st/0'">未审核</li> -->
+								<li {if input('param.st')=='1'}class="layui-this"{/if} onclick="location.href='{:url('goodslist')}/st/1'">审核中</li>
+								<li {if input('param.st')=='2'}class="layui-this"{/if} onclick="location.href='{:url('goodslist')}/st/2'">审核通过</li>
+								<li {if input('param.st')=='3'}class="layui-this"{/if} onclick="location.href='{:url('goodslist')}/st/3'">审核驳回</li>
+							</ul>
+						</div>  
+						<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+          </div>
+          <div class="layui-card-body" pad15>
+						<div class="layui-col-md4" style="padding-bottom:10px">
+							<a class="layui-btn layuiadmin-btn-list" href="javascript:void(0)" onclick="openmax('{:url('addgoods')}')">添加</a>
+						</div>
+						<!-- <div class="layui-form layui-col-md8 layui-form-search">
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">名称</label>
+								<div class="layui-input-inline">
+									<input type="text" name="name" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label">状态</label>
+								<div class="layui-input-inline">
+									<select name="status">
+										<option value="">全部</option>
+										<option value="1">已开启</option>
+										<option value="0">已关闭</option>
+									</select>
+								</div>
+							</div>
+							<div class="layui-inline">
+								<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+									<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+								</button>
+							</div>
+						</div> -->
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+  var table = layui.table;
+	var datawhere = {};
+	datawhere['st'] = "{$Request.param.st}";
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{$Request.url}" //数据接口
+    ,page: true //开启分页
+    ,cols: [[ //表头
+			{type:"checkbox"},
+      {field: 'goodsId', title: 'ID',  sort: true,width:80},
+      {field: 'name', title: '商品名称'},
+      {field: 'coverImgUrl', title: '商品图片',templet:function(d){return '<a href="'+d.coverImgUrl+'" target="_blank"><img src="'+d.coverImgUrl+'" style="width:100px;"/></a>';}},
+      {field: 'price', title: '价格',templet:function(d){
+				if(d.priceType == 1) return d.price + '元';
+				if(d.priceType == 2) return d.price + '元 ~ ' + d.price2 + '元';
+				if(d.priceType == 3) return '原价' + d.price + '元 / 现价' + d.price2 + '元';
+      }},
+      {field: 'operation', title: '操作',templet:function(d){
+				var html = '';
+				if('{$Request.param.st}' == 0){
+					//html += '<button class="table-btn"  onclick="goodsaudit('+d.goodsId+')">提审</button>';
+				}
+				if('{$Request.param.st}' == 1){
+					//html += '<button class="table-btn"  onclick="goodsresetaudit('+d.goodsId+')">撤回审核</button>';
+				}
+				if('{$Request.param.st}' == 2){
+					html += '<button class="table-btn"  onclick="openmax(\'{:url('updategoods')}/goodsId/'+d.goodsId+'\')">修改价格</button>';
+				}
+				html += '<button class="table-btn" onclick="delgoods('+d.goodsId+')">删除</button>';
+				return html;
+      }}
+    ]]
+  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	//提审
+	function goodsresetaudit(goodsId){
+		layer.confirm('确定要撤回审核吗?',{icon: 7, title:'操作确认'}, function(index){
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('goodsresetaudit')}",{goodsId:goodsId},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	//撤回审核
+	function goodsaudit(goodsId){
+		layer.confirm('确定要提交审核吗?',{icon: 7, title:'操作确认'}, function(index){
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('goodsaudit')}",{goodsId:goodsId},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	//删除商品
+	function delgoods(goodsId){
+		layer.confirm('确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('delgoods')}",{goodsId:goodsId},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	//删除
+	function datadel(id){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id);
+		}
+		layer.confirm('确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('del')}",{ids:ids},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	//上下架
+	function setst(id,st){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id);
+		}
+		layer.confirm('确定要'+(st==0?'关闭':'开启')+'吗?',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('setst')}",{ids:ids,st:st},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	</script>
+	{include file="public/copyright"/}
+</body>
+</html>

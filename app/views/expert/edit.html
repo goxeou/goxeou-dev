@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>添加专家</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<script src="__STATIC__/admin/js/address3.js"></script>
+	<style>
+		.layui-form-select{z-index: 9999}
+		.map-search-res:hover{
+			background-color: gray;
+		}
+		.layui-imgbox-close{width: 25px;height: 22px;right: -18px;top:-10px;}
+		#picList .layui-imgbox .layui-imgbox-img{height: auto;}
+		#picList .layui-imgbox{margin-right: 25px;height: auto}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加专家{else}<i class="fa fa-pencil"></i> 编辑专家{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					{if $info['status']==2}<blockquote class="layui-elem-quote" style="color:red">专家未审核通过，驳回原因：{$info.reason}</blockquote>{/if}
+					<div class="layui-form form-label-w8">
+						<input type="hidden" name="info[id]" value="{$info.id}"/>
+						<input type="hidden" name="uinfo[id]" value="{$uinfo['id']}">
+						<div class="layui-tab layui-tab-brief" lay-filter="mytab">
+							<ul class="layui-tab-title">
+								<li class="layui-this" lay-id="1">基本信息</li>
+								{if getcustom('business_apply_form')}<li lay-id="2">自定义信息</li>{/if}
+							</ul>
+							<div class="layui-tab-content">
+								<!--基本信息start-->
+								<div class="layui-tab-item layui-show">
+						<div class="layui-form-item">
+							<label class="layui-form-label">专家标签：</label>
+							<div class="layui-input-inline" style="width:300px">
+								<select name="info[cid]" xm-select="selectCid" xm-select-max="6" xm-select-search>
+								<option value="">--请选择--</option>
+								{foreach $clist as $cv}
+									<option value="{$cv['id']}" {if in_array($cv['id'],$info['cid'])}selected{/if}>{$cv['name']}</option>
+								{/foreach}
+								</select>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>专家名称：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[name]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.name}">
+							</div>
+						</div>
+					
+						<div class="layui-form-item" style="{if $bid!=0}display:none{/if}">
+							<label class="layui-form-label">{:t('会员')}ID：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[mid]" class="layui-input" value="{$info.mid}">
+							</div>
+							<div class="layui-form-mid layui-word-aux">{if $bid==0}<a href="javascript:vodi(0)" onclick="openmax('{:url('Member/index')}/isopen/1')">查找{:t('会员')}ID</a>{/if}</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">抽成费率：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[feepercent]" class="layui-input" value="{$info.feepercent}">
+							</div>
+							<div class="layui-form-mid" style="margin-left:10px;">%，平台收取的佣金比例，如设置10%，平台抽成10%，专家得90%</div>
+						</div>
+					
+					
+						<div class="layui-form-item">
+							<label class="layui-form-label">联系人：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[linkman]" class="layui-input" value="{$info.linkman}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">联系电话：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[linktel]" class="layui-input" value="{$info.linktel}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">从业年限：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[work]" class="layui-input" value="{$info.work}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">专家LOGO：</label>
+							<input type="hidden" name="info[logo]" id="logo" lay-verType="tips" class="layui-input" value="{$info.logo}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="logo" upload-preview="logoPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：640×640像素</div>
+							<div id="logoPreview" class="picsList-class-padding">
+								<div class="layui-imgbox" style="width:100px;">
+									<div class="layui-imgbox-img"><a {if $info['logo']} style="display: block;" {else /} style="display: none;"  {/if}  class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().find('img').attr('src','').hide();getpicsval('logo','logoPreview');$(this).hide();" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a><img src="{$info.logo}"/></div>
+								</div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">专家描述：</label>
+							<div class="layui-input-inline" style="width:700px">
+								<input type="text" name="info[desc]" class="layui-input" value="{$info.desc}">
+							</div>
+						</div>
+						<!--<div class="layui-form-item">-->
+						<!--	<label class="layui-form-label">专家简介：</label>-->
+						<!--	<div class="layui-input-inline" style="width:500px;">-->
+						<!--		<script id="content" name="info[content]" type="text/plain" style="width:100%;height:500px">{$info.content}</script>-->
+						<!--	</div>-->
+						<!--</div>-->
+						<div class="layui-form-item">
+							<label class="layui-form-label">状态：</label>
+							<div class="layui-input-inline" style="width:380px">
+								<input type="radio" name="info[status]" value="0" title="待审核" {if $info['id'] && $info['status']==0}checked{/if} lay-filter="changest">
+								<input type="radio" name="info[status]" value="1" title="已通过" {if !$info['id'] || $info['status']==1}checked{/if} lay-filter="changest">
+								<input type="radio" name="info[status]" value="2" title="已驳回" {if $info['id'] && $info['status']==2}checked{/if} lay-filter="changest">
+								
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">序号：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[sort]" value="{$info.sort|default=0}" class="layui-input">
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">用于排序,越大越靠前</div>
+						</div>
+						{if getcustom('blist_showviewnum')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">浏览量：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[viewnum]" value="{$info.viewnum|default=0}" class="layui-input">
+							</div>
+						</div>
+						{/if}
+
+						<div id="changestset" {if $info['status']!=2}style="display:none"{/if}>
+							<div class="layui-form-item">
+								<label class="layui-form-label">驳回原因：</label>
+								<div class="layui-input-inline" style="width:310px">
+									<input type="text" name="info[reason]" value="{$info['reason']}" class="layui-input"/>
+								</div>
+							</div>
+						</div>
+					  
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				</div>
+      </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+
+	layui.laydate.render({
+		elem: '#endtime',
+		type: 'datetime'
+	});
+	//所有的时间控件
+	$('.timeinput').each(function (e){
+	var objId = $(this).attr('id');
+	layui.laydate.render({
+		elem: "#"+objId,
+		type: 'time'
+	})
+	})
+	//所有的日期控件
+	$('.dateinput').each(function (e){
+		var objId = $(this).attr('id');
+		layui.laydate.render({
+			elem: "#"+objId,
+			type: 'date'
+		})
+	})
+	
+//	var ueditor = UE.getEditor('content');
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+	//	field['info[content]'] = ueditor.getContent();
+		//console.log(field);return;
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.close(parent.layer.getFrameIndex(window.name));
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+  </script>
+
+</body>
+</html>

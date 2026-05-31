@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>选手编辑</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+		.layui-videobox{width: 280px;height: 216px;position: relative;margin-left: 30px}
+		.layui-videobox:first-child{margin-left: 0}
+		.layui-videobox video{width: 100%;height: 158px;background-color: black}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加选手{else}<i class="fa fa-pencil"></i> 编辑选手{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form">
+						<input type="hidden" name="id" value="{$info.id}"/>
+						{if $info['hid']}
+						<input type="hidden" name="info[hid]" value="{$info.hid}"/>
+						{else}
+						<div class="layui-form-item">
+							<label class="layui-form-label">所属活动：</label>
+							<div class="layui-input-inline" style="width:300px">
+								<select name="info[hid]" lay-filter="huodong">
+									{foreach $toupiaolist as $tp}
+									<option value="{$tp.id}">{$tp.name}</option>
+									{/foreach}
+								</select>
+							</div>
+						</div>
+						{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label">选手名称：</label>
+							<div class="layui-input-inline" style="width:300px">
+								<input type="text" name="info[name]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.name}">
+							</div>
+						</div>
+						{if $info['id']}
+						<div class="layui-form-item">
+							<label class="layui-form-label">选手编号：</label>
+							<div class="layui-input-inline" style="width:300px">
+								<input type="text" name="info[number]" class="layui-input" value="{$info.number}">
+							</div>
+						</div>
+						{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label">选手主图：</label>
+							<input type="hidden" name="info[pic]" id="pic" lay-verType="tips" class="layui-input" value="{$info.pic}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="pic" upload-preview="picPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：640×640像素</div>
+							<div id="picPreview" style="float:left;padding-top:10px;padding-left:110px;clear: both;">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.pic}"/></div></div>
+							</div>
+						</div>
+
+						<div class="layui-form-item desc-image" {if getcustom(toupiao_add_type) && $info['toupiao_type'] == 1}style="display:none;"{/if}>
+							<label class="layui-form-label">详情图片：</label>
+							<input type="hidden" name="info[pics]" value="{$info['pics']}" id="pics">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this,true)" upload-input="pics" upload-preview="picList" >批量上传</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+							<div id="picList" class="picsList-class-110">
+								{if $info['pics']}
+								{php}$pics = explode(',',$info['pics']);{/php}
+								{foreach $pics as $pic}
+								<div class="layui-imgbox">
+									<a class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().remove();getpicsval('pics','picList')" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+									<span class="layui-imgbox-img"><img src="{$pic}"></span>
+								</div>
+								{/foreach}{/if}
+							</div>
+						</div>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">详情文字：</label>
+							<div class="layui-input-block" style="width:300px;">
+								<textarea type="text" name="info[detail_txt]" class="layui-textarea">{$info.detail_txt}</textarea>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">详情：</label>
+							<div class="layui-input-inline" style="width:500px">
+								<script id="detail" name="info[detail]" type="text/plain" style="width:100%;height:400px">{$info.detail}</script>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">状态：</label>
+							<div class="layui-input-inline" style="width:500px">
+								<input type="radio" name="info[status]" title="待审核" value="0" {if $info['status']==0}checked{/if} lay-filter="status"/>
+								<input type="radio" name="info[status]" title="已通过" value="1" {if $info['status']==1}checked{/if} lay-filter="status"/>
+								<input type="radio" name="info[status]" title="已驳回" value="2" {if $info['status']==2}checked{/if} lay-filter="status"/>
+							</div>
+						</div>
+						<div class="layui-form-item" style="{if $info['status']!=2}display:none{/if}" id="status2_div">
+							<label class="layui-form-label">驳回原因：</label>
+							<div class="layui-input-inline" style="width:300px">
+								<input type="text" name="info[reason]" class="layui-input" value="{$info.reason}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<div class="layui-input-block">
+								<button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	var detail = UE.getEditor('detail',{imageScaleEnabled:false});
+	layui.form.on('radio(status)', function(data){
+		if(data.value == '2'){
+			$('#status2_div').show();
+		}else{
+			$('#status2_div').hide();
+		}
+	})
+
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		field['info[detail]'] = detail.getContent();
+		var index = layer.load();
+		$.post("",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.closeAll();
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+
+	
+	</script>
+	{include file="public/copyright"/}
+</body>
+</html>

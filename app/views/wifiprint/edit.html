@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>小票打印机设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加易联云小票打印机{else}<i class="fa fa-pencil"></i> 编辑易联云小票打印机{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w6">
+						<input type="hidden" name="info[id]" value="{$info.id}"/>
+						<div class="layui-form-item">
+							<label class="layui-form-label">名称：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[name]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.name}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">小票标题：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[title]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.title}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">应用ID：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[client_id]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.client_id}" id="clientid">
+							</div>
+							<div class="layui-form-mid layui-word-aux">
+								请在 <a href="https://dev.10ss.net/" target="_blank">易联云开放平台</a> 创建<span style="color: red">自有型应用</span> 获取应用ID
+								<div class="layui-popover layui-default-link layui-inline">
+									示例
+									<div class="layui-popover-div">
+										<img src="__STATIC__/admin/img/dianda_yilianyun.png"   />
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">应用密钥：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[client_secret]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.client_secret}">
+							</div>
+							<div class="layui-form-mid layui-word-aux">
+								请在 <a href="https://dev.10ss.net/" target="_blank">易联云开放平台</a> 创建<span style="color: red">自有型应用</span> 获取应用密钥
+								<div class="layui-popover layui-default-link layui-inline">
+									示例
+									<div class="layui-popover-div">
+										<img src="__STATIC__/admin/img/dianda_yilianyun2.png"   />
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label" style="width: 101px;">Access Token：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[access_token]" class="layui-input" value="{$info.access_token}">
+							</div>
+							<div class="layui-form-mid layui-word-aux">请求token，不填写将自动获取</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">终端号：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[machine_code]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.machine_code}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">终端密钥：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[msign]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.msign}">
+							</div>
+						</div>
+<!--						<div class="layui-form-item">-->
+<!--							<label class="layui-form-label">平台公钥：</label>-->
+<!--							<div class="layui-input-inline" style="width:300px">-->
+<!--								<textarea type="text" name="info[rsa_publickey]" class="layui-textarea">{$info['rsa_publickey']}</textarea>-->
+<!--							</div>-->
+<!--							<div class="layui-form-mid layui-word-aux">K8打印机扫码回调验签</div>-->
+<!--						</div>-->
+<!--						<div class="layui-form-item">-->
+<!--							<label class="layui-form-label">数据加密秘钥：</label>-->
+<!--							<div class="layui-input-inline" style="width:300px">-->
+<!--								<textarea type="text" name="info[aes_publickey]"  disabled class="layui-textarea" id="aes_publickey">{$info['aes_publickey']}</textarea>-->
+<!--							</div>-->
+<!--							<div class="layui-form-mid layui-word-aux">K8打印机扫码回调解密</div>-->
+<!--						</div>-->
+					
+						<div class="layui-form-item">
+							<label class="layui-form-label">自动打印：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[autoprint]" value="1" title="开启" {if !$info['id'] || $info['autoprint']==1}checked{/if}>
+								<input type="radio" name="info[autoprint]" value="0" title="关闭" {if $info['id'] && $info['autoprint']==0}checked{/if}>
+							</div>
+							<div class="layui-form-mid layui-word-aux">关闭自动打印后需要在订单列表手动点击打印才会打印</div>
+						</div>
+						<div id="autoprintset">
+							<div class="layui-form-item">
+								<label class="layui-form-label">配送订单：</label>
+								<div class="layui-input-inline" style="width:500px">
+									<input type="radio" name="info[print_ps]" value="1" title="打印" {if !$info['id'] || $info['print_ps']==1}checked{/if}>
+									<input type="radio" name="info[print_ps]" value="0" title="不打印" {if $info['id'] && $info['print_ps']==0}checked{/if}>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">自提订单：</label>
+								<div class="layui-input-inline" style="width:500px">
+									<input type="radio" name="info[print_zt_type]" value="0" title="不打印" {if $info['id'] && $info['print_zt_type']==0}checked{/if} lay-filter="print_zt_type">
+									<input type="radio" name="info[print_zt_type]" value="1" title="全部门店" {if !$info['id'] || $info['print_zt_type']==1}checked{/if} lay-filter="print_zt_type">
+									<input type="radio" name="info[print_zt_type]" value="2" title="选择门店" {if $info['print_zt_type']==2}checked{/if} lay-filter="print_zt_type">
+								</div>
+							</div>
+							{if getcustom('hexiao_auto_wifiprint')}
+							<div class="layui-form-item">
+								<label class="layui-form-label">核销打印：</label>
+								<div class="layui-input-inline" style="width:500px">
+									<input type="radio" name="info[print_hexiao]" value="1" title="开启" {if !$info['id'] || $info['print_hexiao']==1}checked{/if}>
+									<input type="radio" name="info[print_hexiao]" value="0" title="关闭" {if $info['id'] && $info['print_hexiao']==0}checked{/if}>
+								</div>
+							</div>
+							{/if}
+							<div class="layui-form-item">
+								<label class="layui-form-label">买单付款：</label>
+								<div class="layui-input-inline" style="width:500px">
+									<input type="radio" name="info[print_maidan]" value="1" title="打印" {if !$info['id'] || $info['print_maidan']==1}checked{/if}>
+									<input type="radio" name="info[print_maidan]" value="0" title="不打印" {if $info['id'] && $info['print_maidan']==0}checked{/if}>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">收银台收款：</label>
+								<div class="layui-input-inline" style="width:500px">
+									<input type="radio" name="info[print_cashdesk]" value="1" title="打印" {if !$info['id'] || $info['print_cashdesk']==1}checked{/if}>
+									<input type="radio" name="info[print_cashdesk]" value="0" title="不打印" {if $info['id'] && $info['print_cashdesk']==0}checked{/if}>
+								</div>
+							</div>
+							<div class="layui-form-item" id="print_zt_type_div" {if $info['print_zt_type']!=2}style="display:none"{/if}>
+								<label class="layui-form-label">选择门店：</label>
+								<div class="layui-input-inline" style="width:500px">
+								{php} $storeids = explode(',',$info['print_zt_mdid']);{/php}
+								{foreach $mendianArr as $k=>$v}
+									<input type="checkbox" name="info[print_zt_mdid][]" value="{$k}" title="{$v}" lay-skin="primary" {if in_array($k,$storeids)}checked{/if}>
+								{/foreach}
+								</div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">音量大小：</label>
+							<div class="layui-input-inline" style="width:600px">
+								<input type="radio" name="info[voice]" value="0" title="不播报" {if $info['voice']==0}checked{/if}>
+								<input type="radio" name="info[voice]" value="1" title="低音量" {if $info['voice']==1}checked{/if}>
+								<input type="radio" name="info[voice]" value="2" title="中音量" {if $info['voice']==2}checked{/if}>
+								<input type="radio" name="info[voice]" value="3" title="高音量" {if $info['voice']==3}checked{/if}>
+							</div>
+						</div>
+						{if getcustom('sys_print_set')}
+							<div>
+								<div class="layui-form-item">
+									<label class="layui-form-label">底部自定义：</label>
+									<div class="layui-input-inline">
+										<input type="radio" name="info[boot_custom]" value="0" title="关闭" {if !$info['id'] || $info['boot_custom']==0}checked{/if} lay-filter="boot_custom">
+										<input type="radio" name="info[boot_custom]" value="1" title="开启" {if $info['id'] && $info['boot_custom']==1}checked{/if} lay-filter="boot_custom">
+									</div>
+									<div class="layui-form-mid layui-word-aux">启用后将在小票底部增加此内容</div>
+								</div>
+								<div class="layui-form-item" {if !$info['id'] || $info['boot_custom']==0}style="display:none"{/if} id="boot_custom_content_div">
+									<label class="layui-form-label">模板内容：</label>
+									<div class="layui-input-inline" style="width:400px;height:260px">
+										<textarea name="info[boot_custom_content]" class="layui-textarea" style="width:400px;height:400px">{$info.boot_custom_content}</textarea>
+									</div>
+									<div class="layui-form-mid layui-word-aux">
+										支持的标签：<br/>
+										&lt;QR&gt;str&lt;/QR&gt;：二维码打印命令 <br/>
+											&nbsp;&nbsp;&nbsp;&nbsp;str为二维码内容，内容不超过192个英文字符或96个汉语字符<br/>
+										&lt;BR&gt;str&lt;/BR&gt;：EAN-13条形码打印命令<br/>
+											&nbsp;&nbsp;&nbsp;&nbsp;str为条形码内容，13位数字，中文或其他字符无效，数据不足13位自动补0，补齐13位<br/>
+										&lt;BR2&gt;str&lt;/BR2&gt;：Code128B条形码打印命令<br/>
+											&nbsp;&nbsp;&nbsp;&nbsp;str为条形码内容，14位以内，支持数字、字母和特殊字符，中文或其他字符无效<br/>
+										<!-- &lt;MN&gt;n&lt;/MN&gt;：打印多联命令<br/>
+											&nbsp;&nbsp;&nbsp;&nbsp;命令放在订单开头n=(1~9)，n表示联数 <br/> -->
+										&lt;FS&gt;str&lt;/FS&gt;：字体加大1倍命令 <br/>
+										 	&nbsp;&nbsp;&nbsp;&nbsp;str为加大内容，&lt;FH&gt;&lt;FW&gt;str&lt;/FW&gt;&lt;/FH&gt;的组合，单行、多行均有效<br/>
+										&lt;FB&gt;str&lt;/FB&gt;：字体加粗命令 <br/>
+											&nbsp;&nbsp;&nbsp;&nbsp;str为加粗内容，单行、多行均有效<br/>
+										&lt;FH&gt;str&lt;/FH&gt;：字体加高1.33倍命令 <br/>
+											&nbsp;&nbsp;&nbsp;&nbsp;str为加宽内容，增高为1.33倍，单行、多行均有效<br/>
+										&lt;FW&gt;str&lt;/FW&gt;：字体加宽1.33倍命令 <br/>
+											&nbsp;&nbsp;&nbsp;&nbsp;str为加宽内容，增宽为1.33倍，单行、多行均有效<br/>
+										&lt;br&gt;：换行打印<br/>
+										&lt;center&gt;str&lt;/center&gt;：居中命令 <br/>
+										&lt;LR&gt;lstr,rstr&lt;/LR&gt;：左右对齐命令<br/>
+											&nbsp;&nbsp;&nbsp;&nbsp;lstr为需要居左的内容 ,rstr为需要居右的内容<br/>
+										&lt;right&gt;str&lt;/right&gt;：右对齐命令<br/>
+										<!-- &lt;td&gt;[str][str2]&lt;/td&gt;：遍历订单商品 (中间不得使用其他标签)<br/>
+											&nbsp;&nbsp;&nbsp;&nbsp;str为变量，支持的变量有：[商品名称]、[规格]、[数量]、[总价]<br> -->
+										<!-- 其他位置支持的变量有：<br>
+										&nbsp;&nbsp;&nbsp;&nbsp;[订单号]、[配送方式]、[配送时间]、[收货人]、[联系电话]、[收货地址]、[付款时间]、[付款方式]<br>
+										&nbsp;&nbsp;&nbsp;&nbsp;[商品名称]、[数量]、[价格]、[实付金额]、[备注] -->
+									</div>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">日单号：</label>
+								<div class="layui-input-inline" >
+									<input type="radio" name="info[day_ordernum]" value="0" title="关闭" {if $info['day_ordernum']==0}checked{/if}>
+									<input type="radio" name="info[day_ordernum]" value="1" title="开启" {if $info['day_ordernum']==1}checked{/if}>
+								</div>
+								<div class="layui-form-mid layui-word-aux">1、开启后将在小票头部显示一天的打印数量 2、仅商城、收银台、买单、积分、点餐、外卖起效</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">打印份数：</label>
+								<div class="layui-input-inline" >
+									<input type="num" name="info[print_num]" class="layui-input" value="{$info.print_num?$info.print_num:'1'}">
+								</div>
+								<div class="layui-form-mid layui-word-aux"> 份 最少一份</div>
+							</div>
+						{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label">状态：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[status]" value="1" title="开启" {if !$info['id'] || $info['status']==1}checked{/if}>
+								<input type="radio" name="info[status]" value="0" title="关闭" {if $info['id'] && $info['status']==0}checked{/if}>
+							</div>
+						</div>
+		  <div class="layui-form-item">
+			  <div style="padding-left:20px;font-weight:bold">K8打印机推送地址配置</div>
+		  </div>
+		   <div class="layui-form-item" style="margin-bottom:5px">
+			  <div class="layui-form-mid" style="margin-left:40px;">
+				  登录 <a href="https://dev.10ss.net/" target="_blank">易联云开放平台</a> 在[应用列表]-[查看]-[K8扫码推送]-[打印机管理]，选择标准模式并开启推送。
+			  </div>
+		  </div>
+		  <div class="layui-form-item" style="margin-bottom:5px">
+			  <div class="layui-form-mid" style="margin-left:40px;">
+				  登录 <a href="https://dev.10ss.net/" target="_blank">易联云开放平台</a> 在[应用列表]-[查看]-[K8扫码推送]，点击设置，按照要求开通，开通后配置如下：
+			  </div>
+		  </div>
+		  <div class="layui-form-item" style="margin-bottom:5px">
+			  <div class="layui-form-mid" style="margin-left:40px;color:red">注意：1.该功能适用于K8打印机推送配置，用于商城自提订单的核销和优惠券的核销，不使用该功能无需配置。</div>
+		  </div>
+		  <div class="layui-form-item" style="margin-bottom:5px">
+			  <label class="layui-form-label">加密方式：</label>
+			  <div class="layui-form-mid" style="width:200px;font-weight:bold">AES</div>
+		  </div>
+		  <div class="layui-form-item" style="margin-bottom:5px">
+			  <label class="layui-form-label">数据加密秘钥：</label>
+			  <div class="layui-input-inline" style="width:80%">
+				  <input type="hidden" name="info[aes_publickey]"  lay-verType="tips" disabled class="layui-input" value="{$info.aes_publickey}" id="aes_publickey" style="border: none;padding-left: 0;font-weight:bold;display: inline-block;width:200px " />
+				  <div style="font-weight:bold;display: flex;float: left;margin-right: 10px;align-items: center">
+					  <div  id="aes_publickey2" >{$info.aes_publickey}</div>
+					  
+					  <div style="display: none;width: 50px;text-align: center"  class="layui-popover layui-default-link layui-input-inline " id="aes_publickey_fuzhi" onclick="copyText($('#aes_publickey').val())" >复制</div>
+					  <div class="layui-popover layui-default-link layui-input-inline" style="width: 50px">
+						  示例
+						  <div class="layui-popover-div">
+							  <img src="__STATIC__/admin/example/dianda_yilianyunk8_aes.png"   />
+						  </div>
+					  </div>
+					  <div class="layui-form-mid layui-word-aux">如果是新增打印机，请先设置应用ID</div>
+				  </div>
+			  </div>
+		  </div>
+		  <div class="layui-form-item" style="margin-bottom:5px">
+			  <label class="layui-form-label">平台秘钥：</label>
+			  <div class="layui-input-inline" style="width:400px;">
+				<textarea type="text" name="info[rsa_publickey]" class="layui-textarea">{$info['rsa_publickey']}</textarea>
+			</div>
+			  <div class="layui-form-mid layui-word-aux">数据加密秘钥设置后，查看平台秘钥</div>
+			  <div class="layui-popover layui-default-link layui-input-inline" style="padding: 7px 0">
+				  示例
+				  <div class="layui-popover-div">
+					  <img src="__STATIC__/admin/example/dianda_yilianyunk8_secret.png"   />
+				  </div>
+			  </div>
+		  </div>
+		  <div class="layui-form-item" style="margin-bottom:5px">
+			  <label class="layui-form-label">推送地址协议：</label>
+			  <div class="layui-form-mid" style="width:200px;font-weight:bold" >
+				https
+			  </div>
+		  </div>
+		  <div class="layui-form-item" style="margin-bottom:5px">
+			  <label class="layui-form-label">推送地址：</label>
+			  <div class="layui-form-mid" style="font-weight:bold" >
+				  <span id="pushurl" >{$pushurl}</span>
+				  <span class="layui-popover layui-default-link layui-inline" onclick="copyText($('#pushurl').html())">复制</span>
+			  </div>
+			  <div class="layui-popover layui-default-link layui-input-inline" style="padding: 7px 0">
+				  示例
+				  <div class="layui-popover-div">
+					  <img src="__STATIC__/admin/example/dianda_yilianyunk8_url.png"   />
+				  </div>
+			  </div>
+		  </div>
+		  
+					
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.form.on('radio(autoprint)',function(data){
+		if(data.value == '1'){
+			$('#autoprintset').show();
+		}else{
+			$('#autoprintset').hide();
+		}
+	})
+	layui.form.on('radio(print_zt_type)',function(data){
+		if(data.value == '2'){
+			$('#print_zt_type_div').show();
+		}else{
+			$('#print_zt_type_div').hide();
+		}
+	})
+	layui.form.on('radio(machine_type)',function(data){
+		if(data.value == '1'){
+			$('#tmpltype_div').hide();
+		}else{
+			$('#tmpltype_div').show();
+		}
+	})
+	layui.form.on('radio(tmpltype)',function(data){
+		if(data.value == '1'){
+			$('#tmplcontent_div').show();
+		}else{
+			$('#tmplcontent_div').hide();
+		}
+	})
+	layui.form.on('radio(boot_custom)',function(data){
+		if(data.value == '1'){
+			$('#boot_custom_content_div').show();
+		}else{
+			$('#boot_custom_content_div').hide();
+		}
+	})
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		//console.log(field);return;
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.close(parent.layer.getFrameIndex(window.name));
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+	$("#clientid").on("input",function(e){
+		//获取input输入的值
+		var clientid =  e.delegateTarget.value;
+		$('#pushurl').text('{$_SERVER["SERVER_NAME"]}/?s=/ApiYilianyunNotify/notify/client_id/'+clientid);
+		$('#aes_publickey').val(btoa(clientid))
+		$('#aes_publickey2').html(btoa(clientid))
+		$('#aes_publickey_fuzhi').show();
+	});
+	$(function () {
+		var  clientid =$('#clientid').val()  ;
+		$('#aes_publickey').val(btoa(clientid))
+		var aes_publickey = "{$info.aes_publickey}";
+		if(aes_publickey){
+			 $('#aes_publickey_fuzhi').show();
+		}
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

@@ -1,0 +1,27 @@
+<script type="text/javascript">
+
+  layui.form.on('submit(setmypass)', function(obj){
+    var field = obj.field
+    if(!field['info[tmpl_smscode_st]']) field['info[tmpl_smscode_st]'] = 0;
+    if(!field['info[tmpl_orderconfirm_st]']) field['info[tmpl_orderconfirm_st]'] = 0;
+    if(!field['info[tmpl_orderpay_st]']) field['info[tmpl_orderpay_st]'] = 0;
+    if(!field['info[tmpl_collagesuccess_st]']) field['info[tmpl_collagesuccess_st]'] = 0;
+    if(!field['info[tmpl_orderfahuo_st]']) field['info[tmpl_orderfahuo_st]'] = 0;
+    if(!field['info[tmpl_tuisuccess_st]']) field['info[tmpl_tuisuccess_st]'] = 0;
+    if(!field['info[tmpl_tuierror_st]']) field['info[tmpl_tuierror_st]'] = 0;
+    if(!field['info[tmpl_tixiansuccess_st]']) field['info[tmpl_tixiansuccess_st]'] = 0;
+    if(!field['info[tmpl_tixianerror_st]']) field['info[tmpl_tixianerror_st]'] = 0;
+    if(!field['info[tmpl_fenxiaosuccess_st]']) field['info[tmpl_fenxiaosuccess_st]'] = 0;
+    if(!field['info[tmpl_checksuccess_st]']) field['info[tmpl_checksuccess_st]'] = 0;
+    if(!field['info[tmpl_checkerror_st]']) field['info[tmpl_checkerror_st]'] = 0;
+    if(!field['info[tmpl_restaurant_booking_st]']) field['info[tmpl_restaurant_booking_st]'] = 0;
+    if(!field['info[tmpl_restaurant_booking_fail_st]']) field['info[tmpl_restaurant_booking_fail_st]'] = 0;
+    if(!field['info[tmpl_recharge_st]']) field['info[tmpl_recharge_st]'] = 0;
+    if(!field['info[tmpl_sysmsg_notice_st]']) field['info[tmpl_sysmsg_notice_st]'] = 0;
+    if(!field['info[tmpl_checknotice_st]']) field['info[tmpl_checknotice_st]'] = 0;
+    
+    $.post('',obj.field,function(data){
+      dialog(data.msg,data.status,true);
+    })
+  })
+</script>

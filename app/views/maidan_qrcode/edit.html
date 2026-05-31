@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>买单收款码</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+                <div class="layui-card-header">
+                    {if !$info['id']}<i class="fa fa-plus"></i> 添加收款码{else}<i class="fa fa-pencil"></i> 编辑收款码{/if}
+                    <i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+                </div>
+                <div class="layui-card-body" pad15>
+                    <div class="layui-form form-label-w8" lay-filter="">
+                        <input type="hidden" name="info[id]" value="{$info['id']}">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label"><span class="redstar">*</span>{:t('会员')}ID：</label>
+                            <div class="layui-input-inline" style="width: 200px;">
+                                <input type="number" name="info[mid]" id="mid" lay-verify="required"  class="layui-input" value="{$info.mid}">
+                            </div>
+                            <div class="layui-form-mid layui-word-aux">请先填写有分销权限的{:t('会员')}ID，然后再点击生成二维码(没有分销权限的不发买单分成) {if $info['bid']==0}<a href="javascript:vodi(0)" onclick="openmax('{:url('Member/index')}/isopen/1')"> 查找{:t('会员')}ID</a>{/if}</div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">姓名：</label>
+                            <div class="layui-input-inline" style="width: 200px;">
+                                <input type="text" name="info[name]" class="layui-input" value="{$info.name}">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label"><span class="redstar">*</span>二维码：</label>
+                            <div class="layui-input-inline" style="width: 200px;">
+                                <input type="hidden" name="info[qrcode]" id="qrcode" lay-verify="required"  class="layui-input" value="{$info.qrcode}">
+                                <img {if $info.qrcode}src="{$info.qrcode}"{/if} id="qrcode_img" style="width: 200px;height: 200px;border:1px solid #eee">
+                            </div>
+                            <div class="layui-form-mid layui-word-aux">
+                                <a href="javascript:void(0)" onclick="showqr()" class="fa fa-qrcode" style="text-decoration: none; float: right; font-size: 16px" title="点击生成">
+                                点击生成<span style="font-size: 15px;color: red;font-weight: bold;"> (注意：{:t('会员')}ID一旦发生变动二维码需要重新生成)</span>
+                                </a>
+                            </div>
+                        </div>
+                        <!-- <div class="layui-form-item">
+                            <label class="layui-form-label"><span class="redstar">*</span>小程序码：</label>
+                            <div class="layui-input-inline" style="width: 200px;">
+                                <input type="hidden" name="info[wxqrcode]" id="wxqrcode" lay-verify="required"  class="layui-input" value="{$info.wxqrcode}">
+                                <img src="{$info.wxqrcode?$info.wxqrcode:''}" id="wxqrcode_img" style="width: 200px;height: 200px;border:1px solid #eee">
+                            </div>
+                            <div class="layui-form-mid layui-word-aux">
+                                <a href="javascript:void(0)" onclick="showwxqrcode()" class="fa fa-qrcode" style="text-decoration: none; float: right; font-size: 16px" title="点击生成">
+                                点击生成
+                                </a>
+                            </div>
+                        </div> -->
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">状态：</label>
+                            <div class="layui-input-inline">
+                                <input type="radio" name="info[status]" value="1" title="显示" {if !$info['id'] || $info['status']==1}checked{/if}>
+                                <input type="radio" name="info[status]" value="0" title="关闭" {if $info['id'] && $info['status']==0}checked{/if}>
+                            </div>
+                            <div class="layui-form-mid layui-word-aux">关闭后顾客扫他的收款码付款时将提示不能使用，也将无法获得买单分成</div>
+                        </div>
+                        <div class="layui-form-item">
+							<label class="layui-form-label"></label>
+                            <div class="layui-input-block">
+                                <button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+  </div>
+    {include file="public/js"/}
+    <script>
+        function showqr(){
+            layer.confirm('确定要生成吗？',{icon: 7, title:'操作确认'}, function(index){
+                layer.close(index);
+                var mid = $('#mid').val();
+                if(!mid || mid<=0){
+                    return layer.msg("请先填写{:t('会员')}ID");
+                }
+                var code_url = '{:m_url('/pages/maidan/pay')}?ymid='+mid+'&bid={$bid}';
+                var index = layer.load();
+                $.post("{:url('createqrcode')}",{mid:mid,code_url:code_url},function(data){
+                    layer.close(index);
+                    if(data.status == 1){
+                        $("#qrcode").val(data.qrcode);
+                        $("#qrcode_img").attr('src',data.qrcode);
+                    }else{
+                        dialog(data.msg,data.status);
+                    }
+                })
+            });
+        }
+        function showwxqrcode(){
+            var mid = $('#mid').val();
+            if(!mid || mid<=0){
+                return layer.msg("请先填写{:t('会员')}ID");
+            }
+            var pagepath = 'pages/maidan/pay?ymid='+mid+'&bid={$bid}';
+            var index = layer.load();
+            $.post("{:url('DesignerPage/getwxqrcode')}",{path:pagepath},function(res){
+                layer.close(index);
+                if(res.status == 1){
+                    $("#wxqrcode").val(res.url);
+                    $("#wxqrcode_img").attr('src',res.url);
+                }else{
+                    dialog(res.msg,res.status);
+                }
+            })
+        }
+        layui.form.on('submit(formsubmit)', function(obj){
+            var field = obj.field
+            var index = layer.load();
+            $.post("{:url('save')}",field,function(data){
+                layer.close(index);
+                dialog(data.msg,data.status);
+                if(data.status == 1){
+                    setTimeout(function(){
+                        parent.layer.closeAll();
+                        parent.tableIns.reload()
+                    },1000)
+                }
+            })
+        })
+    </script>
+    {include file="public/copyright"/}
+</body>
+</html>

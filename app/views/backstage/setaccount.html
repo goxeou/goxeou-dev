@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>登录账号设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">登录账号设置</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form" lay-filter="">
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">登录手机号</label>
+							<div class="layui-input-inline">
+								<input type="text" name="username" lay-verify="required" lay-verType="tips" autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">验证码</label>
+							<div class="layui-input-inline" style="width:70px">
+								<input type="text" name="smscode" lay-verify="required" lay-verType="tips" autocomplete="off" class="layui-input">
+							</div>
+							<button class="layui-btn layui-btn-primary" onclick="sendsms(this)">获取验证码</button>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">登录密码</label>
+							<div class="layui-input-inline">
+								<input type="password" name="password"  lay-verify="pass" lay-verType="tips" autocomplete="off" id="LAY_password" class="layui-input">
+							</div>
+							<div class="layui-form-mid layui-word-aux">6到16个字符</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">确认密码</label>
+							<div class="layui-input-inline">
+								<input type="password" name="repassword" lay-verify="pass" lay-verType="tips" autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="setmypass">确 认</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	
+	layui.form.verify({
+		pass: [/^[\S]{6,12}$/,'密码必须6到12位，且不能出现空格']
+	})
+	layui.form.on('submit(setmypass)', function(obj){
+		var field = obj.field
+		if(field.password != field.repassword){
+			layer.tips('两次新密码不一致',$('input[name=repassword]'));return;
+		}
+		field.op = 'change';
+		$.post("{:url('setaccount')}",field,function(data){
+			dialog(data.msg,data.status);
+			if(data.url){
+				setTimeout(function(){
+					parent.location.href=data.url
+				},2000)
+			}
+		})
+	});
+	
+	var hqing = 0;
+	function sendsms(obj){
+		var tel = $("input[name=username]").val();
+		if(!tel || !(/^1[0-9]{10}$/.test(tel))){
+			dialog('请输入正确的手机号');return;
+		}
+		if(hqing) return;
+		hqing = 1;
+		$.post("{:url('setaccount')}",{ op:'sendsms',tel:tel},function(data){
+			if(data.status!=1){
+				dialog(data.msg);	
+			}
+		});
+		var time = 120;
+		var t = setInterval(function() {
+			time--;
+			if (time < 0) {
+				$(obj).html("重新获取");
+				hqing = 0;
+				clearInterval(t);
+			} else if (time >= 0) {
+				$(obj).html(time + "秒");
+			}
+		}, 1000);
+	}
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

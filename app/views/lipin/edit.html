@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>添加礼品卡</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	.product{width:500px; padding:5px;background: #FFF;margin-top:5px;border:1px solid #f1f1f1}
+	.product .content{display:flex;position:relative;width: 100%; padding:15px 10px;border-bottom: 1px #e5e5e5 dashed;position:relative;box-sizing:border-box;}
+	.product .content:last-child{ border-bottom: 0; }
+	.product .content img{ width: 70px; height: 70px;}
+	.product .content .detail{display:flex;flex-direction:column;margin-left:7px;flex:1}
+	.product .content .detail .t1{height: 30px;line-height: 15px;color: #000;}
+	.product .content .detail .t2{height: 23px;line-height: 23px;color: #999;overflow: hidden;font-size:13px;}
+	.product .content .detail .t3{display:flex;height:15px;line-height:15px;color: #ff4246;}
+	.product .content .detail .x1{ flex:1}
+	.product .content .detail .x2{ width:50px;font-size:16px;text-align:right;margin-right:4px}
+	.product .content .comment{position:absolute;top:32px;right:5px;border: 1px #ffc702 solid; border-radius:5px;background:#fff; color: #ffc702;  padding: 0 5px; height: 23px; line-height: 23px;}
+	#ggnamediv .layui-input,#ggvaldiv .layui-input{ display:inline;height:30px}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if $info.id}编辑礼品卡{else}添加礼品卡{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w6" lay-filter="">
+						<input type="hidden" name="info[id]" value="{$info.id}"/>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>礼品卡名称：</label>
+							<div class="layui-input-inline" style="width:300px">
+								<input type="text" class="layui-input" name="info[name]" value="{$info.name}" lay-verify="required" lay-verType="tips"/>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">分类：</label>
+							<div class="layui-input-inline">
+								<select name="info[cid]">
+									<option value="">--请选择--</option>
+									{foreach $clist as $cv}
+									<option value="{$cv['id']}" {if $cv['id']==$info['cid']}selected{/if}>{$cv.name}</option>
+									{foreach $cv['child'] as $v}
+									<option value="{$v['id']}" {if $v['id']==$info['cid']}selected{/if}>&nbsp;&nbsp;&nbsp;{$v.name}</option>
+									{/foreach}
+									{/foreach}
+								</select>
+							</div>
+							<!-- <div class="layui-form-mid layui-word-aux"><a href="{:url('ArticleCategory/edit')}">创建分类</a></div> -->
+						</div>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>开始时间：</label>
+							<div class="layui-input-inline">
+								<input type="text" id="starttime" name="info[starttime]" value="{:date('Y-m-d H:i:s',$info['starttime'])}" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>结束时间：</label>
+							<div class="layui-input-inline">
+								<input type="text" id="endtime" name="info[endtime]" value="{:date('Y-m-d H:i:s',$info['endtime'])}" class="layui-input">
+							</div>
+						</div>
+
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>兑换类型：</label>
+							<div class="layui-input-inline" style="width:850px">
+								<input type="radio" name="info[type]" value="0" title="{:t('余额')}" {if $info['type']==0}checked{/if} lay-filter="settype"/>
+								<input type="radio" name="info[type]" value="1" title="商品" {if $info['type']==1}checked{/if} lay-filter="settype"/>
+								<input type="radio" name="info[type]" value="2" title="{:t('积分')}" {if $info['type']==2}checked{/if} lay-filter="settype"/>
+								<input type="radio" name="info[type]" value="3" title="{:t('优惠券')}" {if $info['type']==3}checked{/if} lay-filter="settype"/>
+								{if getcustom('lipin_scoreshopproduct')}
+								<input type="radio" name="info[type]" value="4" title="{:t('积分')}兑换商品" {if $info['type']==4}checked{/if} lay-filter="settype"/>
+								{/if}
+								{if getcustom('lipinka_memberlevel')}
+								<input type="radio" name="info[type]" value="5" title="会员等级" {if $info['type']==5}checked{/if} lay-filter="settype"/>
+								{/if}
+								{if getcustom('lipinka_kecheng')}
+								<input type="radio" name="info[type]" value="6" title="知识付费课程" {if $info['type']==6}checked{/if} lay-filter="settype"/>
+								{/if}
+								{if getcustom('lipinka_huodong_baoming')}
+								<input type="radio" name="info[type]" value="7" title="活动报名" {if $info['type']==7}checked{/if} lay-filter="settype"/>
+								{/if}
+							</div>
+						</div>
+						<div class="layui-form-item" id="settype0" style="{if $info['type']!=0}display:none{/if}">
+							<label class="layui-form-label"><span class="redstar">*</span>兑换金额：</label>
+							<div class="layui-input-inline">
+								<input type="text" class="layui-input" name="info[money]" value="{$info.money}"/>
+							</div>
+						</div>
+
+						<div id="settype1" style="{if $info['type']!=1}display:none{/if}">
+							{if getcustom('lipin_num_type')}
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>兑换数量：</label>
+								<div class="layui-input-inline" style="width:400px">
+									<input type="radio" name="info[num_type]" value="0" title="全部" {if $info['num_type']==0}checked{/if}/>
+									<input type="radio" name="info[num_type]" value="1" title="N选1" {if $info['num_type']==1}checked{/if}/>
+								</div>
+
+								<div class="layui-form-mid layui-word-aux">N选1时多个商品，用户可任选其一</div>
+							</div>
+							{/if}
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>选择商品：</label>
+								<button class="layui-btn layui-btn-primary" style="float:left" onclick="showChooseProduct()">选择</button>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>已选商品：</label>
+								<div class="layui-input-inline">
+									<div class="product" id="prolistinfo"></div>
+								</div>
+							</div>
+						</div>
+						<div class="layui-form-item" id="settype2" style="{if $info['type']!=2}display:none{/if}">
+							<label class="layui-form-label"><span class="redstar">*</span>兑换{:t('积分')}数：</label>
+							<div class="layui-input-inline">
+								<input type="text" class="layui-input" name="info[score]" value="{$info.score}"/>
+							</div>
+						</div>
+
+						<div id="settype3" style="{if $info['type']!=3}display:none{/if}">
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>选择{:t('优惠券')}：</label>
+								<button class="layui-btn layui-btn-primary" style="float:left" onclick="showChooseCoupon()">选择</button>
+							</div>
+							<div class="give_coupon" style="{if $info['type']!=3}display:none{/if}">
+								<label class="layui-form-label"></label>
+								<div class="layui-input-inline" style="width:auto; overflow: hidden;">
+									<table class="layui-table choose-coupon" style="width:500px">
+										<thead>
+										<tr>
+											<th>ID</th>
+											<th>名称</th>
+											<th>库存</th>
+											<th>操作</th>
+										</tr>
+										</thead>
+										{if $couponList}
+										{foreach $couponList as $k=>$ff}
+										<tr class="choose-tr-list"><td>{$ff.id}</td><td>{$ff.name}</td><td>{$ff.stock}</td><td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delChooseTr(this,{$ff.id})">删除</button></td></tr>
+										{/foreach}
+										{/if}
+										<tr class="choose-tr-add">
+											<td colspan="4"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="showChooseCoupon()">添加</button></td>
+										</tr>
+									</table>
+									<div class="layui-form-mid layui-word-aux" style="margin-left:8%">请确认{:t('优惠券')}的有效期、库存有效</div>
+									<input type="hidden" name="info[coupon_ids]" value="{$info.coupon_ids}"/>
+								</div>
+								
+							</div>
+						</div>
+						<script>
+							var chooseCouponLayer;
+							function showChooseCoupon(){
+								chooseCouponLayer = layer.open({type:2,title:'选择{:t(\'优惠券\')}',content:"{:url('Coupon/choosecoupon')}",area:['1000px','600px'],shadeClose:true});
+							}
+							function choosecoupon(res){
+								var detail = res;
+								var chooseClassName = '.choose-coupon';
+								layer.close(chooseCouponLayer);
+								var objIds = [];
+								var isadd = 0;
+								$(chooseClassName).find('.choose-tr-list').each(function(){
+									var thisfid = $(this).find('td:eq(0)').html();
+									if(thisfid == detail.id){
+										isadd = 1
+										dialog('该项已添加过了');
+									}
+									objIds.push(thisfid)
+								})
+								if(isadd == 0){
+									objIds.push(detail.id)
+									$("input[name='info[coupon_ids]']").val(objIds.join(','));
+									var tr = '<tr class="choose-tr-list"><td>'+detail.id+'</td><td>'+detail.name+'</td><td>'+detail.stock+'</td><td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delChooseTr(this,'+detail.id+')">删除</button></td></tr>';
+									$(chooseClassName).find('.choose-tr-add').before(tr);
+								}
+								// $(chooseClassName).find('.choose-tr-add').hide();
+							}
+							function delChooseTr(obj,fid){
+								$(obj).closest('.choose-tr-list').remove();
+								var objIds = [];
+								$('.choose-coupon').find('.choose-tr-list').each(function(){
+									objIds.push($(this).find('td:eq(0)').html())
+								})
+								console.log(objIds);
+								$("input[name='info[coupon_ids]']").val(objIds.join(','));
+								// $(obj).closest('table').find('.choose-tr-add').show();
+							}
+						</script>
+
+						<div id="settype4" style="{if $info['type']!=4}display:none{/if}">
+							{if getcustom('lipin_num_type')}
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>兑换数量：</label>
+								<div class="layui-input-inline" style="width:400px">
+									<input type="radio" name="info[num_type4]" value="0" title="全部" {if $info['num_type4']==0}checked{/if}/>
+									<input type="radio" name="info[num_type4]" value="1" title="N选1" {if $info['num_type4']==1}checked{/if}/>
+								</div>
+
+								<div class="layui-form-mid layui-word-aux">N选1时多个商品，用户可任选其一</div>
+							</div>
+							{/if}
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>选择商品：</label>
+								<button class="layui-btn layui-btn-primary" style="float:left" onclick="showChooseScoreshopProduct()">选择</button>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>已选商品：</label>
+								<div class="layui-input-inline">
+									<div class="product" id="scoreshop_prolistinfo"></div>
+								</div>
+							</div>
+						</div>
+						{if getcustom('lipinka_morefee')}
+						<div id="morefee" class="layui-form-item" {if $info['type']!=1 && $info['type']!=4}style="display:none"{/if}>
+							<label class="layui-form-label">附加收费：</label>
+							<div class="layui-input-inline" style="width: 30%">
+								<table class="layui-table" style="width: 100%;">
+									<thead>
+									<tr>
+										<th>明细名称</th>
+										<th>金额/元</th>
+										<th>操作</th>
+									</tr>
+									</thead>
+									<tbody>
+									{if $info['fee_items']}
+										{volist name="info.fee_items" id="item" key="key"}
+										<tr>
+											<td><input type="text" name="otheritem[]" class="layui-input" value="{$item.name}" placeholder="请输入名称"></td>
+											<td><input type="number" name="otherfee[]" class="layui-input" value="{$item.money}" placeholder="请输入金额"></td>
+											<td>
+												{if $key==1}
+													<button class="layui-btn layui-btn-sm" onclick="addItemTr(this)">+</button>
+												{else/}
+													<button class="layui-btn layui-btn-sm layui-btn-warm" onclick="delItemTr(this)">-</button>
+												{/if}
+											</td>
+										</tr>
+										{/volist}
+									{else/}
+									<tr>
+										<td><input type="text" name="otheritem[]" class="layui-input" placeholder="请输入明细名称"></td>
+										<td><input type="number" name="otherfee[]" class="layui-input" placeholder="请输入金额"></td>
+										<td><button class="layui-btn layui-btn-sm" onclick="addItemTr(this)">+</button></td>
+									</tr>
+									{/if}
+									</tbody>
+								</table>
+							</div>
+						</div>
+
+						{/if}
+						{if getcustom('lipinka_memberlevel')}
+						<div id="settype5" {if $info['type']!=5}style="display:none"{/if}>
+							<div class="layui-form-item">
+								<label class="layui-form-label">会员等级：</label>
+								<div class="layui-input-inline" style="width:800px">
+									{foreach $memberlevel as $v}
+									<input type="radio" name="info[memberlevel_id]" value="{$v.id}" title="{$v.name}" {if $v['id']==$info['memberlevel_id']}checked{/if}/>
+									{/foreach}
+								</div>
+							</div>
+						</div>
+						{/if}
+						{if getcustom('lipinka_kecheng')}
+						<div id="settype6" style="{if $info['type']!=6}display:none{/if}">
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>选择课程：</label>
+								<button class="layui-btn layui-btn-primary" style="float:left" onclick="showChooseKecheng()">选择</button>
+							</div>
+							<div class="give_kecheng" style="{if $info['type']!=6}display:none{/if}">
+								<label class="layui-form-label"></label>
+								<div class="layui-input-inline" style="width:auto; overflow: hidden;">
+									<table class="layui-table choose-kecheng" style="width:500px">
+										<thead>
+										<tr>
+											<th>ID</th>
+											<th>名称</th>
+											<th>价格</th>
+											<th>操作</th>
+										</tr>
+										</thead>
+										{if $kechengList}
+										{foreach $kechengList as $k=>$ff}
+										<tr class="choose-tr-list"><td>{$ff.id}</td><td>{$ff.name}</td><td>{$ff.price}</td><td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delChooseTr(this,{$ff.id})">删除</button></td></tr>
+										{/foreach}
+										{/if}
+										<tr class="choose-tr-add">
+											<td colspan="4"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="showChooseCoupon()">添加</button></td>
+										</tr>
+									</table>
+									<div class="layui-form-mid layui-word-aux" style="margin-left:8%">请确认课程的有效期</div>
+									<input type="hidden" name="info[kecheng_ids]" value="{$info.kecheng_ids}"/>
+								</div>
+								
+							</div>
+						</div>
+						<script>
+							var choosekechengLayer;
+							function showChooseKecheng(){
+								choosekechengLayer = layer.open({type:2,title:'选择课程',content:"{:url('KechengList/chooseproduct')}",area:['1000px','600px'],shadeClose:true});
+							}
+							function choosekecheng(res){
+								//console.log(res);
+								var detail = res.product;
+								var chooseClassName = '.choose-kecheng';
+								layer.close(choosekechengLayer);
+								var objIds = [];
+								var isadd = 0;
+								$(chooseClassName).find('.choose-tr-list').each(function(){
+									var thisfid = $(this).find('td:eq(0)').html();
+									if(thisfid == detail.id){
+										isadd = 1
+										dialog('该项已添加过了');
+									}
+									objIds.push(thisfid)
+								})
+								if(isadd == 0){
+									objIds.push(detail.id)
+									$("input[name='info[kecheng_ids]']").val(objIds.join(','));
+									var tr = '<tr class="choose-tr-list"><td>'+detail.id+'</td><td>'+detail.name+'</td><td>'+detail.price+'</td><td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delChooseTr(this,'+detail.id+')">删除</button></td></tr>';
+									$(chooseClassName).find('.choose-tr-add').before(tr);
+								}
+								// $(chooseClassName).find('.choose-tr-add').hide();
+							}
+							function delChooseTr(obj,fid){
+								$(obj).closest('.choose-tr-list').remove();
+								var objIds = [];
+								$('.choose-kecheng').find('.choose-tr-list').each(function(){
+									objIds.push($(this).find('td:eq(0)').html())
+								})
+								console.log(objIds);
+								$("input[name='info[kecheng_ids]']").val(objIds.join(','));
+								// $(obj).closest('table').find('.choose-tr-add').show();
+							}
+						</script>
+						{/if}
+						{if getcustom('lipinka_huodong_baoming')}
+						<div id="settype7" style="{if $info['type']!=7}display:none{/if}">
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>选择活动：</label>
+								<button class="layui-btn layui-btn-primary" style="float:left" onclick="showChooseHuodongbaoming()">选择</button>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>已选活动报名：</label>
+								<div class="layui-input-inline">
+									<div class="product" id="huodongbaoming_prolistinfo"></div>
+								</div>
+							</div>
+						</div>
+						<script>
+							var huodongbaomingbuydata = {:jsonEncode($huodongbaoming_prodatalist)};
+							var huodongbaomingbuydatastr = '';
+							
+							var chooseHuodongbaomignLayer;
+							function showChooseHuodongbaoming(){
+								chooseHuodongbaomignLayer = layer.open({type:2,title:'选择活动',content:"{:url('HuodongBaomingList/chooseproduct')}",area:['900px','600px'],shadeClose:true});
+							}
+							function choosehuodongbaoming(data){
+								if(data.product.is_fufei == 0){
+									var thisdata = {'name':data.product.name,'pic':data.product.pic,'id':data.product.id,'ggname':'免费','ggid':0,'sell_price':0,'buynum':1}
+									huodongbaomingbuydata.push(thisdata);
+									huodongbaomingshowproinfo()
+								}else{
+									huodongbaominggg(data.product,data.guigedata,data.gglist);
+								}
+								
+							}							
+							function huodongbaominggg(product,specs,gglist){
+								var len = specs.length;
+								var newlen = 1; 
+								var h = new Array(len); 
+								var rowspans = new Array(len); 
+								var html = '<div style="margin:10px"><table id="ggvaldiv" class="layui-table"><thead><tr>';
+								for(var i=0;i<len;i++){
+									html+="<th>" + specs[i].title + "</th>";
+									var itemlen = specs[i].items.length;
+									if(itemlen<=0) { itemlen = 1 };
+									newlen*=itemlen;
+									h[i] = new Array(newlen);
+									for(var j=0;j<newlen;j++){
+										h[i][j] = new Array();
+									}
+									var l = specs[i].items.length;
+									rowspans[i] = 1;
+									for(j=i+1;j<len;j++){
+										rowspans[i]*= specs[j].items.length;
+									}
+								}
+								html += '<th>价格</th>';
+								html += '<th>兑换数量</th>';
+								html += '</tr></thead>';
+								
+								for(var m=0;m<len;m++){
+									var k = 0,kid = 0,n=0;
+									for(var j=0;j<newlen;j++){
+										var rowspan = rowspans[m]; 
+										if( j % rowspan==0){
+											h[m][j]={ k:specs[m].items[kid].k,title: specs[m].items[kid].title, html: "<td rowspan='" +rowspan + "'>"+ specs[m].items[kid].title+"</td>\r\n",id: specs[m].items[kid].id};
+										}else{
+											h[m][j]={ k:specs[m].items[kid].k,title:specs[m].items[kid].title, html: "",id: specs[m].items[kid].id};	
+										}
+										n++;
+										if(n==rowspan){
+											kid++; if(kid>specs[m].items.length-1) { kid=0; }
+											n=0;
+										}
+									}
+								}
+								var hh = "";
+								for(var i=0;i<newlen;i++){
+									hh+="<tr>";
+									var ks = [];
+									var titles = [];
+									for(var j=0;j<len;j++){
+										hh+=h[j][i].html; 
+										ks.push( h[j][i].k);
+										titles.push( h[j][i].title);
+									}
+									ks =ks.join(',');
+									titles =titles.join(',');
+									if(typeof(gglist[ks])!='undefined'){
+										var val = gglist[ks];
+									}else{
+										var val = { procode:'',market_price:'',cost_price:'',sell_price:'',weight:'',stock:'1000',pic:''};
+									}
+									// hh += '<td>'+val.stock+'</td>';
+									// hh += '<td>'+val.market_price+'</td>';
+									hh += '<td>'+val.sell_price+'</td>';
+									hh += '<td>';
+									hh += ' <input name="buynum" ggid="'+val['id']+'" sellprice="'+val['sell_price']+'" ggname="'+val['name']+'" type="num" style="width:80px" value="0" class="layui-input"/>';
+									hh += '</td>';
+									hh += "</tr>";
+								}
+								html+=hh;
+								html+='</table></div>';
+								layer.open({type:1,title:product.name,content:html,area:['900px','600px'],shadeClose:true,btn:['确定','取消'],
+									yes:function(index){
+										layer.close(index);
+										$('input[name=buynum]').each(function(){
+											var ggid = $(this).attr('ggid');
+											var ggname = $(this).attr('ggname');
+											var sell_price = $(this).attr('sellprice');
+											var buynum = $(this).val();
+											if(buynum > 0){
+												var thisdata = {'name':product.name,'pic':product.pic,'id':product.id,'ggname':ggname,'ggid':ggid,'sell_price':sell_price,'buynum':buynum}
+												huodongbaomingbuydata.push(thisdata);
+											}
+										});
+										huodongbaomingshowproinfo()
+									}
+								});
+							}
+							function huodongbaomingshowproinfo(){
+								var html = '';
+								var totalgoodsprice = 0;
+								huodongbaomingbuydatastr = '';
+								var huodongbaomingdatastrArr = [];
+								for(var i in huodongbaomingbuydata){
+									var m = huodongbaomingbuydata[i]
+									html += '<div class="content">';
+									html += '	<div>';
+									html += '		<img src="'+m.pic+'"/>';
+									html += '	</div>';
+									html += '	<div class="detail">';
+									html += '		<span class="t1">'+m.name+'</span>';
+									if(m.ggname.length >0 && m.ggname !=null){
+										html += '		<span class="t2">'+m.ggname+'</span>';
+									}									
+									html += '		<div class="t3"><span class="x1 flex1">￥'+m.sell_price+'</span><span class="x2">×'+m.buynum+'</span></div>';
+									html += '	</div>';
+									html += '	<div style="position:absolute;top:0px;right:0px;font-size:16px;width:20px;height:20px;text-align:center;cursor:pointer" onclick="removehuodongbaomingpro('+i+')">×</div>';
+									html += '</div>';
+									totalgoodsprice += m.sell_price * m.buynum
+									huodongbaomingdatastrArr.push(m.id + ',' + m.ggid + ',' + m.buynum);
+								}
+								huodongbaomingbuydatastr = huodongbaomingdatastrArr.join('-');
+								$('#huodongbaoming_prolistinfo').html(html);
+							}
+							function removehuodongbaomingpro(i){
+								huodongbaomingbuydata.splice(i,1)
+								huodongbaomingshowproinfo();
+							}
+						</script>
+						{/if}
+						{if getcustom('lipinka_commission')}
+							<div class="layui-form-item" id="commission_status" style="{if $info['type']!=1}display:none{/if}">
+							  <label class="layui-form-label">分 销：</label>
+							  <div class="layui-input-inline">
+								  <input type="radio" name="info[commission_status]" value="1" title="开启" {if  $info['commission_status']==1}checked{/if}/>
+								  <input type="radio" name="info[commission_status]" value="0" title="关闭" {if !$info['id'] || $info['commission_status']==0}checked{/if}/>
+							  </div>
+							</div>	
+						{/if}
+						{if getcustom('lipinka_freight_free')}
+						<div class="layui-form-item" id="freight_status" style="{if $info['type']!=1}display:none{/if}">
+						  <label class="layui-form-label">运 费：</label>
+						  <div class="layui-input-inline">
+							  <input type="radio" name="info[freight_status]" value="1" title="开启" {if $info['freight_status']==1}checked{/if}/>
+							  <input type="radio" name="info[freight_status]" value="0" title="关闭" {if  !$info['id'] || $info['freight_status']==0}checked{/if}/>
+						  </div>
+						</div>
+						{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label">状 态：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[status]" value="1" title="开启" {if !$info['id'] || $info['status']==1}checked{/if}/>
+								<input type="radio" name="info[status]" value="0" title="关闭" {if $info['id'] && $info['status']==0}checked{/if}/>
+							</div>
+						</div>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	//日期时间选择器
+	layui.laydate.render({ 
+		elem: '#starttime',
+		type: 'datetime',
+		trigger: 'click'
+	});
+	layui.laydate.render({ 
+		elem: '#endtime',
+		type: 'datetime',
+		trigger: 'click'
+	});
+
+	layui.form.on('radio(settype)',function(data){
+		$('#settype0').hide();
+		$('#settype1').hide();
+		$('#settype2').hide();
+		$('#settype3').hide();
+		$('#settype4').hide();
+		$('#settype5').hide();
+		$('#settype6').hide();
+		$('#settype7').hide();
+		$('#morefee').hide();
+		$('#commission_status').hide();
+		$('#freight_status').hide();
+		if(data.value==0){
+			$('#settype0').show();
+		}
+		if(data.value==1){
+			$('#settype1').show();
+			$('#morefee').show();
+			$('#commission_status').show();
+			$('#freight_status').show();
+		}
+		if(data.value==2){
+			$('#settype2').show();
+		}
+		if(data.value==3){
+			$('.give_coupon').show();
+			$('#settype3').show();
+		}
+		if(data.value==4){
+			$('#settype4').show();
+			$('#morefee').show();
+		}
+		if(data.value==5){
+			$('#settype5').show();
+		}
+		if(data.value==6){
+			$('.give_kecheng').show();
+			$('#settype6').show();
+		}
+		if(data.value==7){
+			$('#settype7').show();
+		}
+	})
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		field['info[prodata]'] = buydatastr
+		field['info[prodata4]'] = scoreshopbuydatastr
+		{if getcustom('lipinka_huodong_baoming')}
+		field['info[prodata7]'] = huodongbaomingbuydatastr
+		{/if}
+		//console.log(field);return;
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.closeAll();
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+
+
+	var chooseProductLayer;
+	function showChooseProduct(){
+		chooseProductLayer = layer.open({type:2,title:'选择商品',content:"{:url('shop_product/chooseproduct')}",area:['900px','600px'],shadeClose:true});
+	}
+	function choosepro(data){
+		showgg(data.product,data.guigedata,data.gglist);
+	}
+	var buydata = {:jsonEncode($prodatalist)};
+	var buydatastr = '';
+	$(function(){
+		showproinfo();
+	})
+	function showgg(product,specs,gglist){
+		var len = specs.length;
+		var newlen = 1; 
+		var h = new Array(len); 
+		var rowspans = new Array(len); 
+		var html = '<div style="margin:10px"><table id="ggvaldiv" class="layui-table"><thead><tr>';
+		for(var i=0;i<len;i++){
+			html+="<th>" + specs[i].title + "</th>";
+			var itemlen = specs[i].items.length;
+			if(itemlen<=0) { itemlen = 1 };
+			newlen*=itemlen;
+			h[i] = new Array(newlen);
+			for(var j=0;j<newlen;j++){
+				h[i][j] = new Array();
+			}
+			var l = specs[i].items.length;
+			rowspans[i] = 1;
+			for(j=i+1;j<len;j++){
+				rowspans[i]*= specs[j].items.length;
+			}
+		}
+		html += '<th>库存</th>';
+		html += '<th>市场价</th>';
+		html += '<th>销售价</th>';
+		html += '<th>兑换数量</th>';
+		html += '</tr></thead>';
+		
+		for(var m=0;m<len;m++){
+			var k = 0,kid = 0,n=0;
+			for(var j=0;j<newlen;j++){
+				var rowspan = rowspans[m]; 
+				if( j % rowspan==0){
+					h[m][j]={ k:specs[m].items[kid].k,title: specs[m].items[kid].title, html: "<td rowspan='" +rowspan + "'>"+ specs[m].items[kid].title+"</td>\r\n",id: specs[m].items[kid].id};
+				}else{
+					h[m][j]={ k:specs[m].items[kid].k,title:specs[m].items[kid].title, html: "",id: specs[m].items[kid].id};	
+				}
+				n++;
+				if(n==rowspan){
+					kid++; if(kid>specs[m].items.length-1) { kid=0; }
+					n=0;
+				}
+			}
+		}
+		var hh = "";
+		for(var i=0;i<newlen;i++){
+			hh+="<tr>";
+			var ks = [];
+			var titles = [];
+			for(var j=0;j<len;j++){
+				hh+=h[j][i].html; 
+				ks.push( h[j][i].k);
+				titles.push( h[j][i].title);
+			}
+			ks =ks.join(',');
+			titles =titles.join(',');
+			if(typeof(gglist[ks])!='undefined'){
+				var val = gglist[ks];
+			}else{
+				var val = { procode:'',market_price:'',cost_price:'',sell_price:'',weight:'',stock:'1000',pic:''};
+			}
+			hh += '<td>'+val.stock+'</td>';
+			hh += '<td>'+val.market_price+'</td>';
+			hh += '<td>'+val.sell_price+'</td>';
+			hh += '<td>';
+			hh += ' <input name="buynum" ggid="'+val['id']+'" sellprice="'+val['sell_price']+'" ggname="'+val['name']+'" type="num" style="width:80px" value="0" class="layui-input"/>';
+			hh += '</td>';
+			hh += "</tr>";
+		}
+		html+=hh;
+		html+='</table></div>';
+		layer.open({type:1,title:product.name,content:html,area:['900px','600px'],shadeClose:true,btn:['确定','取消'],
+			yes:function(index){
+				layer.close(index);
+				$('input[name=buynum]').each(function(){
+					var ggid = $(this).attr('ggid');
+					var ggname = $(this).attr('ggname');
+					var sell_price = $(this).attr('sellprice');
+					var buynum = $(this).val();
+					if(buynum > 0){
+						var thisdata = {'name':product.name,'pic':product.pic,'id':product.id,'ggname':ggname,'ggid':ggid,'sell_price':sell_price,'buynum':buynum}
+						buydata.push(thisdata);
+					}
+				});
+				showproinfo()
+			}
+		});
+	}
+	function showproinfo(){
+		var html = '';
+		var totalgoodsprice = 0;
+		buydatastr = '';
+		var buydatastrArr = [];
+		for(var i in buydata){
+			var m = buydata[i]
+			html += '<div class="content">';
+			html += '	<div>';
+			html += '		<img src="'+m.pic+'"/>';
+			html += '	</div>';
+			html += '	<div class="detail">';
+			html += '		<span class="t1">'+m.name+'</span>';
+			html += '		<span class="t2">'+m.ggname+'</span>';
+			html += '		<div class="t3"><span class="x1 flex1">￥'+m.sell_price+'</span><span class="x2">×'+m.buynum+'</span></div>';
+			html += '	</div>';
+			html += '	<div style="position:absolute;top:0px;right:0px;font-size:16px;width:20px;height:20px;text-align:center;cursor:pointer" onclick="removepro('+i+')">×</div>';
+			html += '</div>';
+			totalgoodsprice += m.sell_price * m.buynum
+			buydatastrArr.push(m.id + ',' + m.ggid + ',' + m.buynum);
+		}
+		buydatastr = buydatastrArr.join('-');
+		$('#prolistinfo').html(html);
+	}
+	function removepro(i){
+		buydata.splice(i,1)
+		showproinfo();
+	}
+
+
+	
+	var chooseScoreshopProductLayer;
+	function showChooseScoreshopProduct(){
+		chooseProductLayer = layer.open({type:2,title:'选择商品',content:"{:url('scoreshop_product/chooseproduct')}",area:['900px','600px'],shadeClose:true});
+	}
+	function choosescoreshop(data){
+		showscoreshopgg(data,data.guigedata,data.gglist);
+	}
+	var scoreshopbuydata = {:jsonEncode($scoreshop_prodatalist)};
+	var scoreshopbuydatastr = '';
+	$(function(){
+		showscoreshopproinfo();
+	})
+	function showscoreshopgg(product,specs,gglist){
+		var len = specs.length;
+		var newlen = 1; 
+		var h = new Array(len); 
+		var rowspans = new Array(len); 
+		var html = '<div style="margin:10px"><table id="ggvaldiv" class="layui-table"><thead><tr>';
+		for(var i=0;i<len;i++){
+			html+="<th>" + specs[i].title + "</th>";
+			var itemlen = specs[i].items.length;
+			if(itemlen<=0) { itemlen = 1 };
+			newlen*=itemlen;
+			h[i] = new Array(newlen);
+			for(var j=0;j<newlen;j++){
+				h[i][j] = new Array();
+			}
+			var l = specs[i].items.length;
+			rowspans[i] = 1;
+			for(j=i+1;j<len;j++){
+				rowspans[i]*= specs[j].items.length;
+			}
+		}
+		html += '<th>库存</th>';
+		html += '<th>市场价</th>';
+		html += '<th>销售价</th>';
+		html += '<th>兑换数量</th>';
+		html += '</tr></thead>';
+		
+		for(var m=0;m<len;m++){
+			var k = 0,kid = 0,n=0;
+			for(var j=0;j<newlen;j++){
+				var rowspan = rowspans[m]; 
+				if( j % rowspan==0){
+					h[m][j]={ k:specs[m].items[kid].k,title: specs[m].items[kid].title, html: "<td rowspan='" +rowspan + "'>"+ specs[m].items[kid].title+"</td>\r\n",id: specs[m].items[kid].id};
+				}else{
+					h[m][j]={ k:specs[m].items[kid].k,title:specs[m].items[kid].title, html: "",id: specs[m].items[kid].id};	
+				}
+				n++;
+				if(n==rowspan){
+					kid++; if(kid>specs[m].items.length-1) { kid=0; }
+					n=0;
+				}
+			}
+		}
+		var hh = "";
+		for(var i=0;i<newlen;i++){
+			hh+="<tr>";
+			var ks = [];
+			var titles = [];
+			for(var j=0;j<len;j++){
+				hh+=h[j][i].html; 
+				ks.push( h[j][i].k);
+				titles.push( h[j][i].title);
+			}
+			ks =ks.join(',');
+			titles =titles.join(',');
+			if(typeof(gglist[ks])!='undefined'){
+				var val = gglist[ks];
+			}else{
+				var val = { procode:'',market_price:'',cost_price:'',sell_price:'',weight:'',stock:'1000',pic:''};
+			}
+			hh += '<td>'+val.stock+'</td>';
+			hh += '<td>'+val.market_price+'</td>';
+			hh += '<td>￥'+val.money_price+'+'+val.score_price+'{:t('积分')}</td>';
+			hh += '<td>';
+			hh += ' <input name="buynum4" ggid="'+val['id']+'" moneyprice="'+val['money_price']+'" scoreprice="'+val['score_price']+'" ggname="'+val['name']+'" type="num" style="width:80px" value="0" class="layui-input"/>';
+			hh += '</td>';
+			hh += "</tr>";
+		}
+		html+=hh;
+		html+='</table></div>';
+		layer.open({type:1,title:product.name,content:html,area:['900px','600px'],shadeClose:true,btn:['确定','取消'],
+			yes:function(index){
+				layer.close(index);
+				$('input[name=buynum4]').each(function(){
+					var ggid = $(this).attr('ggid');
+					var ggname = $(this).attr('ggname');
+					var money_price = $(this).attr('moneyprice');
+					var score_price = $(this).attr('scoreprice');
+					var buynum = $(this).val();
+					if(buynum > 0){
+						var thisdata = {'name':product.name,'pic':product.pic,'id':product.id,'ggname':ggname,'ggid':ggid,'money_price':money_price,'score_price':score_price,'buynum':buynum}
+						scoreshopbuydata.push(thisdata);
+					}
+				});
+				showscoreshopproinfo()
+			}
+		});
+	}
+	function showscoreshopproinfo(){
+		var html = '';
+		var totalgoodsprice = 0;
+		scoreshopbuydatastr = '';
+		var buydatastrArr = [];
+		for(var i in scoreshopbuydata){
+			var m = scoreshopbuydata[i]
+			html += '<div class="content">';
+			html += '	<div>';
+			html += '		<img src="'+m.pic+'"/>';
+			html += '	</div>';
+			html += '	<div class="detail">';
+			html += '		<span class="t1">'+m.name+'</span>';
+			html += '		<span class="t2">'+m.ggname+'</span>';
+			html += '		<div class="t3"><span class="x1 flex1">￥'+m.money_price+'+'+m.score_price+'{:t('积分')}</span><span class="x2">×'+m.buynum+'</span></div>';
+			html += '	</div>';
+			html += '	<div style="position:absolute;top:0px;right:0px;font-size:16px;width:20px;height:20px;text-align:center;cursor:pointer" onclick="removescoreshoppro('+i+')">×</div>';
+			html += '</div>';
+			totalgoodsprice += m.money_price * m.buynum
+			buydatastrArr.push(m.id + ',' + m.ggid + ',' + m.buynum);
+		}
+		scoreshopbuydatastr = buydatastrArr.join('-');
+		$('#scoreshop_prolistinfo').html(html);
+	}
+	function removescoreshoppro(i){
+		scoreshopbuydata.splice(i,1)
+		showscoreshopproinfo();
+	}
+
+	function addItemTr(obj){
+		var tr = '<tr>';
+        tr += '<td><input class="layui-input item-name" name="otheritem[]" type="text"  value="" placeholder="请输入明细名称"></td>';
+				tr += '<td><input class="layui-input item-name" name="otherfee[]" type="number"  value="" placeholder="请输入金额"></td>';
+        tr += '<td><button class="layui-btn layui-btn-sm layui-btn-warm" onclick="delItemTr(this)">-</button></td>;';
+        tr += '</tr>';
+		$(obj).closest('table').append(tr);
+	}
+	function delItemTr(obj){
+		var len = $(obj).closest('tbody').find('tr').length;
+		if(len==1){
+			layer.msg('至少保留一行');
+			return false;
+		}
+		$(obj).closest('tr').remove();
+	}
+	{if getcustom('lipinka_kecheng')}
+	$(function(){
+		huodongbaomingshowproinfo();
+	})
+	{/if}
+	</script>
+	{include file="public/copyright"/}
+</body>
+</html>

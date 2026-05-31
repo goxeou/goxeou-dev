@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>配送设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<script src="__STATIC__/admin/js/address3.js?v=1"></script>
+	<script type="text/javascript">
+		window._AMapSecurityConfig = {
+			securityJsCode:'{$sysset_webinfo["js_code_amap"]}',
+		}
+	</script>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加配送模板{else}<i class="fa fa-pencil"></i> 编辑配送模板{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form" lay-filter="">
+						<input type="hidden" name="info[id]" value="{$info['id']}">
+						<input type="hidden" name="info[bid]" value="{$info['bid']}">
+						<!-- <div class="layui-form-item">
+							<label class="layui-form-label">所属商户：</label>
+							<div class="layui-input-inline">
+								<select name="info[bid]" lay-verify="required" lay-verType="tips">
+								<option value="">--请选择--</option>
+								{foreach $blist as $bv}
+									<option value="{$bv['id']}" {if $bv['id']==$info['bid']}selected{/if}>{$bv['name']}</option>
+								{/foreach}
+								</select>
+							</div>
+						</div> -->
+						<div class="layui-form-item">
+							<label class="layui-form-label" style="width:100px">配送方式：</label>
+							<div class="layui-input-inline" style="width:500px">
+								<input type="radio" name="info[pstype]" value="0" title="普通快递" {if !$info['id'] || $info['pstype']==0}checked{/if} lay-filter="pstype">
+								<input type="radio" name="info[pstype]" value="1" title="到店自提" {if $info['pstype']==1}checked{/if} lay-filter="pstype">
+								<input type="radio" name="info[pstype]" value="2" title="同城配送" {if $info['pstype']==2}checked{/if} lay-filter="pstype">
+								<input type="radio" name="info[pstype]" value="3" title="自动发货" {if $info['pstype']==3}checked{/if} lay-filter="pstype">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label" style="width:100px">显示名称：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[name]" value="{if !$info['id']}普通快递{else}{$info['name']}{/if}" lay-verify="required" lay-verType="tips" autocomplete="off" class="layui-input">
+							</div>
+						</div>
+
+						<div id="pstype0_div" style="{if $info['pstype']!=0}display:none{/if}">
+							<div class="layui-form-item">
+								<label class="layui-form-label" style="width:100px">计价方式：</label>
+								<div class="layui-input-inline">
+									<input type="radio" name="info[type]" value="1" title="按重量" {if !$info['id'] || $info['type']==1}checked{/if} lay-filter="ftype">
+									<input type="radio" name="info[type]" value="2" title="按件数" {if $info['type']==2}checked{/if} lay-filter="ftype">
+								</div>
+							</div>
+							<div class="layui-form-item" id="setgg">
+								<label class="layui-form-label" style="width:100px">区域及价格：</label>
+								<div class="layui-input-inline" style="width:auto">
+									<table id="ggnamediv"  class="layui-table" style="width:900px">
+										<thead>
+										<tr id="ggtitle1" {if $info['type']==2}style="display:none"{/if}>
+											<th style="width:400px">区域</th>
+											<th>首重重量(克)</th>
+											<th>首重费用(元)</th>
+											<th>续重重量(克)</th>
+											<th>续重费用(元)</th>
+											<th>操作</th>
+										</tr>
+										<tr id="ggtitle2" {if !$info['id'] || $info['type']==1}style="display:none"{/if}>
+											<th style="width:400px">区域</th>
+											<th>首件件数(个)</th>
+											<th>首件费用(元)</th>
+											<th>续件件数(个)</th>
+											<th>续件费用(元)</th>
+											<th>操作</th>
+										</tr>
+										</thead>
+										{php} $pricedata = json_decode($info['pricedata'],true);{/php}
+										{if $pricedata}
+										{foreach $pricedata as $k=>$gg}
+										<tr>
+											<td class="areasettd">
+												<span class="cityshtml">{$gg.region}</span>
+												<input type="hidden" class="citys" name="citys[]" value="{$gg.region}" />
+												{if $k!=0}<button class="layui-btn layui-btn-sm layui-btn-primary" onclick="editArea(this)"><i class="fa fa-edit"></i> 编辑</button>{/if}
+											</td>
+											<td><input type="text" class="layui-input" name="fristweight[]" value="{$gg.fristweight}" style="width:80px"/></td>
+											<td><input type="text" class="layui-input" name="fristprice[]" value="{$gg.fristprice}" style="width:80px"/></td>
+											<td><input type="text" class="layui-input" name="secondweight[]" value="{$gg.secondweight}" style="width:80px"/></td>
+											<td><input type="text" class="layui-input" name="secondprice[]" value="{$gg.secondprice}" style="width:80px"/></td>
+											{if $k==0}
+											<td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="addggtype()">添加</button></td>
+											{else}
+											<td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="$(this).parent().parent().remove()">删除</button></td>
+											{/if}
+										</tr>
+										{/foreach}
+										{else}
+										<tr>
+											<td><span class="cityshtml">全国(默认运费)</span><input type="hidden" class="citys" name="citys[]" value="全国(默认运费)" /></td>
+											<td><input type="text" class="layui-input" name="fristweight[]" value="1000" style="width:80px"/></td>
+											<td><input type="text" class="layui-input" name="fristprice[]" value="0" style="width:80px"/></td>
+											<td><input type="text" class="layui-input" name="secondweight[]" value="1000" style="width:80px"/></td>
+											<td><input type="text" class="layui-input" name="secondprice[]" value="0" style="width:80px"/></td>
+											<td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="addggtype()">添加</button></td>
+										</tr>
+										{/if}
+									</table>
+									<div class="layui-word-aux" id="ggaux1" {if $info['type']==2}style="display:none"{/if}>根据重量来计算运费，当物品不足《首重重量》时，按照《首重费用》计算，超过部分按照《续重重量》和《续重费用》乘积来计算，首重续重为空时默认按照1000计算</div>
+									<div class="layui-word-aux" id="ggaux2" {if !$info['id'] || $info['type']==1}style="display:none"{/if}>根据件数来计算运费，当物品不足《首件件数》时，按照《首件费用》计算，超过部分按照《续件件数》和《续件费用》乘积来计算</div>
+								</div>
+							</div>
+						</div>
+
+						<div id="pstype1_div" style="{if $info['pstype']!=1}display:none{/if}">
+							<div class="layui-form-item" style="display:none">
+								<label class="layui-form-label" style="width:100px">自提门店：</label>
+								<div class="layui-input-inline">
+									<input type="radio" name="info[storetype]" value="0" title="全部" {if !$info['storetype'] || $info['storetype']==0}checked{/if} lay-filter="storetype">
+									<input type="radio" name="info[storetype]" value="1" title="选择门店" {if $info['storetype']==1}checked{/if} lay-filter="storetype">
+								</div>
+							</div>
+							<div class="layui-form-item" id="storetype1_div" {if !$info['storetype'] || $info['storetype']==0}style="display:none"{/if}>
+								<label class="layui-form-label" style="width:100px">选择门店：</label>
+								<div class="layui-input-inline" style="width:500px">
+								{php} $storeids = explode(',',$info['storeids']);{/php}
+								{foreach $mendianArr as $k=>$v}
+									<input type="checkbox" name="info[storeid][]" value="{$k}" title="{$v}" lay-skin="primary" {if in_array($k,$storeids)}checked{/if}>
+								{/foreach}
+								</div>
+							</div>
+							
+						</div>
+
+						<div id="pstype2_div" style="{if $info['pstype']!=2}display:none{/if}">
+							<div class="layui-form-item">
+								<label class="layui-form-label" style="width:100px">配送费：</label>
+								<div class="layui-input-inline" style="width: 100px;">
+									<input type="text" name="info[peisong_juli1]" class="layui-input" value="{$info.peisong_juli1}">
+								</div>
+								<div class="layui-form-mid">公里内</div>
+								<div class="layui-input-inline" style="width: 100px;">
+									<input type="text" name="info[peisong_fee1]" class="layui-input" value="{$info.peisong_fee1}">
+								</div>
+								<div class="layui-form-mid">元；每超出</div>
+								<div class="layui-input-inline" style="width: 100px;">
+									<input type="text" name="info[peisong_juli2]" class="layui-input" value="{$info.peisong_juli2}">
+								</div>
+								<div class="layui-form-mid">公里，加</div>
+								<div class="layui-input-inline" style="width: 100px;">
+									<input type="text" name="info[peisong_fee2]" class="layui-input" value="{$info.peisong_fee2}">
+								</div>
+								<div class="layui-form-mid">元</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label" style="width:100px">配送范围：</label>
+								<div class="layui-input-block" style="width:300px">
+									<input type="radio" name="info[peisong_rangetype]" value="0" title="圆形范围" {if !$info['id'] || $info['peisong_rangetype']==0}checked{/if} lay-filter="rangetypeset">
+									<input type="radio" name="info[peisong_rangetype]" value="1" title="多边形范围" {if $info['id'] && $info['peisong_rangetype']==1}checked{/if} lay-filter="rangetypeset">
+								</div>
+								<div class="form-group" style="margin-left:130px;padding-top:10px;padding-bottom:5px">
+									<script src="https://webapi.amap.com/maps?v=1.4.0&key={$sysset_webinfo.map_key_amap}&plugin=AMap.PolyEditor,AMap.CircleEditor"></script>
+									<div id="container" class="map" style="width:800px;height: 600px;"></div>
+								</div>
+								<div id="rangetypeset0" style="{if $info['id'] && $info['peisong_rangetype']==1}display:none{/if}">
+									<div class="layui-form-mid" style="margin-left:130px;">中心点坐标</div>
+									<div class="layui-input-inline" style="width: 100px;">
+										<input type="text" name="info[peisong_lng]" class="layui-input" value="{$info.peisong_lng}">
+									</div>
+									<div class="layui-form-mid">,</div>
+									<div class="layui-input-inline" style="width: 100px;">
+										<input type="text" name="info[peisong_lat]" class="layui-input" value="{$info.peisong_lat}">
+									</div>
+									<div class="layui-form-mid">配送半径</div>
+									<div class="layui-input-inline" style="width: 100px;">
+										<input type="text" name="info[peisong_range]" class="layui-input" value="{$info.peisong_range}">
+									</div>
+									<div class="layui-form-mid">米</div>
+								</div>
+								<div id="rangetypeset1" style="{if !$info['id'] || $info['peisong_rangetype']==0}display:none{/if}">
+									<input type="hidden" name="info[peisong_rangepath]" class="layui-input" value="{$info.peisong_rangepath}">
+									<div class="layui-form-mid" style="margin-left:130px;">注：多边形的形状尽量简洁，不要有交叉线</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="layui-form-item" id="pstype02_div" style="{if $info['pstype']==1 ||  $info['pstype']==3}display:none{/if}">
+							<label class="layui-form-label" style="width:100px">满额包邮：</label>
+							<div class="layui-input-inline" style="width:70px">
+								<input type="checkbox" name="info[freeset]" value="1" lay-text="开启|关闭" lay-skin="switch" lay-filter="freeset" {if $info['freeset']==1}checked{/if}>
+							</div>
+							<div style="float:left;{if !$info['id'] || $info['freeset']==0}display:none{/if}" id="freesetdiv">
+								<div class="layui-form-mid">满</div>
+								<div class="layui-input-inline" style="width:70px"><input type="text" name="info[free_price]" value="{$info.free_price}" class="layui-input"></div>
+								<div class="layui-form-mid">元包邮</div>
+							</div>
+						</div>
+						<div class="layui-form-item" id="pstype12_div" style="{if $info['pstype']==1 ||  $info['pstype']==3}display:none{/if}">
+							<label class="layui-form-label" style="width:100px">满额起送：</label>
+							<div class="layui-input-inline" style="width:70px">
+								<input type="checkbox" name="info[minpriceset]" value="1" lay-text="开启|关闭" lay-skin="switch" lay-filter="minpriceset" {if $info['minpriceset']==1}checked{/if}>
+							</div>
+							<div style="float:left;{if !$info['id'] || $info['minpriceset']==0}display:none{/if}" id="minpricesetdiv">
+								<div class="layui-form-mid">满</div>
+								<div class="layui-input-inline" style="width:70px"><input type="text" name="info[minprice]" value="{$info.minprice}" class="layui-input"></div>
+								<div class="layui-form-mid">元起送</div>
+							</div>
+						</div>
+
+						<div id="pstype3_div" style="{if $info['pstype']!=3}display:none{/if}">
+							<div class="layui-form-item">
+								<label class="layui-form-label" style="width:100px">发货信息：</label>
+								<div class="layui-input-inline" style="width:300px">
+									<input type="radio" name="info[pscontenttype]" value="0" title="固定信息" {if !$info['id'] || $info['pscontenttype']==0}checked{/if} lay-filter="pscontenttype">
+									<input type="radio" name="info[pscontenttype]" value="1" title="不固定信息(在线卡密)" {if $info['pscontenttype']==1}checked{/if} lay-filter="pscontenttype">
+								</div>
+								<div class="layui-form-mid"><span style="color:red">选择自动发货请务必在需要自动发货的商品中选择该运费模板，否则不显示</span></div>
+							</div>
+							<div class="layui-form-item" style="{if $info['pscontenttype']!=0}display:none{/if}" id="pscontent0">
+								<label class="layui-form-label" style="width:100px"></label>
+								<div class="layui-input-inline" style="width:500px">
+									<textarea type="text" name="info[pscontent]" placeholder="请输入发货信息" class="layui-textarea">{$info.pscontent}</textarea>
+								</div>
+							</div>
+							<div class="layui-form-item" style="{if $info['pscontenttype']!=0}display:none{/if}" id="pscontent1">
+								<label class="layui-form-label" style="width:100px"></label>
+								<div class="layui-form-mid">请稍后在配送列表中上传卡密信息；用户购买几件将发送几个卡密信息</div>
+							</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label" style="width:100px" id="pstimename">{if $info['pstype']==1}提货{else}配送{/if}时间：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[pstimeset]" value="0" title="关闭" {if !$info['pstimeset'] || $info['pstimeset']==0}checked{/if} lay-filter="pstimeset">
+								<input type="radio" name="info[pstimeset]" value="1" title="开启" {if $info['pstimeset']==1}checked{/if} lay-filter="pstimeset">
+							</div>
+							<div class="layui-form-mid layui-word-aux">开启后用户下单时可以选择配送时间或提货时间</div>
+						</div>
+
+						<div id="pstimeset_div" {if !$info['pstimeset'] || $info['pstimeset']==0}style="display:none"{/if}>
+							<div id="pstimedata">
+							{php} $pstimedata = json_decode($info['pstimedata'],true);{/php}
+							{if !$pstimedata}{php}$pstimedata = [['day'=>1,'hour'=>0,'minute'=>0,'hour2'=>0,'minute2'=>0]];{/php}{/if}
+							{foreach $pstimedata as $k=>$v}
+							<div class="layui-form-item">
+								<label class="layui-form-label" style="width:100px">{if $k==0}可选时间：{/if}</label>
+								<div class="layui-input-inline" style="width:120px">
+									<select name="pstimeday[]">
+										<option value="1" {if $v['day']==1}selected{/if}>当天</option>
+										<option value="2" {if $v['day']==2}selected{/if}>第2天</option>
+										<option value="3" {if $v['day']==3}selected{/if}>第3天</option>
+									</select>
+								</div>
+								<div class="layui-input-inline" style="width:90px">
+									<select name="pstimehour[]">
+										{for start="0" end="24"}
+										<option value="{$i}" {if $v['hour']==$i}selected{/if}>{$i}</option>
+										{/for}
+									</select>
+								</div>
+								<div class="layui-form-mid">点</div>
+								<div class="layui-input-inline" style="width:90px">
+									<select name="pstimeminute[]">
+										{for start="0" end="60"}
+										<option value="{$i}" {if $v['minute']==$i}selected{/if}>{$i}</option>
+										{/for}
+									</select>
+								</div>
+								<div class="layui-form-mid">分</div>
+								<div class="layui-form-mid"> 到 </div>
+								
+								<div class="layui-input-inline" style="width:90px">
+									<select name="pstimehour2[]">
+										{for start="0" end="24"}
+										<option value="{$i}" {if $v['hour2']==$i}selected{/if}>{$i}</option>
+										{/for}
+									</select>
+								</div>
+								<div class="layui-form-mid">点</div>
+								<div class="layui-input-inline" style="width:90px">
+									<select name="pstimeminute2[]">
+										{for start="0" end="60"}
+										<option value="{$i}" {if $v['minute2']==$i}selected{/if}>{$i}</option>
+										{/for}
+									</select>
+								</div>
+								<div class="layui-form-mid">分</div>
+								{if $k==0}
+								<button class="layui-btn layui-btn-primary" onclick="addpstime()"><i class="fa fa-plus"></i></button>
+								{else}
+								<button class="layui-btn layui-btn-primary" onclick="removepstime(this)"><i class="fa fa-minus"></i></button>
+								{/if}
+							</div>
+							{/foreach}
+							</div>
+							
+							<div class="layui-form-item">
+								<label class="layui-form-label" style="width:100px">可选条件：</label>
+								<div class="layui-form-mid">下单时间大于可选时间</div>
+								<div class="layui-input-inline" style="width:70px">
+									<input type="text" name="info[psprehour]" value="{if !$info['id']}4{else}{$info['psprehour']}{/if}" class="layui-input">
+								</div>
+								<div class="layui-form-mid">小时</div>
+							</div>
+						</div>
+						<script>
+						function addpstime(){
+							var html = '';
+							html+='<div class="layui-form-item">';
+							html+='	<label class="layui-form-label" style="width:100px"></label>';
+							html+='	<div class="layui-input-inline" style="width:120px">';
+							html+='		<select name="pstimeday[]">';
+							html+='			<option value="1">当天</option>';
+							html+='			<option value="2">第2天</option>';
+							html+='			<option value="3">第3天</option>';
+							html+='		</select>';
+							html+='	</div>';
+							html+='	<div class="layui-input-inline" style="width:90px">';
+							html+='		<select name="pstimehour[]">';
+							{for start="0" end="24"}
+							html+='			<option value="{$i}">{$i}</option>';
+							{/for}
+							html+='		</select>';
+							html+='	</div>';
+							html+='	<div class="layui-form-mid">点</div>';
+							html+='	<div class="layui-input-inline" style="width:90px">';
+							html+='		<select name="pstimeminute[]">';
+							{for start="0" end="60"}
+							html+='			<option value="{$i}">{$i}</option>';
+							{/for}
+							html+='		</select>';
+							html+='	</div>';
+							html+='	<div class="layui-form-mid">分</div>';
+							html+='	<div class="layui-form-mid"> 到 </div>';
+							html+='	<div class="layui-input-inline" style="width:90px">';
+							html+='		<select name="pstimehour2[]">';
+							{for start="0" end="24"}
+							html+='			<option value="{$i}">{$i}</option>';
+							{/for}
+							html+='		</select>';
+							html+='	</div>';
+							html+='	<div class="layui-form-mid">点</div>';
+							html+='	<div class="layui-input-inline" style="width:90px">';
+							html+='		<select name="pstimeminute2[]">';
+							{for start="0" end="60"}
+							html+='			<option value="{$i}">{$i}</option>';
+							{/for}
+							html+='		</select>';
+							html+='	</div>';
+							html+='	<div class="layui-form-mid">分</div>';
+							html+='	<button class="layui-btn layui-btn-primary" onclick="removepstime(this)"><i class="fa fa-minus"></i></button>';
+							html+='</div>';
+							$('#pstimedata').append(html);
+							layui.form.render();
+						}
+						function removepstime(obj){
+							$(obj).parent().remove();
+						}
+						</script>
+						
+						<div class="layui-form-item" id="needlinkinfodiv" style="{if $info['pstype']==0 || $info['pstype']==2}display:none{/if}">
+							<label class="layui-form-label" style="width:100px">联系方式：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[needlinkinfo]" value="1" title="必填" {if !$info['id'] || $info['needlinkinfo']==1}checked{/if}>
+								<input type="radio" name="info[needlinkinfo]" value="0" title="选填" {if $info['id'] && $info['needlinkinfo']==0}checked{/if}>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">提交订单时，联系人和联系电话是否必填</div>
+						</div>
+						<div class="layui-form-item" id="fwprice_div" style="{if $info['pstype']!=1}display:none{/if}">
+							<label class="layui-form-label" style="width:100px">服务费：</label>
+							<div class="layui-input-inline" style="width:100px">
+								<input type="text" name="info[fwprice]" value="{$info.fwprice|default=0}" class="layui-input">
+							</div>
+							<div class="layui-form-mid">元</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label" style="width:100px">设置表单：</label>
+							<div class="layui-input-inline" style="width:700px !important">
+							<table class="layui-table">
+								<thead>
+								<tr>
+									<th style="width:100px">状态</th>
+									<th style="width:200px">字段名称</th>
+									<th style="width:300px">提示信息</th>
+									<th style="width:100px">是否必填</th>
+								</tr>
+								</thead>
+								<tbody>
+									{foreach $info.field_list as $k=>$v}
+									<tr>
+										<td><input type="checkbox" name="field_list[{$k}][isshow]" value="1" lay-skin="switch" lay-text="开启|关闭" {if $v['isshow']==1}checked{/if}></td>
+										{if in_array($k,['message'])}
+										<td><input type="hidden" name="field_list[{$k}][name]" value="{$v.name}"/>{$v.name}</td>
+										{else}
+										<td><input type="text" class="layui-input" placeholder="请填写字段名称" name="field_list[{$k}][name]" value="{$v.name}"/></td>
+										{/if}
+										<td><input type="text" class="layui-input" placeholder="请填写提示信息" name="field_list[{$k}][tips]" value="{$v.tips}"/></td>
+										<td><input type="checkbox" name="field_list[{$k}][required]" value="1" lay-skin="switch" lay-text="是|否" {if $v['required']==1}checked{/if}></td>
+									</tr>
+									{/foreach}
+								</tbody>
+							</table>
+							</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label" style="width:100px">序号：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[sort]" value="{$info.sort|default=0}" class="layui-input">
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">用于排序,越大越靠前</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label" style="width:100px">状态：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[status]" value="1" title="开启" {if !$info['id'] || $info['status']==1}checked{/if}>
+								<input type="radio" name="info[status]" value="0" title="关闭" {if $info['id'] && $info['status']==0}checked{/if}>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<div class="layui-input-block" style="margin-left:130px;">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+      </div>
+    </div>
+  </div>
+	<style type='text/css'>
+	.modal-areas .layui-layer-content{ position:static;overflow:visible;height:300px}
+	.province { float:left; position:relative;width:210px; height:35px; line-height:35px;border:1px solid #fff;}
+	.province:hover { border:1px solid #f7e4a5;border-bottom:1px solid #fffec6; background:#fffec6;}
+	.province .cityall { margin-top:10px;}
+	.province ul { list-style: outside none none;position:absolute;padding:0;background:#fffec6;border:1px solid #f7e4a5;display:none;width:auto; width:300px; z-index:999999;left:-1px;top:32px;}
+	.province ul li  { float:left;min-width:60px;margin-left:20px; height:30px;line-height:30px; }
+	</style>
+	<div id="modal-areas" style="display:none">
+	</div> 
+	{include file="public/js"/}
+	<script>
+	layui.form.on('radio(storetype)',function(data){
+		if(data.value == '0'){
+			$('#storetype1_div').hide();
+		}else{
+			$('#storetype1_div').show();
+		}
+	})
+	layui.form.on('radio(pstype)', function(data){
+		if(data.value == '0'){
+			$('#pstype0_div').show();
+			$('#pstype1_div').hide();
+			$('#pstype2_div').hide();
+			$('#pstype02_div').show();
+			$('#pstype12_div').show();
+			$('#pstype3_div').hide();
+			$('#needlinkinfodiv').hide();
+			$('#fwprice_div').hide();
+			$("input[name='info[name]']").val('普通快递')
+			$('#pstimename').html('配送时间：');
+		}else if(data.value == '1'){
+			$('#pstype0_div').hide();
+			$('#pstype1_div').show();
+			$('#pstype2_div').hide();
+			$('#pstype02_div').hide();
+			$('#pstype12_div').hide();
+			$('#pstype3_div').hide();
+			$('#needlinkinfodiv').show();
+			$('#fwprice_div').show();
+			$("input[name='info[name]']").val('到店自提')
+			$('#pstimename').html('提货时间：');
+		}else if(data.value == '2'){
+			$('#pstype0_div').hide();
+			$('#pstype1_div').hide();
+			$('#pstype2_div').show();
+			$('#pstype02_div').show();
+			$('#pstype12_div').show();
+			$('#pstype3_div').hide();
+			$('#needlinkinfodiv').hide();
+			$('#fwprice_div').hide();
+			$("input[name='info[name]']").val('同城配送');
+			$('#pstimename').html('配送时间：');
+		}else if(data.value == '3'){
+			$('#pstype0_div').hide();
+			$('#pstype1_div').hide();
+			$('#pstype2_div').hide();
+			$('#pstype02_div').hide();
+			$('#pstype12_div').hide();
+			$('#pstype3_div').show();
+			$('#needlinkinfodiv').show();
+			$('#fwprice_div').hide();
+			$("input[name='info[name]']").val('自动发货');
+			$('#pstimename').html('配送时间：');
+		}
+	});
+	layui.form.on('radio(ftype)', function(data){
+		if(data.value == '1'){
+			$('#ggtitle1').show();
+			$('#ggtitle2').hide();
+			$('#ggaux1').show();
+			$('#ggaux2').hide();
+		}else{
+			$('#ggtitle1').hide();
+			$('#ggtitle2').show();
+			$('#ggaux1').hide();
+			$('#ggaux2').show();
+		}
+	});
+	layui.form.on('switch(freeset)',function(data){
+		if(data.elem.checked){
+			$('#freesetdiv').show();
+		}else{
+			$('#freesetdiv').hide();
+		}
+	})
+	layui.form.on('switch(minpriceset)',function(data){
+		if(data.elem.checked){
+			$('#minpricesetdiv').show();
+		}else{
+			$('#minpricesetdiv').hide();
+		}
+	})
+	layui.form.on('radio(pstimeset)',function(data){
+		if(data.value == '0'){
+			$('#pstimeset_div').hide();
+		}else{
+			$('#pstimeset_div').show();
+		}
+	})
+	layui.form.on('radio(pscontenttype)',function(data){
+		if(data.value == '0'){
+			$('#pscontent0').show();
+			$('#pscontent1').hide();
+		}else{
+			$('#pscontent0').hide();
+			$('#pscontent1').show();
+		}
+	})
+	
+	$(function(){
+		var regiondata = '';
+		for(var i in provinceList){
+			if(i>0){
+				var province = provinceList[i];
+				regiondata+='<div class="province">';
+				regiondata+='			<label class="checkbox-inline" style="margin-left:20px;">';
+				regiondata+='				<input type="checkbox" class="cityall" province="'+province.name+'"/> '+province.name;
+				regiondata+='				<span class="citycount" style="color:#ff6600"></span>';
+				regiondata+='			</label>';
+				if(province.cityList){
+					regiondata+='		<ul>';
+					for(var j in province.cityList){
+						var city = province.cityList[j];
+						regiondata+='		<li>';
+						regiondata+='			<label class="checkbox-inline">';
+						regiondata+='				<input type="checkbox" class="city" style="margin-top:8px;" city="'+city.name+'" /> '+city.name;
+						regiondata+='			</label>';
+						regiondata+='		</li>';
+					}
+					regiondata+='		</ul>';
+				}
+				regiondata+='		</div>';
+			}
+		}
+		$('#modal-areas').html(regiondata);
+		$('.province').mouseover(function(){
+			$(this).find('ul').show();
+		}).mouseout(function(){
+			$(this).find('ul').hide();
+		});
+		$('.cityall').click(function(){
+			var checked = $(this).get(0).checked;
+			var citys = $(this).parent().parent().find('.city');
+			citys.each(function(){
+				$(this).get(0).checked = checked;
+			});
+			var count = 0;
+			if(checked){
+				count =  $(this).parent().parent().find('.city:checked').length;
+			}
+			if(count>0){
+				$(this).next().html("(" + count + ")")    ;
+			}else{
+				$(this).next().html("");
+			}
+		});
+		$('.city').click(function(){
+			var checked = $(this).get(0).checked;
+			var cityall = $(this).parent().parent().parent().parent().find('.cityall');
+			if(checked){
+				cityall.get(0).checked = true;
+			}
+			var count = cityall.parent().parent().find('.city:checked').length;
+			if(count>0){
+				cityall.next().html("(" + count + ")")    ;
+			}else{
+				cityall.next().html("");
+			}
+		});
+	})
+	
+	function addggtype(){
+		var gghtml = '<tr>';
+		gghtml += '<td class="areasettd">';
+    gghtml += '<span class="cityshtml"></span>';
+    gghtml += '<input type="hidden" class="citys" name="citys[]" value="" />';
+		gghtml += '<button class="layui-btn layui-btn-sm layui-btn-primary" onclick="editArea(this)"><i class="fa fa-edit"></i> 编辑</button>';
+		gghtml += '</td>'
+		gghtml += '<td><input type="text" class="layui-input" name="fristweight[]" value="1000" style="width:80px"/></td>';
+		gghtml += '<td><input type="text" class="layui-input" name="fristprice[]" value="0" style="width:80px"/></td>';
+		gghtml += '<td><input type="text" class="layui-input" name="secondweight[]" value="1000" style="width:80px"/></td>';
+		gghtml += '<td><input type="text" class="layui-input" name="secondprice[]" value="0" style="width:80px"/></td>';
+		gghtml += '<td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="$(this).parent().parent().remove()">删除</button></td>';
+		gghtml += '</tr>';
+		$('#ggnamediv').append(gghtml);
+	}
+	
+	function editArea(btn){
+		//current = $(btn).attr('random');
+		var areasettd = $(btn).parent();
+		clearSelects();
+		var old_citys = $(btn).prev().val().split('];');
+		console.log(old_citys);
+		//$('.cityall').each(function(){
+			for(var i in old_citys){
+				if(old_citys[i] == '') continue;
+				var provincecity = old_citys[i].split('[');
+				$('input[province='+provincecity[0]+']').prop('checked',true);
+				if(provincecity[1] == '全部地区'){
+					$('input[province='+provincecity[0]+']').parent().parent().find('.city').prop('checked',true);
+					$('input[province='+provincecity[0]+']').next('.citycount').html('('+$('input[province='+provincecity[0]+']').parent().parent().find('.city').length+')');
+				}else{
+					var citys = provincecity[1].split(',');
+					var citycount = 0;
+					for(var j in citys){
+						citycount++;
+						$('input[province='+provincecity[0]+']').parent().parent().find('.city[city='+citys[j]+']').prop('checked',true);
+					}
+					$('input[province='+provincecity[0]+']').next('.citycount').html('('+citycount+')');
+				}
+			}
+		//})
+		/*
+		$('.city').each(function(){
+			var parentcheck = false;
+			for(var i in old_citys){
+				if(old_citys[i]==$(this).attr('city')){
+					parentcheck = true;
+					$(this).get(0).checked = true;
+					break;
+				}
+			}
+			if(parentcheck){
+				$(this).parent().parent().parent().parent().find('.cityall').get(0).checked=  true;
+			}
+		});*/
+		
+		//$("#modal-areas").modal();
+		var areasLayer = layer.open({type:1,skin:'modal-areas',content:$("#modal-areas"),area:['900px','400px'],offset:'50px',shadeClose:true,title:'选择区域',btn:['确定','关闭'],yes:function(){
+			
+			var citystrs = '';
+			$('.cityall:checked').each(function(){
+				if($(this).parent().parent().find('.city').length == $(this).parent().parent().find('.city:checked').length){
+					citystrs+=$(this).attr('province') + '[全部地区]' + ';';
+				}else{
+					var citychecked = [];
+					$(this).parent().parent().find('.city:checked').each(function(){              
+						citychecked.push($(this).attr('city'));
+					});
+					citystrs+=$(this).attr('province') + '['+citychecked.join(',')+']' + ';';
+				}
+			})
+			//$('.city:checked').each(function(){              
+			//	citystrs+= $(this).attr('city') +";";
+			//});
+			areasettd.find('.cityshtml').html(citystrs);
+			areasettd.find('.citys').val(citystrs);
+			layer.close(areasLayer);
+		}})
+	}
+	var current = '';
+	function clearSelects(){
+		$('.city').attr('checked',false).removeAttr('disabled');
+		$('.cityall').attr('checked',false).removeAttr('disabled');
+		$('.citycount').html('');
+	}
+
+
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		if(!field['info[pstimeset]']) field['info[pstimeset]'] = 0;
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status==1){
+				setTimeout(function(){
+					parent.layer.closeAll();
+					parent.tableIns.reload();
+				},1000)
+			}
+		})
+	})
+  </script>
+
+	<script>
+	var lng = $("input[name='info[peisong_lng]']").val();
+	var lat = $("input[name='info[peisong_lat]']").val();
+	var range = $("input[name='info[peisong_range]']").val();
+	var rangetype = '{$info.peisong_rangetype}';
+	var rangepath = $("input[name='info[peisong_rangepath]']").val();
+	var lnglat = '';//设置的坐标
+	if(lng !="" && lat !=""){ 
+		lng = parseFloat(lng);
+		lat = parseFloat(lat);
+		lnglat=[lng,lat];
+	}
+	if(range==0){ range=2000;}
+	layui.form.on('radio(rangetypeset)',function(data){
+		if(data.value == '0'){
+			$('#rangetypeset0').show();
+			$('#rangetypeset1').hide();
+			addcircle();
+		}else{
+			$('#rangetypeset0').hide();
+			$('#rangetypeset1').show();
+			addpoly();
+		}
+	})
+
+	//初始化地图参数
+	var map = new AMap.Map("container", {
+		resizeEnable: true,//是否监控地图容器尺寸变化，默认值为false
+		dragEnable: true,//是否允许拖拽地图
+		keyboardEnable: false,//是否允许键盘平移
+		doubleClickZoom: false,//是否允许双击放大地图
+		scrollWheel:true,//是否允许鼠标滚轮操作地图
+		center:lnglat,
+		zoom: 13 //地图显示的缩放级别
+	});
+	var mapcenter = map.getCenter();
+	var lng = mapcenter.lng
+	var lat = mapcenter.lat
+	lnglat = [lng,lat];
+	$("input[name='info[peisong_lng]']").val(lng);
+	$("input[name='info[peisong_lat]']").val(lat);
+	$("input[name='info[peisong_range]']").val(range);
+
+	if(!rangepath){
+		var key = 0.02;
+		rangepath = [
+			[lng - key, lat - key],
+			[lng + key, lat - key],
+			[lng + key, lat + key],
+			[lng - key, lat + key]
+		];
+	}else{
+		rangepathdata = rangepath.split(';');
+		rangepath = [];
+		for(var i in rangepathdata){
+			var path = rangepathdata[i].split(',');
+			rangepath.push([path[0],path[1]]);
+		}
+		console.log(rangepath);
+	}
+	if(rangetype==0){
+		addcircle();
+	}else{
+		addpoly();
+	}
+	function addcircle(){
+		map.clearMap();
+		var circlegon = new AMap.Circle({
+			center: lnglat,// 圆心位置
+			radius: range, //半径
+			strokeColor: "#4e73f1", //线颜色
+			strokeOpacity: 1, //线透明度
+			strokeWeight: 3, //线粗细度
+			fillColor: "#4e73f1", //填充颜色
+			fillOpacity: 0.35,//填充透明度
+		});
+		map.add(circlegon)
+		map.setFitView([circlegon]);
+		var circleEditor= new AMap.CircleEditor(map,circlegon);
+		circleEditor.open(lnglat);
+		circleEditor.on('move', function (event) {
+			$("input[name='info[peisong_lng]']").val(event.lnglat.lng);
+			$("input[name='info[peisong_lat]']").val(event.lnglat.lat);
+		});
+		circleEditor.on('adjust', function (event) {
+			$("input[name='info[peisong_range]']").val(event.radius);
+		});
+	}
+	function addpoly(){
+		map.clearMap();
+		var polygon = new AMap.Polygon({
+			path: rangepath,
+			strokeColor: "#FF33FF",
+			strokeOpacity: 0.2,
+			fillOpacity: 0.4,
+			fillColor: '#1791fc',
+			zIndex: 50,
+			draggable:true
+		});
+		map.add(polygon)
+		map.setFitView([polygon])
+		var polyEditor = new AMap.PolyEditor(map, polygon);
+		polyEditor.open();
+		setpathvalue(polygon);
+		polyEditor.on('addnode', function (event) {
+			console.log('触发事件：addnode')
+			setpathvalue(polygon);
+		});
+		polyEditor.on('adjust', function (event) {
+			console.log('触发事件：adjust');
+			setpathvalue(polygon);
+		});
+		polyEditor.on('removenode', function (event) {
+			console.log('触发事件：removenode')
+			setpathvalue(polygon);
+		});
+		polyEditor.on('end', function (event) {
+			console.log('触发事件： end')
+			setpathvalue(polygon);
+		});
+		polygon.on('change', function (event) {
+			console.log('polygon触发事件： change')
+			setpathvalue(polygon);
+		});
+	}
+	function setpathvalue(polygon){
+		var pathdata = polygon.getPath();
+		var pathArr = [];
+		for(var i in pathdata){
+			pathArr.push(pathdata[i].lng +','+pathdata[i].lat);
+		}
+		$("input[name='info[peisong_rangepath]']").val(pathArr.join(';'));
+	}
+	</script>
+	{include file="public/copyright"/}
+</body>
+</html>

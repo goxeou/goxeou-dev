@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>选择链接</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	#urlqr img{margin:0 auto}
+	.fe-tab-link::-webkit-scrollbar {width: 2px;height: 0px;}
+	.fe-tab-link::-webkit-scrollbar-thumb {border-radius: 1px;-webkit-box-shadow: inset 0 0 1px rgba(0,0,0,0.5);background: rgba(0,0,0,0.5);}
+	.fe-tab-link::-webkit-scrollbar-track {-webkit-box-shadow: inset 0 0 0px rgba(0,0,0,0.2);border-radius: 0;background: rgba(0,0,0,0);}
+	.layui-tab-title li{padding:0 8px}
+	.layui-tab-content .layui-tab-item .layui-btn{margin-top:10px}
+	</style>
+</head>
+<body style="margin:0;">
+<div class="layui-fluid">
+<div class="layui-row layui-col-space15">
+	<div class="layui-card layui-col-md12">			
+	<div class="layui-tab">
+		<ul class="layui-tab-title">
+				<li id="fe-tab-link-nav-1" class="layui-this">基础功能</li>
+				{if $auth_data=='all' || in_array('ShopCategory2/*',$auth_data)}<li id="fe-tab-link-nav-2">商品分类</li>{/if}
+				{if $auth_data=='all' || in_array('ShopGroup/*',$auth_data)}<li id="fe-tab-link-nav-3">商品分组</li>{/if}
+				{if $auth_data=='all' || in_array('ShopProduct/*',$auth_data)}<li id="fe-tab-link-nav-4">商城商品</li>{/if}
+				{if $auth_data=='all' || in_array('CollageProduct/*',$auth_data)}<li id="fe-tab-link-nav-5">拼团商品</li>{/if}
+				{if $auth_data=='all' || in_array('KanjiaProduct/*',$auth_data)}<li id="fe-tab-link-nav-6">砍价商品</li>{/if}
+				{php}
+				$business_scoreshop = 0;
+				if(getcustom('business_scoreshop')){
+					$business_scoreshop = 1;
+				}
+				{/php}
+				{if ($bset['business_selfscore']==1 || $business_scoreshop == 1) && ($auth_data=='all' || in_array('ScoreshopProduct/*',$auth_data))}<li id="fe-tab-link-nav-7">{:t('积分')}商城</li>{/if}
+				{if $auth_data=='all' || in_array('CycleProduct/*',$auth_data)}<li id="fe-tab-link-nav-14">周期购商品</li>{/if}
+				{if $auth_data=='all' || in_array('TuangouProduct/*',$auth_data)}<li id="fe-tab-link-nav-14">团购商品</li>{/if}
+				{if $auth_data=='all' || in_array('LuckyCollageProduct/*',$auth_data)}<li id="fe-tab-link-nav-14">幸运拼团商品</li>{/if}
+				{if $auth_data=='all' || in_array('ArticleCategory/*',$auth_data)}<li id="fe-tab-link-nav-8">文章分类</li>{/if}
+				{if $auth_data=='all' || in_array('Article/*',$auth_data)}<li id="fe-tab-link-nav-9">文章</li>{/if}
+				{if $auth_data=='all' || in_array('DesignerPage/*',$auth_data) || in_array('DesignerPage/index',$auth_data)}<li id="fe-tab-link-nav-12">设计页面</li>{/if}
+			{if $auth_data=='all' || in_array('KechengCategory/*',$auth_data)}<li id="fe-tab-link-nav-100">课程分类</li>{/if}
+			{if $auth_data=='all' || in_array('KechengList/*',$auth_data)}<li id="fe-tab-link-nav-101">课程列表</li>{/if}
+				{if $Request.param.type!='geturl'}<li id="fe-tab-link-nav-13">功能</li>{/if}
+		</ul>
+		<div class="layui-tab-content" style="padding:0">
+				<div class="layui-tab-item layui-show fe-tab-link" id="fe-tab-link-1">
+						<div class="page-header" style="margin:20px 0 0 0;padding-bottom:0">
+								<h4><i class="fa fa-folder-open-o"></i> 基础页面</h4>
+						</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" style="margin-left:10px;" onclick="chooseLink(1,'/pagesExt/business/index?id={$bid}','店铺首页')">店铺首页</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pages/my/usercenter?bid={$bid}','{:t('会员')}中心')">{:t('会员')}中心</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pages/shop/classify?bid={$bid}','分类商品')">分类商品</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pages/shop/prolist?bid={$bid}','商品列表')">商品列表</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pages/shop/cart?bid={$bid}','购物车')">购物车</div>
+						{if $auth_data=='all' || in_array('ShopProduct/*',$auth_data)}
+						<div class="page-header" style="margin:10px 0 0 0;padding-bottom:0">
+								<h4><i class="fa fa-folder-open-o"></i> 商城页面</h4>
+						</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" style="margin-left:10px;" onclick="chooseLink(1,'/pages/shop/category1?bid={$bid}','一级分类')">一级分类</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pages/shop/category2?bid={$bid}','二级分类')">二级分类</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pages/shop/category4?bid={$bid}','二级分类2')">二级分类2</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pages/shop/category3?bid={$bid}','三级分类')">三级分类</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pages/shop/classify?bid={$bid}','分类商品')">分类商品</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pages/shop/classify2?bid={$bid}','分类商品2')">分类商品2</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pages/shop/prolist?bid={$bid}','商品列表')">商品列表</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pages/shop/fastbuy?bid={$bid}','快速购买')">快速购买</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pages/shop/fastbuy2?bid={$bid}','快速购买2')">快速购买2</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pages/shop/cart','购物车')">购物车</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pages/shop/search?bid={$bid}','商品搜索')">商品搜索</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pagesExt/order/orderlist','订单列表')">订单列表</div>
+						{/if}
+						<div class="page-header" style="margin:10px 0 0 0;padding-bottom:0">
+								<h4><i class="fa fa-folder-open-o"></i> 活动页面</h4>
+						</div>
+						{if $auth_data=='all' || in_array('SeckillProduct/*',$auth_data)}
+						<div class="layui-btn layui-btn-primary layui-btn-sm" style="margin-left:10px;" onclick="chooseLink(1,'/activity/seckill/index?bid={$bid}','秒杀列表')">秒杀列表</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/activity/seckill/orderlist','砍价订单')">秒杀订单</div>
+						{/if}
+						{if $auth_data=='all' || in_array('KanjiaProduct/*',$auth_data)}
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/activity/kanjia/index?bid={$bid}','砍价列表')">砍价首页</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/activity/kanjia/orderlist','砍价订单')">砍价订单</div>
+						{/if}
+						{if $auth_data=='all' || in_array('CollageProduct/*',$auth_data)}
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/activity/collage/index?bid={$bid}','拼团列表')">拼团首页</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/activity/collage/orderlist','拼团订单')">拼团订单</div>
+						{/if}
+						
+						{if $auth_data=='all' || in_array('LuckyCollageProduct/*',$auth_data)}
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/activity/luckycollage/classify?bid={$bid}','幸运拼团分类')">幸运拼团分类</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/activity/luckycollage/prolist?bid={$bid}','幸运拼团列表')">幸运拼团列表</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/activity/luckycollage/orderlist','幸运拼团订单')">幸运拼团订单</div>
+						{/if}
+
+
+						{if $auth_data=='all' || in_array('TuangouProduct/*',$auth_data)}
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/activity/tuangou/prolist?bid={$bid}','团购商品')">团购商品</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/activity/tuangou/orderlist','团购订单')">团购订单</div>
+						{/if}
+						{php}
+						$business_scoreshop = 0;
+						if(getcustom('business_scoreshop')){
+							$business_scoreshop = 1;
+						}
+						{/php}
+						{if ($bset['business_selfscore']==1 || $business_scoreshop==1)  && ($auth_data=='all' || in_array('ScoreshopProduct/*',$auth_data))}
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/activity/scoreshop/index?bid={$bid}','{:t('积分')}兑换')">积分兑换</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/activity/scoreshop/orderlist','{:t('积分')}兑换订单')">积分兑换订单</div>
+						{/if}
+
+						{if $auth_data=='all' || in_array('Coupon/*',$auth_data)}
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pagesExt/coupon/couponlist?bid={$bid}','领券中心')">领券中心</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pagesExt/coupon/mycoupon','我的{:t('优惠券')}')">我的{:t('优惠券')}</div>
+						{/if}
+					
+						{if $auth_data=='all' || in_array('Restaurant/*',$auth_data)}
+						<div class="page-header" style="margin:10px 0 0 0;padding-bottom:0">
+								<h4><i class="fa fa-folder-open-o"></i> 餐饮页面</h4>
+						</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" style="margin-left:10px;" onclick="chooseLink(1,'/restaurant/takeaway/index?bid={$bid}','外卖')">外卖</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/restaurant/takeaway/orderlist','外卖订单')">外卖订单</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/restaurant/shop/index?bid={$bid}','点餐')">点餐</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/restaurant/shop/orderlist','点餐订单')">点餐订单</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/restaurant/booking/add?bid={$bid}','预定')">预定</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/restaurant/booking/orderlist','预定记录')">预定记录</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/restaurant/queue/index?bid={$bid}','排队')">排队</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/restaurant/queue/record?bid={$bid}','排队记录')">排队记录</div>
+					<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/restaurant/deposit/orderdetail?bid={$bid}','寄存')">寄存</div>
+						{/if}
+
+
+						{if $hotel['status']==1 && ($auth_data=='all' || in_array('Hotel/*',$auth_data))}
+						<div class="page-header" style="margin:10px 0 0 0;padding-bottom:0">
+							<h4><i class="fa fa-folder-open-o"></i> {$text['酒店']}页面</h4>
+						</div>
+						<div class="layui-btn-div">
+							<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/hotel/index/hoteldetails?id={$hotel['id']}','{$text['酒店']}首页')">{$text['酒店']}首页</div>
+							<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/hotel/order/orderlist?hotelid={$hotel['id']}','{$text['酒店']}订单')">{$text['酒店']}订单</div>
+						</div>
+						{/if}
+
+						
+						<div class="page-header" style="margin:10px 0 0 0;padding-bottom:0">
+								<h4><i class="fa fa-folder-open-o"></i> 其他页面</h4>
+						</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" style="margin-left:10px;" onclick="chooseLink(1,'/pages/maidan/pay?bid={$bid}','买单收款')">买单收款</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pages/maidan/maidanlog','买单记录')">买单记录</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pagesA/form/formlog?bid={$bid}','提交记录')">表单提交记录</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pagesExt/article/artlist?bid={$bid}','文章列表')">文章列表</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pagesExt/business/commentlist?bid={$bid}','商家评价')">商家评价</div>
+						{if $auth_data=='all' || in_array('Shortvideo/*',$auth_data)}
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/activity/shortvideo/index?bid={$bid}','短视频')">短视频</div>
+						{/if}
+						{if $auth_data=='all' || in_array('Yuyue/*',$auth_data)}
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/activity/yuyue/prolist?bid={$bid}','预约服务')">预约服务</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/activity/yuyue/orderlist?bid={$bid}','预约订单')">预约订单</div>
+						{/if}
+						{if $auth_data=='all' || in_array('KechengList/*',$auth_data)}
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pagesB/kecheng/classify?bid={$bid}','课程分类')">课程分类</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/activity/kecheng/list?bid={$bid}','课程列表')">课程列表</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/activity/kecheng/orderlist?bid={$bid}','我的课程')">我的课程</div>
+						{/if}
+						
+
+						
+						{if $auth_data=='all' || in_array('CycleProduct/*',$auth_data)}
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pagesExt/cycle/prolist?bid={$bid}','周期购商品')">周期购商品</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pagesExt/cycle/orderList?bid={$bid}','周期购订单')">周期购订单</div>
+						{/if}
+						{if $image_search}
+							{if $auth_data=='all' || in_array('Backstage/imgsearch',$auth_data)}
+							<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pagesExt/shop/imgsearch?bid={$bid}','图搜')">图搜</div>
+							{/if}
+						{/if}
+						<div class="page-header" style="margin:10px 0 0 0;padding-bottom:0">
+							
+						</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" style="margin-left:10px;" onclick="chooseLink(1,'/admin/index/index','手机端后台')">手机端后台</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pages/kefu/index?bid={$bid}','在线咨询')">在线咨询</div>
+						
+						
+					
+					
+				</div>
+				{if $auth_data=='all' || in_array('ShopCategory2/*',$auth_data)}
+				<div class="layui-tab-item fe-tab-link" id="fe-tab-link-2">
+					{foreach $clist2 as $c}
+					<div>
+						<div class="fe-tab-link-line" style='height:60px;line-height:60px;float:left;width:100%;'>
+							<div class="fe-tab-link-sub"><a href="javascript:void(0);" onclick="chooseLink(2,'/pages/shop/prolist?bid={$bid}&cid2={$c.id}','{$c.name}')">选择</a></div>
+							<div style="float:left;">
+							{if $c['pic']}<img src="{$c.pic}" style='width:50px;height:50px;padding:1px;border:1px solid #ccc'/>{/if}
+						</div>
+						<div class="fe-tab-link-text" style="float:left">
+							{$c.name}</div>
+						</div>
+					</div>
+					{foreach $c['child'] as $v}
+					<div style="width:95%;float:right">
+						<div class="fe-tab-link-line" style='height:60px;line-height:60px;float:left;width:100%;'>
+							<div class="fe-tab-link-sub"><a href="javascript:void(0);" onclick="chooseLink(2,'/pages/shop/prolist?bid={$bid}&cid2={$v.id}','{$v.name}')">选择</a></div>
+							<div style="float:left;">
+							{if $v['pic']}<img src="{$v.pic}" style='width:50px;height:50px;padding:1px;border:1px solid #ccc'/>{/if}
+						</div>
+						<div class="fe-tab-link-text" style="float:left">
+							{$v.name}</div>
+						</div>
+					</div>
+					{foreach $v['child'] as $v2}
+					<div style="width:90%;float:right">
+						<div class="fe-tab-link-line" style='height:60px;line-height:60px;float:left;width:100%;'>
+							<div class="fe-tab-link-sub"><a href="javascript:void(0);" onclick="chooseLink(2,'/pages/shop/prolist?bid={$bid}&cid2={$v2.id}','{$v2.name}')">选择</a></div>
+							<div style="float:left;">
+							{if $v2['pic']}<img src="{$v2.pic}" style='width:50px;height:50px;padding:1px;border:1px solid #ccc'/>{/if}
+						</div>
+						<div class="fe-tab-link-text" style="float:left">
+							{$v2.name}</div>
+						</div>
+					</div>
+					{/foreach}
+					{/foreach}
+					{/foreach}
+				</div>
+				{/if}
+				{if $auth_data=='all' || in_array('ShopGroup/*',$auth_data)}
+				<div class="layui-tab-item fe-tab-link" id="fe-tab-link-3">
+					{foreach $glist as $g}
+					<div>
+						<div class="fe-tab-link-line" style='height:60px;line-height:60px;float:left;width:100%;'>
+							<div class="fe-tab-link-sub"><a href="javascript:void(0);" onclick="chooseLink(3,'/pages/shop/prolist?bid={$bid}&gid={$g.id}','{$g.name}')">选择</a></div>
+							<div style="float:left;">
+							{if $g['pic']}<img src="{$g.pic}" style='width:50px;height:50px;padding:1px;border:1px solid #ccc'/>{/if}
+						</div>
+						<div class="fe-tab-link-text" style="float:left">
+							{$g.name}</div>
+						</div>
+					</div>
+					{/foreach}
+				</div>
+				{/if}
+				{if $auth_data=='all' || in_array('ShopProduct/*',$auth_data)}
+				<div class="layui-tab-item fe-tab-link" id="fe-tab-link-4">
+						<div class="layui-form layui-inline">
+							<div class="layui-input-inline">
+									<input type="text" class="layui-input" style="height:30px;" name="productname" value="" placeholder=请输入商品名称进行搜索>
+							</div>
+							<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" lay-submit="" lay-filter="LAY-app-forumreply-search-product">搜索</button>
+						</div>
+						<div class="layui-col-md12" style="margin-top:5px">
+							<table id="producttabledata" lay-filter="producttabledata"></table>
+						</div>
+				</div>
+				{/if}
+				{if $auth_data=='all' || in_array('CollageProduct/*',$auth_data)}
+				<div class="layui-tab-item fe-tab-link" id="fe-tab-link-5">
+						<div class="layui-form layui-inline">
+							<div class="layui-input-inline">
+									<input type="text" class="layui-input" style="height:30px;" name="collageproductname" value="" placeholder=请输入商品名称进行搜索>
+							</div>
+							<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" lay-submit="" lay-filter="LAY-app-forumreply-search-collageproduct">搜索</button>
+						</div>
+						<div class="layui-col-md12" style="margin-top:5px">
+							<table id="collageproducttabledata" lay-filter="collageproducttabledata"></table>
+						</div>
+				</div>
+				{/if}
+				{if $auth_data=='all' || in_array('KanjiaProduct/*',$auth_data)}
+				<div class="layui-tab-item fe-tab-link" id="fe-tab-link-6">
+						<div class="layui-form layui-inline">
+							<div class="layui-input-inline">
+									<input type="text" class="layui-input" style="height:30px;" name="kanjiaproductname" value="" placeholder=请输入商品名称进行搜索>
+							</div>
+							<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" lay-submit="" lay-filter="LAY-app-forumreply-search-kanjiaproduct">搜索</button>
+						</div>
+						<div class="layui-col-md12" style="margin-top:5px">
+							<table id="kanjiaproducttabledata" lay-filter="kanjiaproducttabledata"></table>
+						</div>
+				</div>
+				{/if}
+				{if ($bset['business_selfscore']==1 || $business_scoreshop == 1) && ($auth_data=='all' || in_array('ScoreshopProduct/*',$auth_data))}
+				<div class="layui-tab-item fe-tab-link" id="fe-tab-link-7">
+						<div class="layui-form layui-inline">
+							<div class="layui-input-inline">
+									<input type="text" class="layui-input" style="height:30px;" name="scoreshopproductname" value="" placeholder=请输入商品名称进行搜索>
+							</div>
+							<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" lay-submit="" lay-filter="LAY-app-forumreply-search-scoreshopproduct">搜索</button>
+						</div>
+						<div class="layui-col-md12" style="margin-top:5px">
+							<table id="scoreshopproducttabledata" lay-filter="scoreshopproducttabledata"></table>
+						</div>
+				</div>
+				{/if}
+				{if $auth_data=='all' || in_array('CycleProduct/*',$auth_data)}
+				<div class="layui-tab-item fe-tab-link" id="fe-tab-link-14">
+					<div class="layui-form layui-inline">
+						<div class="layui-input-inline">
+							<input type="text" class="layui-input" style="height:30px;" name="cycleproductname" value="" placeholder=请输入商品名称进行搜索>
+						</div>
+						<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" lay-submit="" lay-filter="LAY-app-forumreply-search-cycleproduct">搜索</button>
+					</div>
+					<div class="layui-col-md12" style="margin-top:5px">
+						<table id="cycleproducttabledata" lay-filter="cycleproducttabledata"></table>
+					</div>
+				</div>
+				{/if}
+				{if $auth_data=='all' || in_array('TuangouProduct/*',$auth_data)}
+				<div class="layui-tab-item fe-tab-link" id="fe-tab-link-14">
+					<div class="layui-form layui-inline">
+						<div class="layui-input-inline">
+							<input type="text" class="layui-input" style="height:30px;" name="tuangouproductname" value="" placeholder=请输入商品名称进行搜索>
+						</div>
+						<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" lay-submit="" lay-filter="LAY-app-forumreply-search-tuangouproduct">搜索</button>
+					</div>
+					<div class="layui-col-md12" style="margin-top:5px">
+						<table id="tuangouproducttabledata" lay-filter="tuangouproducttabledata"></table>
+					</div>
+				</div>
+				{/if}
+				{if $auth_data=='all' || in_array('LuckyCollageProduct/*',$auth_data)}
+				<div class="layui-tab-item fe-tab-link" id="fe-tab-link-14">
+					<div class="layui-form layui-inline">
+						<div class="layui-input-inline">
+							<input type="text" class="layui-input" style="height:30px;" name="luckycollageproductname" value="" placeholder=请输入商品名称进行搜索>
+						</div>
+						<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" lay-submit="" lay-filter="LAY-app-forumreply-search-luckycollageproduct">搜索</button>
+					</div>
+					<div class="layui-col-md12" style="margin-top:5px">
+						<table id="luckycollageproducttabledata" lay-filter="luckycollageproducttabledata"></table>
+					</div>
+				</div>
+				{/if}
+				{if $auth_data=='all' || in_array('ArticleCategory/*',$auth_data)}
+				<div class="layui-tab-item fe-tab-link" id="fe-tab-link-8">
+					{foreach $aclist as $c}
+					<div>
+						<div class="fe-tab-link-line" style='height:60px;line-height:60px;float:left;width:100%;'>
+							
+							{if !getcustom('article_portion')}
+							<div class="fe-tab-link-sub"><a href="javascript:void(0);" onclick="chooseLink(8,'/pagesExt/article/artlist?bid={$bid}&cid={$c.id}','{$c.name}')">选择</a></div>
+							{/if}
+							<div style="float:left;">
+							{if $c['pic']}<img src="{$c.pic}" style='width:50px;height:50px;padding:1px;border:1px solid #ccc'/>{/if}
+						</div>
+						<div class="fe-tab-link-text" style="float:left">
+							{$c.name}</div>
+						</div>
+					</div>
+					{foreach $c['child'] as $v}
+					<div style="width:95%;float:right">
+						<div class="fe-tab-link-line" style='height:60px;line-height:60px;float:left;width:100%;'>
+							
+							{if !getcustom('article_portion')}
+							<div class="fe-tab-link-sub"><a href="javascript:void(0);" onclick="chooseLink(8,'/pagesExt/article/artlist?bid={$bid}&cid={$v.id}','{$v.name}')">选择</a></div>
+							{/if}
+							<div style="float:left;">
+							{if $v['pic']}<img src="{$v.pic}" style='width:50px;height:50px;padding:1px;border:1px solid #ccc'/>{/if}
+						</div>
+						<div class="fe-tab-link-text" style="float:left">
+							{$v.name}</div>
+						</div>
+					</div>
+					{/foreach}
+					{/foreach}
+				</div>
+				{/if}
+				{if $auth_data=='all' || in_array('Article/*',$auth_data)}
+				<div class="layui-tab-item fe-tab-link" id="fe-tab-link-9">
+						<div class="layui-form layui-inline">
+							<div class="layui-input-inline">
+									<input type="text" class="layui-input" style="height:30px;" name="articlename" value="" placeholder=请输入文章标题进行搜索>
+							</div>
+							<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" lay-submit="" lay-filter="LAY-app-forumreply-search-article">搜索</button>
+						</div>
+						<div class="layui-col-md12" style="margin-top:5px">
+							<table id="articletabledata" lay-filter="articletabledata"></table>
+						</div>
+				</div>
+				{/if}
+
+
+				{if $auth_data=='all' || in_array('DesignerPage/*',$auth_data) || in_array('DesignerPage/index',$auth_data)}
+				<div class="layui-tab-item fe-tab-link" id="fe-tab-link-12">
+						<div class="layui-form layui-inline">
+							<div class="layui-input-inline">
+									<input type="text" class="layui-input" style="height:30px;" name="designerpagename" value="" placeholder=请输入页面名称进行搜索>
+							</div>
+							<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" lay-submit="" lay-filter="LAY-app-forumreply-search-designerpage">搜索</button>
+						</div>
+						<div class="layui-col-md12" style="margin-top:5px">
+							<table id="designerpagetabledata" lay-filter="designerpagetabledata"></table>
+						</div>
+				</div>
+				{/if}
+
+			{if ($auth_data=='all' || in_array('KechengCategory/*',$auth_data))}
+			<div class="layui-tab-item fe-tab-link" id="fe-tab-link-2">
+				{foreach $kclist as $kcKey=>$kc}
+				<div>
+					<div class="fe-tab-link-line" style='height:60px;line-height:60px;float:left;width:100%;'>
+						<div class="fe-tab-link-sub"><a href="javascript:void(0);" onclick="chooseLink(2,'/activity/kecheng/list?bid={$bid}&cid={$kc.id}','{$kc.name}')">选择</a></div>
+						<div style="float:left;">
+							{if $kc['pic']}<img src="{$kc.pic}" style='width:50px;height:50px;padding:1px;border:1px solid #ccc'/>{/if}
+						</div>
+						<div class="fe-tab-link-text" style="float:left;height: 40px;">
+							{if $kc['child']}<i class="layui-icon layui-icon-triangle-d" index={$kcKey} type="parent" state="block" style="cursor: pointer;"></i>{/if}
+							{$kc.name}
+						</div>
+					</div>
+				</div>
+				<span class="parent_{$kcKey}">
+							{foreach $kc['child'] as $kcKey=>$kcv}
+								<div style="width:97%;float:right">
+									<div class="fe-tab-link-line" style='height:60px;line-height:60px;float:left;width:100%;'>
+										<div class="fe-tab-link-sub"><a href="javascript:void(0);" onclick="chooseLink(100,'/activity/kecheng/list?bid={$bid}&cid={$kcv.id}','{$kcv.name}')">选择</a></div>
+										<div style="float:left;">
+										{if $kcv['pic']}<img src="{$kcv.pic}" style='width:50px;height:50px;padding:1px;border:1px solid #ccc'/>{/if}
+									</div>
+									<div class="fe-tab-link-text" style="float:left;height: 40px;">
+										{if $kcv['child']}<i class="layui-icon layui-icon-triangle-d" index={$kcKey}{$kcKey} type="child" state="block" style="cursor: pointer;"></i>{/if}
+										{$kcv.name}
+									</div>
+									</div>
+								</div>
+							{/foreach}
+						</span>
+				{/foreach}
+			</div>
+			{/if}
+
+			{if ($auth_data=='all' || in_array('KechengList/*',$auth_data))}
+			<div class="layui-tab-item fe-tab-link" id="fe-tab-link-9">
+				<div class="layui-form layui-inline">
+					<div class="layui-input-inline">
+						<input type="text" class="layui-input" style="height:30px;" name="coursename" value="" placeholder=请输入课程标题进行搜索>
+					</div>
+					<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" lay-submit="" lay-filter="LAY-app-forumreply-search-course">搜索</button>
+				</div>
+				<div class="layui-col-md12" style="margin-top:5px">
+					<table id="coursetable" lay-filter="coursetabledata"></table>
+				</div>
+			</div>
+			{/if}
+				<div class="layui-tab-item fe-tab-link" id="fe-tab-link-13">
+					<div class="layui-form" lay-filter="" style="padding-top:20px">
+					<div class="layui-form-item">
+						<label class="layui-form-label" style="width:100px">选择功能：</label>
+						<div class="layui-input-inline">
+							<input type="radio" title="拨打电话" name="linktype" value="tel" lay-filter="linktype"/>
+							<input type="radio" title="在线客服" name="linktype" value="contact" lay-filter="linktype"/>
+							<input type="radio" title="分享转发" name="linktype" value="share" lay-filter="linktype"/>
+							<input type="radio" title="扫一扫" name="linktype" value="scan" lay-filter="linktype"/>
+							<input type="radio" title="坐标导航" name="linktype" value="location" lay-filter="linktype"/>
+							{if in_array('mp',$platform)}<input type="radio" title="领取会员卡" name="linktype" value="getmembercard" lay-filter="linktype"/>{/if}
+							<input type="radio" title="外部链接" name="linktype" value="url" lay-filter="linktype"/>
+							{if in_array('wx',$platform)}<input type="radio" title="其他小程序" name="linktype" value="miniProgram" lay-filter="linktype"/>{/if}
+							<input type="radio" title="商品收藏" name="linktype" value="addfavorite" lay-filter="linktype"/>
+							
+						</div>
+						<div class="layui-form-mid layui-word-aux"></div>
+					</div>
+					<div id="linktype-content">	
+						<div class="layui-form-item tel" style="display:none">
+							<label class="layui-form-label" style="width:100px">电话号码：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="tel" value="" class="layui-input"/>
+							</div>
+						</div>
+						<div class="layui-form-item contact" style="display:none">
+							<label class="layui-form-label" style="width:100px"></label>
+							<div class="layui-form-mid layui-word-aux">小程序在线客服仅支持以下组件：单图、按钮、悬浮按钮</div>
+						</div>
+						<div class="layui-form-item share" style="display:none">
+							<label class="layui-form-label" style="width:100px"></label>
+							<div class="layui-form-mid layui-word-aux">小程序分享转发仅支持以下组件：单图、按钮、悬浮按钮</div>
+						</div>
+						
+						<div class="layui-form-item location" style="display:none">
+							<label class="layui-form-label" style="width:100px">地点名称：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="addressname" value="天安门广场" class="layui-input"/>
+							</div>
+						</div>
+						<div class="layui-form-item location" style="display:none">
+							<div class="layui-form-label" style="width:100px">经纬度：</div>
+							<div class="layui-input-inline" style="width:150px">
+								<input class="layui-input" name="longitude" value="116.397827"/>
+							</div> 
+							<div class="layui-form-mid">,</div> 
+							<div class="layui-input-inline" style="width:150px">
+								<input class="layui-input" name="latitude" value="39.90374"/>
+							</div>
+							<div class="layui-btn  layui-btn-primary" onclick="choosezuobiao()">选择坐标</div>
+						</div>
+						<div class="layui-form-item getmembercard" style="display:none">
+							<label class="layui-form-label" style="width:100px"></label>
+							<div class="layui-form-mid layui-word-aux">设置前请先创建微信会员卡</div>
+						</div>
+						<div class="layui-form-item url" style="display:none">
+							<label class="layui-form-label" style="width:100px">链接地址：</label>
+							<div class="layui-input-inline" style="width:300px">
+								<input type="text" name="url" value="" class="layui-input"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:130px">小程序跳转外部链接必须是https://开头的完整链接地址 可打开关联的公众号的文章，其它网页需登录<a href="https://mp.weixin.qq.com/" target="_blank">公众平台小程序账号</a>配置业务域名，个人类型与海外类型的小程序暂不支持使用。如果使用第三方开放平台，在第三方开发平台里添加业务域名后，小程序需要重新授权绑定。</div>
+						</div>
+						<div class="layui-form-item miniProgram" style="display:none">
+							<label class="layui-form-label" style="width:100px">小程序 appId：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="appid" value="" class="layui-input"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">要跳转的小程序的AppID</div>
+						</div>
+						<!-- <div class="layui-form-item miniProgram" style="display:none">
+							<label class="layui-form-label" style="width:100px">小程序原始id：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="username" value="" class="layui-input"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">H5跳转小程序必填</div>
+						</div> -->
+						<div class="layui-form-item miniProgram" style="display:none">
+							<label class="layui-form-label" style="width:100px">页面路径：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="path" value="" class="layui-input"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">不填写则默认打开首页</div>
+						</div>
+						<div class="layui-form-item miniProgram" style="display:none">
+							<label class="layui-form-label" style="width:100px"></label>
+						</div>
+						
+					</div>
+					<div class="layui-form-item">
+						<div class="layui-input-block" style="margin-left:130px;">
+							<button class="layui-btn" lay-submit lay-filter="formsubmit">确 定</button>
+						</div>
+					</div>
+					</div>
+				</div>
+		</div>
+	</div>
+	</div>
+</div>
+</div>
+{include file="public/js"/}
+<script>
+layui.form.on('radio(linktype)', function(data){
+	$('#linktype-content .layui-form-item').hide();
+	$('.layui-form-item.'+data.value).show();
+})
+layui.form.on('submit(formsubmit)', function(obj){
+	var field = obj.field
+	var linktype = field.linktype
+	var linkval = '';
+	var hrefname = '';
+	if(!linktype){
+			layer.msg('请选择功能');return;
+		}
+	if(linktype == 'tel'){
+		if(field.tel == ''){
+			layer.msg('请填写电话号码');return;
+		}
+		linkval = field.tel
+		hrefname = '拨打电话:'+field.tel;
+	}
+	if(linktype == 'url'){
+		if(field.url == ''){
+			layer.msg('请填写链接地址');return;
+		}
+		linkval = field.url
+		hrefname = '外部链接:'+field.url;
+	}
+	if(linktype == 'contact'){
+		hrefname = '在线客服';
+	}
+	if(linktype == 'share'){
+		hrefname = '分享转发';
+	}
+	if(linktype == 'scan'){
+		hrefname = '扫一扫';
+	}
+	if(linktype == 'location'){
+		hrefname = '坐标导航';
+		linkval = $('input[name=addressname]').val() + '|' + $('input[name=longitude]').val() + ','+$('input[name=latitude]').val();
+	}
+	if(linktype == 'getmembercard'){
+		hrefname = '领取会员卡';
+	}
+	if(linktype == 'addfavorite'){
+		hrefname = '商品收藏';
+	}
+	if(linktype == 'connectwifi'){
+		hrefname = '连接wifi';
+		linkval = field.wifi_name + '|'+field.wifi_password;
+	}
+	if(linktype == 'miniProgram'){
+		if(field.appid == ''){
+			//layer.msg('请填写小程序appid');return;
+		}
+		console.log(field)
+		//linkval = field.appid + '|'+field.path + '|'+field.username;
+		linkval = field.appid + '|'+field.path;
+		hrefname = '小程序:'+linkval;
+	}
+	if(linktype == 'url'){
+		var hrefurl = linkval;
+	}else if(linktype == 'tel'){
+		var hrefurl = linktype + ':' + linkval;
+	}else{
+		var hrefurl = linktype + '::' + linkval;
+	}
+	chooseLink(13,hrefurl,hrefname)
+});
+</script>
+<script type="text/html" id="productnameTpl">
+		<img src="{{d.pic}}" style="max-width:70px;float:left"/>
+		<div style="float: left;width:200px;margin-left: 10px;white-space:normal;line-height:20px;">
+			<div style="width:100%;">{{# if(d.cid!=0){ }}<span style="color:red">[{{d.cname}}]</span>{{# } }}{{d.name}}</div>
+			<div style="padding-top:5px;color:#f60">￥{{d.sell_price}}</div></div>
+		</div>
+</script>
+<script type="text/html" id="articlenameTpl">
+		<img src="{{d.pic}}" style="max-height:50px;max-width:50px;float:left"/>
+		<div style="float: left;width:200px;margin-left: 10px;white-space:normal;line-height:20px;">
+			<div style="width:100%;padding-top:5px">{{# if(d.cid>0){ }}<span style="color:red">[{{d.cname}}] </span>{{# } }}{{d.name}}</div>
+			<div style="padding-top:5px;font-size:12px">{{d.subname}}</div></div>
+		</div>
+	</script>
+	<script type="text/html" id="kanjianameTpl">
+		<img src="{{d.pic}}" style="max-width:70px;float:left"/>
+		<div style="float: left;width:200px;margin-left: 10px;white-space:normal;line-height:20px;">
+			<div style="width:100%;">{{d.name}}</div>
+			<div style="color:#666;font-size:12px">原价: ￥{{d.sell_price}}</div>
+			<div style="color:#f60;font-size:12px">最低价: ￥{{d.min_price}}</div>
+		</div>
+	</script>
+	<script type="text/html" id="collagenameTpl">
+		<img src="{{d.pic}}" style="max-width:70px;float:left"/>
+		<div style="float: left;width:200px;margin-left: 10px;white-space:normal;line-height:20px;">
+			<div style="width:100%;">{{# if(d.cid!=0){ }}<span style="color:red">[{{d.cname}}]</span>{{# } }}{{d.name}}</div>
+			<div style="padding-top:5px;color:#f60">￥{{d.sell_price}}</div></div>
+		</div>
+	</script>
+	<script type="text/html" id="scoreshopnameTpl">
+		<img src="{{d.pic}}" style="max-width:70px;float:left"/>
+		<div style="float: left;width:200px;margin-left: 10px;white-space:normal;line-height:20px;">
+			<div style="width:100%;">{{d.name}}</div>
+			<div style="color:#666;font-size:12px">价值: ￥{{d.sell_price}}</div>
+			<div style="color:#f60;font-size:12px">{{d.score_price}}{:t('积分')} {{# if(d.money_price>0){ }}+ {{d.money_price}}元{{# } }}</div>
+		</div>
+	</script>
+<script>
+  //商品列表
+	var productdatawhere = {};
+  var tableInsproduct = layui.table.render({
+    elem: '#producttabledata'
+    ,url: "{:url('shop_product/index')}" //数据接口
+    ,page: true //开启分页
+		,width:1068
+		,height:480
+    ,cols: [[ //表头
+			//{type:"checkbox"},
+      {field: 'id', title: 'ID',  sort: true,width:80},
+      {field: 'name', title: '商品信息',templet: '#productnameTpl',width:450},
+      //{field: 'ggdata', title: '规格 × 库存'},
+      {field: 'createtime', title: '创建时间',sort: true,templet:function(d){ return date('Y-m-d H:i',d.createtime)},width:150},
+      {field: 'status', title: '状态',templet:function(d){ return d.status==1?'<span style="color:green">已上架</span>':'<span style="color:red">未上架</span>'},width:80},
+      {field: 'operation', title: '操作',templet: '<div><button class="table-btn" onclick="chooseLink(4,\'/pages/shop/product?id={{d.id}}\',\'{{d.name}}\')">选择</button></div>'}
+    ]]
+  });
+	//排序
+	layui.table.on('sort(producttabledata)', function(obj){
+		productdatawhere.field = obj.field;
+		productdatawhere.order = obj.type;
+		tableInsproduct.reload({
+			initSort: obj,
+			where: productdatawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search-product)', function(obj){
+		var olddatawhere = productdatawhere
+		productdatawhere = {name:obj.field.productname}
+		productdatawhere.field = olddatawhere.field
+		productdatawhere.order = olddatawhere.order
+		console.log(productdatawhere)
+		tableInsproduct.reload({
+			where: productdatawhere,
+			page: {curr: 1}
+		});
+	})
+	//课程列表
+	var coursedatawhere = {};
+	var tableInscourse = layui.table.render({
+		elem: '#coursetable'
+		,url: "{:url('kechengList/index')}" //数据接口
+		,page: true //开启分页
+		,width:1068
+		,height:480
+		,cols: [[ //表头
+			//{type:"checkbox"},
+			{field: 'id', title: 'ID',  sort: true,width:80},
+			{field: 'name', title: '课程信息',templet: '#coursenameTpl'},
+			{field: 'createtime', title: '创建时间',sort: true,templet:function(d){ return date('Y-m-d H:i',d.createtime)},width:200},
+			{field: 'status', title: '状态',templet:function(d){ return d.status==1?'<span style="color:green">已上架</span>':'<span style="color:red">未上架</span>'},width:150},
+			{field: 'operation', title: '操作',templet: '<div><button class="table-btn" onclick="chooseLink(101,\'/activity/kecheng/product?id={{d.id}}\',\'{{d.name}}\')">选择</button></div>',width:100}
+		]]
+	});
+	//排序
+	layui.table.on('sort(coursetabledata)', function(obj){
+		coursedatawhere.field = obj.field;
+		coursedatawhere.order = obj.type;
+		tableInscourse.reload({
+			initSort: obj,
+			where: coursedatawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search-course)', function(obj){
+		var field = obj.field
+		var olddatawhere = coursedatawhere
+		coursedatawhere = {name:obj.field.articlename}
+		coursedatawhere.field = olddatawhere.field
+		coursedatawhere.order = olddatawhere.order
+		tableInscourse.reload({
+			where: coursedatawhere,
+			page: {curr: 1}
+		});
+	})
+	
+  //拼团商品列表
+	var collageproductdatawhere = {};
+  var tableInscollageproduct = layui.table.render({
+    elem: '#collageproducttabledata'
+    ,url: "{:url('collage_product/index')}" //数据接口
+    ,page: true //开启分页
+		,width:1068
+		,height:480
+    ,cols: [[ //表头
+			//{type:"checkbox"},
+      {field: 'id', title: 'ID',  sort: true,width:80},
+      {field: 'name', title: '商品信息',templet: '#collagenameTpl',width:450},
+      //{field: 'ggdata', title: '规格 × 库存'},
+      {field: 'createtime', title: '创建时间',sort: true,templet:function(d){ return date('Y-m-d H:i',d.createtime)},width:150},
+      {field: 'status', title: '状态',templet:function(d){ return d.status==1?'<span style="color:green">已上架</span>':'<span style="color:red">未上架</span>'},width:80},
+      {field: 'operation', title: '操作',templet: '<div><button class="table-btn" onclick="chooseLink(5,\'/activity/collage/product?id={{d.id}}\',\'{{d.name}}\')">选择</button></div>'}
+    ]]
+  });
+	//排序
+	layui.table.on('sort(collageproducttabledata)', function(obj){
+		collageproductdatawhere.field = obj.field;
+		collageproductdatawhere.order = obj.type;
+		tableInscollageproduct.reload({
+			initSort: obj,
+			where: collageproductdatawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search-collageproduct)', function(obj){
+		var olddatawhere = collageproductdatawhere
+		collageproductdatawhere = {name:obj.field.collageproductname}
+		collageproductdatawhere.field = olddatawhere.field
+		collageproductdatawhere.order = olddatawhere.order
+		console.log(collageproductdatawhere)
+		tableInscollageproduct.reload({
+			where: collageproductdatawhere,
+			page: {curr: 1}
+		});
+	});
+	
+  //砍价商品列表
+	var kanjiaproductdatawhere = {};
+  var tableInskanjiaproduct = layui.table.render({
+    elem: '#kanjiaproducttabledata'
+    ,url: "{:url('kanjia_product/index')}" //数据接口
+    ,page: true //开启分页
+		,width:1068
+		,height:480
+    ,cols: [[ //表头
+			//{type:"checkbox"},
+      {field: 'id', title: 'ID',  sort: true,width:80},
+      {field: 'name', title: '商品信息',templet: '#kanjianameTpl',width:350},
+      {field: 'sort', title: '活动时间',templet:function(d){ return date('Y-m-d H:i',d.starttime) + ' ~ '+date('Y-m-d H:i',d.endtime)},width:250},
+      {field: 'status', title: '状态',templet:function(d){ 
+				if(d.status==0){
+					return '<span style="color:red">未上架</span>';
+				}else{
+					if(d.starttime > {:time()}){
+						return '<button class="layui-btn layui-btn-sm" style="background-color:#888">未开始</button>';
+					}else if(d.endtime < {:time()}){
+						return '<button class="layui-btn layui-btn-sm" style="background-color:#3e5">已结束</button>';
+					}else if(d.endtime > {:time()} && d.starttime < {:time()}){
+						return '<button class="layui-btn layui-btn-sm" style="background-color:#f55">进行中</button>';
+					}
+				}
+			}},
+      {field: 'operation', title: '操作',templet: '<div><button class="table-btn" onclick="chooseLink(6,\'/activity/kanjia/product?id={{d.id}}\',\'{{d.name}}\')">选择</button></div>'}
+    ]]
+  });
+	//排序
+	layui.table.on('sort(kanjiaproducttabledata)', function(obj){
+		kanjiaproductdatawhere.field = obj.field;
+		kanjiaproductdatawhere.order = obj.type;
+		tableInskanjiaproduct.reload({
+			initSort: obj,
+			where: kanjiaproductdatawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search-kanjiaproduct)', function(obj){
+		var olddatawhere = kanjiaproductdatawhere
+		kanjiaproductdatawhere = {name:obj.field.kanjiaproductname}
+		kanjiaproductdatawhere.field = olddatawhere.field
+		kanjiaproductdatawhere.order = olddatawhere.order
+		console.log(kanjiaproductdatawhere)
+		tableInskanjiaproduct.reload({
+			where: kanjiaproductdatawhere,
+			page: {curr: 1}
+		});
+	});
+
+	
+  //周期购商品列表
+  var cycleproductdatawhere = {};
+  var tableInscycleproduct = layui.table.render({
+	  elem: '#cycleproducttabledata'
+	  ,url: "{:url('cycle_product/index')}" //数据接口
+	  ,page: true //开启分页
+	  ,width:1068
+	  ,height:480
+	  ,cols: [[ //表头
+		  //{type:"checkbox"},
+		  {field: 'id', title: 'ID',  sort: true,width:80},
+		  {field: 'name', title: '商品信息',templet: '#collagenameTpl',width:450},
+		  //{field: 'ggdata', title: '规格 × 库存'},
+		  {field: 'createtime', title: '创建时间',sort: true,templet:function(d){ return date('Y-m-d H:i',d.createtime)},width:150},
+		  {field: 'status', title: '状态',templet:function(d){ return d.status==1?'<span style="color:green">已上架</span>':'<span style="color:red">未上架</span>'},width:80},
+		  {field: 'operation', title: '操作',templet: '<div><button class="table-btn" onclick="chooseLink(14,\'/pagesExt/cycle/product?id={{d.id}}\',\'{{d.name}}\')">选择</button></div>'}
+	  ]]
+  });
+  //排序
+  layui.table.on('sort(cycleproducttabledata)', function(obj){
+	  collageproductdatawhere.field = obj.field;
+	  collageproductdatawhere.order = obj.type;
+	  tableInscollageproduct.reload({
+		  initSort: obj,
+		  where: collageproductdatawhere
+	  });
+  });
+  //检索
+  layui.form.on('submit(LAY-app-forumreply-search-cycleproduct)', function(obj){
+	  var olddatawhere = cycleproductdatawhere
+	  cycleproductdatawhere = {name:obj.field.cycleproductname}
+	  cycleproductdatawhere.field = olddatawhere.field
+	  cycleproductdatawhere.order = olddatawhere.order
+	  tableInscycleproduct.reload({
+		  where: cycleproductdatawhere,
+		  page: {curr: 1}
+	  });
+  });
+
+	//积分商城商品列表
+	var scoreshopproductdatawhere = {};
+  var tableInsscoreshopproduct = layui.table.render({
+    elem: '#scoreshopproducttabledata'
+    ,url: "{:url('scoreshop_product/index')}" //数据接口
+    ,page: true //开启分页
+		,width:1068
+		,height:480
+    ,cols: [[ //表头
+			//{type:"checkbox"},
+      {field: 'id', title: 'ID',  sort: true,width:80},
+      {field: 'name', title: '商品信息',templet: '#scoreshopnameTpl',width:350},
+      {field: 'stock', title: '库存'},
+      {field: 'sales', title: '销量',sort: true},
+      {field: 'sort', title: '序号',sort: true},
+      {field: 'status', title: '状态',templet:function(d){ 
+				if(d.status==0){
+					return '<span style="color:red">未上架</span>';
+				}else{
+					return '<span style="color:green">已上架</span>';
+				}
+			}},
+      {field: 'operation', title: '操作',templet: '<div><button class="table-btn" onclick="chooseLink(7,\'/activity/scoreshop/product?id={{d.id}}\',\'{{d.name}}\')">选择</button></div>'}
+    ]]
+  });
+	//排序
+	layui.table.on('sort(scoreshopproducttabledata)', function(obj){
+		scoreshopproductdatawhere.field = obj.field;
+		scoreshopproductdatawhere.order = obj.type;
+		tableInsscoreshopproduct.reload({
+			initSort: obj,
+			where: scoreshopproductdatawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search-scoreshopproduct)', function(obj){
+		var olddatawhere = scoreshopproductdatawhere
+		scoreshopproductdatawhere = {name:obj.field.scoreshopproductname}
+		scoreshopproductdatawhere.field = olddatawhere.field
+		scoreshopproductdatawhere.order = olddatawhere.order
+		console.log(scoreshopproductdatawhere)
+		tableInsscoreshopproduct.reload({
+			where: scoreshopproductdatawhere,
+			page: {curr: 1}
+		});
+	});
+	//团购商品列表
+	var tuangouproductdatawhere = {};
+  var tableInstuangouproduct = layui.table.render({
+    elem: '#tuangouproducttabledata'
+    ,url: "{:url('tuangou_product/index')}" //数据接口
+    ,page: true //开启分页
+		,width:1068
+		,height:480
+    ,cols: [[ //表头
+			//{type:"checkbox"},
+      {field: 'id', title: 'ID',  sort: true,width:80},
+      {field: 'name', title: '商品信息',templet: '#collagenameTpl',width:450},
+      //{field: 'ggdata', title: '规格 × 库存'},
+      {field: 'createtime', title: '创建时间',sort: true,templet:function(d){ return date('Y-m-d H:i',d.createtime)},width:150},
+      {field: 'status', title: '状态',templet:function(d){ return d.status==1?'<span style="color:green">已上架</span>':'<span style="color:red">未上架</span>'},width:80},
+      {field: 'operation', title: '操作',templet: '<div><button class="table-btn" onclick="chooseLink(5,\'/activity/tuangou/product?id={{d.id}}\',\'{{d.name}}\')">选择</button></div>'}
+    ]]
+  });
+	//排序
+	layui.table.on('sort(tuangouproducttabledata)', function(obj){
+		tuangouproductdatawhere.field = obj.field;
+		tuangouproductdatawhere.order = obj.type;
+		tableInstuangouproduct.reload({
+			initSort: obj,
+			where: tuangouproductdatawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search-tuangouproduct)', function(obj){
+		var olddatawhere = tuangouproductdatawhere
+		tuangouproductdatawhere = {name:obj.field.tuangouproductname}
+		tuangouproductdatawhere.field = olddatawhere.field
+		tuangouproductdatawhere.order = olddatawhere.order
+		console.log(tuangouproductdatawhere)
+		tableInstuangouproduct.reload({
+			where: tuangouproductdatawhere,
+			page: {curr: 1}
+		});
+	});
+	//幸运拼团商品列表
+	var luckycollageproductdatawhere = {};
+  var tableInsluckycollageproduct = layui.table.render({
+    elem: '#luckycollageproducttabledata'
+    ,url: "{:url('LuckyCollageProduct/index')}" //数据接口
+    ,page: true //开启分页
+		,width:1068
+		,height:480
+    ,cols: [[ //表头
+			//{type:"checkbox"},
+      {field: 'id', title: 'ID',  sort: true,width:80},
+      {field: 'name', title: '商品信息',templet: '#collagenameTpl',width:450},
+      //{field: 'ggdata', title: '规格 × 库存'},
+      {field: 'createtime', title: '创建时间',sort: true,templet:function(d){ return date('Y-m-d H:i',d.createtime)},width:150},
+      {field: 'status', title: '状态',templet:function(d){ return d.status==1?'<span style="color:green">已上架</span>':'<span style="color:red">未上架</span>'},width:80},
+      {field: 'operation', title: '操作',templet: '<div><button class="table-btn" onclick="chooseLink(5,\'/activity/luckycollage/product?id={{d.id}}\',\'{{d.name}}\')">选择</button></div>'}
+    ]]
+  });
+	//排序
+	layui.table.on('sort(luckycollageproducttabledata)', function(obj){
+		luckycollageproductdatawhere.field = obj.field;
+		luckycollageproductdatawhere.order = obj.type;
+		tableInsluckycollageproduct.reload({
+			initSort: obj,
+			where: luckycollageproductdatawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search-luckycollageproduct)', function(obj){
+		var olddatawhere = luckycollageproductdatawhere
+		luckycollageproductdatawhere = {name:obj.field.luckycollageproductname}
+		luckycollageproductdatawhere.field = olddatawhere.field
+		luckycollageproductdatawhere.order = olddatawhere.order
+		console.log(luckycollageproductdatawhere)
+		tableInsluckycollageproduct.reload({
+			where: luckycollageproductdatawhere,
+			page: {curr: 1}
+		});
+	});
+
+  //设计页面列表
+	var designerpagedatawhere = {};
+  var tableInsdesignerpage = layui.table.render({
+    elem: '#designerpagetabledata'
+    ,url: "{:url('DesignerPage/index')}/ishome/0" //数据接口
+    ,page: true //开启分页
+		,width:1068
+		,height:480
+    ,cols: [[ //表头
+			//{type:"checkbox"},
+      {field: 'id', title: 'ID',  sort: true,width:80},
+      {field: 'name', title: '页面名称',templet: '<div>{{# if(d.ishome==1){ }}<i class="fa fa-home" title="小程序首页" style="color:#fb6b5b;font-size:20px"></i> {{# } }}{{d.name}}</div>',width:403},
+      //{field: 'readcount', title: '页面链接',templet: '<div>/pages/main/main?PageId={{d.id}}</div>'},
+      //{field: 'sort', title: '序号',width:80,sort: true},
+      //{field: 'createtime', title: '创建时间',sort: true,templet:function(d){ return date('Y-m-d H:i',d.createtime)},width:150},
+      {field: 'updatetime', title: '最后修改时间',sort: true,templet:function(d){ return date('Y-m-d H:i',d.updatetime)},width:200},
+      {field: 'operation', title: '操作',templet: '<div><button class="table-btn" onclick="chooseLink(12,\'/pages/index/main?id={{d.id}}\',\'{{d.name}}\')">选择</button></div>',width:200}
+    ]]
+  });
+	//排序
+	layui.table.on('sort(designerpagetabledata)', function(obj){
+		designerpagedatawhere.field = obj.field;
+		designerpagedatawhere.order = obj.type;
+		tableInsdesignerpage.reload({
+			initSort: obj,
+			where: designerpagedatawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search-designerpage)', function(obj){
+		//var field = obj.field
+		var olddatawhere = designerpagedatawhere
+		designerpagedatawhere = {name:obj.field.designerpagename}
+		designerpagedatawhere.field = olddatawhere.field
+		designerpagedatawhere.order = olddatawhere.order
+		tableInsdesignerpage.reload({
+			where: designerpagedatawhere,
+			page: {curr: 1}
+		});
+	})
+  //文章列表
+	var articledatawhere = {};
+  var tableInsarticle = layui.table.render({
+    elem: '#articletabledata'
+    ,url: "{:url('article/index')}" //数据接口
+    ,page: true //开启分页
+		,width:1068
+		,height:480
+    ,cols: [[ //表头
+			//{type:"checkbox"},
+      {field: 'id', title: 'ID',  sort: true,width:80},
+      {field: 'name', title: '文章信息',templet: '#articlenameTpl'},
+      {field: 'createtime', title: '创建时间',sort: true,templet:function(d){ return date('Y-m-d H:i',d.createtime)},width:200},
+      //{field: 'sendtime', title: '发布时间',sort: true,templet:function(d){ return date('Y-m-d H:i',d.sendtime)},width:120},
+      {field: 'status', title: '状态',templet:function(d){ return d.status==1?'<span style="color:green">已发布</span>':'<span style="color:red">未发布</span>'},width:150},
+      {field: 'operation', title: '操作',templet: '<div><button class="table-btn" onclick="chooseLink(9,\'/pagesExt/article/detail?id={{d.id}}\',\'{{d.name}}\')">选择</button></div>',width:100}
+    ]]
+  });
+	//排序
+	layui.table.on('sort(articletabledata)', function(obj){
+		articledatawhere.field = obj.field;
+		articledatawhere.order = obj.type;
+		tableInsarticle.reload({
+			initSort: obj,
+			where: articledatawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search-article)', function(obj){
+		var field = obj.field
+		var olddatawhere = articledatawhere
+		articledatawhere = {name:obj.field.articlename}
+		articledatawhere.field = olddatawhere.field
+		articledatawhere.order = olddatawhere.order
+		tableInsarticle.reload({
+			where: articledatawhere,
+			page: {curr: 1}
+		});
+	})
+	
+	
+	function chooseLink(type,hrefurl,hrefname){
+		{if $Request.param.type=='geturl'}
+			var pagepath = hrefurl.substr(1);
+			url = '{$Think.const.PRE_URL2}/h5/{$aid}.html#/'+pagepath;
+			var html = '';
+			html+='<div style="margin:20px">';
+			html+='	<div style="width:100%;margin:10px 0" id="urlqr"></div>';
+			{if in_array('wx',$platform)}
+			html+='	<div style="width:100%;text-align:center"><button class="layui-btn layui-btn-sm layui-btn-primary" onclick="showwxqrcode(\''+pagepath+'\')">查看小程序码</button></div>';
+			{/if}
+			html+='	<div style="margin-top:30px;height:50px;line-height:25px;">链接地址：<button class="layui-btn layui-btn-xs layui-btn-primary" onclick="copyText(\''+url+'\')">复制</button><br>'+url+'</div>';
+			html+='	<div style="height:50px;line-height:25px;">页面路径：<button class="layui-btn layui-btn-xs layui-btn-primary" onclick="copyText(\'/'+pagepath+'\')">复制</button><br>/'+pagepath+'</div>';
+			html+='</div>'
+			layer.open({type:1,'title':'链接地址',area:['600px','480px'],shadeClose:true,'content':html})
+			var qrcode = new QRCode('urlqr', {
+				text: 'your content',
+				width: 200,
+				height: 200,
+				colorDark : '#000000',
+				colorLight : '#ffffff',
+				correctLevel : QRCode.CorrectLevel.L
+			});
+			qrcode.clear();
+			qrcode.makeCode(url);
+		{else}
+			var urlname = $('#fe-tab-link-nav-' + type).text() + '>' + hrefname
+			{if input('param.callback')}
+			window.parent.{$Request.param.callback}(urlname,hrefurl,"{$Request.param.args}");
+			{else}
+			window.parent.chooseLink(urlname,hrefurl,"{$Request.param.args}");
+			{/if}
+			closeself();
+		{/if}
+	}
+	function showwxqrcode(pagepath){
+		var index = layer.load();
+		$.post("{:url('getwxqrcode')}",{path:pagepath},function(res){
+			layer.close(index);
+			if(res.status==0){
+				//dialog(res.msg);
+				layer.open({type:1,area:['300px','350px'],content:'<div style="margin:auto auto;text-align:center"><div style="color:red;width:280px;height:180px;margin-top:100px">'+res.msg+'</div><div style="height:25px;line-height:25px;">'+pagepath+'</div></div>',title:false,shadeClose:true})
+			}else{
+				layer.open({type:1,area:['300px','350px'],content:'<div style="margin:auto auto;text-align:center"><img src="'+res.url+'" style="margin-top:20px;max-width:280px;max-height:280px"/><div style="height:25px;line-height:25px;">'+pagepath+'</div></div>',title:false,shadeClose:true})
+			}
+		})
+	}
+	function copyText(text) {
+			var textarea = document.createElement("textarea"); //创建input对象
+			var currentFocus = document.activeElement; //当前获得焦点的元素
+			var toolBoxwrap = document.getElementById('NewsToolBox'); //将文本框插入到NewsToolBox这个之后
+			toolBoxwrap.appendChild(textarea); //添加元素
+			textarea.value = text;
+			textarea.focus();
+			if (textarea.setSelectionRange) {
+					textarea.setSelectionRange(0, textarea.value.length); //获取光标起始位置到结束位置
+			} else {
+					textarea.select();
+			}
+			try {
+					var flag = document.execCommand("copy"); //执行复制
+			} catch (eo) {
+					var flag = false;
+			}
+			toolBoxwrap.removeChild(textarea); //删除元素
+			currentFocus.focus();
+			if(flag) layer.msg('复制成功');
+			return flag;
+	}
+
+	function choosezuobiao(address,jd,wd){
+		var address = $('input[name=address]').val();
+		var jd = $('input[name=longitude]').val();
+		var wd = $('input[name=latitude]').val();
+		if(!jd){
+			jd = '116.397827';
+			wd = '39.90374';
+		}
+		var choosezblayer = layer.open({type:2,shadeClose: true,area: ['800px', '560px'],'title': '选择坐标',content: "{:url('DesignerPage/choosezuobiao')}/Mid/1&address="+(address?address:'')+'&jd='+(jd?jd:'')+'&wd='+(wd?wd:''),btn:['确定','取消'],yes:function(index, layero){
+				var longitude = layero.find('iframe').contents().find('#mapjd').val();
+				var latitude = layero.find('iframe').contents().find('#mapwd').val();
+				$('input[name=longitude]').val(longitude);
+				$('input[name=latitude]').val(latitude);
+				layer.close(choosezblayer);
+			}
+		});
+	}
+</script>
+<div id="NewsToolBox"></div>
+<!-- <script src="__STATIC__/admin/js/clipboard.min.js"></script> -->
+</body>
+</html>

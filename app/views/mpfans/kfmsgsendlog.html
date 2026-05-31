@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>活跃粉丝消息发送记录</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header">
+						活跃粉丝消息发送记录
+						{if input('param.isopen')==1}<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>{/if}
+					</div>
+          <div class="layui-card-body" pad15>
+						<div class="layui-form layui-col-md8" style="text-align:right;padding-bottom:10px">
+							
+						</div>
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+  var table = layui.table;
+	var datawhere = {};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{$Request.url}" //数据接口
+    ,page: true //开启分页
+    ,cols: [[ //表头
+      //{field: 'template_id', title: '模板ID',width:300},
+      {field: 'sourcedata', title: '素材内容',width:350,templet:function(d){
+				var news_item = d.sourcedata.news_item;
+				var html ='<div style="width:312px;padding:12px;border:1px solid #ddd">';
+				for(var i in news_item){
+					var m = news_item[i]
+					if(i==0){
+						html+='<div onclick="showqr(\''+m.url+'\',\''+m.title+'\')" style="width:100%;cursor:pointer">';
+						html+='<div style="position:relative"><img src="'+m.thumb_url+'" style="width:288px;height:160px;max-width:288px"/><div style="height:40px;padding:0 10px;width:100%;position:absolute;bottom:0;left:0;color:#fff;background:rgba(100,100,100,0.5);display:flex;align-items:center;word-wrap: break-word;word-break: break-all;overflow:hidden;">'+m.title+'</div></div>';
+						html+='';
+						html+='</div>';
+					}else{
+						html+='<div onclick="showqr(\''+m.url+'\',\''+m.title+'\')" style="width:100%;cursor:pointer;margin-top:5px;padding-top:5px;border-top:1px solid #ddd;display:flex">';
+						html+='<div style="flex:1;display:flex;align-items:center;">'+m.title+'</div>';
+						html+='<div><img src="'+m.thumb_url+'" style="width:50px;height:50px"/></div>';
+						html+='</div>';
+					}
+				}
+				html+='</div>';
+				return html;
+      }},
+      {field: 'to_type', title: '发送对象',templet:function(d){
+				if(d.to_type==1){
+					return '按openid发送';
+				}if(d.to_type==2){
+					return '标签: '+d.tagname;
+				}if(d.to_type==3){
+					return '全部用户';
+				}
+      }},
+      {field: 'createtime', title: '发送时间/完成时间',templet:function(d){
+				return date('Y-m-d H:i:s',d.createtime) + '<br>' + date('Y-m-d H:i:s',d.endtime);
+      }},
+      {field: 'sendcount', title: '发送数',width:70},
+      {field: 'successcount', title: '成功数',width:70},
+      {field: 'errorcount', title: '失败数',width:70},
+      {field: 'operation', title: '操作',templet: '<div><button class="table-btn" onclick="openmax(\'{:url('kfmsgsendlog_errlog')}/logid/{{d.id}}/isopen/1\')">发送明细</button><button class="table-btn" onclick="datadel(\'{{d.id}}\')">删除</button></div>'}
+    ]]
+  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	//删除
+	function datadel(id){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id);
+		}
+		layer.confirm('确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('kfmsgsendlogdel')}",{ids:ids},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	//同步
+	function tongbu(){
+		var index = layer.load();
+		$.post("{:url('tbtag')}",{ },function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			tableIns.reload();
+		})
+
+	}
+	</script>
+	{include file="public/copyright"/}
+</body>
+</html>

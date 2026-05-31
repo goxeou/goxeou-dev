@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>随行付申请</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header"><i class="fa fa-list"></i> 随行付支付申请
+					{if input('param.isopen')==1}<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>{/if}
+					</div>
+          <div class="layui-card-body" pad15>
+						<div class="layui-col-md6" style="padding-bottom:10px">
+							<button class="layui-btn layuiadmin-btn-list" onclick="openmax('{:url('apply')}')">申请开通</button>
+							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="openmax('{:url('paylog')}&isopen=1')">交易记录</button>
+							{if getcustom('sxpay_fenzhang') && ($auth_data=='all' || in_array('SxpayFenzhang/*',$auth_data))}
+							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="openmax('{:url('SxpayFenzhang/index')}&isopen=1')">分账设置</button>
+							{/if}
+						</div>
+						<!-- <div class="layui-form layui-col-md6 layui-form-search">
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">昵称</label>
+								<div class="layui-input-inline">
+									<input type="text" name="nickname" autocomplete="off" class="layui-input" value="{$_GET['nickname']}">
+								</div>
+							</div>
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">签到时间</label>
+								<div class="layui-input-inline" style="width:180px">
+									<input type="text" id="ctime" name="ctime" autocomplete="off" class="layui-input" value="{$_GET['ctime']}">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+									<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+								</button>
+							</div>
+						</div> -->
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.laydate.render({ 
+		elem: '#ctime',range: '~' //或 range: '~' 来自定义分割字符
+	});
+  var table = layui.table;
+	var datawhere = {};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: '{$Request.url}' //数据接口
+    ,page: true //开启分页
+    ,cols: [[ //表头
+			{type:"checkbox"},
+      {field: 'business_code', title: '商户编号'},
+      {field: 'merchant_shortname', title: '商户名称'},
+      {field: 'identity_id_card_name', title: '商户主体',templet:function(d){
+				if(d.subject_type == 'SUBJECT_TYPE_MICRO'){
+					return d.identity_id_card_name;
+				}else{
+					return d.business_merchant_name;
+				}
+      }},
+      {field: 'subject_type', title: '商户类型',templet:function(d){
+				if(d.subject_type == 'SUBJECT_TYPE_MICRO'){
+					return '小微商户';
+				}else if(d.subject_type == 'SUBJECT_TYPE_INDIVIDUAL'){
+					return '个体商户';
+				}else{
+					return '普通商户';
+				}
+      }},
+      {field: 'applyment_state', title: '状态',templet:function(d){
+				if(d.taskStatus=='-1'){
+					return '未提交';
+				}else if(d.taskStatus=='0'){
+					return '审核中<span style="color:#aaa;margin-right:15px;cursor:pointer" onclick="applyQuery('+d.id+')"><i class="fa fa-refresh"></i></span>';
+				}else if(d.taskStatus=='1'){
+					return '入驻成功';
+				}else if(d.taskStatus=='2'){
+					return '审核未通过<br/>'+'<span style="color:red;font-size:11px">'+d.suggestion+'</span>';
+				}
+      }},
+      {field: 'suggestion2', title: '复核状态',templet:function(d){
+				if(d.isEspecial==='00'){
+					return d.suggestion2;
+				}
+				if(d.isEspecial==='01'){
+					return '未通过<br/><span style="color:red;font-size:11px">'+d.suggestion2+'</span>';
+				}
+				return '';
+      }},
+      {field: 'applyment_state', title: '修改状态',templet:function(d){
+				if(d.taskStatus_edit=='-1'){
+					return '';
+				}else if(d.taskStatus_edit=='0' || d.taskStatus_edit=='4'){
+					return '审核中<span style="color:#aaa;margin-right:15px;cursor:pointer" onclick="modifyQuery('+d.id+')"><i class="fa fa-refresh"></i></span>';
+				}else if(d.taskStatus_edit=='5'){
+					return '已通过';
+				}else if(d.taskStatus_edit=='6'){
+					return '未通过'+'<span style="color:red;font-size:11px">'+d.suggestion_edit+'</span>';
+				}
+      }},
+      {field: 'createtime', title: '提交时间',templet:function(d){ return date('Y-m-d H:i',d.createtime)}},
+      {field: 'operation', title: '操作',templet:function(d){
+				var html = '';
+				html += '<button class="table-btn" onclick="openmax(\'{:url('apply')}/id/'+d.id+'\')">编辑</button>';
+				html += '<button class="table-btn" onclick="datadel('+d.id+')">删除</button>';
+				//if(d.taskStatus=='1' || d.taskStatus=='5'){
+					html += '<a class="table-btn" style="padding:5px 5px" href="{:url('signxieyi')}&id='+d.id+'" target="_blank">签署协议</a>';
+					html += '<button class="table-btn" onclick="shiming('+d.id+')">实名认证</button>';
+					
+					html += '<button class="table-btn" onclick="bandappid('+d.id+')">绑定AppId</button>';
+					if(d.business_code){
+						html += '<button class="table-btn" onclick="viewMchkey('+d.id+')">查看密钥</button>';
+					}
+					html += '<button class="table-btn" onclick="setjsapi('+d.id+')">设置授权目录</button>';
+					html += '<button class="table-btn" onclick="viewConf('+d.id+')">查看配置</button>';
+					if(d.business_code){
+						html += '<button class="table-btn" onclick="openmax(\'{:url('paylog')}&isopen=1&type=0&mchid='+d.business_code+'\')">交易记录</button>';
+						
+					}
+				//}
+				return html;
+      },width:400}
+    ]]
+  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	//绑定appid
+	function bandappid(id){
+		var html = '<div style="margin:40px auto;">';
+		html+='<div class="layui-form" lay-filter="">';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">类型：</label>';
+		html+='		<div class="layui-input-inline" style="width:300px">';
+		html+='			<label><input type="radio" name="bangdAccountType" value="00" title="公众号" checked/></label>';
+		html+='			<label><input type="radio" name="bangdAccountType" value="01" title="小程序"/></label>';
+		html+='		</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+		html+='		<label class="layui-form-label" style="width:80px">AppID：</label>';
+		html+='		<div class="layui-input-inline" style="width:200px">';
+		html+='			<input type="text" name="bindSubAppid" class="layui-input"/>';
+		html+='		</div>';
+		html+='		<div class="layui-form-mid layui-word-aux"></div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item" style="margin-top:30px">';
+		html+='		<label class="layui-form-label" style="width:130px"></label>';
+		html+='		<div class="layui-input-inline">';
+		html+='			<button class="layui-btn layui-btn-normal" lay-submit lay-filter="submit_bandappid">确定</button>';
+		html+='		</div>';
+		html+='	</div>';
+		html+='</div>';
+		html+='</div>'
+		var bandappidLayer = layer.open({type:1,area:['500px','300px'],title:false,content:html,shadeClose:true});
+		layui.form.render();
+		layui.form.on('submit(submit_bandappid)', function(obj){
+			var field = obj.field;
+			field.id=id;
+			var index = layer.load();
+			$.post("{:url('bandappid')}",field,function(data){
+				layer.close(index);
+				dialog(data.msg,data.status,data.url)
+				if(data.status==1){
+					layer.close(bandappidLayer);
+				}
+			});
+		})
+	}
+	function setjsapi(id){
+		var html = '<div style="margin:40px auto;">';
+		html+='<div class="layui-form" lay-filter="">';
+		html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+		html+='		<label class="layui-form-label" style="width:80px">授权目录：</label>';
+		html+='		<div class="layui-input-inline" style="width:300px">';
+		html+='			<input type="text" name="jsapiPath" class="layui-input" value="{$Think.const.PRE_URL2}/"/>';
+		html+='		</div>';
+		html+='		<div class="layui-form-mid layui-word-aux"></div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item" style="margin-top:30px">';
+		html+='		<label class="layui-form-label" style="width:130px"></label>';
+		html+='		<div class="layui-input-inline">';
+		html+='			<button class="layui-btn layui-btn-normal" lay-submit lay-filter="submit_setjsapi">确定</button>';
+		html+='		</div>';
+		html+='	</div>';
+		html+='</div>';
+		html+='</div>'
+		var setjsapiLayer = layer.open({type:1,area:['500px','300px'],title:false,content:html,shadeClose:true});
+		layui.form.render();
+		layui.form.on('submit(submit_setjsapi)', function(obj){
+			var field = obj.field;
+			field.id=id;
+			var index = layer.load();
+			$.post("{:url('setjsapi')}",field,function(data){
+				layer.close(index);
+				dialog(data.msg,data.status,data.url);
+				if(data.status==1){
+					layer.close(setjsapiLayer);
+				}
+			});
+		})
+	}
+	function viewConf(id){
+		var index = layer.load();
+		$.post("{:url('viewConf')}",{id:id},function(res){
+			layer.close(index);
+			var data = res.data;
+			var jsapiPathList = data.jsapiPathList;
+			var appConfigList = data.appConfigList;
+			var html = '<div style="margin:40px auto;padding:0 20px;">';
+			html+='	<div class="layui-form-item" style="margin-top:20px;margin-right:20px;">';
+			html+='		<label class="layui-form-label" style="width:120px">微信子商户号：</label>';
+			html+='		<div class="layui-form-mid">'+data.subMchId+'</div>';
+			html+='	</div>';
+			html+='	<div class="layui-form-item" style="margin-top:20px;margin-right:20px;">';
+			html+='		<label class="layui-form-label" style="width:120px">绑定的AppID：</label>';
+			for(var i in appConfigList){
+				if(i > 0){
+					html+='		<div class="layui-form-mid" style="margin-left:150px">'+appConfigList[i].subAppid+'</div>';
+				}else{
+					html+='		<div class="layui-form-mid">'+appConfigList[i].subAppid+'</div>';
+				}
+			}
+			html+='	</div>';
+			html+='	<div class="layui-form-item" style="margin-top:20px;margin-right:20px;">';
+			html+='		<label class="layui-form-label" style="width:120px">支付授权目录：</label>';
+			for(var i in jsapiPathList){
+				if(i > 0){
+					html+='		<div class="layui-form-mid" style="margin-left:150px">'+jsapiPathList[i]+'</div>';	
+				}else{
+					html+='		<div class="layui-form-mid">'+jsapiPathList[i]+'</div>';
+				}
+			}
+			html+='	</div>';
+			html+='</div>';
+			layer.open({type:1,area:['600px','400px'],title:false,content:html,shadeClose:true});
+		})
+	}
+	function viewMchkey(id){
+		var index = layer.load();
+		$.post("{:url('viewMchkey')}",{id:id},function(res){
+			layer.close(index);
+			var data = res.data;
+			var html = '<div style="margin:40px auto;padding:0 20px;">';
+			html+='	<div class="layui-form-item" style="margin-top:20px;margin-right:20px;">';
+			html+='		<label class="layui-form-label" style="width:120px">商户编号：</label>';
+			html+='		<div class="layui-form-mid" style="font-weight:bold">'+data.business_code+'</div>';
+			html+='	</div>';
+			html+='	<div class="layui-form-item" style="margin-top:20px;margin-right:20px;">';
+			html+='		<label class="layui-form-label" style="width:120px">支付密钥：</label>';
+			html+='		<div class="layui-form-mid" style="font-weight:bold">'+data.mchkey+'</div>';
+			html+='	</div>';
+			html+='</div>';
+			var viewMchkeyLayer = layer.open({type:1,area:['600px','400px'],title:false,content:html,shadeClose:true,btn: ['重置密钥', '取消'],
+			yes:function(){
+				layer.confirm('重新生成后原密钥将立即失效，确定要重新生成吗?',{icon: 7, title:'操作确认'}, function(index){
+					layer.close(index);
+					var index = layer.load();
+					$.post("{:url('updateMchkey')}",{id:id},function(data){
+						layer.close(index);
+						dialog(data.msg,data.status);
+						layer.close(viewMchkeyLayer);
+					})
+				});
+			}
+		})
+		});
+	}
+	var shimingLayer;
+	function shiming(id,type=0){
+		var index = layer.load();
+		$.post("{:url('shiming')}",{id:id,type:type},function(data){
+			layer.close(index);
+			var html = '<div style="margin:40px auto;padding:0 20px;text-align:center">';
+			if(data.shiming_qrurl){
+				html += '<div style="text-align:center"><img src="'+data.shiming_qrurl+'" style="width:250px;height:250px;margin-bottom:40px"></div>';
+			}
+
+			var payname = '微信';
+			if(type == 1){
+				payname = '支付宝';
+			}
+			if(data.shiming_status == 1){
+					html+=' 审核中—请耐心等待1~2个工作日，'+payname+'支付将会完成审核。';
+			}
+			if(data.shiming_status == 2){
+				html+=' 待确认联系信息—请扫描'+payname+'支付返回的小程序码确认联系信息';
+			}
+			if(data.shiming_status == 3){
+				html+=' 待账户验证—请扫描'+payname+'支付返回的小程序码在小程序端完成账户验证。';
+			}
+			if(data.shiming_status == 4){
+				html+='审核通过-请扫描'+payname+'支付返回的小程序码在小程序端完成授权流程。';
+			}
+			if(data.shiming_status == 5){
+				html+='审核驳回—请按照驳回原因修改申请资料，并更换业务申请编码，重新提交申请。';
+			}
+			if(data.shiming_status == 6){
+					html+='已经在'+payname+'完成过实名认证。';
+			}
+			if(data.shiming_status == 7){
+				html+='申请单已被撤销';
+			}
+			if(data.shiming_status == 8){
+				html+='已经在'+payname+'完成过实名认证。';
+			}
+			html+='	<button class="layui-btn layui-btn-normal" style="position:absolute;bottom:20px;right:20px" onclick="shimingQuery('+id+','+type+')">更新状态</button>';
+			html+='</div>';
+			shimingLayer = layer.open({type:1,area:['500px','440px'],title:false,content:html,shadeClose:true});
+		})
+	}
+	function shimingQuery(id,type = 0){
+		var index = layer.load();
+		$.post("{:url('shimingQuery')}",{id:id,type:type},function(res){
+			layer.close(index);
+			layer.close(shimingLayer);
+			if(res.data.idenStatus == 'APPLYMENT_STATE_FREEZED'){
+				dialog(res.data.rejectInfo);
+			}else{
+				shiming(id);
+			}
+		});
+	}
+	function applyQuery(id){
+		var index = layer.load();
+		$.post("{:url('applyQuery')}",{id:id},function(res){
+			layer.close(index);
+			dialog(res.msg,res.status);
+			tableIns.reload()
+		});
+	}
+	function modifyQuery(id){
+		var index = layer.load();
+		$.post("{:url('modifyQuery')}",{id:id},function(res){
+			layer.close(index);
+			dialog(res.msg,res.status);
+			tableIns.reload()
+		});
+	}
+	//删除
+	function datadel(id){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			var ids = [];
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id)
+		}
+		layer.confirm('确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('del')}",{ids:ids},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	</script>
+</body>
+</html>

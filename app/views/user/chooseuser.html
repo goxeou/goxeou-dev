@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>选择用户</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header"><i class="fa fa-list"></i> 选择用户</div>
+          <div class="layui-card-body" pad15>
+						<div class="layui-form layui-col-md12 layui-form-search">
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">账号</label>
+								<div class="layui-input-inline">
+									<input type="text" name="un" autocomplete="off" class="layui-input" value="{:input('get.un')}">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+									<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+								</button>
+							</div>
+						</div>
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+  var table = layui.table;
+	var datawhere = {};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{:url('index')}" //数据接口
+    ,page: true //开启分页
+    ,cols: [[ //表头
+			{type:"checkbox"},
+      {field: 'id', title: 'ID',  sort: true,width:80},
+	  {field: 'un', title: '账号'},
+	  {field: 'remark', title: '备注'},
+		  {field: 'nickname', title: '绑定{:t('会员')}信息',templet:function(d){
+				  if(d.mid){
+					  return '<img src="'+d.headimg+'" style="width:50px"/> '+d.nickname+'(mid='+d.mid+')';
+				  }else{
+					  return '';
+				  }
+			  }},      {field: 'operation', title: '操作',templet: '<div><button class="table-btn" onclick="chooseuser(\'{{d.id}}\')">选择</button></div>',align:'center'}
+    ]]
+  });
+	function chooseuser(id){
+		var index = layer.load();
+		$.post("",{id:id},function(res){
+			layer.close(index);
+			window.parent.chooseuser(res.data,"{$Request.param.args}");
+			var index = parent.layer.getFrameIndex(window.name);
+			parent.layer.close(index);
+		})
+	}
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	</script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!-- <div class="dsn-mod dsn-cube" ng-class="{'dsn-mod-select':Item.id == focus}" ng-style="{'background-color':Item.params.bgcolor}">
+    <div style="line-height: 170px; text-align: center; color: #999; font-size: 16px;" ng-if="!hasCube(Item)">未设置魔方</div>
+    <div class="inner">
+        <table>
+            <tr ng-repeat="row in Item.params.layout" ng-init="rowindex = $index">
+                <td ng-init="colindex = $index" ng-repeat="col in row" class="{{col.classname}} rows-{{col.rows}} cols-{{col.cols}}" 
+                    ng-class="{'empty' : col.isempty, 'not-empty' : !col.isempty}" 
+                    rowspan="{{col.rows}}" 
+                    colspan="{{col.cols}}">
+                    <div ng-if="!col.isempty && col.imgurl"><a href="{{col.hrefurl}}"><img ng-src="{{col.imgurl}}" style="width: 100%;height: auto;" /></a></div>
+                </td>
+            </tr> 
+        </table>
+    </div>
+</div>
+ -->
+
+<div class="dsn-mod dsn-cube" ng-class="{'dsn-mod-select':Item.id == focus}" style="display:block;position:relative;background:{{Item.params.bgcolor}};height:{{Item.params.maxheight*85 - Item.params.margin_y*2}}px;margin:{{Item.params.margin_y}}px {{Item.params.margin_x}}px 0;padding:{{Item.params.padding_y}}px {{Item.params.padding_x}}px">
+  <div style="line-height: 170px; text-align: center; color: #999; font-size: 16px;" ng-if="!hasCube(Item)">未设置魔方</div>
+	<div ng-if="!show">
+		<span ng-repeat="(idx,row) in Item.params.layout">
+			<span ng-repeat="(idx2,col) in row">
+				<div ng-show="!col.isempty" style="position:absolute;top:{{idx*(340-Item.params.margin_y*2-Item.params.padding_y*2)/4-3+Item.params.padding_y*1}}px;left:{{idx2*(372-Item.params.margin_x*2-Item.params.padding_x*2)/4-2+Item.params.padding_x*1}}px;width:{{col.cols*(372-Item.params.margin_x*2-Item.params.padding_x*2)/4}}px;height:{{col.rows*(340-Item.params.margin_y*2-Item.params.padding_y*2)/4}}px;line-height:{{col.rows*(340-Item.params.margin_y*2-Item.params.padding_y*2)/4}}px;"><img ng-src="{{col.imgurl}}" style="width:100%;max-height:100%;"/></div>
+			</span>
+		</span>
+	</div>
+	<div ng-if="show">
+		<span ng-repeat="(idx,row) in Item.params.layout">
+			<span ng-repeat="(idx2,col) in row">
+				<div ng-show="!col.isempty" style="position:absolute;top:{{idx*(340-Item.params.margin_y*2-Item.params.padding_y*2)/4+Item.params.padding_y*1}}px;left:{{idx2*(372-Item.params.margin_x*2-Item.params.padding_x*2)/4+Item.params.padding_x*1}}px;width:{{col.cols*(372-Item.params.margin_x*2-Item.params.padding_x*2)/4}}px;height:{{col.rows*(340-Item.params.margin_y*2-Item.params.padding_y*2)/4}}px;line-height:{{col.rows*(340-Item.params.margin_y*2-Item.params.padding_y*2)/4}}px;"><img ng-src="{{col.imgurl}}" style="width:100%;max-height:100%;"/></div>
+			</span>
+		</span>
+	</div>
+</div>
+ 

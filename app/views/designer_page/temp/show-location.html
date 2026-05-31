@@ -1,0 +1,36 @@
+{if getcustom('show_location')}
+<div class="dsn-mod dsn-search" ng-class="{'dsn-mod-select':Item.id == focus}" ng-style="{'background-color':Item.params.bgcolor,'margin':Item.params.margin_y+'px '+Item.params.margin_x+'px','padding':Item.params.padding_y+'px '+Item.params.padding_x+'px'}">
+    <div ng-style="{'border-color':Item.params.bordercolor,'border-radius':Item.params.borderradius+'px','width':'100%','border-style':'solid','border-width':'1px','color':Item.params.color}">
+        <div style="display: flex;justify-content: space-between;">
+            <div  style="width: 80px;overflow: hidden;height: 36px;line-height: 36px;flex-shrink: 0;text-align: center;text-overflow: ellipsis;padding: 0 5px;">
+                {if $sysset.mode==2}
+                    {if $sysset.loc_range_type==0}
+                    <span ng-if="Item.params.showlevel == 1">北京</span>
+                    <span ng-if="Item.params.showlevel == 2">北京市</span>
+                    <span ng-if="Item.params.showlevel == 3">朝阳区</span>
+                    {/if}
+                    {if $sysset.loc_range_type==1}
+                    <span>万达广场</span>
+                    {/if}
+                {/if}
+                {if $sysset.mode==3}
+                <span>xx总店</span>
+                {/if}
+            </div>
+            <div class="dp-search-search-noborder" ng-if="Item.params.showsearch == 1" >
+                <div class="dp-search-search-f2">
+                    <input class="dp-search-search-input" name="keyword" placeholder="{{Item.params.placeholder?Item.params.placeholder:'请输入关键字'}}" ng-style="{color:Item.params.color}" />
+                </div>
+                <div class="dp-search-search-f1"></div>
+            </div>
+            <div ng-if="Item.params.showicon == 1" class="dsn-mod" style="display: flex;align-items: center;flex-shrink: 0" ng-class="{'dsn-mod-select':Item.id == focus}">
+                <div ng-repeat="d in Item.data" style="width: 20px;height: 20px">
+                    <a href="javascript:void(0);">
+                        <img ng-src="{{d.imgurl}}" ng-show="d.imgurl" height="20" width="20"/>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{/if}

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>配送设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header"><i class="fa fa-cog"></i> 配送设置</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w6" lay-filter="">
+						
+						{if $info['make_status']==1}<blockquote class="layui-elem-quote" style="color:red">您已开启{:t('码科跑腿')}，同城配送时订单将直接分派到{:t('码科跑腿')}系统，本系统的配送功能将不再生效</blockquote>
+						{elseif $info['express_wx_status']==1}<blockquote class="layui-elem-quote" style="color:red">您已开启即时配送，同城配送时订单将直接分派到即时配送，本系统的配送功能将不再生效</blockquote>
+						{elseif $info['myt_status']==1}<blockquote class="layui-elem-quote" style="color:red">您已开启麦芽田配送，同城配送时订单将直接分派到麦芽田配送，本系统的配送功能将不再生效</blockquote>
+
+						{else}
+						<blockquote class="layui-elem-quote">配送方式为同城配送时，可以使用本模块进行分配配送员进行配送</blockquote>
+						{/if}
+						<blockquote class="layui-elem-quote" style="color:red">注意：订单发生退款时，需要进入对应的配送订单列表，手动取消配送订单，否则配送订单不受退款影响，会继续配送</blockquote>
+						<div class="layui-form-item">
+							<label class="layui-form-label">系统状态：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[status]" value="1" {if $info['status']==1}checked{/if} title="开启" lay-filter="status"/>
+								<input type="radio" name="info[status]" value="0" {if $info['status']==0}checked{/if} title="关闭" lay-filter="status"/>
+							</div>
+						</div>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">派单模式：</label>
+							<div class="layui-input-inline" style="width:500px">
+								<input type="radio" name="info[paidantype]" value="0" title="配送员抢单" {if $info['paidantype']==0}checked{/if} lay-filter="paidantype">
+								<input type="radio" name="info[paidantype]" value="1" title="指定配送员" {if $info['paidantype']==1}checked{/if} lay-filter="paidantype">
+							</div>
+						</div>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">预计发货时间：</label>
+							<div class="layui-input-inline" style="width: 100px;">
+								<input type="text" name="info[yuji_sendminute]" class="layui-input" value="{$info.yuji_sendminute}">
+							</div>
+							<div class="layui-form-mid">分钟</div>
+							<div class="layui-form-mid">预计送达时间 = 预计发货时间 + 预计配送时间</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">预计配送时间：</label>
+							<div class="layui-input-inline" style="width: 100px;">
+								<input type="text" name="info[yuji_psjuli1]" class="layui-input" value="{$info.yuji_psjuli1}">
+							</div>
+							<div class="layui-form-mid">公里内</div>
+							<div class="layui-input-inline" style="width: 100px;">
+								<input type="text" name="info[yuji_psminute1]" class="layui-input" value="{$info.yuji_psminute1}">
+							</div>
+							<div class="layui-form-mid">分钟；每超出</div>
+							<div class="layui-input-inline" style="width: 100px;">
+								<input type="text" name="info[yuji_psjuli2]" class="layui-input" value="{$info.yuji_psjuli2}">
+							</div>
+							<div class="layui-form-mid">公里，加</div>
+							<div class="layui-input-inline" style="width: 100px;">
+								<input type="text" name="info[yuji_psminute2]" class="layui-input" value="{$info.yuji_psminute2}">
+							</div>
+							<div class="layui-form-mid">分钟</div>
+							
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">结算方式：</label>
+							<div class="layui-input-inline" style="width:500px">
+								<input type="radio" name="info[jiesuantype]" value="0" title="按单计算提成" {if $info['jiesuantype']==0}checked{/if} lay-filter="jiesuantype">
+								<input type="radio" name="info[jiesuantype]" value="1" title="按距离计费提成" {if $info['jiesuantype']==1}checked{/if} lay-filter="jiesuantype">
+							</div>
+						</div>
+						
+						<div id="jiesuantype0_div" class="layui-form-item" style="{if $info['jiesuantype']!=0}display:none{/if}">
+							<label class="layui-form-label">提成金额：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[tcmoney]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.tcmoney}">
+							</div>
+							<div class="layui-form-mid">元每单</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+						</div>
+
+						<div id="jiesuantype1_div" style="{if $info['jiesuantype']!=1}display:none{/if}">
+							<div class="layui-form-item">
+								<label class="layui-form-label">提成金额：</label>
+								<div class="layui-input-inline" style="width: 100px;">
+									<input type="text" name="info[peisong_juli1]" class="layui-input" value="{$info.peisong_juli1}">
+								</div>
+								<div class="layui-form-mid">公里内</div>
+								<div class="layui-input-inline" style="width: 100px;">
+									<input type="text" name="info[peisong_tcmoney1]" class="layui-input" value="{$info.peisong_tcmoney1}">
+								</div>
+								<div class="layui-form-mid">元；每超出</div>
+								<div class="layui-input-inline" style="width: 100px;">
+									<input type="text" name="info[peisong_juli2]" class="layui-input" value="{$info.peisong_juli2}">
+								</div>
+								<div class="layui-form-mid">公里，加</div>
+								<div class="layui-input-inline" style="width: 100px;">
+									<input type="text" name="info[peisong_tcmoney2]" class="layui-input" value="{$info.peisong_tcmoney2}">
+								</div>
+								<div class="layui-form-mid">元</div>
+								<div class="layui-form-mid">封顶</div>
+								<div class="layui-input-inline" style="width: 100px;">
+									<input type="text" name="info[peisong_tcmoneymax]" class="layui-input" value="{$info.peisong_tcmoneymax}">
+								</div>
+								<div class="layui-form-mid">元</div>
+							</div>
+						</div>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">提现方式：</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="checkbox" name="info[withdraw_weixin]" title="微信钱包" value="1" {if $info['withdraw_weixin']==1}checked{/if} lay-skin="primary">
+								<input type="checkbox" name="info[withdraw_aliaccount]" title="支付宝" value="1" {if $info['withdraw_aliaccount']==1}checked{/if} lay-skin="primary"/>
+								<input type="checkbox" name="info[withdraw_bankcard]" title="银行卡" value="1" {if $info['withdraw_bankcard']==1}checked{/if} lay-skin="primary"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">提现到微信钱包需开通企业付款到零钱功能</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">提现最小金额：</label>
+							<div class="layui-input-inline" style="width:120px">
+								<input type="text" name="info[withdrawmin]" value="{$info['withdrawmin']}" class="layui-input"/>
+							</div>
+							<div class="layui-form-mid">元</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">提现手续费：</label>
+							<div class="layui-input-inline" style="width:120px">
+								<input type="text" name="info[withdrawfee]" value="{$info['withdrawfee']}" class="layui-input"/>
+							</div>
+							<div class="layui-form-mid">%</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">商家是否可用：</label>
+							<div class="layui-input-inline" style="width:150px">
+								<input type="radio" name="info[businessst]" value="1" title="是" {if $info['businessst']==1}checked{/if}>
+								<input type="radio" name="info[businessst]" value="0" title="否" {if $info['businessst']==0}checked{/if}>
+							</div>
+							<div class="layui-form-mid layui-word-aux">多商户的商家是否可用平台配送员进行配送</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">商家费率：</label>
+							<div class="layui-input-inline" style="width:120px">
+								<input type="text" name="info[businessfee]" value="{$info['businessfee']}" class="layui-input"/>
+							</div>
+							<div class="layui-form-mid">%</div>
+							<div class="layui-form-mid layui-word-aux">商家使用平台同城配送时加收配送员提成的百分之多少</div>
+						</div>
+
+
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+		layui.form.on('radio(paidantype)', function(data){
+			if(data.value == '0'){
+				$('#auto_paidan').show();
+				layui.form.render("radio");
+			}else{
+				$('#auto_paidan').hide();
+				layui.form.render("radio");
+			}
+		})
+	layui.form.on('radio(jiesuantype)', function(data){
+		if(data.value == '1'){
+			$('#jiesuantype0_div').hide();
+			$('#jiesuantype1_div').show();
+		}else{
+			$('#jiesuantype0_div').show();
+			$('#jiesuantype1_div').hide();
+		}
+	})
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		if(!field['info[withdraw_weixin]'])  field['info[withdraw_weixin]'] = 0
+		if(!field['info[withdraw_bankcard]'])  field['info[withdraw_bankcard]'] = 0
+		if(!field['info[withdraw_aliaccount]'])  field['info[withdraw_aliaccount]'] = 0
+		$.post("{:url('save')}",field,function(data){
+			dialog(data.msg,data.status,data.url);
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

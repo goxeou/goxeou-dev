@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>小程序设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	.table{border:1px solid #e7e7eb;text-align:left;}
+	.table{width:100%;font-size:14px;background-color:#fff;border-top:1px solid #e7e7eb;border-bottom:1px solid #e7e7eb;border-spacing:0}
+	.table_cell{padding:0;font-weight:400;font-style:normal}
+	.thead{background-color:#f6f8f9}
+	.thead .table_cell{line-height:32px;border-left:1px solid #e7e7eb;border-bottom:1px solid #e7e7eb}
+	.thead .table_cell:first-child{border-left-width:0}.tbody tr:hover,.tbody tr.even{background-color:transparent}
+	.tbody tr.empty_item:hover{background:0}.tbody tr:first-child .table_cell{border-top-width:0}
+	.tbody .table_cell{padding-top:6px;padding-bottom:6px;border-top:1px solid #e7e7eb}
+	.table{border:0}
+	.thead{background-color:#f6f8f9;color:#9a9a9a}
+	.thead .table_cell{border-left-width:0;line-height:40px;border-bottom:0}
+	.tbody .table_cell.hd_dropdown_area{padding-left:30px}
+	.tbody .table_cell{height:52px;padding-top:12px;padding-bottom:12px;border-top:0;border-bottom:1px solid #e7e7eb;word-wrap:break-word;word-break:break-all}
+	.table_cell{padding-left:5px;padding-right:5px}
+	.table_cell:first-child{text-align:left;padding-left:20px}
+	.table_cell:last-child{text-align:right;padding-right:20px}
+	.table_cell.last_child{text-align:right;padding-right:20px}
+	.tbody .table_cell.rank_area{padding-right:34px}
+	tr>.table_cell:last-child{text-align:right}
+	.table_wrp.inside_table .thead .table_cell{line-height:32px}
+	.table_wrp.default_head_skin .thead{background-color:transparent}
+	.table_wrp.gray_head_skin .table_opr{background-color:#f6f8f9}
+	.table_wrp.with_table_list .table{border:1px solid #e7e7eb}
+	.table_wrp.with_table_list .table_cell{vertical-align:top}
+	.table_opr.with_btn_line{padding:10px 20px}
+	.table_opr_meta_btn{margin-right:12px}
+	.empty_item td{border-bottom:1px solid #e7e7eb}
+	.table.complex_data .table_cell{padding-left:5px;padding-right:5px}
+	.table.complex_data .table_cell:first-child{text-align:left;padding-left:20px}
+	.table.complex_data tr>.table_cell:last-child{text-align:right;padding-right:20px}
+	.table.simple_data .table_cell{padding-left:10px;padding-right:10px}
+	.table.simple_data .table_cell:first-child{text-align:left;padding-left:20px}
+	.table.simple_data tr>.table_cell:last-child{text-align:right;padding-right:20px}
+	tr.clickable_row{cursor:pointer}
+	tr.clickable_row:hover .table_cell{background-color:#fcfcfc}
+	.links_item{display:inline-block;*display:inline;*zoom:1;vertical-align:middle;padding:0 1em;line-height:1em;*line-height:18px;border-left:1px solid #d9dadc}
+	.links_item.no_extra{border-left-width:0}
+	.links_item:first-child{border-left-width:0}
+	.links_item a{display:block;color:#797979}
+	.links.tab_links{margin-left:-1em}
+	.links.tab_links .links_item{border-left-color:#d9dadc}
+	.links.tab_links .links_item:hover a{color:#353535}
+	.links.tab_links .selected a{color:#353535}
+	.table_cell a{color: #576b95;}
+	.table_cell a:hover {text-decoration: underline;}
+	.table_cell .desc{color: #9a9a9a;}
+	.table_cell .meta_pic{width:50px}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-col-md12">
+        <div class="layui-card">
+          <div class="layui-card-header">
+						<i class="fa fa-cog"></i> 小程序设置
+						{if $_GET['isopen']==1}<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>{/if}
+					</div>
+          <div class="layui-card-body" pad15>
+
+						<table class="table" cellspacing="0">
+							<thead class="thead">
+							<tr>
+								<th class="table_cell " colspan="2">基本信息</th>
+								<th class="table_cell desc">说明</th>
+								<th class="table_cell last_child no_extra opr">操作</th>
+							</tr>
+							</thead>
+							<tbody class="tbody">
+							<tr>
+								<td class="table_cell base_info" style="width: 12%;"><div class="meta_name">小程序名称</div></td>
+								<td class="table_cell"><div class="meta_content">{if $info['nickname']}{$info.nickname}{else}尚未设置{/if}</div></td>
+								<td class="table_cell"><div class="meta_tips"><p class="desc">小程序发布后，将不支持改名</p></div></td>
+								<td class="table_cell last_child"><div class="meta_opr"><p><a href="javascript:void(0)" onclick="openset_nickname()">修改</a></p></div></td>
+							</tr>
+							<tr>
+								<td class="table_cell"><div class="meta_name">小程序头像</div></td>
+								<td class="table_cell"><div class="meta_content"><img class="meta_pic" src="{$info['head_image_info']['head_image_url']}"></div></td>
+								<td class="table_cell"><div class="meta_tips"><p class="desc">一个月内可申请修改{$info['head_image_info']['modify_quota']}次</p><p class="desc">本月还可修改{:intval($info['head_image_info']['modify_quota'] - $info['head_image_info']['modify_used_count'])}次</p></div></td>
+								<td class="table_cell last_child"><div class="meta_opr"><a href="javascript:void(0);" onclick="openset_headimg()">修改</a></div></td>
+							</tr>
+							<!-- <tr>
+								<td class="table_cell"><div class="meta_name">小程序码及线下物料下载</div></td>
+								<td class="table_cell"><div class="meta_content"><img src="" class="meta_pic"></div></td>
+								<td class="table_cell"><div class="meta_tips"><p class="desc">可下载小程序码及搜索框等线下推广物料</p><div></div></div></td>
+								<td class="table_cell last_child"><div class="meta_opr"><a href="javascript:;" id="js_more_size">下载</a></div></td>
+							</tr> -->
+							<tr>
+								<td class="table_cell"><div class="meta_name">介绍</div></td>
+								<td class="table_cell"><div class="meta_content">{$info['signature_info']['signature']}</div></td>
+								<td class="table_cell"><div class="meta_tips"><p class="desc">一个月内可申请{$info['signature_info']['modify_quota']}次修改</p><p class="desc">本月还可修改{:intval($info['signature_info']['modify_quota'] - $info['signature_info']['modify_used_count'])}次</p></div></td>
+								<td class="table_cell last_child"><div class="meta_opr"><a href="javascript:;" onclick="openset_signature()">修改</a></div></td>
+							</tr>
+							<tr>
+								<td class="table_cell"><div class="meta_name">微信认证</div></td>
+								<td class="table_cell"><div class="meta_content">{if $info['wx_verify_info']['qualification_verify']}<span style="color:#53d78e">已认证<i class="fa fa-check"></i></span>{else}未认证{/if}</div></td>
+								<td class="table_cell"><div class="meta_tips"><p class="desc"></p></div></td>
+								<td class="table_cell last_child"><div class="meta_opr"></div></td>
+							</tr>
+							<tr>
+								<td class="table_cell"><div class="meta_name">主体信息</div></td>
+								<td class="table_cell"><div class="meta_content">{$info.principal_name}</div></td>
+								<td class="table_cell"><div class="meta_tips"><p class="desc">企业法人及个体工商户</p></div></td>
+								<td class="table_cell last_child"><div class="meta_opr"></div></td>
+							</tr>
+							<tr>
+								<td class="table_cell"><div class="meta_name">AppID</div></td>
+								<td class="table_cell"><div class="meta_content">{$info.appid}</div></td>
+								<td class="table_cell"><div class="meta_tips"><p class="desc"></p></div></td>
+								<td class="table_cell last_child"><div class="meta_opr"></div></td>
+							</tr>
+							<tr>
+								<td class="table_cell"><div class="meta_name">服务类目</div></td>
+								<td class="table_cell">
+									<div class="meta_content">
+										{foreach $category['categories'] as $c}
+										<span class="main_category">{$c.first_name} </span> &gt; <span class="sub_category">{$c.second_name} </span><span style="color:#f85">{if $c['audit_status']==1}审核中{/if}{if $c['audit_status']==2}审核失败{/if} </span><br>
+										{/foreach}
+									</div>
+								</td>
+								<td class="table_cell"><div class="meta_tips"><p class="desc">一个月内可申请修改{$category.limit}次</p><p class="desc">本月还可修改{$category.quota}次</p></div></td>
+								<td class="table_cell last_child"><div class="meta_opr"><a href="javascript:void(0)" onclick="openmax('{:url('Wxleimu/index')}&isopen=1')">详情</a></div></td>
+							</tr>
+							<!-- <tr>
+								<td class="table_cell"><div class="meta_name">暂停服务设置</div></td>
+								<td class="table_cell"><div class="meta_content">未暂停服务</div></td>
+								<td class="table_cell"><div class="meta_tips"><p class="desc">暂停服务后，用户将不可以正常访问线上版本小程序</p></div></td>
+								<td class="table_cell last_child"><div class="meta_opr"><a href="javascript:;" data-state="1" id="js_enable_state">暂停服务</a></div></td>
+							</tr>
+							<tr>
+								<td class="table_cell"><div class="meta_name">开发小程序所属帐号</div></td>
+								<td class="table_cell"><div class="meta_content"><img class="meta_pic" src=""> </div></td>
+								<td class="table_cell"><div class="meta_tips"><p class="desc">解绑后，新上传的代码将同步到开发管理</p></div></td>
+								<td class="table_cell last_child"><div class="meta_opr"><a href="javascript:;" data-appid="wx0a457f69801f7639" id="js_unbind_open">解绑</a></div></td>
+							</tr> -->
+							<tr>
+								<td class="table_cell"><div class="meta_name">隐私设置</div></td>
+								<td class="table_cell"><div class="meta_content">{if $cansearch['status']==0}允许被搜索{else}不可被搜索到{/if}</div></td>
+								<td class="table_cell"><div class="meta_tips"><p class="desc">设置是否允许用户通过名称搜索到小程序帐号</p></div></td>
+								<td class="table_cell last_child">
+									<div class="meta_opr">
+										{if $cansearch['status']==0}
+										<a href="javascript:;" onclick="closesearch()">关闭</a>
+										{else}
+										<a href="javascript:;" onclick="opensearch()">开启</a>
+										{/if}
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="table_cell"><div class="meta_name">附近小程序</div></td>
+								<td class="table_cell">
+									<div class="meta_content">
+										{if $poi_list['poi_list']}
+										{foreach $poi_list['poi_list'] as $poi}
+										<span class="main_category">{$poi.qualification_address} </span>
+										<span class="sub_category" style="color:#f85">{if $poi['audit_status']==3}审核中{/if}{if $poi['audit_status']==4}审核失败 {$poi.refuse_reason}{/if} </span>
+										{if $poi['audit_status']==5 && $poi['display_status']==0}<span style="color:#f85">未展示</span> <a href="javascript:void(0)" onclick="setpoist(1,'{$poi.poi_id}')">开启</a>{/if}
+										{if $poi['audit_status']==5 && $poi['display_status']==1}<span style="color:#53d78e">展示中</span> <a href="javascript:void(0)" onclick="setpoist(0,'{$poi.poi_id}')">关闭</a>{/if}
+										<br>
+										{/foreach}
+										{/if}
+									</div>
+								</td>
+								<td class="table_cell"><div class="meta_tips"><p class="desc">最大可添加地点{$nearbypoidata['data']['max_apply_num']}个</p><p class="desc">剩余可添加地点{$nearbypoidata['data']['left_apply_num']}个</p></div></td>
+								<td class="table_cell last_child"><div class="meta_opr"><a href="javascript:void(0)" onclick="poiadd()">添加</a></div></td>
+							</tr>   
+							<tr>
+								<td class="table_cell"><div class="meta_name">小程序直播</div></td>
+								<td class="table_cell"><div class="meta_content">{if $info['livestatus']==0}未开通{else}已开通{/if}</div></td>
+								<td class="table_cell"><div class="meta_tips"><p class="desc"></p></div></td>
+								<td class="table_cell last_child">
+									<div class="meta_opr">
+										{if $info['livestatus']==0}
+										<a href="javascript:;" onclick="applylive()">申请开通</a>
+										{else}
+										{/if}
+									</div>
+								</td>
+							</tr>
+							</tbody>
+						</table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	function setpoist(st,poi_id){
+		if(st==0){
+			var msg = '确定要关闭展示吗?'
+		}else{
+			var msg = '确定要开启展示吗?'
+		}
+		layer.confirm(msg, function(index){
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('setpoist')}",{st:st,poi_id:poi_id},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status,data.url);
+			});
+		})
+	}
+	function openleimu(){
+		layer.open({type:2,area:['850px','650px'],content:"{:url('Wxleimu/index')}",title:'服务类目',shadeClose:true});
+	}
+	function closesearch(){
+		layer.confirm('确定要关闭吗?', function(index){
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('closesearch')}",{},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status,data.url);
+			});
+		});
+	}
+	function opensearch(){
+		layer.confirm('确定要开启吗?', function(index){
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('opensearch')}",{},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status,data.url);
+			});
+		});
+	}
+	function openset_nickname(){
+		var html = '<div style="margin:20px" class="layui-form form-label-w6">';
+		html+='<div class="layui-form-item">';
+		html+='		<label class="layui-form-label"><span class="redstar">*</span>小程序名称：</label>';
+		html+='		<div class="layui-input-inline" style="width:240px">';
+		html+='			<input type="text" name="set_nickname_nickname" class="layui-input">';
+		html+='		</div>';
+		html+='		<div class="layui-form-mid layui-word-aux">必填</div>';
+		html+='	</div>';
+		html+='<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">身份证：</label>';
+		html+='		<input type="hidden" name="set_nickname_id_card" id="set_nickname_id_card" class="layui-input" value="">';
+		html+='		<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this)" upload-input="set_nickname_id_card" upload-preview="idcardPreview">上传图片</button>';
+		html+='		<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">个人号必填，身份证照片</div>';
+		html+='		<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>';
+		html+='		<div id="idcardPreview" style="float:left;padding-top:10px;margin-left:130px;clear: both;">';
+		html+='			<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src=""/></div></div>';
+		html+='		</div>';
+		html+='	</div>';
+		html+='<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">营业执照：</label>';
+		html+='		<input type="hidden" name="set_nickname_license" id="set_nickname_license" class="layui-input" value="">';
+		html+='		<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this)" upload-input="set_nickname_license" upload-preview="licensePreview">上传图片</button>';
+		html+='		<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">组织号必填，组织机构代码证或营业执照</div>';
+		html+='		<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>';
+		html+='		<div id="licensePreview" style="float:left;padding-top:10px;margin-left:130px;clear: both;">';
+		html+='			<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src=""/></div></div>';
+		html+='		</div>';
+		html+='	</div>';
+		html+='<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">其他证明材料：</label>';
+		html+='		<input type="hidden" name="naming_other_stuff_1" id="naming_other_stuff_1" class="layui-input" value="">';
+		html+='		<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this)" upload-input="naming_other_stuff_1" upload-preview="naming_other_stuff_1Preview">上传材料</button>';
+		html+='		<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>';
+		html+='		<div id="naming_other_stuff_1Preview" style="float:left;padding-top:10px;margin-left:130px;clear: both;">';
+		html+='			<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src=""/></div></div>';
+		html+='		</div>';
+		html+='		<div class="layui-form-mid layui-word-aux" style="margin-left:10px"> 选填，名称涉及使用权时需要提供证明材料</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item" style="margin-top:50px">';
+		html+='		<label class="layui-form-label"></label>';
+		html+='		<div class="layui-input-inline">';
+		html+='			<button class="layui-btn layui-btn-normal" lay-submit lay-filter="submit_set_nickname">确 定</button>';
+		html+='		</div>';
+		html+='	</div>';
+		html+='	</div>';
+		layer.open({type:1,area:['700px','500px'],content:html,title:false,shadeClose:true});
+		layui.form.on('submit(submit_set_nickname)', function(obj){
+			var field = obj.field
+			var index = layer.load();
+			$.post("{:url('setnickname')}",field,function(data){
+				layer.close(index);
+				dialog(data.msg,data.status,data.url);
+			});
+		});
+	}
+	function openset_headimg(){
+		var html = '<div style="margin:20px" class="layui-form form-label-w6">';
+		html+='<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">头 像：</label>';
+		html+='		<input type="hidden" name="set_headimg" id="set_headimg" class="layui-input" value="">';
+		html+='		<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this)" upload-input="set_headimg" upload-preview="set_headimgPreview">上传图片</button>';
+		html+='		<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议图片尺寸为144px*144px</div>';
+		html+='		<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>';
+		html+='		<div id="set_headimgPreview" style="float:left;padding-top:10px;margin-left:130px;clear: both;">';
+		html+='			<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src=""/></div></div>';
+		html+='		</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item" style="margin-top:50px">';
+		html+='		<label class="layui-form-label"></label>';
+		html+='		<div class="layui-input-inline">';
+		html+='			<button class="layui-btn layui-btn-normal" lay-submit lay-filter="submit_set_headimg">确 定</button>';
+		html+='		</div>';
+		html+='	</div>';
+		html+='	</div>';
+		layer.open({type:1,area:['600px','300px'],content:html,title:false,shadeClose:true});
+		layui.form.on('submit(submit_set_headimg)', function(obj){
+			var field = obj.field
+			var index = layer.load();
+			$.post("{:url('setheadimg')}",field,function(data){
+				layer.close(index);
+				dialog(data.msg,data.status,data.url);
+			});
+		});
+	}
+	function openset_signature(){
+		var html = '<div style="margin:20px" class="layui-form form-label-w6">';
+		html+='<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">介绍内容：</label>';
+		html+='		<div class="layui-input-inline" style="width:350px">';
+		html+='			<textarea type="text" name="set_signature" class="layui-textarea" style="height:100px"></textarea>';
+		html+='		</div>';
+		html+='		<div class="layui-form-mid layui-word-aux" style="margin-left:130px">120字以内，请确认介绍内容不含国家相关法律法规禁止内容</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item" style="margin-top:50px">';
+		html+='		<label class="layui-form-label"></label>';
+		html+='		<div class="layui-input-inline">';
+		html+='			<button class="layui-btn layui-btn-normal" lay-submit lay-filter="submit_set_signature">确 定</button>';
+		html+='		</div>';
+		html+='	</div>';
+		html+='	</div>';
+		layer.open({type:1,area:['600px','300px'],content:html,title:false,shadeClose:true});
+		layui.form.on('submit(submit_set_signature)', function(obj){
+			var field = obj.field
+			var index = layer.load();
+			$.post("{:url('setsignature')}",field,function(data){
+				layer.close(index);
+				dialog(data.msg,data.status,data.url);
+			});
+		});
+	}
+	function poiadd(){
+		var html = '<div style="margin:20px" class="layui-form form-label-w6">';
+		html+='<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">经营资质主体：</label>';
+		html+='		<div class="layui-input-inline" style="width:200px">';
+		html+='			<input type="text" name="related_name" class="layui-input">';
+		html+='		</div>';
+		html+='		<div class="layui-form-mid layui-word-aux">*必填</div>';
+		html+='	</div>';
+		html+='<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">经营资质证件号：</label>';
+		html+='		<div class="layui-input-inline" style="width:200px">';
+		html+='			<input type="text" name="related_credential" class="layui-input">';
+		html+='		</div>';
+		html+='		<div class="layui-form-mid layui-word-aux">*必填</div>';
+		html+='	</div>';
+		html+='<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">经营资质地址：</label>';
+		html+='		<div class="layui-input-inline" style="width:200px">';
+		html+='			<input type="text" name="related_address" class="layui-input">';
+		html+='		</div>';
+		html+='		<div class="layui-form-mid layui-word-aux">*必填</div>';
+		html+='	</div>';
+		html+='<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">相关证明材料照片：</label>';
+		html+='		<input type="hidden" name="related_proof_material" id="related_proof_material" class="layui-input" value="">';
+		html+='		<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this)" upload-input="related_proof_material" upload-preview="related_proof_materialP">上传图片</button>';
+		html+='		<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">经营资质主体与小程序非同主体时必填</div>';
+		html+='		<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>';
+		html+='		<div id="related_proof_materialP" style="float:left;padding-top:10px;margin-left:130px;clear: both;">';
+		html+='			<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src=""/></div></div>';
+		html+='		</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item" style="margin-top:50px">';
+		html+='		<label class="layui-form-label"></label>';
+		html+='		<div class="layui-input-inline">';
+		html+='			<button class="layui-btn layui-btn-normal" lay-submit lay-filter="submit_poiadd">确 定</button>';
+		html+='		</div>';
+		html+='	</div>';
+		html+='	</div>';
+		layer.open({type:1,area:['600px','500px'],content:html,title:false,shadeClose:true});
+		layui.form.on('submit(submit_poiadd)', function(obj){
+			var field = obj.field
+			var index = layer.load();
+			$.post("{:url('poiadd')}",field,function(data){
+				layer.close(index);
+				dialog(data.msg,data.status,data.url);
+			});
+		});
+	}
+
+	//申请开通小程序直播
+	function applylive(){
+		var index = layer.load();
+		$.post("{:url('applylive')}",{},function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+		});
+	}
+
+  </script>
+</body>
+</html>

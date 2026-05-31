@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html style="height: 100%;">
+<head>
+  <meta charset="utf-8">
+  <title>页面设计</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+		.layui-card-header{display:flex;align-items:center;justify-content: space-between;position: relative;height: 50px;padding: 0 15px;
+			border-bottom: 1px solid #f6f6f6;color: #333;border-radius: 2px 2px 0 0;font-size: 14px;}
+		.button-div button{border-radius: 4px;padding: 0px 15px;}
+		.header-icon-div{align-items: center;}
+		.header-icon-div .img-box{width: auto;height: 20px;margin-right:15px;cursor:pointer;display: flex;align-items: center;}
+		.header-icon-div .img-box img{width: 20px;height: 20px;display: block;margin-left: 10px;}
+		.select-div{margin-right: 15px;}
+		.header-icon-div .select-div .layui-form-select{border-radius: 5px;border:none;}
+		.header-icon-div .select-div .layui-form-select .layui-unselect{background: #F7F7F7;border:none;}
+		.layui-card-body{height: calc(100% - 50px);padding: 0px;}
+		.layui-form-radio>i:hover, .layui-form-radioed>i {color: #3772E8;}
+		.layui-form-checkbox[lay-skin=primary]:hover i {border-color: #3772E8;color: #fff}
+		.layui-form-checked[lay-skin=primary] i {border-color: #3772E8;background-color: #3772E8;color: #fff}
+	</style>
+</head>
+<body style="height: 100%;">
+  <div class="layui-fluid" style="height: 100%;padding: 0px 0px;">
+    <div class="layui-row layui-col-space15" style="height: 100%;margin: 0;">
+      <div class="layui-card layui-col-md12" style="height: 100%;padding: 0px 0px;">
+				<div class="layui-form" style="height: 100%;">
+				<div class="layui-card-header">
+					<div class="flex-y-center header-icon-div">
+						<!-- <div class="img-box" onclick="closeSelf()"><img src="{$Think.const.PRE_URL}/static/admin/img/fanhui.png"></div> -->
+						<!-- <div class="img-box" onclick="closeSelf()"><img src="{$Think.const.PRE_URL}/static/admin/img/zhuye.png"></div> -->
+<!-- 						<div class="select-div">
+							<select>
+								<option value="">请选择</option>
+								<option value="">设计首页</option>
+								<option value="">设计我的</option>
+								<option value="">设计页面1</option>
+								<option value="">设计页面2</option>
+							</select>
+						</div> -->
+	<!-- 					<?php
+						print_r($info['ishome']);
+						?> -->
+						<div style="display: flex;align-items: center;font-size: 16px;">{if $info['id']}页面编辑{else}添加页面{/if}</div>
+						<div class="img-box" onclick="refresh()"><img src="{$Think.const.PRE_URL}/static/admin/img/shuaxin.png"></div>
+					</div>
+					
+					<div class="button-div">
+						{if $info['id']}<button class="layui-btn layui-btn-primary layui-btn-sm" onclick="showqr({$info['id']},{$info['ishome']})">预览</button>{else}
+						<button class="layui-btn layui-btn-primary layui-btn-sm" onclick="showqr2()">预览</button>{/if}
+						<!-- <button class="layui-btn layui-btn-normal layui-btn-sm" onclick="pagesave(1)">发布</button> -->
+						<!-- <button class="layui-btn layui-btn-primary layui-btn-sm" onclick="closeSelf()">关闭</button> -->
+						<button class="layui-btn layui-btn-normal layui-btn-sm" onclick="pagesave(0)">保存</button>
+						{if $info['ishome'] != 1 && $info['ishome'] != 2}<button class="layui-btn layui-btn-primary layui-btn-sm" onclick="datadel({$info['id']})">删除</button>{/if}
+						<button class="layui-btn layui-btn-primary layui-btn-sm" onclick="closeWindow()">关闭</button>
+					</div>
+					
+				</div>
+				<div class="layui-card-body">
+						<input type="hidden" id="pageid" value="{$info['id']}">
+						<!-- 详情编辑器 -->
+						{include file="designer_page/designernew" /}
+						<!-- <div class="layui-form-item">
+							<div class="layui-input-block" style="margin-left:400px">
+								<button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">设计完成</button>
+							</div>
+						</div> -->
+				</div>
+				</div>
+			</div>
+		</div>
+  </div>
+	<script>
+		function closeWindow(){
+			layer.confirm('确定要关闭吗?',{icon: 7, title:'操作确认'}, function(index){
+				window.close();
+			});
+		}
+		function showqr2(){
+			var id = $('#pageid').val();
+			if(!id) return layer.msg('请先保存！');
+			var pagepath = 'pages/index/main?id='+id
+			var url = "{:m_url('"+pagepath+"')}"; //拼接 H5 链接
+			viewLink(pagepath,url);
+		}
+		// 浏览
+		function showqr(id,ishome,type=0){
+			if(!$('#pageid').val()) return layer.msg('请先保存此模版！');
+			if(ishome==1){
+				if('{$bid}' == 0){
+					var pagepath = 'pages/index/index';
+				}else{
+					var pagepath = 'pagesExt/business/index?id='+ {$bid};
+				}
+			}else if(ishome==2){
+				var pagepath = 'pages/my/usercenter'
+			}else{
+				var pagepath = 'pages/index/main?id='+id
+			}
+			var url = "{:m_url('"+pagepath+"')}"; //拼接 H5 链接
+			viewLink(pagepath,url);
+		}
+	function refresh(){
+		location.reload()
+	}
+	function closeSelf(){
+		window.history.back(-1);
+		var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+		parent.layer.close(index); //再执行关闭   
+		// parent.location.reload();
+	}
+	function pagesave(savetype){
+		var id = $('#pageid').val()
+		var contentdata = geteditordata();
+		var index = layer.load();
+		$.post('',{ op:'save',id:id,content:contentdata.datainfo,pageinfo:contentdata.pageinfo},function(data){
+			layer.close(index);
+			if(data.status == 1 && savetype ==1){
+				dialog(data.msg,data.status);
+				setTimeout(function(){
+					parent.layer.closeAll();
+					parent.location.reload()
+					//parent.tableIns.reload()
+				},100)
+			}else{
+				if(data.pageid){
+					$('#pageid').val(data.pageid)
+				}
+				layer.msg(data.msg);
+			}
+		})
+	}
+	function datadel(id,param=''){
+		var id = $('#pageid').val();
+		if(!id) return layer.msg('请先保存！');
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			var id = [];
+			for(var i=0;i<checkData.length;i++){
+				id.push(checkData[i]['id']);
+			}
+		}
+		if(param){
+			var  go_url = "{:url('del')}{$typeparam}";
+		}else{
+			var  go_url = "{:url('del')}";
+		}
+		layer.confirm('确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post(go_url,{id:id},function(data){
+				layer.close(index);
+				// dialog(data.msg,data.status,location.href);
+				layer.confirm('操作确认',{icon: 1, title:'删除成功！',btn: ['确定'], closeBtn: 0}, function(index){
+					parent.layer.closeAll();
+					parent.location.reload();
+				})
+			})
+		});
+	}
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

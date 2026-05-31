@@ -1,0 +1,262 @@
+<!DOCTYPE html><!--custom_file(yx_queue_free)-->
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>排队记录</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header"><!--<i class="fa fa-list"></i> 排队记录-->
+			  <div class="layui-tab layui-tab-brief">
+				  <ul class="layui-tab-title">
+					  <li {if !input('?param.status') || input('param.status')===''}class="layui-this"{/if} onclick="location.href='{:url('index')}'">全部记录</li>
+					  <li {if input('param.status')==='0'}class="layui-this"{/if} onclick="location.href='{:url('index')}/status/0'">排队中</li>
+					  <li {if input('param.status')=='1'}class="layui-this"{/if} onclick="location.href='{:url('index')}/status/1'">已完成</li>
+				  </ul>
+			  </div>
+						{if input('param.isopen')==1}<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>{/if}</div>
+          <div class="layui-card-body" pad15>
+						<div class="layui-col-md6" style="padding-bottom:10px">
+							{if getcustom('yx_queue_free_money_range')}
+							{if $queue_money_range_status}
+							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="resetQueue()">重新排队</button>
+							{/if}
+							 {/if}
+<!--							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="location.href='{:url('moneylogexcel')}'+urlEncode(datawhere)">导出EXCEL</button>-->
+						</div>
+					 
+						<div class="layui-form layui-col-md12 layui-form-search">
+							{if getcustom('yx_queue_free_multi_team')}
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">队伍编号</label>
+								<div class="layui-input-inline">
+									<input type="text" name="multi_team_no" autocomplete="off" class="layui-input" value="{$Request.param.multi_team_no}" placeholder="例如：5">
+								</div>
+							</div>
+							{/if}
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">{:t('会员')}ID</label>
+								<div class="layui-input-inline">
+									<input type="text" name="mid" autocomplete="off" class="layui-input" value="{$Request.param.mid}">
+								</div>
+							</div>
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">昵称</label>
+								<div class="layui-input-inline">
+									<input type="text" name="nickname" autocomplete="off" class="layui-input" value="" >
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label">时间</label>
+								<div class="layui-input-inline" style="width:180px">
+									<input type="text" name="ctime" id="ctime" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+									<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+								</button>
+							</div>
+						</div>
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+  {if getcustom('yx_queue_free_money_range')}
+  <div id="resetqueue" style="width:430px;display:none;margin-top:30px">
+	  <div class="layui-form" lay-filter="">
+		  <div class="layui-form-item">
+			  <label class="layui-form-label" style="width: 80px">类型：</label>
+			  <div class="layui-input-inline" style="width: 300px;">
+				  <input type="radio" name="action" value="1" title="所有未排队数据" >
+				  <input type="radio" name="action" value="2" title="所有未退出数据" >
+			  </div>
+			  <div class="layui-form-mid layui-word-aux"></div>
+		  </div>
+		  <div class="layui-form-item">
+			  <div class="layui-input-block">
+				  <button class="layui-btn layui-btn-normal" lay-submit lay-filter="quitQueueSumit">确定</button>
+			  </div>
+		  </div>
+	  </div>
+  </div>
+  {/if}
+	{include file="public/js"/}
+	<script>
+	layui.laydate.render({ 
+		elem: '#ctime',
+		trigger: 'click',
+		range: '~' //或 range: '~' 来自定义分割字符
+	});
+  var table = layui.table;
+	var datawhere = {};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{$Request.url}" //数据接口
+    ,page: true //开启分页
+    ,cols: [[ //表头
+			// {type:"checkbox"},
+      {field: 'id', title: 'ID',sort:true,width:80},
+		  {field: 'queue_no', title: '排名',sort:true,width:80},
+      {field: 'mid', title: '{:t('会员')}ID',width:80},
+      {field: 'nickname', title: '{:t('会员')}信息',templet:'<div>{{# if(d.nickname){ }}<img src="{{d.headimg}}" style="width:50px"> {{d.nickname}}{{# } }}</div>'},
+		  {field: 'tel', title: '手机号',width:120},
+		  {field: 'bname', title: '商户名称',width:120},
+		  {field: 'ordernum', title: '订单号',sort:false},
+		  {field: 'type', title: '类型',templet:function(d){
+				  if(d.type=='shop'){
+				  	return '商城';
+				  }else if(d.type=='maidan'){
+					  return '买单';
+				  }else if(d.type=='collage'){
+					  return '多人拼团';
+				  }
+			  },width:80},
+      {field: 'money', title: '排队金额',sort:true,width:120},
+      {field: 'money_give', title: '已返金额',sort:true,templet:function(d){
+			  return '<a href="javascript:void(0)" onclick="openmax(\'{:url('QueueFree/log')}&isopen=1&queueid='+d.id+'\')">'+d.money_give+'</a>';
+		  },width:100}, 
+	  {if getcustom('yx_queue_duli_queue')}		  
+	  {field: 'teamid', title: '排队队伍',templet:'<div>{{# if(d.teammember.nickname){ }}<img src="{{d.teammember.headimg}}" style="width:50px"> {{d.teammember.nickname}}{{# } }}</div>'},
+	  {/if} 
+	 {if getcustom('yx_queue_free_multi_team')}		  
+		  {field: 'multi_team_no', title: '队伍编号',width: 100},
+	  {/if}
+			  
+      {field: 'createtime', title: '排队时间',sort:true,templet:function(d){ return date('Y-m-d H:i',d.createtime)},width:130},
+		 
+		  {field: 'status', title: '状态',templet:function(d){
+			  if(d.status==0 && !d.quit_queue){
+				  return '<span style="color:red">排队中</span>';
+			  } 
+			  if(d.status==1 && !d.quit_queue){
+				  return '<span style="color:green">已完成</span>';
+			  }
+			  if( d.quit_queue ==1){
+				  return '<span style="color:gray">已退出</span>';
+			  }
+		  }},
+
+		  {if getcustom('yx_queue_free_money_range')}
+		  	{field: 'range_no', title: '队伍编号',width: 100},
+		  {/if}
+			  
+		  {field: 'op', title: '操作',templet:function(d){
+				  var html = '';
+				  if(d.type == 'shop'){
+					  if(d.bid == 0){
+						  html += '<button class="table-btn" onclick="openmax(\'{:url('ShopOrder/index')}&orderid='+d.orderid+'&isopen=1\')">查看订单</button>';
+					  }else{
+						  html += '<button class="table-btn" onclick="openmax(\'{:url('ShopOrder/index')}&orderid='+d.orderid+'&isopen=1&showtype=2\')">查看订单</button>';
+					  }
+				  }
+				  if(d.type == 'collage'){
+					  html += '<button class="table-btn" onclick="openmax(\'{:url('CollageOrder/index')}&orderid='+d.orderid+'&isopen=1\')">查看订单</button>';
+				  }
+				  if(d.type == 'kanjia'){
+					  html += '<button class="table-btn" onclick="openmax(\'{:url('KanjiaOrder/index')}&orderid='+d.orderid+'&isopen=1\')">查看订单</button>';
+				  }
+				  if(d.type == 'tuangou'){
+					  html += '<button class="table-btn" onclick="openmax(\'{:url('TuangouOrder/index')}&orderid='+d.orderid+'&isopen=1\')">查看订单</button>';
+				  }
+				  if(d.type == 'scoreshop'){
+					  html += '<button class="table-btn" onclick="openmax(\'{:url('ScoreshopOrder/index')}&orderid='+d.orderid+'&isopen=1\')">查看订单</button>';
+				  }
+				  if(d.type == 'luckycollage'){
+					  html += '<button class="table-btn" onclick="openmax(\'{:url('LuckyCollageOrder/index')}&orderid='+d.orderid+'&isopen=1\')">查看订单</button>';
+				  }
+				  if(d.type == 'yuyue'){
+					  html += '<button class="table-btn" onclick="openmax(\'{:url('YuyueOrder/index')}&orderid='+d.orderid+'&isopen=1\')">查看订单</button>';
+				  }
+				  if(d.type == 'kecheng'){
+					  html += '<button class="table-btn" onclick="openmax(\'{:url('KechengOrder/index')}&orderid='+d.orderid+'&isopen=1\')">查看订单</button>';
+				  }
+				  if(d.type == 'maidan'){
+					  if(d.bid == 0){
+						  html += '<button class="table-btn" onclick="openmax(\'{:url('Maidan/index')}&orderid='+d.orderid+'&isopen=1\')">查看订单</button>';
+					  }else{
+						  html += '<button class="table-btn" onclick="openmax(\'{:url('BusinessMaidan/index')}&orderid='+d.orderid+'&isopen=1&showtype=2\')">查看订单</button>';
+					  }
+				  }
+				  if(d.type == 'restaurant_takeaway'){
+					  html += '<button class="table-btn" onclick="openmax(\'{:url('RestaurantTakeawayOrder/index')}&orderid='+d.orderid+'&isopen=1\')">查看订单</button>';
+				  }
+				  if(d.type == 'restaurant_shop'){
+					  html += '<button class="table-btn" onclick="openmax(\'{:url('RestaurantShopOrder/index')}&orderid='+d.orderid+'&isopen=1\')">查看订单</button>';
+				  }
+				  if(!d.quit_queue){
+					  html += '<button class="table-btn" onclick="quitQueue('+d.id+')">退出</button>';
+				  }
+				  return html;
+			  },width:100}
+    ]]
+  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	var resetqueuelayer=null;
+	function resetQueue(){
+		resetqueuelayer = layer.open({type:1,area: ['440px', '230px'],title:'重新排队',content:$('#resetqueue'),shadeClose:true})
+	}
+	layui.form.on('submit(quitQueueSumit)', function(obj){
+		layer.confirm('确定重新排队吗?',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			// console.log(obj.field.action);return;
+			if(obj.field.action == undefined){
+				dialog('请选择类型',0);
+				return;
+			}
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('reset_queue')}",obj.field,function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	});
+	//退出排队
+	function quitQueue(id){
+		layer.confirm('退出后不再获得返利，确定退出吗?',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('quit_queue')}",{id:id},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	</script>
+	{include file="public/copyright"/}
+</body>
+</html>

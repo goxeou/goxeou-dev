@@ -1,0 +1,162 @@
+<!DOCTYPE html><!--custom_file(restaurant_shop_cashdesk)-->
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>修改订单</title>
+	<meta name="renderer" content="webkit">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	{include file="public/css"/}
+</head>
+<body>
+<div class="layui-fluid">
+	<div class="layui-row layui-col-space15">
+		<div class="layui-card layui-col-md12">
+			<div class="layui-card-header">
+				修改订单<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+			</div>
+			<div class="layui-card-body" pad15>
+				<div class="layui-form" lay-filter="">
+					<input type="hidden" name="info[id]" value="{$info['id']}">
+
+					<div class="layui-form-item" id="setgg">
+						<label class="layui-form-label" style="width:100px">商品信息：</label>
+						<div class="layui-input-inline" style="width:auto">
+							<table id="ggnamediv"  class="layui-table" style="width:900px">
+								<thead>
+								<tr>
+									<th style="width:400px">商品名称</th>
+									<th>规格</th>
+									<th>价格</th>
+									<th>数量</th>
+								</tr>
+								</thead>
+								{foreach $order_goods as $k=>$goods}
+								<tr>
+									<td>{$goods.name}<input type="hidden" name="goods_id[]" value="{$goods.id}"><input type="hidden" name="goods_lvprice[]" value="{$goods.lvprice}"></td>
+									<td><input type="text" class="layui-input" name="goods_ggname[]" value="{$goods.ggname}" style="width:80px"/></td>
+									<td><input type="text" class="layui-input" name="goods_sell_price[]" value="{$goods.sell_price}" style="width:80px" onblur="caculate()"/></td>
+									<td><input type="text" class="layui-input" name="goods_num[]" value="{$goods.num}" style="width:80px" onblur="caculate()"/></td>
+								</tr>
+								{/foreach}
+							</table>
+						</div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label" style="width:100px">商品总价：</label>
+						<div class="layui-input-inline"><input type="text" name="info[product_price]" value="{$info.product_price}" class="layui-input" readonly></div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label" style="width:100px">{:t('会员')}折扣：</label>
+						<div class="layui-input-inline"><input type="text" name="info[leveldk_money]" value="{$info.leveldk_money}" class="layui-input" readonly></div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label" style="width:100px">{:t('优惠券')}抵扣：</label>
+						<div class="layui-input-inline"><input type="text" name="info[coupon_money]" value="{$info.coupon_money}" class="layui-input" readonly></div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label" style="width:100px">{:t('积分')}抵扣：</label>
+						<div class="layui-input-inline"><input type="text" name="info[scoredk_money]" value="{$info.scoredk_money}" class="layui-input" readonly></div>
+					</div>
+
+					<div class="layui-form-item">
+						<label class="layui-form-label" style="width:100px">收货人姓名：</label>
+						<div class="layui-input-inline"><input type="text" name="info[linkman]" value="{$info.linkman}" class="layui-input"></div>
+					</div>
+
+					<div class="layui-form-item">
+						<label class="layui-form-label" style="width:100px">收货人电话：</label>
+						<div class="layui-input-inline"><input type="text" name="info[tel]" value="{$info.tel}" class="layui-input"></div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label" style="width:100px">收货地区：</label>
+						<div class="layui-input-inline" style="width:300px"><input type="text" name="info[area]" value="{$info.area}" class="layui-input"></div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label" style="width:100px">收货地址：</label>
+						<div class="layui-input-inline" style="width:300px"><input type="text" name="info[address]" value="{$info.address}" class="layui-input"></div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label" style="width:100px">配送方式：</label>
+						<div class="layui-input-inline"><input type="text" name="info[freight_text]" value="{$info.freight_text}" class="layui-input"></div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label" style="width:100px">配送费：</label>
+						<div class="layui-input-inline"><input type="text" name="info[freight_price]" value="{$info.freight_price}" class="layui-input" onblur="caculate()"></div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label" style="width:100px">实付款：</label>
+						<div class="layui-input-inline"><input type="text" name="info[totalprice]" value="{$info.totalprice}" class="layui-input"></div>
+					</div>
+					{if $info.status==2}
+					<div class="layui-form-item">
+						<label class="layui-form-label" style="width:100px">快递公司：</label>
+						<div class="layui-input-inline">
+							<select name="info[express_com]">
+								{foreach $express_data as $k=>$v}
+								<option {if $info['express_com']==$k}selected{/if}>{$k}</option>
+								{/foreach}
+							</select>
+							<!-- <input type="text" name="info[express]" value="{$info.express}" class="layui-input"> -->
+						</div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label" style="width:100px">快递单号：</label>
+						<div class="layui-input-inline"><input type="text" name="info[express_no]" value="{$info.express_no}" class="layui-input"></div>
+					</div>
+					{/if}
+
+					<div class="layui-form-item">
+						<div class="layui-input-block" style="margin-left:130px;">
+							<button class="layui-btn" lay-submit lay-filter="formsubmit">确定修改</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{include file="public/js"/}
+<script>
+	var discount = parseFloat('{$discount}');
+	function caculate(){
+		var leveldk_money = 0;
+		var product_price = 0
+		$("input[name='goods_sell_price[]']").each(function(k,v){
+			var sell_price = parseFloat($(this).val());
+			var num = parseInt($("input[name='goods_num[]']").eq(k).val());
+			var lvprice = $("input[name='goods_lvprice[]']").eq(k).val();
+			if(lvprice == '0'){
+				leveldk_money += sell_price * (1-discount) * num
+			}
+			product_price += sell_price * num;
+		})
+		var freight_price = parseFloat($("input[name='info[freight_price]']").val());
+		var scoredk_money = parseFloat($("input[name='info[scoredk_money]']").val());
+		var coupon_money = parseFloat($("input[name='info[coupon_money]']").val());
+		var totalprice = product_price - leveldk_money - coupon_money
+		if(totalprice < 0 ) totalprice = 0;
+		totalprice = totalprice + freight_price - scoredk_money;
+		if(totalprice < 0 ) totalprice = 0;
+		$("input[name='info[product_price]']").val(product_price.toFixed(2));
+		$("input[name='info[leveldk_money]']").val(leveldk_money.toFixed(2));
+		$("input[name='info[totalprice]']").val(totalprice.toFixed(2));
+	}
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		var index = layer.load();
+		$.post("",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status==1){
+				setTimeout(function(){
+					parent.layer.closeAll();
+					parent.tableIns.reload();
+				},1000)
+			}
+		})
+	})
+</script>
+{include file="public/copyright"/}
+</body>
+</html>

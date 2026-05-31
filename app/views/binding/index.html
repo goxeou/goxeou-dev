@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>绑定管理</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+		.commit-class label{display: inline-block;}
+		.radio-label-class{display: inline-block;}
+		.radio-label-class .layui-popover{margin:6px 10px 0px 0px;}
+		.layui-popover-custom{height:220px;width:130px}
+		.layui-popover-custom img{height:100%;width:100%}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+			{if in_array('mp',$platform) && in_array('wx',$platform)}
+				{if $wxappinfo && $wxappinfo['authtype']==1 && $mpappinfo && $mpappinfo['authtype']==1 && $wxappinfo['open_appid']!='-1' && $mpappinfo['open_appid']!='-1' && (!$wxappinfo['open_appid'] || !$mpappinfo['open_appid'])}<div class="layui-col-sm12" style="color:#CC5722">注：公众号和小程序尚未实现会员数据互通，是否要开通数据互通？<button style="border-radius:2px;cursor:pointer;height:20px;line-height:20px;border:0;background:#FF5722;color:#fff;font-size:12px;padding:0 5px" onclick="bindinopen()">开启数据互通</button></div>{/if}
+			{/if}
+			
+			{if in_array('mp',$platform)}
+			<div class="layui-card layui-col-md12">
+				<div class="layui-card-header" style="font-size:20px;color:#333">公众号绑定</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-col-md12" style="font-size:16px;padding:20px 0">
+						{if $mpappinfo && $mpappinfo['appid']}
+						<div class="layui-col-md6" style="display:flex;align-items:center">
+							<div style="display:flex;">
+								<img src="{$mpappinfo.headimg|default='/static/img/wxtx.png'}" style="width:40px;height:40px;border-radius:50%"/>
+								<div style="margin-left:10px;margin-right:10px;display:flex;flex-direction:column">
+									<span>{$mpappinfo.nickname|default='暂无昵称'}</span>
+									<span style="font-size:10px;color:#73d78e;line-height:12px;">
+										{if $mpappinfo.level==2 || $mpappinfo.level==4}服务号{else}订阅号{/if}&nbsp;
+										{if $mpappinfo.level==3 || $mpappinfo.level==4}<span style="color:#53d78e;"><i class="fa fa-check-circle"></i> 已认证</span>{else}<span style="color:#f85;">未认证</span>{/if}	
+									</span>
+								</div>
+							</div>
+							{if $mpappinfo['authtype']==1}
+							<div style="display:flex;align-items:center">
+								<span style="color:#53d78e;margin-right:5px"><i class="fa fa-check-circle"></i> 已授权</span>
+								<span style="color:#aaa;margin-right:30px;cursor:pointer" onclick="refreshauthinfo('mp')"><i class="fa fa-refresh" title="刷新授权信息"></i></span>
+								<div style="display:flex;flex-direction:column;font-size:13px">
+									<span style="color:#999;margin-right:20px">AppID： {$mpappinfo.appid}</span>
+									{if $mpappinfo['open_appid'] && $mpappinfo['open_appid']!='-1'}<span style="color:#999;margin-right:20px">开放平台APPID： {$mpappinfo['open_appid'] ? $mpappinfo['open_appid'] : '未绑定'}</span>{/if}
+								</div>
+							</div>
+							{else}
+							<div>
+								<span style="color:#53d78e;margin-right:30px"><i class="fa fa-check-circle"></i> 已绑定</span>
+								<span style="color:#999;margin-right:20px;font-size:13px">AppID： {$mpappinfo.appid}</span>
+							</div>
+							{/if}
+						</div>
+						<div class="layui-col-md6" style="text-align:right">
+							<button onclick="showqrcode('{$mpappinfo.qrcode}')" class="layui-btn layui-btn-primary">查看二维码</button>
+							<a href="javascript:void(0)" onclick="tobangding('mp')" class="layui-btn layui-btn-primary">重新绑定</a>
+						</div>
+						{else}
+						<div class="layui-col-md6">尚未绑定公众号，请先绑定</div>
+						<div class="layui-col-md6" style="text-align:right">
+							<a href="javascript:void(0)" onclick="tobangding('mp')" class="layui-btn layui-btn-normal">前去绑定</a>
+							<a href="https://mp.weixin.qq.com"  target="_blank" class="layui-btn layui-btn-primary">注册公众号</a>
+						</div>
+						{/if}
+					</div>
+				</div>
+			</div>
+			{/if}
+			{if in_array('wx',$platform)}
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header" style="font-size:20px;color:#333">小程序绑定</div>
+				<div class="layui-card-body" pad15>
+						<div class="layui-col-md12" style="font-size:16px;padding:20px 0">
+						{if $wxappinfo && $wxappinfo['appid']}
+							<div class="layui-col-md6" style="display:flex;align-items:center">
+								<div style="display:flex;">
+									<img src="{$wxappinfo.headimg|default='/static/img/wxtx.png'}" style="width:40px;height:40px;border-radius:50%"/>
+									<div style="margin-left:10px;margin-right:10px;display:flex;flex-direction:column">
+										<span>{$wxappinfo.nickname|default='暂无昵称'}</span>
+										<span style="font-size:10px;color:#73d78e;line-height:12px;">
+											小程序&nbsp;
+											{if $wxappinfo['authtype']==1}
+												{if $wxappinfo.level==1}<span style="color:#53d78e;"><i class="fa fa-check-circle"></i> 已认证</span>{else}<span style="color:#f85;">未认证</span>{/if}
+											{/if}
+										</span>
+									</div>
+								</div>
+								{if $wxappinfo['authtype']==1}
+								<div style="display:flex;align-items:center">
+									<span style="color:#53d78e;margin-right:5px"><i class="fa fa-check-circle"></i> 已授权绑定</span>
+									<span style="color:#aaa;margin-right:30px;cursor:pointer" onclick="refreshauthinfo('wx')"><i class="fa fa-refresh" title="刷新授权信息"></i></span>
+									<div style="display:flex;flex-direction:column;font-size:13px">
+										<span style="color:#999;margin-right:20px">AppID： {$wxappinfo.appid}</span>
+										{if $wxappinfo['open_appid'] && $wxappinfo['open_appid']!='-1'}<span style="color:#999;margin-right:20px">开放平台APPID： {$wxappinfo['open_appid'] ? $wxappinfo['open_appid'] : '未绑定'}</span>{/if}
+									</div>
+								</div>
+								{else}
+								<div>
+									<span style="color:#53d78e;margin-right:30px"><i class="fa fa-check-circle"></i> 已手动绑定</span>
+									<span style="color:#999;margin-right:20px;font-size:13px">AppID： {$wxappinfo.appid}</span>
+								</div>
+								{/if}
+							</div>
+							<div class="layui-col-md6" style="text-align:right">
+								<!--authtype 0普通接入 1授权接入-->
+								<button onclick="{if $wxappinfo['authtype']==1}commit(){else}showsd(){/if}" class="layui-btn layui-btn-normal">上传代码</button>
+								{if $wxappinfo['createtype']==1 || $wxappinfo['createtype']==2}<button onclick="openmax('{:url('Wxset/index')}&isopen=1')" class="layui-btn layui-btn-primary">设置</button>{/if}
+								<a href="javascript:void(0)" onclick="tobangding('wx')" class="layui-btn layui-btn-primary">重新绑定</a>
+								{if $componentinfo['status']==1}<a href="javascript:void(0)" onclick="regxcx()" class="layui-btn layui-btn-primary">重新创建</a>{/if}
+								{if $wxalogList}<button onclick="openmax('{:url('Wxset/yinsi')}&isopen=1')" class="layui-btn layui-btn-primary">隐私设置</button>{/if}
+								{if $wxappinfo['authtype']==1}
+								<button onclick="openmax('{:url('Wxset/privacyInterfaceList')}&isopen=1')" class="layui-btn layui-btn-primary">接口申请</button>
+								<button onclick="openmax('{:url('Wxset/icp')}&isopen=1')" class="layui-btn layui-btn-primary">备案</button>
+								{/if}
+							</div>
+						{else}
+						<div class="layui-col-md6">尚未绑定小程序，请先绑定</div>
+						<div class="layui-col-md6" style="text-align:right">
+							<a href="javascript:void(0)" onclick="tobangding('wx')" class="layui-btn layui-btn-normal">前去绑定</a>
+							<a href="javascript:void(0)" onclick="regxcx()" class="layui-btn layui-btn-primary">创建小程序</a>
+						</div>
+						{/if}
+						</div>
+						
+						{if $wxreglog}
+						<div class="layui-col-md12" style="height:50px;line-height:50px;font-size:20px;color:#333;border-top:1px solid #eee">注册记录</div>
+						{foreach $wxreglog as $k=>$wxreg}
+						<div class="layui-col-md12" style="padding:10px 0 10px 20px;font-size:14px;{if $k+1<count($wxreglog)}border-bottom:1px solid #eee{/if}">
+							<div>企业名称：{$wxreg.name} </div>
+							<div>{if $wxreg['code_type']==1}统一社会信用代码{elseif $wxreg['code_type']==2}组织机构代码{elseif $wxreg['code_type']==3}营业执照注册号{/if}：{$wxreg.code} </div>
+							<div>企业法人：{$wxreg.legal_persona_name} 微信号：{$wxreg.legal_persona_wechat}</div>
+							<div>微信号：{$wxreg.legal_persona_wechat}</div>
+							<div>
+								状态：{if $wxreg['status']==0}<span style="color:#f85">申请中</span> 注意查看微信消息通知并点击完成验证 {elseif $wxreg['status']==1}<span style="color:#55f">待注册</span>{elseif $wxreg['status']==2}<span style="color:red">已驳回 {$wxreg.reason}</span>{/if}
+								{if $wxreg['status']!=2}&nbsp;&nbsp;<span style="color:#aaa;margin-right:15px;cursor:pointer" onclick="get_regstatus('{$wxreg.id}')"><i class="fa fa-refresh"></i></span>{/if}
+							</div>
+						</div>
+						{/foreach}
+						{/if}
+
+						{if  $wxappinfo && $wxappinfo['authtype']==1 && !$wxalogList}
+						<div class="layui-col-md12">
+							<div class="layui-col-md6" style="padding:10px 0 10px 20px;font-size:14px;border-top:1px solid #eee">
+								<div>版本号：暂无 </div>
+								<div>版本描述：暂无</div>
+								<div>状态：未上传代码</div>
+							</div>
+							<div class="layui-col-md6" style="text-align:right;border-top:1px solid #eee;padding:30px 0;">
+							</div>
+						</div>
+						{/if}
+						{foreach $wxalogList as $k=>$wxalog}
+						<div class="layui-col-md12">
+						<div class="layui-col-md6" style="padding:10px 0 10px 20px;font-size:14px;border-top:1px solid #eee">
+							<div style="font-weight:bold">上传时间：{$wxalog['createtime']} </div>
+							<div>版本号：{$wxalog.user_version} </div>
+							<div>版本描述：{$wxalog.user_desc} </div>
+							{if $wxalog['category']}<div>服务类目：{$wxalog.category} </div>{/if}
+							<div>状态：{if $wxalog['status']==0}未提交{elseif $wxalog['status']==1}<span style="color:#f85">审核中</span>
+								<span style="color:#aaa;margin-right:15px;cursor:pointer" onclick="get_auditstatus('{$wxalog.auditid}')"><i class="fa fa-refresh"></i></span>{elseif $wxalog['status']==2}<span style="color:#55f">待发布</span>{elseif $wxalog['status']==3}<span style="color:green">已发布</span>{elseif $wxalog['status']==4}<span style="color:red">已驳回</span>{/if}</div>
+						</div>
+						<div class="layui-col-md6" style="text-align:right;border-top:1px solid #eee;padding:30px 0;">
+							{if $k==0 && $wxalog['status']==0}<button class="layui-btn layui-btn-primary" onclick="openchooseHy()">提交审核</button>{/if}
+							{if $k==0}<button class="layui-btn layui-btn-primary" onclick="showqrcode('{:url('gettyqrcode')}')">体验二维码</button>{/if}
+							{if $wxalog['status']==4}<button class="layui-btn layui-btn-primary" onclick="audit_reason({$wxalog.id})">失败原因</button>{/if}
+							{if $wxalog['status']==2}<button class="layui-btn layui-btn-primary" onclick="fabu()">发布</button>{/if}
+							{if $wxalog['status']==3}<button class="layui-btn layui-btn-primary" onclick="showqrcode('{$wxappinfo.qrcode}')">查看二维码</button>{/if}
+							{if $wxalog['status']==1}<button class="layui-btn layui-btn-primary" onclick="chexiao()">撤销审核</button>{/if}
+							{if $k==0}<button onclick="addtester()" class="layui-btn layui-btn-primary">添加体验者</button>{/if}
+							<div style="display:none" id="audit_reason_{$wxalog.id}">{$wxalog.audit_reason}</div>
+						</div>
+						</div>
+						{/foreach}
+				</div>
+      </div>
+			{/if}
+    </div>
+  </div>
+
+	<div id="chooseHyModel" style="width:600px;display:none;margin-top:30px">
+		<div class="layui-form form-label-w6" lay-filter="">
+			<input type="hidden" name="template_id" value="{$tpldata.template_id}"/>
+			<input type="hidden" name="sendtype" id="sendtype" value="0"/>
+			<div class="layui-form-item">
+				<label class="layui-form-label">服务类目：</label>
+				<div class="layui-input-inline">
+					<select id="hyselect" name="hyselect"></select>
+				</div>
+				<div class="layui-form-mid layui-word-aux">在微信公众平台(mp.weixin.qq.com)添加</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">标签：</label>
+				<div class="layui-input-inline" style="width:200px">
+					<input type="text" name="tag" autocomplete="off" class="layui-input">
+				</div>
+				<div class="layui-form-mid layui-word-aux">多个标签用空格分隔</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">版本说明：</label>
+				<div class="layui-input-inline" style="width:200px">
+					<input type="text" name="version_desc" autocomplete="off" class="layui-input">
+				</div>
+				<div class="layui-form-mid layui-word-aux">小程序版本说明和功能解释</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">订单中心path：</label>
+				<div class="layui-input-inline" style="width:200px">
+					<input type="text" name="order_path" autocomplete="off" class="layui-input">
+				</div>
+				<div class="layui-form-mid layui-word-aux">pagesExt/order/orderlist，仅需设置一次</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">自动发布：</label>
+				<div class="layui-input-inline">
+					<input type="checkbox" name="autofb" value="1" lay-skin="switch" lay-text="开启|关闭" checked>
+				</div>
+				<div class="layui-form-mid layui-word-aux">审核通过后自动发布上线</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label"></label>
+				<div class="layui-input-block">
+					<button class="layui-btn layui-btn-normal" lay-submit lay-filter="submit_audit">确认提交</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	{include file="public/js"/}
+	<script>
+		var mode = "{$mode|default=0}"
+	function get_auditstatus(auditid){
+		var index = layer.load();
+		$.get("{:url('get_auditstatus')}",{auditid:auditid},function(data){
+			layer.close(index);
+			dialog(data.msg,data.status,location.href)
+		});
+	}
+	function get_regstatus(id){
+		var index = layer.load();
+		$.get("{:url('get_regstatus')}",{id:id},function(data){
+			layer.close(index);
+			dialog(data.msg,data.status,location.href)
+		});
+	}
+	function refreshauthinfo(apptype){
+		var index = layer.load();
+		$.post("{:url('refreshauthinfo')}",{apptype:apptype},function(data){
+			layer.close(index);
+			dialog(data.msg,data.status,location.href)
+		});
+	}
+	//授权接入上传代码
+	function commit(){
+		var html = '<div style="margin:0 auto;">';
+		html+='<blockquote class="layui-elem-quote" style="margin:10px">小程序上传审核前需要在小程序后台[开发]-[开发管理]-[接口设置]中开通以下接口<br>';
+		html+='			1、获取用户收货地址(wx.chooseAddress接口) 用于用户下单时获取用户的收货地址<br>';
+		html+='			2、打开地图选择位置（wx.chooseLocation接口）用于同城配送时获取用户的坐标位置<br>';
+		html+='			3、获取当前的地理位置、速度（wx.getLocation接口）用于配送端实时展示配送员的地理位置及展示门店和商户的距离 <a href="javascript:void(0)" onclick="openmax(\'{:url('Wxset/privacyInterfaceList')}&isopen=1\')">点击前往申请</a><br>';
+		html+='			订单中心path设置：小程序后台 -> 设置 -> 功能设置 -> 小程序订单中心path设置，pagesExt/order/orderlist，仅需设置一次<br>';
+		html+='			微信小程序隐私保护设置：小程序后台 -> 设置 -> 用户隐私保护指引 -> 更新/新建（需要审核）-> 增加信息类型(用户信息、位置信息、选中的照片、选择的位置、剪切板)<br>';
+		html+='</blockquote>';
+		html+='<div class="layui-form form-label-w10" lay-filter="">';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">顶部导航背景颜色：</label>';
+		html+='		<div class="layui-input-inline" style="width:100px">';
+		html+='			<input type="text" name="navigationBarBackgroundColor" value="{:t('color1')}" autocomplete="off" class="layui-input">';
+		html+='		</div>';
+		html+='		<div class="_colorpicker"></div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">顶部导航标题颜色：</label>';
+		html+='		<div class="layui-input-inline" style="width:170px">';
+		html+='			<label><input type="radio" name="navigationBarTextStyle" value="black" title="黑色"/></label>';
+		html+='			<label><input type="radio" name="navigationBarTextStyle" value="white" title="白色" checked/></label>';
+		html+='		</div>';
+		html+='	</div>';
+					
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">首页导航栏样式：</label>';
+		html+='		<div class="layui-input-inline commit-class" style="width:400px">';
+		html+='			<label><input type="radio" name="homeNavigationCustom" value="0" title="默认" checked/></label>';
+		html+='			<label><input type="radio" name="homeNavigationCustom" value="1" title="不显示"/></label>';
+		html+='			<label><input type="radio" name="homeNavigationCustom" value="2" title="标题+搜索框"/></label>';
+		{if getcustom('show_location')}
+			if(mode==2){
+				html+='			<label><input type="radio" name="homeNavigationCustom" value="3" title="显示定位"/></label>';
+				html+='			<label><input type="radio" name="homeNavigationCustom" value="5" title="显示定位+标题"/></label>';
+				html+='			<label><input type="radio" name="homeNavigationCustom" value="7" title="显示定位+搜索框"/></label>';
+			}else if(mode==3) {
+				html+='			<label><input type="radio" name="homeNavigationCustom" value="4" title="显示门店"/></label>';
+				html+='			<label><input type="radio" name="homeNavigationCustom" value="6" title="显示门店+标题"/></label>';
+				html+='			<label><input type="radio" name="homeNavigationCustom" value="8" title="显示门店+搜索框"/></label>';
+			}
+		{/if}
+		html+='		</div>';
+		html+='	</div>';
+						
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">{:t('会员')}中心导航栏样式：</label>';
+		html+='		<div class="layui-input-inline" style="width:400px">';
+		html+='			<label><input type="radio" name="usercenterNavigationCustom" value="0" title="默认" checked/></label>';
+		html+='			<label><input type="radio" name="usercenterNavigationCustom" value="1" title="不显示"/></label>';
+		html+='		</div>';
+		html+='	</div>';
+		{if getcustom('business_index_navigation_style')}
+		html+='<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">商户首页导航栏样式：</label>';
+		html+='		<div class="layui-input-inline" style="width:450px">';
+		html+='			<label><input type="radio" name="businessindexNavigationCustom" value="0" title="默认" checked/></label>';
+		html+='			<label><input type="radio" name="businessindexNavigationCustom" value="1" title="不显示"/></label>';
+		html+='		</div>';
+		html+='</div>';
+		{/if}
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">getLocation接口：</label>';
+		html+='		<div class="layui-input-inline" style="width:400px">';
+		html+='			<label><input type="radio" name="getLocationUse" value="1" title="使用" checked/></label>';
+		html+='			<label><input type="radio" name="getLocationUse" value="0" title="不使用"/></label>';
+		html+='		</div>';
+		html+='		<div class="layui-form-mid layui-word-aux layui-clear">不使用getLocation将替换成chooseLocation接口，注意不使用后将弹出地图选择位置，影响部分功能的体验度，请谨慎</div>';
+		html+='	</div>';
+		html+='<div class="layui-form-item">' +
+				'<label class="layui-form-label">左上角主页导航：</label>' +
+				'<div class="layui-input-inline" style="width:400px">' +
+				'<label><input type="radio" name="hideHomeButton" value="0" title="显示" checked /></label>' +
+				'<label><input type="radio" name="hideHomeButton" value="1" title="隐藏" /></label>' +
+				'</div>' +
+				'</div>';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">版本号：</label>';
+		html+='		<div class="layui-input-inline" style="width:200px">';
+		html+='			<input type="text" name="version" class="layui-input" value="{$version}">';
+		html+='		</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">版本描述：</label>';
+		html+='		<div class="layui-input-inline" style="width:200px">';
+		html+='			<input type="text" name="desc" class="layui-input">';
+		html+='		</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item" style="margin-top:30px">';
+		html+='		<label class="layui-form-label"></label>';
+		html+='		<div class="layui-input-inline">';
+		html+='			<button class="layui-btn layui-btn-normal" lay-submit lay-filter="submit_commit">确认提交</button>';
+		html+='		</div>';
+		html+='	</div>';
+		html+='</div>';
+		html+='</div>'
+		layer.open({type:1,area:['700px','660px'],content:html,title:'上传代码',shadeClose:true});
+		layui.form.render();
+		initcolorpicker();
+		layui.form.on('submit(submit_commit)', function(obj){
+			var field = obj.field;
+			var index = layer.load();
+			$.post("{:url('commit')}",field,function(data){
+				layer.close(index);
+				dialog(data.msg,data.status,data.url)
+			});
+		})
+	}
+	function showqrcode(url){
+		layer.open({type:1,area:['300px','300px'],content:'<div style="margin:auto auto;text-align:center"><img src="'+url+'" style="max-width:100%;max-height:100%"/></div>',title:false,shadeClose:true})
+	}
+	function xcxqrcode(){
+		$.post("{:url('getqrcode')}",{},function(data){
+			if(data.status==0){
+				dialog(data.msg,data.status);return;
+			}
+			layer.open({type:1,area:['300px','300px'],content:'<div style="margin:auto auto;text-align:center"><img src="'+data.qrcode+'" style="max-width:100%;max-height:100%"/></div>',title:false,shadeClose:true})
+		})
+	}
+	
+	function addtester(){
+		var html = '<div style="margin:20px auto;">';
+		html+='<div class="layui-form form-label-w6" lay-filter="">';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">体验者微信号：</label>';
+		html+='		<div class="layui-input-inline" style="width:200px">';
+		html+='			<input type="text" name="wechatid" class="layui-input">';
+		html+='		</div>';
+		html+='		<div class="layui-form-mid layui-word-aux"></div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label"></label>';
+		html+='		<div class="layui-input-inline">';
+		html+='			<button class="layui-btn layui-btn-normal" lay-submit lay-filter="submit_bind_tester">确认提交</button>';
+		html+='		</div>';
+		html+='	</div>';
+		html+='</div>';
+		html+='</div>'
+		layer.open({type:1,area:['600px','300px'],content:html,title:'添加体验者',shadeClose:true});
+		layui.form.render();
+		layui.form.on('submit(submit_bind_tester)', function(obj){
+			var field = obj.field;
+			console.log(field);
+			var index= layer.load();
+			$.get("{:url('bind_tester')}",field,function(data){
+				layer.close(index);
+				dialog(data.msg,data.status,data.url);
+			})
+		})
+	}
+	
+	function audit_reason(id){
+		layer.open({type:1,area:['300px','300px'],content:'<div style="margin:auto auto;;padding:20px">'+$('#audit_reason_'+id).html()+'</div>',title:false,shadeClose:true})
+	}
+	function fabu(){
+		layer.confirm('确定要发布上线吗?', function(index){
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('fabu')}",{},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status,data.url)
+			});
+		});
+	}
+	function chexiao(){
+		layer.confirm('每天最多撤销一次，一个月不超过10次，确定要撤销审核吗?', function(index){
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('undocodeaudit')}",{},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status,data.url)
+			});
+		});
+	}
+	function openchooseHy(){
+		var index = layer.load();
+		$.post("{:url('getHy')}",{},function(data){
+			layer.close(index);
+			var category_list = data.data;
+			var option = '';
+			for(var i=0;i<category_list.length;i++){
+				option+='<option value="'+i+'">'+category_list[i].first_class + (category_list[i].second_class?' > '+category_list[i].second_class:'') +(category_list[i].third_class?' > '+category_list[i].third_class:'') +'</option>'
+			}
+			$('#hyselect').html(option);
+			layui.form.render('select');
+
+			//var html = '<div class="layui-form"><div class="layui-form-item"><label class="layui-form-label" style="width:100px">选择行业：</label><div class="layui-input-inline" style="width:250px"><select style="width:120px;;line-height:38px;height: 38px;border: 1px solid #e6e6e6;border-radius: 2px;">'+option+'</select></div></div>';
+			layer.open({type:1,area:['600px','400px'],content:$('#chooseHyModel'),title:'选择服务类目',shadeClose:true});
+		});
+	}
+  layui.form.on('submit(submit_audit)', function(obj){
+		var field = obj.field;
+		if(!field.autofb) field.autofb = 0;
+		var index= layer.load();
+		$.post("{:url('submit_audit')}",{hy:field.hyselect,tag:field.tag,autofb:field.autofb,order_path:field.order_path},function(data){
+			layer.close(index);
+			dialog(data.msg,data.status,data.url);
+		})
+	})
+
+	function showsd(){
+		var html = '';
+		html+='<div style="margin:auto auto;text-align:center">';
+		html+='	<div style="display:flex;justify-content:center;margin-top:40px;color:#333;font-size:20px;">';
+		html+='		<div style="margin:0 20px;width:150px;height:70px;line-height:70px;background:#fff;border:1px solid #e7e7eb;border-radius:5px;text-align:center;position:relative;cursor:pointer" onclick="openmax(\'{:url('xianchuan')}/isopen/1\')">扫码上传</div>';
+		html+='		<div style="margin:0 20px;width:150px;height:70px;line-height:70px;background:#fff;border:1px solid #e7e7eb;border-radius:5px;text-align:center;position:relative;cursor:pointer" onclick="downloadxcx()">手动上传</div>';
+		html+='	</div>'
+		html+='</div>'
+		layer.open({type:1,area:['600px','220px'],content:html,title:'请选择上传方式',shadeClose:true})
+	}
+	function downloadxcx(){
+		layer.confirm('手动上传需要下载代码包，用微信开发者工具进行上传代码，确定要下载吗?',function(index){
+			layer.close(index);
+			var html = '<div style="margin:40px auto;">';
+			html+='<div class="layui-form form-label-w10" lay-filter="">';
+			html+='	<div class="layui-form-item">';
+			html+='		<label class="layui-form-label">顶部导航背景颜色：</label>';
+			html+='		<div class="layui-input-inline" style="width:100px">';
+			html+='			<input type="text" name="navigationBarBackgroundColor" value="{:t('color1')}" autocomplete="off" class="layui-input">';
+			html+='		</div>';
+			html+='		<div class="_colorpicker"></div>';
+			html+='	</div>';
+			html+='	<div class="layui-form-item">';
+			html+='		<label class="layui-form-label">顶部导航标题颜色：</label>';
+			html+='		<div class="layui-input-inline" style="width:170px">';
+			html+='			<label><input type="radio" name="navigationBarTextStyle" value="black" title="黑色"/></label>';
+			html+='			<label><input type="radio" name="navigationBarTextStyle" value="white" title="白色" checked/></label>';
+			html+='		</div>';
+			html+='	</div>';
+			html+='	<div class="layui-form-item">';
+			html+='		<label class="layui-form-label">首页导航栏样式：</label>';
+			html+='		<div class="layui-input-inline" style="width:450px">';
+			html+=`			<label class='radio-label-class'>
+										<input type="radio" name="homeNavigationCustom" value="0" title="默认" checked/>
+										<div class="layui-popover layui-default-link layui-inline">
+											示例
+											<div class="layui-popover-div layui-popover-custom">
+												<img src="__STATIC__/admin/img/dianda_mp_business.png" />
+											</div>
+										</div>
+									</label>`;
+			html+=`			<label class='radio-label-class'>
+										<input type="radio" name="homeNavigationCustom" value="1" title="不显示"/>
+										<div class="layui-popover layui-default-link layui-inline">
+											示例
+											<div class="layui-popover-div layui-popover-custom">
+												<img src="__STATIC__/admin/img/dianda_mp_business2.png" />
+											</div>
+										</div>
+									</label>`;
+			html+=`			<label class='radio-label-class'>
+										<input type="radio" name="homeNavigationCustom" value="2" title="标题+搜索框"/>
+										<div class="layui-popover layui-default-link layui-inline">
+											示例
+											<div class="layui-popover-div layui-popover-custom" style="left:-230px">
+												<img src="__STATIC__/admin/img/dianda_mp_binding3.png" />
+											</div>
+										</div>
+									</label>`;
+			{if getcustom('show_location')}
+				if(mode==2){
+					html+=`			<label class='radio-label-class'>
+												<input type="radio" name="homeNavigationCustom" value="3" title="显示定位"/>
+												<div class="layui-popover layui-default-link layui-inline">
+													示例
+													<div class="layui-popover-div layui-popover-custom">
+														<img src="__STATIC__/admin/img/dianda_mp_binding4.png" />
+													</div>
+												</div>
+											</label>`;
+					html+=`			<label class='radio-label-class'>
+													<input type="radio" name="homeNavigationCustom" value="5" title="显示定位+标题"/>
+													<div class="layui-popover layui-default-link layui-inline">
+														示例
+														<div class="layui-popover-div layui-popover-custom">
+															<img src="__STATIC__/admin/img/dianda_mp_binding5.png" />
+														</div>
+													</div>
+											</label>`;
+					html+=`			<label class='radio-label-class'>
+												<input type="radio" name="homeNavigationCustom" value="7" title="显示定位+搜索框"/>
+												<div class="layui-popover layui-default-link layui-inline">
+													示例
+													<div class="layui-popover-div layui-popover-custom">
+														<img src="__STATIC__/admin/img/dianda_mp_binding6.png" />
+													</div>
+												</div>
+											</label>`;
+				}else if(mode==3) {
+					html+=`			<label class='radio-label-class'>
+												<input type="radio" name="homeNavigationCustom" value="4" title="显示门店"/>
+												<div class="layui-popover layui-default-link layui-inline">
+													示例
+													<div class="layui-popover-div layui-popover-custom">
+														<img src="__STATIC__/admin/img/dianda_mp_binding7.png" />
+													</div>
+												</div>
+											</label>`;
+					html+=`			<label class='radio-label-class'>
+												<input type="radio" name="homeNavigationCustom" value="6" title="显示门店+标题"/>
+												<div class="layui-popover layui-default-link layui-inline">
+													示例
+													<div class="layui-popover-div layui-popover-custom">
+														<img src="__STATIC__/admin/img/dianda_mp_binding9.png" />
+													</div>
+												</div>
+											</label>`;
+					html+=`			<label class='radio-label-class'>
+												<input type="radio" name="homeNavigationCustom" value="8" title="显示门店+搜索框"/>
+												<div class="layui-popover layui-default-link layui-inline">
+													示例
+													<div class="layui-popover-div layui-popover-custom">
+														<img src="__STATIC__/admin/img/dianda_mp_bindingx.png" />
+													</div>
+												</div>
+											</label>`;
+				}
+			{/if}
+			html+='		</div>';
+			html+='	</div>';
+							
+			html+='	<div class="layui-form-item">';
+			html+='		<label class="layui-form-label">{:t('会员')}中心导航栏样式：</label>';
+			html+='		<div class="layui-input-inline" style="width:400px">';
+			html+=`			<label  class='radio-label-class'>
+										<input type="radio" name="usercenterNavigationCustom" value="0" title="默认" checked/>
+										<div class="layui-popover layui-default-link layui-inline">
+											示例
+											<div class="layui-popover-div layui-popover-custom">
+												<img src="__STATIC__/admin/img/dianda_mp_main22.png" />
+											</div>
+										</div>
+									</label>`;
+			html+=`			<label  class='radio-label-class'>
+										<input type="radio" name="usercenterNavigationCustom" value="1" title="不显示"/>
+										<div class="layui-popover layui-default-link layui-inline">
+											示例
+											<div class="layui-popover-div layui-popover-custom">
+												<img src="__STATIC__/admin/img/dianda_mp_main1.png" />
+											</div>
+										</div>
+									</label>`;
+			html+='		</div>';
+			html+='	</div>';
+			{if getcustom('business_index_navigation_style')}
+			html+='<div class="layui-form-item">';
+			html+='		<label class="layui-form-label">商户首页导航栏样式：</label>';
+			html+='		<div class="layui-input-inline" style="width:400px">';
+			html+=`			<label class='radio-label-class'>
+										<input type="radio" name="businessindexNavigationCustom" value="0" title="默认" checked/>
+										<div class="layui-popover layui-default-link layui-inline">
+											示例
+											<div class="layui-popover-div layui-popover-custom">
+												<img src="__STATIC__/admin/img/dianda_mp_business.png" />
+											</div>
+										</div>
+									</label>`;
+			html+=`			<label class='radio-label-class'>
+										<input type="radio" name="businessindexNavigationCustom" value="1" title="不显示"/>
+										<div class="layui-popover layui-default-link layui-inline">
+											示例
+											<div class="layui-popover-div layui-popover-custom">
+												<img src="__STATIC__/admin/img/dianda_mp_business2.png" />
+											</div>
+										</div>
+									</label>`;
+			html+='		</div>';
+			html+='</div>';
+			{/if}
+			html+='	<div class="layui-form-item">';
+			html+='		<label class="layui-form-label">getLocation替换：</label>';
+			html+='		<div class="layui-input-inline" style="width:400px">';
+			html+='			<label><input type="radio" name="getLocationReplace" value="0" title="关闭" checked lay-filter="getLocationReplace"/></label>';
+			html+='			<label><input type="radio" name="getLocationReplace" value="1" title="开启" lay-filter="getLocationReplace"/></label>';
+			html+='		</div>';
+			html+='		<div class="layui-form-mid layui-word-aux" style="clear:both;margin-left:160px;display:none" id="getLocationReplaceTips">wx.getLocation接口无法申请通过时可以开启此项将wx.getLocation接口替换成wx.chooseLocation接口，注意开启后将弹出地图选择位置，影响部分功能的体验度，请谨慎开启</div>';
+			html+='	</div>';
+			html+='<div class="layui-form-item">' +
+					'<label class="layui-form-label">左上角主页导航：</label>' +
+					'<div class="layui-input-inline" style="width:400px">' +
+					`<label class='radio-label-class'>
+						<input type="radio" name="hideHomeButton" value="0" title="显示" checked />
+						<div class="layui-popover layui-default-link layui-inline">
+							示例
+							<div class="layui-popover-div layui-popover-custom">
+								<img src="__STATIC__/admin/img/dianda_mp_main2.png" />
+							</div>
+						</div>
+					</label>` +
+					`<label class='radio-label-class'>
+						<input type="radio" name="hideHomeButton" value="1" title="隐藏" />
+					</label>` +
+					'</div>' +
+					'</div>';
+			html+='	<div class="layui-form-item" style="margin-top:30px">';
+			html+='		<label class="layui-form-label"></label>';
+			html+='		<div class="layui-input-inline">';
+			html+='			<button class="layui-btn layui-btn-normal" lay-submit lay-filter="submit_downloadxcx">打包下载</button>';
+			html+='		</div>';
+			html+='	</div>';
+			html+='</div>';
+			html+='</div>'
+			layer.open({type:1,area:['700px','550px'],content:html,title:'下载代码包',shadeClose:true,
+			success:function(layer,index){
+				var popup = layer.find('.layui-popover');
+				popup.on('mouseover', function(){
+					let pageHeight = $(window).height() + $(document).scrollTop();
+					let bottom = pageHeight - $(this).offset().top
+					let topNum = ($(this).offset().top - $(document).scrollTop()).toFixed(2);
+					let Height = $(this).find('.layui-popover-div').outerHeight();
+					$(this).find('.layui-popover-div').show()
+					let that = this;
+					setTimeout(function(){
+						if(topNum < (Height/2-15)){
+							$(that).find('.layui-popover-div').css({'top':-topNum+10+'px','opacity':1,'transition':'opacity .3s'})	
+						}else if(bottom < (Height/2-15)){
+							$(that).find('.layui-popover-div').css({'top': bottom-Height-10 +'px','opacity':1,'transition':'opacity .3s'})	
+						}else{
+							$(that).find('.layui-popover-div').css({'top':-(Height/2-15)+'px','opacity':1,'transition':'opacity .3s'})	
+						}
+					},100)
+					$('.layui-popover').mouseleave(function(){
+						$(this).find('.layui-popover-div').css({'opacity':0})	
+						$(this).find('.layui-popover-div').hide()
+					}) 
+				})
+	
+			}});
+			layui.form.render();
+			layui.form.on('radio(getLocationReplace)', function(data){
+				if(data.value == '1'){
+					$('#getLocationReplaceTips').show();
+				}else{
+					$('#getLocationReplaceTips').hide();
+				}
+			});
+			initcolorpicker();
+			layui.form.on('submit(submit_downloadxcx)', function(obj){
+				var field = obj.field;
+				var index = layer.load();
+				$.post("{:url('downloadxcx')}",field,function(data){
+					layer.close(index);
+					dialog(data.msg,data.status,data.url)
+				});
+			})
+		})
+	}
+	
+	//绑定公众号或小程序
+	function tobangding(type){
+		{if $componentinfo['status']==1 && PRE_URL==PRE_URL2}
+		var html = '';
+		html+='<div style="margin:auto auto;text-align:center">';
+		html+='	<div style="display:flex;justify-content:center;margin-top:40px;color:#333;font-size:20px;">';
+		html+='		<a style="margin:0 20px;width:150px;height:70px;line-height:70px;background:#fff;border:1px solid #e7e7eb;border-radius:5px;text-align:center;position:relative;cursor:pointer;color: #333;" href="{:url('sqbangding')}/type/'+type+'" target="_blank">授权绑定</a>';
+		html+='		<div style="margin:0 20px;width:150px;height:70px;line-height:70px;background:#fff;border:1px solid #e7e7eb;border-radius:5px;text-align:center;position:relative;cursor:pointer" onclick="openmax(\'{:url('sdbangding')}/type/'+type+'/isopen/1\')">手动绑定</div>';
+		html+='	</div>'
+		html+='</div>'
+		layer.open({type:1,area:['600px','220px'],content:html,title:'请选择绑定方式',shadeClose:true})
+		{else}
+		openmax("{:url('sdbangding')}/type/"+type+"/isopen/1");
+		{/if}
+	}
+
+	//公众号和小程序绑定到同一个开放平台中
+	function bindinopen(){
+		layer.confirm('确定要开启粉丝账号数据互通吗?',function(index){
+			layer.close(index);
+			var index= layer.load();
+			$.post("{:url('bindinopen')}",{},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status,data.url);
+			})
+		})
+	}
+
+	function regxcx(){
+		var html = '<div style="margin:auto auto;text-align:center">';
+		html+='<div style="display:flex;justify-content:center;margin-top:20px">';
+		{if $componentinfo['status']==1 && $webinfo['fastregxcx']!=2}
+		html+='<div style="margin:0 20px;width:180px;height:180px;padding:10px;background:#fff;border:1px solid #e7e7eb;border-radius:5px;text-align:center;position:relative;cursor:pointer" onclick="showregdialog()">';
+		html+='	<div style="color:#555;font-size:18px;margin-top:20px">快速注册认证小程序</div>';
+		html+='	<div style="position:absolute;top:0;left:0;background:#f50;color:#fff;width:40px;height:20px;line-height:20px;font-size:12px">推荐</div>';
+		html+='	<div style="color:#999;font-size:14px;margin-top:10px;text-align:left;">只需提供法人姓名、法人微信、企业名称、企业代码，采用法人人脸识别方式替代小额打款等认证流程</div>';
+		html+='</div>';
+		{/if}
+		html+='<div style="margin:0 20px;width:180px;height:180px;padding:10px;background:#fff;border:1px solid #e7e7eb;border-radius:5px;text-align:center;position:relative;cursor:pointer" onclick="fastregxcx()">';
+		html+='	<div style="color:#333;font-size:18px;margin-top:20px">复用公众号资质注册</div>';
+		html+='	<div style="color:#999;font-size:14px;margin-top:10px;text-align:left;">复用已认证的公众号资质直接创建小程序，无须账号密码，但无法独立登录。一个公众号一个月可以复用资质注册 5 个小程序。</div>';
+		html+='</div>';
+		html+='<div style="margin:0 20px;width:180px;height:180px;padding:10px;background:#fff;border:1px solid #e7e7eb;border-radius:5px;text-align:center;position:relative;cursor:pointer" onclick="window.open(\'https://mp.weixin.qq.com/\')">';
+		html+='	<div style="color:#333;font-size:18px;margin-top:20px">前往微信公众平台注册</div>';
+		//html+='	<div style="position:absolute;top:0;left:0;background:#f99;color:#fff;width:140px;height:20px;line-height:20px;font-size:12px">需要直播功能推荐此方式</div>';
+		html+='	<div style="color:#999;font-size:14px;margin-top:10px;text-align:left;">个人、企业、个体工商户均可注册，认证需300元认证费，如有已认证服务号，可通过服务号快速创建，无需认证费</div>';
+		html+='	</div>';
+		html+='</div>'
+		html+='</div>'
+		//html+='<div style="padding-left:40px;padding-top:10px">注册流程，<a href="javascript:void(0)" onclick="openmax(\'/admin/help/detail?isopen=1&id=2\')">点击查看</a></div>'
+
+		layer.open({type:1,area:['740px','320px'],content:html,title:'请选择注册方式',shadeClose:true})
+	}
+	function fastregxcx(){
+		var index= layer.load();
+		$.post("{:url('fastregxcx')}",{},function(data){
+			layer.close(index);
+			if(data.status==1){
+				window.open(data.url);
+			}else if(data.status==2){
+				layer.confirm('请先授权已认证的公众号，确定要去授权吗?',function(index){
+					layer.close(index);
+					window.open(data.url);
+				})
+			}else{
+				dialog(data.msg,data.status,data.url);
+			}
+		})
+	}
+	function showregdialog(){
+		var html = '<div style="margin:20px auto;">';
+		html+='<div class="layui-form form-label-w6" lay-filter="">';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">企业名称：</label>';
+		html+='		<div class="layui-input-inline" style="width:200px">';
+		html+='			<input type="text" name="reg_name" class="layui-input">';
+		html+='		</div>';
+		html+='		<div class="layui-form-mid layui-word-aux">请填写企业全称</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">代码类型：</label>';
+		html+='		<div class="layui-input-inline">';
+		html+='			<input type="radio" name="reg_code_type" value="1" checked title="统一社会信用代码">';
+		html+='			<input type="radio" name="reg_code_type" value="2" title="组织机构代码">';
+		html+='			<input type="radio" name="reg_code_type" value="3" title="营业执照注册号">';
+		html+='		</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">企业代码：</label>';
+		html+='		<div class="layui-input-inline" style="width:200px">';
+		html+='			<input type="text" name="reg_code" class="layui-input">';
+		html+='		</div>';
+		html+='		<div class="layui-form-mid layui-word-aux">请填写与所选企业代码类型对应的代码</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">法人姓名：</label>';
+		html+='		<div class="layui-input-inline" style="width:200px">';
+		html+='			<input type="text" name="reg_legal_persona_name" class="layui-input">';
+		html+='		</div>';
+		//html+='		<div class="layui-form-mid layui-word-aux">请填写企业法人姓名</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">法人微信：</label>';
+		html+='		<div class="layui-input-inline" style="width:200px">';
+		html+='			<input type="text" name="reg_legal_persona_wechat" class="layui-input">';
+		html+='		</div>';
+		html+='		<div class="layui-form-mid layui-word-aux">请填写企业法人微信号</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label"></label>';
+		html+='		<div class="layui-input-inline">';
+		html+='			<button class="layui-btn layui-btn-normal" lay-submit lay-filter="submit_reg">确认提交</button>';
+		html+='		</div>';
+		html+='	</div>';
+		html+='</div>';
+		html+='</div>'
+		layer.open({type:1,area:['600px','500px'],content:html,title:'填写注册信息',shadeClose:true});
+		layui.form.render();
+		layui.form.on('submit(submit_reg)', function(obj){
+			var field = obj.field;
+			console.log(field);
+			var index= layer.load();
+			$.post("{:url('submit_reg')}",field,function(data){
+				layer.close(index);
+				dialog(data.msg,data.status,data.url);
+			})
+		})
+	}
+	</script>
+</body>
+</html>

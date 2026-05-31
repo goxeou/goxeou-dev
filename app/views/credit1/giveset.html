@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>充值设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					<i class="fa fa-cog"></i> 充值设置
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form" lay-filter="">
+					
+						<input type="hidden" name="info[caninput]" value="1" title="开启" {if !$info['id'] || $info['caninput']==1}checked{/if}>
+								<input type="hidden" name="info[status]" value="1" title="开启" {if !$info['id'] || $info['status']==1}checked{/if}>
+						
+						
+						<!--<div class="layui-form-item">-->
+						<!--	<label class="layui-form-label" style="width:100px">状态：</label>-->
+						<!--	<div class="layui-input-inline">-->
+						<!--		<input type="radio" name="info[status]" value="1" title="开启" {if !$info['id'] || $info['status']==1}checked{/if}>-->
+						<!--		<input type="radio" name="info[status]" value="0" title="关闭" {if $info['status']==0}checked{/if}>-->
+						<!--	</div>-->
+						<!--</div>-->
+						<!-- 详情编辑器 -->
+						<div class="layui-form-item">
+							<label class="layui-form-label" style="width:100px">充值说明：</label>
+							<div class="layui-input-inline" style="width:500px">
+								<script id="shuoming" name="info[shuoming]" type="text/plain" style="width:100%;height:300px">{$info.shuoming}</script>
+							</div>
+						</div>
+					
+						<div class="layui-form-item">
+							<div class="layui-input-block" style="margin-left:130px;">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+					
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	var ueditor = UE.getEditor('shuoming');
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		field['info[shuoming]'] = ueditor.getContent();
+		var index = layer.load();
+		$.post('',field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status==1){
+				setTimeout(function(){
+					location.href = location.href
+				},1000)
+			}
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

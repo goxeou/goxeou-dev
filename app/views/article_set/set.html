@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>文章系统设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header"><i class="fa fa-cog"></i> 文章系统设置</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w6" lay-filter="">
+						<div class="layui-form-item">
+							<label class="layui-form-label">列表样式：</label>
+							<div class="layui-input-inline" style="width:540px">
+								<input type="radio" name="info[listtype]" value="0" title="横排显示" {if $info['listtype']==0}checked{/if}>
+								<input type="radio" name="info[listtype]" value="1" title="双排显示" {if $info['listtype']==1}checked{/if}>
+								<input type="radio" name="info[listtype]" value="2" title="瀑布流" {if $info['listtype']==2}checked{/if}>
+								<input type="radio" name="info[listtype]" value="3" title="大图显示" {if $info['listtype']==3}checked{/if}>
+                                <input type="radio" name="info[listtype]" value="4" title="三排显示" {if $info['listtype']==4}checked{/if}>
+                                {if getcustom('article_portion')}
+                                <input type="radio" name="info[listtype]" value="5" title="三图显示" {if $info['listtype']==5}checked{/if}>
+                                {/if}
+							</div>
+						</div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">标题字体大小：</label>
+                            <div class="layui-input-inline" style="width:130px">
+                                <input type="number" name="info[title_size]" class="layui-input" value="{$info.title_size?$info.title_size:'0'}" style="width: 100px;display: inline-block;"> px
+                            </div>
+                            <div class="layui-form-mid layui-word-aux">大于0时生效</div>
+                        </div>
+                        {if $bid==0}
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">转发送{:t('积分')}：</label>
+                            <div class="layui-input-inline" style="width:200px">
+                                <div class="layui-form-mid">转发一次</div>
+                                <input type="number" name="info[share_score]" class="layui-input give_num" value="{$info.share_score?$info.share_score:'0'}" lay-verify="positiveWholeNumberRequiredTrue" style="width: 100px;display: inline-block;" min="0" > 分
+                            </div>
+                            <div class="layui-input-inline" style="width:250px">
+                                <div class="layui-form-mid">每日上限</div>
+                                <input type="number" name="info[share_score_max_perday]" class="layui-input max_give_num" value="{$info.share_score_max_perday?$info.share_score_max_perday:'0'}" lay-verify="positiveWholeNumberRequiredTrue"  min="0" style="width: 100px;display: inline-block;"> 分
+                            </div>
+                        </div>
+                        {/if}
+                        {if getcustom('article_reward')}
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">打赏：</label>
+                                <div class="layui-input-inline" style="width:540px">
+                                    <input type="radio" name="info[reward_status]" value="0" title="关闭" {if !$info['id'] ||$info['reward_status']==0}checked{/if}>
+                                    <input type="radio" name="info[reward_status]" value="1" title="开启" {if $info['reward_status']==1}checked{/if}>
+                                </div>
+                                <div class="layui-form-mid layui-word-aux">必须绑定会员才显示</div>
+                            </div>
+
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">打赏金额：</label>
+                                <div class="layui-input-inline" style="width:100px">
+                                    <button class="layui-btn layui-btn-primary" onclick="addmoney()"><i class="fa fa-plus"></i></button>
+                                </div>
+                            </div>
+                            {if $info['money_data']}
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label"></label>
+                                    <div id="moneydata" class="layui-input-inline" style="width: 600px">
+                                        {foreach $info['money_data'] as $k=>$t}
+                                            <div style="width: 180px;display: inline-block;margin-top: 10px">
+                                                <input type="number" name="info[money_data][]" value="{$t}"  class="layui-input money_data" style="width: 100px;display: inline;">元
+                                                <button class="layui-btn layui-btn-primary" onclick="removemoney(this)"><i class="fa fa-minus"></i></button>
+                                            </div>
+                                        {/foreach}
+                                    </div>
+                                </div>
+                            {else}
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label"></label>
+                                    <div id="moneydata" class="layui-input-inline" style="width: 600px">
+                                    </div>
+                                </div>
+                            {/if}
+
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">打赏{:t('积分')}：</label>
+                                <div class="layui-input-inline" style="width:100px">
+                                    <button class="layui-btn layui-btn-primary" onclick="addscore()"><i class="fa fa-plus"></i></button>
+                                </div>
+                            </div>
+                            {if $info['score_data']}
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label"></label>
+                                    <div id="scoredata" class="layui-input-inline" style="width: 600px">
+                                        {foreach $info['score_data'] as $k=>$t}
+                                            <div style="width: 190px;display: inline-block;margin-top: 10px">
+                                                <input type="number" name="info[score_data][]" value="{$t}"  class="layui-input score_data" style="width: 100px;display: inline;">{:t('积分')}
+                                                <button class="layui-btn layui-btn-primary" onclick="removescore(this)"><i class="fa fa-minus"></i></button>
+                                            </div>
+                                        {/foreach}
+                                    </div>
+                                </div>
+                            {else}
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label"></label>
+                                    <div id="scoredata" class="layui-input-inline" style="width: 600px">
+                                    </div>
+                                </div>
+                            {/if}
+                        {/if}
+                        {if getcustom('ext_give_score')}
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">阅读赠送{:t('积分')}：</label>
+                            <div class="layui-input-inline" >
+                                <input type="number" class="layui-input" value="{$info.read_give_score}" name="info[read_give_score]">
+                            </div>
+                            <div class="layui-form-mid">{:t('积分')}，阅读完成赠送</div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">每篇最多赠送：</label>
+                            <div class="layui-input-inline">
+                                <input type="number" class="layui-input" value="{$info.mid_give_score}" name="info[mid_give_score]">
+                            </div>
+                            <div class="layui-form-mid">{:t('积分')}，每个用户每篇文章最多获得多少{:t('积分')}</div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">每日最多赠送：</label>
+                            <div class="layui-input-inline">
+                                <input type="number" class="layui-input" value="{$info.day_give_score}" name="info[day_give_score]">
+                            </div>
+                            <div class="layui-form-mid">{:t('积分')}，每个用户每天最多获得多少{:t('积分')}</div>
+                        </div>
+                        {/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+    {if getcustom('article_reward')}
+        function addmoney(){
+            var len =$('.money_data').length;
+            if(len>=6){
+                alert('最多只能添加6条打赏金额')
+                return;
+            }
+
+            var html = '';
+            html+='<div style="width: 190px;display: inline-block;margin-top: 10px">';
+                html+='<input type="number" name="info[money_data][]" value="0"  class="layui-input money_data" style="width: 100px;display: inline;">元 ';
+                html+='<button class="layui-btn layui-btn-primary" onclick="removemoney(this)"><i class="fa fa-minus"></i></button>';
+            html+='</div>';
+            $('#moneydata').append(html);
+            layui.form.render();
+        }
+        function removemoney(obj){
+            $(obj).parent().remove();
+        }
+
+        function addscore(){
+            var len =$('.score_data').length;
+            if(len>=6){
+                alert('最多只能添加6条打赏积分')
+                return;
+            }
+            var html = '';
+            html+='<div style="width: 190px;display: inline-block;margin-top: 10px">';
+                html+='<input type="number" name="info[score_data][]" value="0"  class="layui-input score_data" style="width: 100px;display: inline;">{:t('积分')} ';
+                html+='<button class="layui-btn layui-btn-primary" onclick="removescore(this)"><i class="fa fa-minus"></i></button>';
+            html+='</div>';
+            $('#scoredata').append(html);
+            layui.form.render();
+        }
+        function removescore(obj){
+            $(obj).parent().remove();
+        }
+    {/if}
+    layui.form.verify({
+        positiveWholeNumberRequiredTrue:[/^[+]{0,1}(\d+)$/,'只能填写正整数'],//必填，且只能输入正整数
+    })
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+        var give_num = $('.give_num').val();
+        var max_give_num = $('.max_give_num').val();
+        {if $bid ==0}
+        if(give_num !=0 && !isPositiveIntegerTimes(max_give_num/give_num)){ 
+           layer.alert('每日上限必须是单次分数的整数倍'); 
+           return;
+        }
+        {/if}
+		$.post("{:url('save')}",field,function(data){
+			dialog(data.msg,data.status,data.url);
+		})
+	})
+
+        //判断是否为正整数,返回true或false
+        function isPositiveIntegerTimes(arg) {
+            var num = arg.toString();
+            if (!(/(^[1-9]\d*$)/.test(num))) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

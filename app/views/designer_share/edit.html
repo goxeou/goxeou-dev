@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>分享设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加分享设置{else}<i class="fa fa-pencil"></i> 编辑分享设置{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w6" lay-filter="">
+						<input type="hidden" name="info[id]" value="{$info['id']}">
+						<div class="layui-form-item">
+							<label class="layui-form-label">平台类型</label>
+							<div class="layui-input-inline" style="width:400px">
+							<label><input type="radio" name="info[platform]" value="all" title="全部" ng-model="platform" {if $info['platform']=='all'}checked{/if}/></label>
+								{foreach $platform as $pl}
+								<label><input type="radio" name="info[platform]" value="{$pl}" title="{:getplatformname($pl)}" {if $info['platform']==$pl}checked{/if}/></label>
+								{/foreach}
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">所属页面</label>
+							<div class="layui-input-inline" style="width:210px">
+								<input type="text" name="info[indexurl]" value="{$info.indexurl}" autocomplete="off" class="layui-input">
+							</div>
+							<button class="layui-btn layui-btn-primary" onclick="chooseUrl()" style="float:left">选择链接</button>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">过滤参数</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[is_rootpath]" value="0" title="否" {if !$info['id'] || $info['is_rootpath']==0}checked{/if}>
+								<input type="radio" name="info[is_rootpath]" value="1" title="是" {if $info['id'] && $info['is_rootpath']==1}checked{/if}>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">过滤参数后，页面将不区分参数，共用分享设置</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">页面备注</label>
+							<div class="layui-input-inline" style="width:210px">
+								<input type="text" name="info[indexurlname]" value="{$info.indexurlname}" autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">分享标题</label>
+							<div class="layui-input-inline" style="width:300px">
+								<input type="text" name="info[title]" value="{$info.title}" lay-verify="required" lay-verType="tips" autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">分享图标</label>
+							<input type="hidden" name="info[pic]" id="pic" class="layui-input" value="{$info.pic}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="pic" upload-preview="picPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：400×400像素</div>
+							<div id="picPreview" style="float:left;padding-top:10px;margin-left:130px;clear: both;">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.pic}"/></div></div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">分享描述</label>
+							<div class="layui-input-inline" style="width:500px">
+								<input type="text" name="info[desc]" value="{$info.desc}" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">分享链接</label>
+							<div class="layui-input-inline" style="width:300px">
+								<input type="text" name="info[url]" value="{$info.url}" class="layui-input">
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">不填写代表当前页面，设置后发送给朋友或分享到朋友圈，点击后会跳转到此链接地址</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">状态：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[status]" value="1" title="开启" {if !$info['id'] || $info['status']==1}checked{/if}>
+								<input type="radio" name="info[status]" value="0" title="关闭" {if $info['id'] && $info['status']==0}checked{/if}>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	function chooseUrl(){
+		layer.open({type:2,shadeClose:true,area:['1200px', '650px'],'title':'选择链接',content:"{:url('DesignerPage/chooseurl')}"})
+	}
+	function chooseLink(urlname,url,args) {
+		$("input[name='info[indexurl]']").val(url);
+		$("input[name='info[indexurlname]']").val(urlname);
+	}
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.closeAll();
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

@@ -1,0 +1,23 @@
+{if getcustom('lbs_search')}
+<div class="dsn-mod dsn-search" ng-class="{'dsn-mod-select':Item.id == focus}" ng-style="{'background-color':Item.params.bgcolor,'margin':Item.params.margin_y+'px '+Item.params.margin_x+'px','padding':Item.params.padding_y+'px '+Item.params.padding_x+'px'}">
+    <div style="display: flex;">
+        <div  style="width: 80px;overflow: hidden;height: 36px;line-height: 36px;flex-shrink: 0">
+            <select class="layui-input"  style="font-size: 13px;border: 0;height: 36px;line-height: 36px">
+                <option>北京</option>
+            </select>
+        </div>
+        <div class="dp-search-search"
+            ng-style="{'border-color':Item.params.bordercolor,'border-radius':Item.params.borderradius+'px','width':'100%'}">
+            <div class="dp-search-search-f1"></div>
+            <div class="dp-search-search-f2">
+                <input class="dp-search-search-input" name="keyword" placeholder="{{Item.data?Item.data[0]['title2']:Item.params.placeholder}}" ng-style="{color:Item.params.color}" />
+            </div>
+        </div>
+        <div ng-show="Item.params.btn==1">
+            <div style="width: 50px;text-align: center;float: right;line-height:36px;background: #f0f0f0;">
+                搜索
+            </div>
+        </div>
+    </div>
+</div>
+{/if}

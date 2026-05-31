@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>章节管理</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	#ggnamediv .layui-input,#ggvaldiv .layui-input{ display:inline;height:30px}
+	.video{width: 140px;float: left; padding-top: 10px;margin-left: 110px;clear: both;}
+	.upload-img{float:left;padding-top:10px;padding-left:140px;clear: both;}
+		.upload-img .layui-imgbox{margin-right: 20px;}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加章节内容{else}<i class="fa fa-pencil"></i> 编辑章节内容{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					{if $info['ischecked']==2}<blockquote class="layui-elem-quote" style="color:red">目录未审核通过，驳回原因：{$info.check_reason}</blockquote>{/if}
+					<div class="layui-form">
+						<div class="layui-tab" lay-filter="mytab">
+							<ul class="layui-tab-title">
+								<li class="layui-this" lay-id="1">章节信息</li>
+								<li lay-id="2">详情</li>
+							</ul>
+							<div class="layui-tab-content">
+								<div class="layui-tab-item layui-show">
+									<input type="hidden" name="id" value="{$info['id']}"/>
+									<div class="layui-form-item">
+										<label class="layui-form-label">章节名称：</label>
+										<div class="layui-input-inline" style="width:400px">
+											<input type="text" name="info[name]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info['name']}">
+										</div>
+									</div>
+								  <div class="layui-form-item">
+										<label class="layui-form-label">所属课程：</label>
+										<div class="layui-input-inline" style="width:300px">
+											<select name="info[kcid]" id="kcid" lay-verify="required" >
+											<option value="">--请选择--</option>
+											{foreach $kclist as $cv}
+												<option value="{$cv['id']}" {if $cv['id']==$info['kcid']}selected{/if}>{$cv['name']}</option>							
+											{/foreach}
+											</select>
+										</div>
+							
+										<!-- <div class="layui-form-mid layui-word-aux"><a href="categoryadd.php">创建</a></div> -->
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label">章节类型：</label>
+										<div class="layui-input-inline" style="width:600px">
+												<input type="radio" name="info[kctype]" {if $info['kctype']==1 || !$info['id']}checked{/if} value="1"  title="图文" lay-skin="primary" lay-filter="kctypeset">
+												<input type="radio" name="info[kctype]" {if $info['kctype']==2}checked{/if} value="2"  title="音频" lay-skin="primary" lay-filter="kctypeset">
+												<input type="radio" name="info[kctype]" {if $info['kctype']==3}checked{/if} value="3"  title="视频" lay-skin="primary" lay-filter="kctypeset">
+										</div>
+										<!-- <div class="layui-form-mid layui-word-aux"><a href="groupadd.php">创建分组</a></div> -->
+									</div>	
+									<div class="layui-form-item">
+										<label class="layui-form-label">章节图片：</label>
+										<input type="hidden" name="info[pic]" id="pic" lay-verType="tips" class="layui-input" value="{$info['pic']}">
+										<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="pic" upload-preview="picPreview" onclick="uploader(this)">上传图片</button>
+										<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：640×640像素</div>
+										<div id="picPreview" style="float:left;padding-top:10px;padding-left:110px;clear: both;">
+											<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info['pic']}"/></div></div>
+										</div> 
+									</div>
+									<div {if $info['kctype']!=2}style="display:none"{/if} id="voice_box">
+										<div class="layui-form-item">
+											<label class="layui-form-label">音 频：</label>
+											<div class="layui-input-inline" style="width:400px">
+											<input type="text" name="info[voice_url]" id="voiceurl" class="layui-input" value="{$info['voice_url']}">
+											</div>
+											<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="voiceurl" onclick="uploader(this,false,{'browser':'active','wxvoice':''})">上传音频</button>
+											<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">请上传mp3格式的音频，不大于2M</div>
+										</div>
+										<div class="layui-form-item">
+											<label class="layui-form-label w100" >音频时长：</label>
+											<div class="layui-input-inline" style="width:100px">
+												<input type="number" name="info[voice_duration]" id="voice_duration" value="{$info.voice_duration}" class="layui-input">
+											</div>
+											<div class="layui-form-mid">秒</div>
+										</div>
+									</div>
+									<div {if $info['kctype']!=3}style="display:none"{/if} id="video_box">
+										<div class="layui-form-item">
+											<label class="layui-form-label w100" >视 频：</label>
+											<div class="layui-input-inline" style="width:400px">
+												<input type="text" name="info[video_url]" id="video" lay-verType="tips" class="layui-input" value="{$info['video_url']}">
+											</div>
+											<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="video" onclick="uploader(this)">上传视频</button>
+											<video src="{$info['video_url']}" controls="controls" class="video">
+											您的浏览器不支持 video 标签。
+											</video>
+											<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">填写视频链接或上传视频，视频链接必须为mp4格式的源链接，视频大小须在50MB以内{if getcustom('video_qq_url')}<br>腾讯视频原网页地址仅支持以https://v.qq.com/x/page/开头的网址{/if}</div>
+										</div>
+										<div class="layui-form-item">
+											<label class="layui-form-label w100" >视频时长：</label>
+											<div class="layui-input-inline" style="width:100px">
+												<input type="number" name="info[video_duration]" id="video_duration" value="{$info.video_duration}" class="layui-input">
+											</div>
+											<div class="layui-form-mid">秒</div>
+										</div>
+										
+										
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label">免费试看：</label>
+										<div class="layui-input-inline">
+											<input type="radio" name="info[ismianfei]" value="1" title="开启" lay-filter="ismianfei" {if $info['id'] &&  $info['ismianfei']==1}checked{/if}/>
+											<input type="radio" name="info[ismianfei]" value="0" title="关闭" lay-filter="ismianfei" {if  !$info['id'] || $info['ismianfei']==0}checked{/if}/>
+										</div>
+										<div class="layui-word-aux layui-form-mid">
+
+										</div>
+									</div>
+									
+													
+									<div class="layui-form-item  {if $info['kctype']==1 || !$info['id']}hide{/if}" id="isjinzhi_box">
+										<label class="layui-form-label">禁止快进：</label>
+										<div class="layui-input-inline">
+											<input type="radio" name="info[isjinzhi]" value="1" title="是" {if !$info['id'] || $info['isjinzhi']==1}checked{/if}/>
+											<input type="radio" name="info[isjinzhi]" value="0" title="否" {if $info['id'] && $info['isjinzhi']==0}checked{/if}/>
+										</div>
+									</div>
+
+									<div class="layui-form-item">
+										<label class="layui-form-label">跳转链接：</label>
+										<div class="layui-input-inline" style="width: 400px">
+											<input type="text" name="info[jumpurl]" value="{$info['jumpurl']}" class="layui-input">
+										</div>
+										<div class="layui-form-mid layui-word-aux">设置后学习时会跳转</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label">序号：</label>
+										<div class="layui-input-inline">
+											<input type="text" name="info[sort]" value="{$info['id']?$info['sort']:'0'}" class="layui-input">
+										</div>
+										<div class="layui-form-mid layui-word-aux">用于排序,越大越靠前</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label">状态：</label>
+										<div class="layui-input-inline">
+											<input type="radio" name="info[status]" value="1" title="已上架" {if !$info['id'] || $info['status']==1}checked{/if}/>
+											<input type="radio" name="info[status]" value="0" title="未上架" {if $info['id'] && $info['status']==0}checked{/if}/>
+										</div>
+									</div>
+									
+									<div class="layui-form-item">
+										<div class="layui-input-block">
+											<button class="layui-btn layui-btn-normal" onclick="gonext(2)">下一步:编辑章节详情</button>
+											<button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+										</div>
+									</div>
+
+								</div>
+								<div class="layui-tab-item">
+									<!-- 详情编辑器 -->
+									<!-- <div class="layui-form-item">
+										<label class="layui-form-label">商品详情</label>
+										<div class="layui-input-inline" style="width:500px">
+											<script id="content" name="info[detail]" type="text/plain" style="width:100%;height:500px">{$info['detail']}</script>
+										</div>
+									</div> -->
+									<!-- 详情编辑器 -->
+									{if $info['detail_text'] || $info['detail_pics']}
+									<div class="layui-form-item">
+										<label class="layui-form-label" style="width:110px">章节详情(文本)：</label>
+										<div class="layui-input-inline" style="width:500px">
+											<textarea name="info[detail_text]" placeholder="请输入章节详情内容" class="layui-textarea">{$info.detail_text}</textarea>
+										</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label" style="width:110px">章节详情(图片)：</label>
+										<input type="hidden" name="info[detail_pics]" value="{$info['detail_pics']}" id="detail_pics">
+										<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this,true)" upload-input="detail_pics" upload-preview="detail_picsPreview" >批量上传</button>
+										<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+										<div id="detail_picsPreview" class="upload-img">
+											{if $info['detail_pics']}{php}$pics = explode(',',$info['detail_pics']);{/php}{foreach $pics as $pic}
+											<div class="layui-imgbox">
+												<a class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().remove();getpicsval('detail_pics','detail_picsPreview')" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+												<span class="layui-imgbox-img"><img src="{$pic}"></span>
+											</div>
+											{/foreach}{/if}
+										</div>
+									</div>
+									{/if}
+									<?php 
+									$pagetitle='章节详情';
+									$pagedata= $info['detail'] && json_decode($info['detail']) ? $info['detail'] : '[{"id":"M0000000000000","temp":"richtext","params":{bgcolor:"#FFFFFF",margin_x:"0",margin_y:"0",padding_x:"10",padding_y:"10","quanxian":{"all":true},"platform":{"all":true}},"data":"","other":"","content":""}]';
+									?>
+									{include file="designer_page/designer_editor" /}
+
+									<div class="layui-form-item">
+										<div class="layui-input-block">
+											<button class="layui-btn layui-btn-normal" onclick="gonext(1)">上一步:编辑章节信息</button>
+											<button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		    <video id="myvideo" style="display:none"></video>
+		</div>
+  </div>
+	<script>
+	
+	//var ueditor = UE.getEditor('content');
+	layui.form.on('radio(kctypeset)', function(data){
+		if(data.value == '1'){
+			$('#voice_box').hide();
+			$('#video_box').hide();
+			$('#isjinzhi_box').hide();
+			$('#freighttype4').hide();
+		}else if(data.value == '2'){
+			$('#video_box').hide();
+			$('#voice_box').show();
+			$('#isjinzhi_box').show();
+			$('#freighttype4').hide();
+		}else if(data.value == '3'){
+			$('#voice_box').hide();
+			$('#isjinzhi_box').show();
+			$('#freighttype3').hide();
+			$('#video_box').show();
+		}
+	})
+
+	layui.form.on("radio(ismianfei)", function (data) {
+		if(data.value == 1){
+			$(".mianfei_time").removeClass("layui-hide");
+		}else {
+			$(".mianfei_time").addClass("layui-hide");
+		}
+	})
+	$(".layui-form input#video").bind("input change propertychange",function(event){
+		var videourl = $('#video').val();
+		if(videourl){
+			$("#myvideo").prop("src", videourl);
+			$("#myvideo")[0].addEventListener("loadedmetadata", function() {
+				var tol = Math.floor(this.duration); //获取总时长
+				$('#video_duration').val(tol);
+			});
+		}else{
+			$('#video_duration').val(0);
+		}
+	})
+	$(".layui-form input#voiceurl").bind("input change propertychange",function(event){
+		var videourl = $('#voiceurl').val();
+		if(videourl){
+			$("#myvideo").prop("src", videourl);
+			$("#myvideo")[0].addEventListener("loadedmetadata", function() {
+				var tol = Math.floor(this.duration); //获取总时长
+				$('#voice_duration').val(tol);
+			});
+		}else{
+			$('#voice_duration').val(0);
+		}
+	})
+
+		function gonext(layid){
+			$(window).scrollTop(0);
+			layui.element.tabChange('mytab', layid);
+		}
+		layui.element.on('tab(mytab)', function(){
+			try{
+				changeconentxy();
+			}catch(e){}
+		})
+
+		function randomString(len) {
+	　　len = len || 32;
+	　　var $chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';    /****默认去掉了容易混淆的字符oOLl,9gq,Vv,Uu,I1****/
+	　　var maxPos = $chars.length;
+	　　var pwd = '';
+	　　for (i = 0; i < len; i++) {
+	　　　　pwd += $chars.charAt(Math.floor(Math.random() * maxPos));
+	　　}
+	　　return pwd;
+		}
+	
+		layui.form.on('checkbox(gettjset)', function(data){
+			console.log(data)
+			if(data.elem.checked){
+				$('#gettjset').hide();
+			}else{
+				$('#gettjset').show();
+			}
+		})
+		function chooseUrl2(){
+			layer.open({type:2,shadeClose:true,area:['1200px', '650px'],'title':'选择链接',content:"{:url('DesignerPage/chooseurl')}&callback=chooseLink2"})
+		}
+		function chooseLink2(urlname,url){
+			$("input[name='info[gettjurl]']").val(url);
+		}
+		</script>
+
+	<script>
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		//field['info[detail]'] = ueditor.getContent();
+		field['info[detail]'] = geteditordata();
+		//console.log(field);return;
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.closeAll();
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

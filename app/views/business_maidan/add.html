@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>买单扣费</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	
+	.product{width:500px; padding:5px;background: #FFF;margin-top:5px;border:1px solid #f1f1f1}
+	.product .content{display:flex;position:relative;width: 100%; padding:15px 10px;border-bottom: 1px #e5e5e5 dashed;position:relative;box-sizing:border-box;}
+	.product .content:last-child{ border-bottom: 0; }
+	.product .content img{ width: 70px; height: 70px;}
+	.product .content .detail{display:flex;flex-direction:column;margin-left:7px;flex:1}
+	.product .content .detail .t1{height: 30px;line-height: 15px;color: #000;}
+	.product .content .detail .t2{height: 23px;line-height: 23px;color: #999;overflow: hidden;font-size:13px;}
+	.product .content .detail .t3{display:flex;height:15px;line-height:15px;color: #ff4246;}
+	.product .content .detail .x1{ flex:1}
+	.product .content .detail .x2{ width:50px;font-size:16px;text-align:right;margin-right:4px}
+	.product .content .comment{position:absolute;top:32px;right:5px;border: 1px #ffc702 solid; border-radius:5px;background:#fff; color: #ffc702;  padding: 0 5px; height: 23px; line-height: 23px;}
+	#ggnamediv .layui-input,#ggvaldiv .layui-input{ display:inline;height:30px}
+	.input-show-text {border:none;}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header"><i class="fa fa-cog"></i> 买单扣费</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w6" lay-filter="">
+						<div class="layui-form-item">
+							<label class="layui-form-label">{:t('会员')}手机号：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="tel" value="" class="layui-input">
+							</div>
+							<button class="layui-btn layui-btn-primary" style="float:left" onclick="search()">查找{:t('会员')}</button>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">昵称：</label>
+							<div class="layui-input-inline"><input type="text" name="mname" value="暂无" class="layui-input input-show-text"></div>
+							<div class="layui-form-mid layui-word-aux">请输入手机号点击查找</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">余额：</label>
+							<div class="layui-input-inline"><input type="text" name="mmoney" value="暂无" class="layui-input input-show-text"></div>
+							<div class="layui-form-mid layui-word-aux">请输入手机号点击查找</div>
+						</div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">所属门店</label>
+                            <div class="layui-input-inline" >
+                                <select name="mdid">
+                                    <option value="0">请选择</option>
+                                    {foreach $mendian as $k=>$v}
+                                    <option value="{$v.id}">{$v.name}</option>
+                                    {/foreach}
+                                </select>
+                            </div>
+                        </div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">支付金额：</label>
+							<div class="layui-input-inline"><input type="text" name="money" value="0" class="layui-input"></div>
+							<div class="layui-form-mid layui-word-aux">仅支持{:t('余额')}支付</div>
+						</div>
+
+<!--						<div class="layui-form-item">-->
+<!--							<label class="layui-form-label">实付金额：</label>-->
+<!--							<div class="layui-input-inline"><input type="text" name="paymoney" readonly value="0" class="layui-input"></div>-->
+<!--							<div class="layui-form-mid layui-word-aux">自动计算 无需输入</div>-->
+<!--						</div>-->
+
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<input type="hidden" name="mid" value="0">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		console.log(field);
+		if(field.tel==''){
+			layer.msg('请输入{:t('会员')}手机号');return;
+		}
+		if(field.money<=0){
+			layer.msg('请输入正确的金额');return;
+		}
+		var index = layer.load();
+		$.post("{:url('add')}",field,function(res){
+			layer.close(index);
+			dialog(res);
+		})
+	})
+
+	function search()
+	{
+		var tel = $("input[name='tel']").val();
+		$.post("{:url('getMemberByTel')}",{tel:tel},function(res){
+			if(res.status == 1){
+				$("input[name='mid']").val(res.data.id);
+				$("input[name='mname']").val(res.data.nickname);
+				$("input[name='mmoney']").val(res.data.money);
+			}else{
+				dialog(res);
+			}
+		})
+	}
+
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

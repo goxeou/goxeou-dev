@@ -1,0 +1,3320 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{:t('会员')}等级设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	#ggtable .layui-input{ display:inline;}
+	#ggtable .layui-btn{ margin-top:-3px;margin-left:1px}
+	.layui-imgbox .layui-imgbox-close{z-index: 6;}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加{:t('会员')}等级{else}<i class="fa fa-pencil"></i> 编辑{:t('会员')}等级{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w8" lay-filter="">
+						<input type="hidden" name="info[id]" value="{$info.id}"/>
+						<span style="color:#333">基础设置</span><hr/>
+						<div class="layui-form-item">
+							<label class="layui-form-label">排序</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[sort]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.sort}">
+							</div>
+							<div class="layui-form-mid layui-word-aux">用于升级顺序判断，数字越大等级越高</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">等级名称</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[name]" class="layui-input" value="{$info.name}" lay-verify="required" lay-verType="tips">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">等级图标</label>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this)" upload-input="icon" upload-preview="iconPreview">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：50×50像素</div>
+							<div id="iconPreview" class="picsList-class-padding">
+								<div class="layui-imgbox imgbox-required">
+									<a {if $info['icon']}style="display: block;" {else /} style="display: none;"  {/if} class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().find('img').attr('src','').hide();getpicsval('icon','picPreview');$(this).hide();" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+									<div class="layui-imgbox-img">
+										<img src="{$info['icon']}"/>
+									</div>
+									<input autocomplete='off' type="text" id="icon" name="info[icon]" lay-verType="tips" value="{$info['icon']}" style="cursor:default;">
+								</div>
+							</div>
+						</div>
+						{if getcustom('plug_sanyang')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">分组</label>
+							<div class="layui-input-inline">
+								<select name="info[cid]" lay-verify="required" lay-filter="changeCategory">
+									{foreach $catList as $v}
+									<option value="{$v.id}" {if $v['id'] == $info['cid']}selected{/if}>{$v.name}</option>
+									{/foreach}
+								</select>
+								<input type="hidden" name="default_cat_id" id="default_cat_id" value="{$default_cat.id}">
+							</div>
+						</div>
+						{/if}
+						<div class="layui-form-item notDefaultShow" {if !$isdefault_cat} style="display: none;" {/if}>
+							<label class="layui-form-label">等级折扣</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[discount]" class="layui-input" value="{$info['id']?$info['discount']:10}">
+							</div>
+							<div class="layui-form-mid layui-word-aux">购买商品时打多少折,10表示不打折,9.5表示打九五折</div>
+						</div>
+
+					{if getcustom('member_level_price_rate')}
+					<div class="layui-form-item notDefaultShow" {if !$isdefault_cat} style="display: none;" {/if}>
+						<label class="layui-form-label">价格倍率</label>
+						<div class="layui-input-inline">
+							<input type="text" name="info[price_rate]" class="layui-input" value="{$info['price_rate']?$info['price_rate']:1}">
+						</div>
+						<div class="layui-form-mid layui-word-aux">等级价格倍率，开启会员价后可使用此费率计算填充价格（成本价*费率）</div>
+					</div>
+			  		{/if}
+					  {if getcustom('member_level_close_jicha')}
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">购物级差</label>
+						  <div class="layui-input-inline">
+							  <input type="radio" name="info[isclose_jicha]" value="0" title="开启" {if !$info['id'] || $info['isclose_jicha']==0}checked{/if}>
+							  <input type="radio" name="info[isclose_jicha]" value="1" title="关闭" {if $info['isclose_jicha']==1}checked{/if}>
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">关闭后，该等级会员购买商品，上级将不再有级差奖</div>
+					  </div>
+					  {/if}
+						{if getcustom('member_friend')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">加好友</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[is_add_friend]" value="1" title="开启" {if $info['is_add_friend']==1}checked{/if}>
+								<input type="radio" name="info[is_add_friend]" value="0" title="关闭" {if !$info['id'] || $info['is_add_friend']==0}checked{/if}>
+							</div>
+							<div class="layui-form-mid layui-word-aux">开启后，该等级下的会员，可进行添加好友操作</div>
+						</div>
+						{/if}
+						{if getcustom('kecheng_discount')}
+						<div class="layui-form-item notDefaultShow" {if !$isdefault_cat} style="display: none;" {/if}>
+							<label class="layui-form-label">知识付费等级折扣</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[kecheng_discount]" class="layui-input" value="{$info['id']?$info['kecheng_discount']:10}">
+							</div>
+							<div class="layui-form-mid layui-word-aux">购买知识付费商品时打多少折,10表示不打折,9.5表示打九五折</div>
+						</div>
+						{/if}
+						{if getcustom('level_product_show_image')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">限制大图</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[show_image]" value="1" title="开启" {if $info['show_image']==1}checked{/if}>
+								<input type="radio" name="info[show_image]" value="0" title="关闭" {if !$info['id'] || $info['show_image']==0}checked{/if}>
+							</div>
+							<div class="layui-form-mid layui-word-aux">开启后，产品详情图片模糊 点击跳转到会员升级</div>
+						</div>
+						{/if}
+						{if $info['isdefault'] != 1}
+						<div class="layui-form-item notDefaultShow" {if !$isdefault_cat} style="display: none;" {/if}>
+							<label class="layui-form-label">人数限制</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[maxnum]" class="layui-input" value="{$info['id']?$info['maxnum']:0}">
+							</div>
+							<div class="layui-form-mid layui-word-aux">达到人数限制将不可申请和自动升级到该等级,0表示不限制</div>
+						</div>
+						  {if getcustom('commission_recursion')}
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">直推复购奖</label>
+							  <div class="layui-input-inline" style="width: 50%;">
+								  <input type="radio" name="info[is_fugou_commission]" value="1" title="是" {if $info['is_fugou_commission']==1}checked{/if} lay-filter="is_fugou_commission">
+								  <input type="radio" name="info[is_fugou_commission]" value="0" title="否" {if $info['is_fugou_commission']==0 || $info['is_fugou_commission']==''}checked{/if} lay-filter="is_fugou_commission">
+							  </div>
+						  </div>
+						  {/if}
+	                    
+						<span style="color:#333">升级设置</span><hr/>
+						<div class="layui-form-item">
+							<label class="layui-form-label">是否可申请</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[can_apply]" value="1" title="是" {if $info['can_apply']==1}checked{/if} lay-filter="can_apply">
+								<input type="radio" name="info[can_apply]" value="0" title="否" {if $info['can_apply']!=1}checked{/if} lay-filter="can_apply">
+							</div>
+							<div class="layui-form-mid layui-word-aux">是否可以由用户主动提交申请资料申请成为该级别</div>
+						</div>
+						<div id="can_applyset" style="border:0px dashed #f0cccc;padding-top:10px;margin-bottom:20px;{if $info['can_apply']!=1}display:none{/if}">
+							<div class="layui-form-item">
+								<label class="layui-form-label">申请条件</label>
+								<!-- <div class="layui-input-inline layui-module-itemL">
+										<div>微信支付金额满</div>
+									<input type="text" name="info[apply_wxpaymoney]" class="layui-input" value="{$info.apply_wxpaymoney}">
+								</div> -->
+								
+								<div class="layui-input-inline layui-module-itemL">
+									<div>订单金额满</div>
+									<input type="text" name="info[apply_ordermoney]" class="layui-input" value="{$info.apply_ordermoney}">
+									或
+								</div>
+								<div class="layui-input-inline layui-module-itemL">
+									<div>充值金额满</div>
+									<input type="text" name="info[apply_rechargemoney]" class="layui-input" value="{$info.apply_rechargemoney}">
+									{if getcustom('levelup_code')}
+									或
+									{/if}
+								</div>
+								{if getcustom('levelup_code')}
+								<div class="layui-input-inline layui-module-itemL">
+									<div>验证码</div>
+									<input type="text" name="info[apply_code]" class="layui-input" value="{$info.apply_code}">
+								</div>
+								{/if}
+								{if getcustom('taocan_product')}
+								<div class="layui-input-inline layui-module-itemL">
+									或&nbsp;
+									<div>购买套餐商品ID</div>
+									<input type="text" name="info[apply_taocan_proid]" class="layui-input" value="{$info.apply_taocan_proid}">
+								</div>
+								{/if}
+								<div class="layui-form-mid layui-word-aux layui-clear">用户申请成为该级别需要满足的条件，不填写则不需要申请条件</div>
+							</div>
+							<div class="layui-form-item" style="margin-bottom:0">
+								<label class="layui-form-label">升级费用</label>
+								<div class="layui-input-inline">
+									<input type="text" name="info[apply_paymoney]" class="layui-input" value="{$info.apply_paymoney}">
+								</div>
+								<div class="layui-form-mid ">元</div>
+								<div style="float:left;">
+									<div class="layui-form-mid">自定义文字</div>
+									<div class="layui-input-inline" style="width:100px"><input type="text" name="info[apply_paytxt]" value="{$info.apply_paytxt|default='升级费用'}" class="layui-input"></div>
+								</div>
+								<div class="layui-form-mid layui-word-aux layui-clear">提交申请时需要交升级费,0代表免费申请</div>
+							</div>
+							{php}
+								$commissiondata7 = json_decode($info['commissiondata7'],true);
+								if(!$commissiondata7) $commissiondata7 = [];
+								$fenhongdata1 = json_decode($info['fenhongdata1'],true);
+								if(!$fenhongdata1) $fenhongdata1 = [];
+							{/php}
+							
+							{foreach $levellist as $level}
+					 	    <div class="layui-form-item">
+								<label class="layui-form-label">{$level.name}：</label>
+								<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important"> 一级佣金(元) </div>
+								<div class="layui-input-inline" style="width: 100px;">
+									<input style="border-radius:0 2px 2px 0" type="text" name="commissiondata7[{$level.id}][commission1]" class="layui-input" value="{$commissiondata7[$level['id']]['commission1']}">
+								</div>
+								<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important"> 伯乐奖(%) </div>
+								<div class="layui-input-inline" style="width: 100px;">
+									<input style="border-radius:0 2px 2px 0" type="text" name="commissiondata6[{$level.id}][commission1pj]" class="layui-input" value="{$commissiondata6[$level['id']]['commission1pj']}">
+								</div>
+							</div>
+							{/foreach}
+						{foreach $levellist as $level}
+                        	{if $level['level_type']==2}
+                            <div class="layui-form-item">
+                        	<label class="layui-form-label">{$level.name}见点：</label>
+                            	<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important"> 见点收益(元) </div>
+                            	<div class="layui-input-inline" style="width: 100px;">
+                            		<input style="border-radius:0 2px 2px 0" type="text" name="fenhongdata1[{$level.id}][commission]" class="layui-input" value="{$fenhongdata1[$level['id']]['commission']}">
+                            	</div>
+                            	<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important"> 伯乐奖(%) </div>
+                            	<div class="layui-input-inline" style="width: 100px;">
+                            		<input style="border-radius:0 2px 2px 0" type="text" name="fenhongdata1[{$level.id}][commissionpj]" class="layui-input" value="{$fenhongdata1[$level['id']]['commissionpj']}">
+                            	</div>
+                            </div>
+                            	{/if}
+                        {/foreach}
+                    							
+							
+							
+							
+							
+							
+							
+							
+							
+							<div class="layui-form-item">
+								<label class="layui-form-label">升级费用分销</label>
+								<div class="layui-input-inline">
+									<input type="radio" name="info[apply_payfenxiao]" value="1" title="是" {if $info['apply_payfenxiao']==1}checked{/if}>
+									<input type="radio" name="info[apply_payfenxiao]" value="0" title="否" {if $info['apply_payfenxiao']!=1}checked{/if}>
+								</div>
+								<div class="layui-form-mid layui-word-aux">升级费用是否参与分销</div>
+							</div>
+							{if getcustom('gdfenhong_level')}
+							<div class="layui-form-item">
+								<label class="layui-form-label">升级费用{:t('股东分红')}</label>
+								<div class="layui-input-inline">
+									<input type="radio" name="info[apply_paygudong]" value="1" title="是" {if $info['apply_paygudong']==1}checked{/if}>
+									<input type="radio" name="info[apply_paygudong]" value="0" title="否" {if $info['apply_paygudong']!=1}checked{/if}>
+								</div>
+								<div class="layui-form-mid layui-word-aux">升级费用是否参与{:t('股东分红')}</div>
+							</div>
+							{/if}
+							<div class="layui-form-item">
+								<label class="layui-form-label">申请资料需要审核</label>
+								<div class="layui-input-inline">
+									<input type="radio" name="info[apply_check]" value="1" title="是" {if $info['apply_check']==1}checked{/if}>
+									<input type="radio" name="info[apply_check]" value="0" title="否" {if $info['apply_check']!=1}checked{/if}>
+								</div>
+								<div class="layui-form-mid layui-word-aux">申请资料是否需要后台审核</div>
+							</div>
+							<div class="layui-form-item">
+							<label class="layui-form-label">申请资料设置</label>
+							<div class="layui-input-inline" style="width:800px !important">
+								<div class="layui-form-item">
+									<!-- <label class="layui-form-label" style="width:100px">添加表单项：</label> -->
+									<div class="layui-input-inline" style="width:auto;margin-top:5px">
+										<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="addelement('input','','',1)"><i class="icon-plus"></i>单行输入</button>
+										<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="addelement('textarea','','',1)"><i class="icon-plus"></i>多行输入</button>
+										<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="addelement('radio','','',1)"><i class="icon-plus"></i>单项选择</button>
+										<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="addelement('checkbox','','',1)"><i class="icon-plus"></i>多项选择</button>
+										<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="addelement('selector','','',1)"><i class="icon-plus"></i>普通选择</button>
+										<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="addelement('time','','',1)"><i class="icon-plus"></i>时间选择</button>
+										<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="addelement('date','','',1)"><i class="icon-plus"></i>日期选择</button>
+										<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="addelement('region','','',1)"><i class="icon-plus"></i>省市区选择</button>
+										<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="addelement('upload','','',1)"><i class="icon-plus"></i>上传图片</button>
+									</div>
+								</div>
+								<table class="layui-table" style="width:900px" id="ggtable">
+									<thead>
+									<tr>
+										<th style="width:100px">字段类型</th>
+										<th style="width:150px">字段名称</th>
+										<th style="width:280px">字段内容</th>
+										<th style="width:150px">是否必填</th>
+										<th style="width:170px">操作</th>
+									</tr>
+									</thead>
+									<tbody id="datatable">
+
+									</tbody>
+								</table>
+							</div>
+						</div>
+						</div>
+						<!--can_applyset end-->
+						<div class="layui-form-item">
+							<label class="layui-form-label">是否可自动升级</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[can_up]" value="1" title="是" {if $info['can_up']==1}checked{/if} lay-filter="can_up">
+								<input type="radio" name="info[can_up]" value="0" title="否" {if $info['can_up']!=1}checked{/if} lay-filter="can_up">
+							</div>
+							<div class="layui-form-mid layui-word-aux">开启后则达到设置条件自动升级为该级别</div>
+						</div>
+
+						<div id="can_upset" style="border:0px dashed #f0cccc;padding-top:10px;margin-bottom:20px;{if $info['can_up']!=1}display:none{/if}">
+						<div class="layui-form-item">
+							<label class="layui-form-label">自动升级条件显示</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[up_condition_show]" value="1" title="显示" {if $info['up_condition_show']==1}checked{/if}>
+								<input type="radio" name="info[up_condition_show]" value="0" title="隐藏" {if $info['up_condition_show']!=1}checked{/if}>
+							</div>
+							<div class="layui-form-mid layui-word-aux">控制前端是否显示升级条件</div>
+						</div>
+						<div class="layui-form-item" style="margin-bottom:5px">
+							<label class="layui-form-label">升级条件</label>
+							
+							<div class="layui-input-inline layui-module-itemL">
+								<div>微信支付累计金额满</div>
+								<input type="text" name="info[up_wxpaymoney]" class="layui-input" value="{$info.up_wxpaymoney}">
+								或
+							</div>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>商城订单金额累计满</div>
+								<input type="text" name="info[up_ordermoney]" class="layui-input" value="{$info.up_ordermoney}">
+								或
+							</div>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>充值金额累计满</div>
+								<input type="text" name="info[up_rechargemoney]" class="layui-input" value="{$info.up_rechargemoney}">
+								或
+							</div>
+							{if getcustom('levelup_perpaymoney')}
+							<div class="layui-input-inline layui-module-itemL">
+								<div>单次消费满</div>
+								<input type="text" name="info[up_perpaymoney]" class="layui-input" value="{$info.up_perpaymoney}">
+								或
+							</div>
+							{/if}
+							<div class="layui-module-color">领取会员卡</div>
+							<div class="layui-input-inline" style="width: 100px;margin-left: 5px;">
+								<input type="checkbox" name="info[up_getmembercard]" value="1" lay-text="开启|关闭" lay-skin="switch" {if $info['up_getmembercard']==1}checked{/if}>
+							</div>
+						</div>
+
+						{if getcustom('member_levelup_orderprice')}
+						<div class="layui-form-item" style="margin-bottom:5px">
+							<div class="layui-input-inline" style="width: 70px;margin-left: 80px;">
+								<select name="info[up_orderprice_condition]" lay-verify="required">
+									<option value="or" {if $info['up_orderprice_condition'] == 'or'}selected{/if}>或</option>
+									<option value="and" {if $info['up_orderprice_condition'] == 'and'}selected{/if}>且</option>
+								</select>
+							</div>
+
+							<div class="layui-input-inline layui-module-itemL">
+								<div>单次订单金额满</div>
+								<input type="text" name="info[up_orderprice]" class="layui-input" value="{$info.up_orderprice}">
+							</div>
+						</div>
+						{/if}
+
+						<div class="layui-form-item" style="margin-bottom:5px">
+							<div class="layui-input-inline" style="width: 70px;margin-left: 80px;">
+								<select name="info[up_fxorder_condition]" lay-verify="required">
+									<option value="or" {if $info['up_fxorder_condition'] == 'or'}selected{/if}>或</option>
+									<option value="and" {if $info['up_fxorder_condition'] == 'and'}selected{/if}>且</option>
+								</select>
+							</div>
+<!--							<label class="layui-form-label">或</label>-->
+							<div class="layui-input-inline layui-module-itemL">
+								<div>下级总订单金额满</div>
+								<input type="text" name="info[up_fxordermoney]" class="layui-input" value="{$info.up_fxordermoney}">
+							</div>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>级数</div>
+								<input type="text" name="info[up_fxorderlevelnum]" class="layui-input" value="{$info.up_fxorderlevelnum}">
+							</div>
+							<div class="layui-input-inline layui-module-itemL" style="margin-right: 0;">
+								<div>等级ID</div>
+								<input type="text" name="info[up_fxorderlevelid]" class="layui-input" value="{$info.up_fxorderlevelid}">
+							</div>
+							{if getcustom('commission2scorepercent')}
+							<div class="layui-form-mid" style="margin-left:20px">剔除最高的业绩</div>
+							<div class="layui-input-inline" style="width:150px">
+								<input type="radio" name="info[up_fxordermoney_removemax]" value="0" {if $info['up_fxordermoney_removemax']==0}checked{/if} title="否"/>
+								<input type="radio" name="info[up_fxordermoney_removemax]" value="1" {if $info['up_fxordermoney_removemax']==1}checked{/if} title="是"/>
+							</div>
+							{/if}
+							<div class="layui-form-mid layui-word-aux">级数和等级ID：0表示不限制等级</div>
+						</div>
+						{if getcustom('plug_ttdz')}
+						<div class="layui-form-item" style="margin-bottom:5px">
+							<div class="layui-input-inline layui-module-itemL">
+								或
+								<div>下级小区订单金额满</div>
+								<input type="text" name="info[up_fxordermoney_xiao]" class="layui-input" value="{$info.up_fxordermoney_xiao}">
+							</div>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>级数</div>
+								<input type="text" name="info[up_fxorderlevelnum_xiao]" class="layui-input" value="{$info.up_fxorderlevelnum_xiao}">
+							</div>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>等级ID</div>
+								<input type="text" name="info[up_fxorderlevelid_xiao]" class="layui-input" value="{$info.up_fxorderlevelid_xiao}">
+							</div>
+							<div class="layui-form-mid">级数和等级ID：0表示不限制等级（小区指即除了人数最多的区以外的其他区）</div>
+						</div>
+						{/if}
+						<div class="layui-form-item" style="margin-bottom:5px">
+							<label class="layui-form-label">或</label>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>下级总人数满</div>
+								<input type="text" name="info[up_fxdowncount]" class="layui-input" value="{$info.up_fxdowncount}">
+							</div>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>级数</div>
+								<input type="text" name="info[up_fxdownlevelnum]" class="layui-input" value="{$info.up_fxdownlevelnum}">
+							</div>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>等级ID</div>
+								<input type="text" name="info[up_fxdownlevelid]" class="layui-input" value="{$info.up_fxdownlevelid}">
+								且
+							</div>
+									{if getcustom('2+1')}
+        							<div class="layui-form-mid" >前两人</div>
+        							<div class="layui-input-inline" style="width: 80px;">
+        								<input type="checkbox" name="info[up_two_removemax]" value="1" lay-text="开启|关闭" lay-skin="switch" {if $info['up_two_removemax']==1}checked{/if}>
+        							</div>
+								{/if}
+							<div class="layui-input-inline layui-module-itemL">
+								<div>下级总人数满</div>
+								<input type="text" name="info[up_fxdowncount2]" class="layui-input" value="{$info.up_fxdowncount2}">
+							</div>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>级数</div>
+								<input type="text" name="info[up_fxdownlevelnum2]" class="layui-input" value="{$info.up_fxdownlevelnum2}">
+							</div>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>等级ID</div>
+								<input type="text" name="info[up_fxdownlevelid2]" class="layui-input" value="{$info.up_fxdownlevelid2}">
+								{if getcustom('level_comwithdraw')}
+								且
+								{/if}
+							</div>
+							{if getcustom('level_comwithdraw')}
+								<div class="layui-input-inline layui-module-itemL" style="margin-right: 0px;">
+									<div>下级总人数满</div>
+									<input type="text" name="info[up_fxdowncount3]" class="layui-input" value="{$info.up_fxdowncount3}">
+								</div>
+								<div class="layui-input-inline layui-module-itemL" style="margin-right: 0px;">
+									<div>级数</div>
+									<input type="text" name="info[up_fxdownlevelnum3]" class="layui-input" value="{$info.up_fxdownlevelnum3}">
+								</div>
+								<div class="layui-input-inline layui-module-itemL"  style="margin-right: 0px;">
+									<div>等级ID</div>
+									<input type="text" name="info[up_fxdownlevelid3]" class="layui-input" value="{$info.up_fxdownlevelid3}">
+								</div>
+							{/if}
+						</div>
+						<div class="layui-form-item" style="margin-bottom:5px">
+							{if getcustom('up_fxdowncount_and_isor')}
+							<label class="layui-form-label">或</label>
+							{/if}
+							{if !getcustom('up_fxdowncount_and_isor')}
+							<label class="layui-form-label">且</label>
+							{/if}
+							<div class="layui-input-inline layui-module-itemL">
+								<div>下级总人数满</div>
+								<input type="text" name="info[up_fxdowncount_and]" class="layui-input" value="{$info.up_fxdowncount_and}">
+							</div>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>级数</div>
+								<input type="text" name="info[up_fxdownlevelnum_and]" class="layui-input" value="{$info.up_fxdownlevelnum_and}">
+							</div>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>等级ID</div>
+								<input type="text" name="info[up_fxdownlevelid_and]" class="layui-input" value="{$info.up_fxdownlevelid_and}">
+								且
+							</div>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>下级总人数满</div>
+								<input type="text" name="info[up_fxdowncount2_and]" class="layui-input" value="{$info.up_fxdowncount2_and}">
+							</div>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>级数</div>
+								<input type="text" name="info[up_fxdownlevelnum2_and]" class="layui-input" value="{$info.up_fxdownlevelnum2_and}">
+							</div>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>等级ID</div>
+								<input type="text" name="info[up_fxdownlevelid2_and]" class="layui-input" value="{$info.up_fxdownlevelid2_and}">
+							</div>
+							<div class="layui-form-mid layui-word-aux layui-clear">级数：统计到下级多少层级，如3级；等级ID：0表示不限制等级,多个用英文逗号","分隔；</div>
+						</div>
+
+						{if getcustom('ciruikang_fenxiao')}
+						<div class="layui-form-item" style="margin-bottom:5px">
+							<label class="layui-form-label">且</label>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>注册</div>
+								<input type="text" name="info[up_regtime_and]" class="layui-input" value="{$info.up_regtime_and}" style="margin-right:0px">
+								<div>天内(包含)</div>
+							</div>
+							<div class="layui-form-mid layui-word-aux layui-clear">{:t('会员')}注册时间，超出注册时间则不能升到此级别</div>
+						</div>
+						{/if}
+
+						{if getcustom('up_cat_ordermoney')}
+						<div class="layui-form-item" style="margin-bottom:5px">
+							<label class="layui-form-label">或</label>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>购买分类商品（分类ID）</div>
+								<input type="text" name="info[up_catid]" class="layui-input" value="{$info.up_catid}">
+							</div>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>单笔订单金额满</div>
+								<input type="text" name="info[up_cat_ordermoney]" class="layui-input" value="{$info.up_cat_ordermoney}">
+							</div>
+							<div class="layui-form-mid layui-word-aux layui-clear">此分类下商品单笔订单满xx金额升级，分类ID：多个用英文逗号分隔</div>
+						</div>
+						{/if}
+
+						{if getcustom('up_downbuyprocount')}
+						<div class="layui-form-item" style="margin-bottom:5px">
+							<label class="layui-form-label">或</label>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>下级购买数量满</div>
+								<input type="text" name="info[up_downbuypronum]" class="layui-input" value="{$info.up_downbuypronum}">
+							</div>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>商品ID</div>
+								<input type="text" name="info[up_downbuyproid]" class="layui-input" value="{$info.up_downbuyproid}">
+							</div>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>级数</div>
+								<input type="text" name="info[up_downbuyprolvnum]" class="layui-input" value="{$info.up_downbuyprolvnum}">
+							</div>
+							<div class="layui-form-mid layui-word-aux layui-clear">多个商品ID用英文逗号分隔</div>
+						</div>
+						{/if}
+						<div class="layui-form-item" style="margin-bottom:5px">
+							<div class="layui-input-inline" style="width: 70px;margin-left: 80px;">							
+								<select name="info[up_buygoods_condition]" lay-verify="required">
+									<option value="or" {if $info['up_buygoods_condition'] == 'or'}selected{/if}>或</option>
+									<option value="and" {if $info['up_buygoods_condition'] == 'and'}selected{/if}>且</option>
+								</select>							
+							</div>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>购买商品(商品ID)</div>
+								<input type="text" name="info[up_proid]" class="layui-input" value="{$info.up_proid}">
+							</div>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>购买数量</div>
+								<input type="text" name="info[up_pronum]" class="layui-input" value="{$info.up_pronum}">
+							</div>
+							{if getcustom('levelup_pro_extend_time')}
+							<div class="layui-form-mid" style="margin-left:20px">复购累加等级有效期</div>
+							<div class="layui-input-inline" style="width:150px">
+								<input type="radio" name="info[up_pro_extend_time]" value="0" {if $info['up_pro_extend_time']==0}checked{/if} title="否"/>
+								<input type="radio" name="info[up_pro_extend_time]" value="1" {if $info['up_pro_extend_time']==1}checked{/if} title="是"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">过期时间+有效期天数=过期时间</div>
+							{/if}
+
+							{if getcustom('levelup_pro_keep_time')}
+							<div class="layui-form-mid" style="margin-left:20px">复购保持等级有效期</div>
+							<div class="layui-input-inline" style="width:150px">
+								<input type="radio" name="info[up_pro_keep_time]" value="0" {if $info['up_pro_keep_time']==0}checked{/if} title="否"/>
+								<input type="radio" name="info[up_pro_keep_time]" value="1" {if $info['up_pro_keep_time']==1}checked{/if} title="是"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">购买时间+有效期天数=过期时间</div>
+							{/if}
+
+							{if getcustom('ciruikang_fenxiao')}
+							<div class="layui-form-mid" style="margin-left:10px">统计订单状态</div>
+							<div class="layui-input-inline" style="width:150px">
+								<select name="info[up_pro_orderstatus]" lay-verify="required">
+									<option value="0" {if $info['up_pro_orderstatus'] == '0'}selected{/if}>付款后所有订单</option>
+									<option value="1" {if $info['up_pro_orderstatus'] == '1'}selected{/if}>仅确认收货订单</option>
+								</select>
+							</div>
+							<div class="layui-form-mid" style="margin-left:10px">统计订单范围</div>
+							<div class="layui-input-inline" style="width:150px">
+								<select name="info[up_pro_orderrange]" lay-verify="required">
+									<option value="0" {if $info['up_pro_orderrange'] == '0'}selected{/if}>仅自己订单</option>
+									<option value="1" {if $info['up_pro_orderrange'] == '1'}selected{/if}>自己及下级订单</option>
+								</select>
+							</div>
+							<div class="layui-form-mid" style="margin-left:10px">且</div>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>小市场业绩(件)</div>
+								<input type="text" name="info[up_small_market_num]" class="layui-input" value="{$info.up_small_market_num}">
+							</div>
+							<div class="layui-form-mid" >且</div>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>购买者最低等级(ID)</div>
+								<input type="text" name="info[up_pro_minprelevelid]" class="layui-input" value="{$info.up_pro_minprelevelid}">
+							</div>
+							{/if}
+							<!--ciruikang_fenxiao end-->
+							<div class="layui-form-mid layui-word-aux layui-clear">
+								商品ID：多个ID用英文逗号分隔，对应的购买数量也用英文逗号分隔，用法1：多个商品ID多个购买数量表示任一商品购买数量≥对应数量即满足条件，用法2：多个商品ID一个购买数量表示所有商品的购买总量≥数量即满足条件
+								{if getcustom('ciruikang_fenxiao')}
+								<br>付款后所有订单：统计的是待收货、已收货、已完成、付款后所有状态的订单；仅确认收货订单：统计的是仅确认收货状态的订单
+								<br>小市场业绩:统计团队商品数量，去掉其中一条直推线上最大业绩后剩下所有业务线的业绩总和算小市场业绩,统计的是已确认收货的所有商品购买数量
+								<br>购买者最低等级(ID)：{:t('会员')}升级前的当前等级，仅能填写一个等级ID，只有大于或等于此等级排序序号的等级才符合此条件，不设置则为全部等级都可升至此级
+								{/if}
+							</div>
+						</div>
+
+						{if getcustom('ciruikang_fenxiao')}
+						<div class="layui-form-item" style="margin-bottom:5px">
+							<label class="layui-form-label">或</label>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>一次性购买商品(商品ID)</div>
+								<input type="text" name="info[up_proid2]" class="layui-input" value="{$info.up_proid2}">
+							</div>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>购买数量</div>
+								<input type="text" name="info[up_pronum2]" class="layui-input" value="{$info.up_pronum2}">
+							</div>
+							<div class="layui-form-mid" style="margin-left:10px">统计订单状态</div>
+							<div class="layui-input-inline" style="width:150px">
+								<select name="info[up_pro_orderstatus2]" lay-verify="required">
+									<option value="0" {if $info['up_pro_orderstatus2'] == '0'}selected{/if}>付款后所有订单</option>
+									<option value="1" {if $info['up_pro_orderstatus2'] == '1'}selected{/if}>仅确认收货订单</option>
+								</select>
+							</div>
+							<div class="layui-form-mid" >且</div>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>购买者等级(ID)</div>
+								<input type="text" name="info[up_pro_prelevelid2]" class="layui-input" value="{$info.up_pro_prelevelid2}">
+							</div>
+							<div class="layui-form-mid layui-word-aux layui-clear">
+								注意：一次性购买商品仅限未一次性购买升级过的{:t('会员')}，若一次性升级过，则此条件不起效果
+								<br>
+								商品ID：多个ID用英文逗号分隔，对应的购买数量也用英文逗号分隔，用法1：多个商品ID多个购买数量表示自己一次性任一商品购买数量≥对应数量即满足条件，用法2：多个商品ID一个购买数量表示自己一次性所有商品的购买总量≥数量即满足条件
+								<br>
+								付款后所有订单：统计的是待收货、已收货、已完成、付款后所有状态的订单；仅确认收货订单：统计的是仅确认收货状态的订单
+								<br>购买者等级(ID)：{:t('会员')}升级前的当前等级，仅能填写一个等级ID，只有等于此等级才符合此条件，不设置则为全部等级都可升至此级
+							</div>
+						</div>
+						{/if}
+
+						{if getcustom('member_levelup_businessnum')}
+						<div class="layui-form-item" style="margin-bottom:5px">
+							<label class="layui-form-label">或</label>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>推荐商家成功入驻数量</div>
+								<input type="text" name="info[up_businessnum]" class="layui-input" value="{$info.up_businessnum}">
+							</div>
+							<div class="layui-form-mid layui-word-aux layui-clear">推荐商家成功入驻数量大于0时生效</div>
+						</div>
+						{/if}
+
+							{if getcustom('up_fxorder_condition_new')}
+							<!--------------------------新增升级条件start 20231104------------------------------->
+							{include file='/member_level/up_fxorder_condition_new'}
+							<!--------------------------新增升级条件end 20231104------------------------------->
+							{/if}
+							{if getcustom('up_level_teamorder')}
+							<div class="layui-form-item" style="margin-bottom:5px">
+								<div class="layui-input-inline" style="width: 70px;margin-left: 80px;">
+									<select name="info[up_teamorder_condition]" lay-verify="required">
+										<option value="or" {if $info['up_teamorder_condition'] == 'or'}selected{/if}>或</option>
+										<option value="and" {if $info['up_teamorder_condition'] == 'and'}selected{/if}>且</option>
+									</select>
+								</div>
+								<div class="layui-input-inline layui-module-itemL">
+									<div>团队订单数满</div>
+									<input type="text" name="info[up_teamorder_num]" class="layui-input" value="{$info.up_teamorder_num}">
+								</div>
+								<div class="layui-input-inline layui-module-itemL">
+									<div>级数</div>
+									<input type="text" name="info[up_teamorder_lv]" class="layui-input" value="{$info.up_teamorder_lv}">
+								</div>
+								<div class="layui-input-inline layui-module-itemL">
+									<div>等级ID</div>
+									<input type="text" name="info[up_teamorder_levelid]" class="layui-input" value="{$info.up_teamorder_levelid}">
+								</div>
+							</div>
+							<div class="layui-form-item" style="margin-bottom:5px">
+								<div class="layui-input-inline" style="width: 70px;margin-left: 80px;">
+									<select name="info[up_teamorder_small_condition]" lay-verify="required">
+										<option value="or" {if $info['up_teamorder_small_condition'] == 'or'}selected{/if}>或</option>
+										<option value="and" {if $info['up_teamorder_small_condition'] == 'and'}selected{/if}>且</option>
+									</select>
+								</div>
+								<div class="layui-input-inline layui-module-itemL">
+									<div>小区团队订单数满</div>
+									<input type="text" name="info[up_teamorder_small_num]" class="layui-input" value="{$info.up_teamorder_small_num}">
+								</div>
+								<div class="layui-input-inline layui-module-itemL">
+									<div>级数</div>
+									<input type="text" name="info[up_teamorder_small_lv]" class="layui-input" value="{$info.up_teamorder_small_lv}">
+								</div>
+								<div class="layui-input-inline layui-module-itemL">
+									<div>等级ID</div>
+									<input type="text" name="info[up_teamorder_small_levelid]" class="layui-input" value="{$info.up_teamorder_small_levelid}">
+								</div>
+								<div class="layui-form-mid layui-word-aux layui-clear">
+									1、团队订单个数，只统计普通商品订单，多个商品一起购买算一笔订单<br/>
+									2、团队订单数量最大的为大区，剩下的是小区<br/>
+									3、级数：统计到下级多少层级，如3级；<br/>
+									4、等级ID：0表示不限制等级,多个用英文逗号","分隔；<br/>
+								</div>
+							</div>
+							{/if}
+							<!--up_level_teamorder end-->
+
+							{if getcustom('levelup_teamnum_peoplenum')}
+							<div class="layui-form-item" style="margin-bottom:5px">
+								<div class="layui-input-inline" style="width: 70px;margin-left: 80px;">
+									<select name="info[up_team_path_condition]" lay-verify="required">
+										<option value="or" {if $info['up_team_path_condition'] == 'or'}selected{/if}>或</option>
+										<option value="and" {if $info['up_team_path_condition'] == 'and'}selected{/if}>且</option>
+									</select>
+								</div>
+								<div class="layui-input-inline layui-module-itemL">
+									<div>团队满</div>
+									<input type="text" name="info[up_team_path_num]" class="layui-input" value="{$info.up_team_path_num}">条线，
+								</div>
+								<div class="layui-input-inline layui-module-itemL">
+									<div>每条线超</div>
+									<input type="text" name="info[up_team_people_num]" class="layui-input" value="{$info.up_team_people_num}">人
+								</div>
+								<div class="layui-input-inline layui-module-itemL">
+									<div>等级ID</div>
+									<input type="text" name="info[up_team_path_level]" class="layui-input" value="{$info.up_team_path_level}">多个等级使用英文逗号","分隔
+								</div>
+								<div class="layui-form-mid layui-word-aux layui-clear">团队必须有（X）条线，每条线超过（Y）人达到（M）等级(多个)</div>
+							</div>
+							{/if}
+							<!--levelup_teamnum_peoplenum end-->
+							{if getcustom('member_up_binding_tel')}
+							<div class="layui-form-item" style="margin-bottom:5px">
+								<div class="layui-input-inline" style="width: 70px;margin-left: 80px;">
+									<select name="info[up_binding_tel_condition]" lay-verify="required">
+										<option value="or" {if $info['up_binding_tel_condition'] == 'or'}selected{/if}>或</option>
+										<option value="and" {if $info['up_binding_tel_condition'] == 'and'}selected{/if}>且</option>
+									</select>
+								</div>
+								<div class="layui-module-color">绑定手机号</div>
+								<div class="layui-input-inline" style="width: 70px;margin-left: 5px;">
+									<input type="checkbox" name="info[up_binding_tel]" value="1" lay-text="开启|关闭" lay-skin="switch" {if $info['up_binding_tel']==1}checked{/if}>
+								</div>
+								<div class="layui-form-mid layui-word-aux ">开启后必须绑定手机号才能自动升级</div>
+							</div>
+							{/if}
+						<div class="layui-form-item" style="margin-bottom:5px">
+							<div class="layui-form-mid layui-word-aux layui-clear">不填写则不能自动升级为该级别；每行一个条件</div>
+						</div>
+							{if getcustom('levelup_from_levelid')}
+							<div class="layui-form-item">
+								<label class="layui-form-label">前置等级</label>
+								<div class="layui-input-inline" style="width:800px">
+									<input type="checkbox" name="info[gettj][]" value="-1" title="所有等级" lay-skin="primary" {if in_array('-1',$info['gettj'])}checked{/if} />
+									{foreach $levellist as $v}
+									<input type="checkbox" name="info[gettj][]" value="{$v.id}" title="{$v.name}" lay-skin="primary" {if in_array($v['id'],$info['gettj'])}checked{/if}/>
+									{/foreach}
+								</div>
+								<div class="layui-form-mid layui-word-aux layui-clear">只有勾选的等级才可以升级到该级别，不勾选代表不限制</div>
+							</div>
+							{/if}
+						{if $auth_data=='all' || in_array('up_giveparent',$auth_data)}
+							{if getcustom('up_giveparent')}
+							<div class="layui-form-item">
+								<label class="layui-form-label">升级给上级人数</label>
+								<div class="layui-input-inline">
+									<input type="text" name="info[up_giveparent_num]" class="layui-input" value="{$info.up_giveparent_num}">
+								</div>
+								<div class="layui-input-inline layui-module-itemL">
+									<div>指定上级等级ID</div>
+									<input type="text" name="info[up_giveparent_levelid_p]" class="layui-input" value="{$info.up_giveparent_levelid_p}" placeholder="">
+								</div>
+								<div class="layui-input-inline layui-module-itemL">
+									<div>指定下级等级ID</div>
+									<input type="text" name="info[up_giveparent_levelid]" class="layui-input" value="{$info.up_giveparent_levelid}" placeholder="选填">
+								</div>
+								{if $up_giveparent_prize}
+								<div class="layui-input-inline layui-module-itemL">
+									<div>{:t('见点奖')}</div>
+									<input type="text" name="info[up_giveparent_prize]" class="layui-input" value="{$info.up_giveparent_prize}" placeholder="0">
+								</div>
+								{/if}
+								<div class="layui-form-mid layui-word-aux layui-clear">升级到此等级后，他直推的几个人留给他的上级（0表示直推上级，其他等级ID表示不限层级的最近上级），等级ID多个用英文逗号分隔</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">脱离后作为新上级的升级条件</label>
+								<div class="layui-input-inline" style="width:150px;">
+									<input type="radio" name="info[up_with_new]" value="1" title="是" {if $info['up_with_new']==1}checked{/if}>
+									<input type="radio" name="info[up_with_new]" value="0" title="否" {if $info['up_with_new']!=1}checked{/if}>
+								</div>
+								<div class="layui-form-mid layui-word-aux">脱离后是否作为新推荐人的“下级总人数”条件，帮助新推荐人升级（解冻扶持金同样适用）</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">脱离后作为原上级的升级条件</label>
+								<div class="layui-input-inline" style="width:150px;">
+									<input type="radio" name="info[up_with_origin]" value="1" title="是" {if $info['up_with_origin']==1}checked{/if}>
+									<input type="radio" name="info[up_with_origin]" value="0" title="否" {if $info['up_with_origin']!=1}checked{/if}>
+								</div>
+								<div class="layui-form-mid layui-word-aux">脱离后继续作为原推荐人的“下级总人数”条件，帮助原推荐人升级</div>
+							</div>
+							{/if}
+							{if getcustom('up_change_pid')}
+							<div class="layui-form-item">
+								<label class="layui-form-label">升级后脱离上级</label>
+								<div class="layui-input-inline" style="width:150px;">
+									<input type="radio" name="info[up_change_pid]" value="1" title="是" {if $info['up_change_pid']==1}checked{/if} lay-filter="diandaSwitchNew">
+									<input type="radio" name="info[up_change_pid]" value="0" title="否" {if $info['up_change_pid']!=1}checked{/if} lay-filter="diandaSwitchNew">
+									<!--0不变，1脱离，2修改为上级的上级（预留）-->
+								</div>
+								<div class="layui-form-mid layui-word-aux">升级到此等级后，他的推荐人为空</div>
+							</div>
+							<div class="layui-form-item" {if $info['up_change_pid'] == 1} style="display:none"{/if}>
+								<label class="layui-form-label">升级后回归</label>
+								<div class="layui-input-inline" style="width:150px;">
+									<input type="radio" name="info[up_change_back]" value="1" title="是" {if $info['up_change_back']==1}checked{/if}>
+									<input type="radio" name="info[up_change_back]" value="0" title="否" {if $info['up_change_back']!=1}checked{/if}>
+									<!--0不变，1脱离，2修改为上级的上级（预留）-->
+								</div>
+								<div class="layui-form-mid layui-word-aux">升级到此等级后，回归到原推荐人下面（仅脱离的人生效）</div>
+							</div>
+							{/if}
+	  					{/if}
+
+					</div>
+                  	{if getcustom('2+1')}
+    					<div class="layui-form-item">
+    						<label class="layui-form-label">2+1等级</label>
+    						<div class="layui-input-inline" style="width:500px">
+    							<input type="radio" name="info[level_type]" value="0" title="无" {if $info['level_type']!=1 && $info['level_type']!=2}checked{/if} >
+    							<input type="radio" name="info[level_type]" value="1" title="vip" {if $info['level_type']==1}checked{/if} >
+    							<input type="radio" name="info[level_type]" value="2" title="老板" {if $info['level_type']==2}checked{/if} >
+    						</div>
+    						<div class="layui-form-mid layui-word-aux"></div>
+    					</div>
+    		<!--			<div class="layui-form-item">-->
+						<!--	<label class="layui-form-label">冻结{:t('佣金')}</label>-->
+						<!--	<div class="layui-input-inline">-->
+						<!--		<input type="text" name="info[dongrate]" class="layui-input" value="{$info.dongrate}">-->
+						<!--	</div>-->
+						<!--	<div class="layui-form-mid layui-word-aux">%</div>-->
+						<!--</div>-->
+						<!--<div class="layui-form-item">-->
+						<!--	<label class="layui-form-label">解冻{:t('佣金')}</label>-->
+						<!--	<div class="layui-input-inline" style="width:500px">-->
+						<!--		<input type="radio" name="info[is_jiedong]" value="0" title="否" {if $info['is_jiedong']!=1 && $info['is_jiedong']!=2}checked{/if} >-->
+						<!--		<input type="radio" name="info[is_jiedong]" value="1" title="是" {if $info['is_jiedong']==1}checked{/if} >-->
+						<!--	</div>-->
+						<!--	<div class="layui-form-mid layui-word-aux">升级到此等级解冻佣金</div>-->
+						<!--</div>-->
+					{/if}
+					
+					
+
+					<!--升级送优惠券Start-->
+		  			{if getcustom('up_give_coupon')}
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">升级奖励{:t('优惠券')}</label>
+						  <div class="layui-input-inline" style="width:auto; overflow: hidden;">
+							<div class="layui-tab">
+							  <ul class="layui-tab-title">
+								  <li class="layui-this">商城优惠券</li>
+								  <li>餐饮优惠券</li>
+							  </ul>
+							  <div class="layui-tab-content">
+								  <!--商城优惠券Start-->
+								  <div class="layui-tab-item layui-show give-coupon-shop">
+								  	<table class="layui-table choose-coupon-up" style="width:500px" id="choose-coupon-up">
+									  <thead>
+									  <tr>
+										  <th>ID</th>
+										  <th>名称</th>
+										  <th>库存</th>
+										  <th>获得数量</th>
+										  <th>操作</th>
+									  </tr>
+									  </thead>
+									  {if $upcouponList}
+									  {foreach $upcouponList as $k=>$item}
+									  <tr class="choose-tr-list">
+										  <td>{$item.id}</td>
+										  <td>{$item.name}</td>
+										  <td>{$item.stock}</td>
+										  <td>
+											  <input type="hidden" name="info[up_give_coupon][ids][]" value="{$item.id}">
+											  <input type="text" name="info[up_give_coupon][nums][]" value="{$item.num}" class="layui-input" style="width:70px"/>
+										  </td>
+										  <td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delChooseTrUp(this)">删除</button></td>
+									  </tr>
+									  {/foreach}
+									  {/if}
+									  <tr class="choose-tr-add">
+										  <td colspan="5" align="center"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="showChooseCouponUp()">添加</button></td>
+									  </tr>
+								  	</table>
+										  <script>
+											  var chooseCouponLayer;
+											  function showChooseCouponUp(){
+												  chooseCouponLayer = layer.open({type:2,title:'选择{:t(\'优惠券\')}',content:"{:url('Coupon/choosecoupon')}/callback/choosecouponup",area:['1000px','600px'],shadeClose:true});
+											  }
+											  function choosecouponup(res,args){
+												  var detail = res;
+												  var chooseClassName = '.choose-coupon-up';
+												  layer.close(chooseCouponLayer);
+												  var isadd = 0;
+												  $(chooseClassName).find('.choose-tr-list').each(function(){
+													  var thisfid = $(this).find('td:eq(0)').html();
+													  if(thisfid == detail.id){
+														  isadd = 1
+														  dialog('该项已添加过了');
+													  }
+												  });
+												  if(isadd == 0){
+													  var tr = '<tr class="choose-tr-list">' +
+															  '<td>'+detail.id+'</td>' +
+															  '<td>'+detail.name+'</td>' +
+															  '<td>'+detail.stock+'</td>' +
+															  '<td><input type="hidden" name="info[up_give_coupon][ids][]" value="'+detail.id+'"><input type="text" name="info[up_give_coupon][nums][]" value="1" class="layui-input" style="width:70px"/></td>' +
+															  '<td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delChooseTrUp(this)">删除</button></td>' +
+															  '</tr>';
+													  $(chooseClassName).find('.choose-tr-add').before(tr);
+												  }
+											  }
+											  function delChooseTrUp(obj){
+												  $(obj).closest('.choose-tr-list').remove();
+											  }
+										  </script>
+									  </div>
+
+								  <!--商城优惠券End-->
+								  <!--餐饮优惠券Start-->
+								  <div class="layui-tab-item give-coupon-restaurant">
+									  <table class="layui-table choose-coupon-upr" style="width:500px" id="choose-coupon-upr">
+										  <thead>
+										  <tr>
+											  <th>ID</th>
+											  <th>名称</th>
+											  <th>库存</th>
+											  <th>获得数量</th>
+											  <th>操作</th>
+										  </tr>
+										  </thead>
+										  {if $upcouponRList}
+										  {foreach $upcouponRList as $k=>$item}
+										  <tr class="choose-tr-list">
+											  <td>{$item.id}</td>
+											  <td>{$item.name}</td>
+											  <td>{$item.stock}</td>
+											  <td>
+												  <input type="hidden" name="info[up_give_restaurant_coupon][ids][]" value="{$item.id}">
+												  <input type="text" name="info[up_give_restaurant_coupon][nums][]" value="{$item.num}" class="layui-input" style="width:70px"/>
+											  </td>
+											  <td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delChooseTrUp(this)">删除</button></td>
+										  </tr>
+										  {/foreach}
+										  {/if}
+										  <tr class="choose-tr-add">
+											  <td colspan="5" align="center"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="showChooseCouponUpR()">添加</button></td>
+										  </tr>
+									  </table>
+									  <script>
+										  var chooseCouponLayer;
+										  function showChooseCouponUpR(){
+											  chooseCouponLayer = layer.open({type:2,title:'选择{:t(\'优惠券\')}',content:"{:url('RestaurantCoupon/choosecoupon')}/callback/choosecouponupr",area:['1000px','600px'],shadeClose:true});
+										  }
+										  function choosecouponupr(res,args){
+											  var detail = res;
+											  var chooseClassName = '.choose-coupon-upr';
+											  layer.close(chooseCouponLayer);
+											  var isadd = 0;
+											  $(chooseClassName).find('.choose-tr-list').each(function(){
+												  var thisfid = $(this).find('td:eq(0)').html();
+												  if(thisfid == detail.id){
+													  isadd = 1
+													  dialog('该项已添加过了');
+												  }
+											  });
+											  if(isadd == 0){
+												  var tr = '<tr class="choose-tr-list">' +
+														  '<td>'+detail.id+'</td>' +
+														  '<td>'+detail.name+'</td>' +
+														  '<td>'+detail.stock+'</td>' +
+														  '<td><input type="hidden" name="info[up_give_restaurant_coupon][ids][]" value="'+detail.id+'"><input type="text" name="info[up_give_restaurant_coupon][nums][]" value="1" class="layui-input" style="width:70px"/></td>' +
+														  '<td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delChooseTrUpR(this)">删除</button></td>' +
+														  '</tr>';
+												  $(chooseClassName).find('.choose-tr-add').before(tr);
+											  }
+										  }
+										  function delChooseTrUpR(obj){
+											  $(obj).closest('.choose-tr-list').remove();
+										  }
+									  </script>
+								  </div>
+								  <!--餐饮优惠券End-->
+							  </div>
+							</div>
+						  </div>
+					  </div>
+					{/if}
+		  			<!--升级送优惠券End-->
+					  {if getcustom('coupon_xianxia_buy')}
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">转入优惠券数量</label>
+						  <div class="layui-input-inline">
+							  <input type="text" name="info[up_get_couponnum]" class="layui-input" value="{$info.up_get_couponnum}">
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">一次转入优惠券数量大于设置时进行升级，大于0生效</div>
+					  </div>
+					  {/if}
+				    {if getcustom('expert_buy')}
+					    <div class="layui-form-item " >
+							<label class="layui-form-label">查看电话</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[checktel]" class="layui-input" value="{$info['id']?$info['checktel']:0}">
+							</div>
+							<div class="layui-form-mid layui-word-aux"></div>
+						</div>
+					    <div class="layui-form-item ">
+							<label class="layui-form-label">查看回复</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[checkreply]" class="layui-input" value="{$info['id']?$info['checkreply']:0}">
+							</div>
+							<div class="layui-form-mid layui-word-aux"></div>
+						</div>
+						 <div class="layui-form-item">
+							  <label class="layui-form-label">显示问答</label>
+							  <div class="layui-input-inline" style="width: 50%;">
+								  <input type="radio" name="info[showreply]" value="1" title="是" {if $info['showreply']==1}checked{/if} >
+								  <input type="radio" name="info[showreply]" value="0" title="否" {if $info['showreply']==0 || $info['showreply']==''}checked{/if} >
+							  </div>
+						  </div>
+				  	  {/if}
+					  
+					  
+					  
+					  
+					  
+					  
+					  
+					  
+						<div class="layui-form-item">
+							<label class="layui-form-label">升级奖励{:t('积分')}</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[up_give_score]" class="layui-input" value="{$info.up_give_score}">
+							</div>
+							<div class="layui-form-mid layui-word-aux">升到此等级，奖励{:t('积分')}</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">升级奖励{:t('余额')}</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[up_give_money]" class="layui-input" value="{$info.up_give_money}">
+							</div>
+							<div class="layui-form-mid layui-word-aux">升到此等级，奖励{:t('余额')}</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">升级奖励{:t('佣金')}</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[up_give_commission]" class="layui-input" value="{$info.up_give_commission}">
+							</div>
+							<div class="layui-form-mid layui-word-aux">升到此等级，奖励{:t('佣金')}</div>
+						</div>
+						
+						
+						{if getcustom('member_levelup_parentcommission')}
+							<div class="layui-form-item">
+							  <label class="layui-form-label">升级奖励上级佣金</label>
+							{foreach $levelup_levelist as $level}	
+							  <div class="layui-input-inline layui-module-itemL">
+								  <div>{$level.name}：</div>
+								  <input type="hidden" name="levelup_parentcommission[levelid][]" value="{$level.id}">
+								  <input type="text" name="levelup_parentcommission[money][]" class="layui-input" value="{$level.money}">
+							  </div>
+							{/foreach}
+
+								<div class="layui-form-mid">开启级差</div>
+								<div class="layui-input-inline" style="width: 80px;">
+									<input type="checkbox" lay-skin="switch" lay-text="开启|关闭" name="info[levelup_parent_jicha]" value="1" {if $info['levelup_parent_jicha']==1}checked{/if} title="只返最近的上级" lay-skin="primary">
+								</div>
+							  <div class="layui-form-mid layui-word-aux">不设置不生效</div>
+							</div>
+						{else}
+						<div class="layui-form-item">
+							<label class="layui-form-label">升级奖励上级{:t('佣金')}</label>
+							<div class="layui-input-inline">
+								<input type="number" min="0" name="info[up_give_parent_money]" class="layui-input" value="{$info.up_give_parent_money}">
+							</div>
+							<div class="layui-form-mid layui-word-aux">升到此等级，给推荐人奖励{:t('佣金')}</div>
+						</div>
+						{/if}
+					
+						{if getcustom('member_levelup_auth')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">升级奖励权限</label>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>总额度：</div>
+								<input type="number" min="0" name="info[give_level_totalmoney]" class="layui-input" value="{$info.give_level_totalmoney}">
+							</div>
+							<div class="layui-form-mid layui-word-aux">在线售卖和转赠会员等级的总额度（小于本等级）</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">可售卖或转赠的等级</label>
+							<div class="layui-input-inline" style="width:800px">
+								{foreach $levellist as $v}
+								<input type="checkbox" name="info[saletj][]" value="{$v.id}" title="{$v.name}" lay-skin="primary" {if in_array($v['id'],$info['saletj'])}checked{/if}/>
+								{/foreach}
+							</div>
+						</div>
+
+						{/if}
+						
+						<!--升级送优惠券2 Start-->
+						{if getcustom('member_levelup_givecoupon')}
+							<div class="layui-form-item">
+								<label class="layui-form-label">升级奖励{:t('优惠券')}</label>
+								<div class="layui-input-inline" style="width:auto; ">
+									<table class="layui-table choose-coupon1" style="width:700px;" id="choose-coupon2">
+										<thead>
+										<tr>
+											<th>ID</th>
+											<th>名称</th>
+											<th>库存</th>
+											<th>赠送周期类型</th>
+											<th>每周期数量</th>
+											<th>赠送周期数量</th>
+											<th>操作</th>
+										</tr>
+										</thead>
+										{foreach $givecoupondata as $k=>$v}
+										<tr class="choose-tr-list">
+											<td>{$v.coupon_id}<input type="hidden" value='{$v.coupon_id}' name="coupon_id[]"></td>
+											<td>{$v.name}</td>
+											<td>{$v.stock}</td>
+											<td>
+												<select name="cycletype[]" >
+													<option value="1" {if $v.cycletype==1}selected{/if}>单次</option>
+													<option value="2" {if $v.cycletype==2}selected{/if}>每周</option>
+													<option value="3" {if $v.cycletype==3}selected{/if}>每月</option>
+												</select>
+											</td>
+											<td><input type="text" name="coupon_num[]" value="{$v.coupon_num}" class="layui-input" style="width:70px"/></td>
+											<td><input type="text" name="cyclenum[]" value="{$v.cyclenum}" class="layui-input" style="width:70px"/></td>
+											<td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delChooseTr(this,{$ff.id})">删除</button></td>
+										</tr>
+										{/foreach}
+							
+										<tr class="choose-tr-add">
+											<td colspan="7" align="center"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="showChooseCoupon1()">添加</button></td>
+										</tr>
+									</table>
+								</div>
+								<script>
+									var chooseCouponLayer;
+									function showChooseCoupon1(){
+										  chooseCouponLayer = layer.open({type:2,title:'选择{:t(\'优惠券\')}',content:"{:url('Coupon/choosecoupon')}/callback/choosecoupon1",area:['1000px','600px'],shadeClose:true});
+									}
+									function choosecoupon1(res){
+										var detail = res;
+										var chooseClassName = '.choose-coupon1';
+										layer.close(chooseCouponLayer);
+										var objIds = [];
+										var isadd = 0;
+										$(chooseClassName).find('.choose-tr-list').each(function(){
+											var thisfid = $(this).find('td:eq(0)').html();
+											if(thisfid == detail.id){
+												isadd = 1
+												dialog('该项已添加过了');
+											}
+											objIds.push(thisfid)
+										});
+										if(isadd == 0){
+											objIds.push(detail.id)
+						
+											var html='';
+											html+='<tr class="choose-tr-list">';
+											html+='<td>'+detail.id+'</td>';
+											html+='<td>'+detail.name+'<input type="hidden" value='+detail.id+' name="coupon_id[]"></td>';
+											html+='<td>'+detail.stock+'</td>';
+											html+='	<td><div class="layui-input-inline" style="width: 100px;"><select name="cycletype[]" >';
+											html+='			<option value="1">单次</option>';
+											html+='			<option value="2">每周</option>';
+											html+='			<option value="3">每月</option>';
+											html+='		</select></div></td>';
+											html+='<td><input type="text" name="cyclenum[]" value="1" class="layui-input" style="width:70px"/></td>';
+											html+='<td><input type="text" name="coupon_num[]" value="1" class="layui-input" style="width:70px"/></td>';
+											html+= '<td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delChooseTr(this,'+detail.id+')">删除</button></td></tr>';
+			
+											$(chooseClassName).find('.choose-tr-add').before(html);
+										}
+										layui.form.render();
+									}
+									function delChooseTr(obj,fid){
+										$(obj).closest('.choose-tr-list').remove();
+										var objIds = [];
+										$('#choose-coupon2').find('.choose-tr-list').each(function(){
+											objIds.push($(this).find('td:eq(0)').html())
+										})
+							
+									}
+								</script>
+							</div>
+						{/if}
+						<!--升级送优惠券2End-->
+
+						{if getcustom('coupon_xianxia_buy')}
+  			<fieldset class="layui-elem-field">
+	  			<legend>线下每组{:t('优惠券')}奖励</legend>
+						<div class="layui-form-item">
+						  <label class="layui-form-label"></label>
+							<div class="layui-input-inline" style="width: 82%">
+							  {foreach $nodefault_level_list as $level}
+							  <div class="layui-input-inline layui-module-itemL" style="margin: 10px 0;">
+								  <div style="width: 90px">{$level.name}：</div>
+								  <input type="hidden" name="xianxia[levelid][]" value="{$level.id}">
+								  <input type="text" name="xianxia[money][]" class="layui-input" value="{$level.money}">
+							  </div>
+							  {/foreach}
+							</div>
+						  	<div  class="layui-form-mid layui-word-aux">不设置不生效</div>
+						</div>
+			</fieldset>
+				<fieldset class="layui-elem-field">
+					<legend>线下{:t('优惠券')}奖励上级</legend>
+						<div class="layui-form-item">
+						  <div class="layui-input-inline" style="width: 80%">
+							  {foreach $prv_level_list as $level}
+							  <div class="layui-form-item" >
+								  <label class="layui-form-label" style="width: 150px;margin-right: 10px">推荐人等级 {$level.name}:</label>
+								  <div style="display:inline-block;width: 85%;">
+									  {foreach $level['children'] as $children}
+									  <div class="layui-input-inline layui-module-itemL" style="margin: 10px 0;">
+										  <div style="width: 90px">{$children.name}：</div>
+										  <input type="hidden" name="xianxiatj[{$level['id']}][levelid][]" value="{$children.id}">
+										  <input type="text" name="xianxiatj[{$level['id']}][money][]" class="layui-input" value="{$children.money}">
+									  </div>
+									  {/foreach}
+								  </div>	  
+							  </div>
+							  {/foreach}
+						  </div>
+						  <div class="layui-form-mid layui-word-aux" style="margin-left: 100px">推荐人上级最近对应等级奖励,不设置不生效</div>
+						</div>
+					</fieldset>
+						<div class="layui-form-item">
+						  <label class="layui-form-label">线下{:t('优惠券')}超出奖励</label>
+						  <div class="layui-input-inline layui-module-itemL">
+							  <div>推荐人等级ID：</div>
+							  <input type="text" class="layui-input" name="xianxia_full[levelid]" value="{$xianxia_full.levelid}">
+						  </div>
+						  <div class="layui-input-inline layui-module-itemL">
+							  <div>满：</div>
+							  <input type="text" class="layui-input" name="xianxia_full[num]" value="{$xianxia_full.num}">
+						  </div>
+						  <div class="layui-input-inline layui-module-itemL">
+							  <div>奖励：</div>
+							  <input type="text" class="layui-input" name="xianxia_full[money]" value="{$xianxia_full.money}">/组
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">不设置不生效</div>
+						</div>
+						{/if}
+						{if getcustom('up_give_parent_coupon')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">升级奖励上级{:t('优惠券')}</label>
+							<div class="layui-input-inline" style="width:auto; overflow: hidden;">
+								<table class="layui-table choose-coupon" style="width:500px" id="choose-coupon">
+									<thead>
+									<tr>
+										<th>ID</th>
+										<th>名称</th>
+										<th>库存</th>
+										<th>赠送数量</th>
+										<th>操作</th>
+									</tr>
+									</thead>
+									{if $couponList}
+									{foreach $couponList as $k=>$ff}
+									<tr class="choose-tr-list"><td>{$ff.id}</td><td>{$ff.name}</td><td>{$ff.stock}</td><td><input type="text" name="info[up_give_parent_coupon_nums][]" value="{$up_give_parent_coupon_nums[$k]}" class="layui-input" style="width:70px"/></td><td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delChooseTr(this,{$ff.id})">删除</button></td></tr>
+									{/foreach}
+									{/if}
+									<tr class="choose-tr-add">
+										<td colspan="5" align="center"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="showChooseCoupon()">添加</button></td>
+									</tr>
+								</table>
+								<input type="hidden" name="info[up_give_parent_coupon_ids]" value="{$info.up_give_parent_coupon_ids}"/>
+							</div>
+							<script>
+								var chooseCouponLayer;
+								function showChooseCoupon(){
+									chooseCouponLayer = layer.open({type:2,title:'选择{:t(\'优惠券\')}',content:"{:url('Coupon/choosecoupon')}",area:['1000px','600px'],shadeClose:true});
+								}
+								function choosecoupon(res){
+									var detail = res;
+									var chooseClassName = '.choose-coupon';
+									layer.close(chooseCouponLayer);
+									var objIds = [];
+									var isadd = 0;
+									$(chooseClassName).find('.choose-tr-list').each(function(){
+										var thisfid = $(this).find('td:eq(0)').html();
+										if(thisfid == detail.id){
+											isadd = 1
+											dialog('该项已添加过了');
+										}
+										objIds.push(thisfid)
+									});
+									if(isadd == 0){
+										objIds.push(detail.id)
+										$("input[name='info[up_give_parent_coupon_ids]']").val(objIds.join(','));
+										var tr = '<tr class="choose-tr-list"><td>'+detail.id+'</td><td>'+detail.name+'</td><td>'+detail.stock+'</td><td><input type="text" name="info[up_give_parent_coupon_nums][]" value="1" class="layui-input" style="width:70px"/></td><td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delChooseTr(this,'+detail.id+')">删除</button></td></tr>';
+										$(chooseClassName).find('.choose-tr-add').before(tr);
+									}
+								}
+								function delChooseTr(obj,fid){
+									$(obj).closest('.choose-tr-list').remove();
+									var objIds = [];
+									$('#choose-coupon').find('.choose-tr-list').each(function(){
+										objIds.push($(this).find('td:eq(0)').html())
+									})
+									console.log(objIds)
+									$("input[name='info[up_give_parent_coupon_ids]']").val(objIds.join(','));
+								}
+							</script>
+						</div>
+						{/if}
+
+						{if getcustom('buy_selectmember')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">是否允许下单选择</label>
+							<div class="layui-input-inline" style="width:150px;">
+								<input type="radio" name="info[can_buyselect]" value="1" title="是" {if $info['can_buyselect']==1}checked{/if}>
+								<input type="radio" name="info[can_buyselect]" value="0" title="否" {if $info['can_buyselect']!=1}checked{/if}>
+							</div>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>被选奖励(%)</div>
+								<input type="text" name="info[buyselect_commission]" class="layui-input" value="{$info.buyselect_commission}">
+							</div>
+							<div class="layui-form-mid layui-word-aux">开启后用户在商城中下单时可选择该会员</div>
+						</div>
+						{/if}
+
+						{/if}
+					  {if getcustom('network_slide')}
+  						{if $auth_data=='all' || in_array('network_slide',$auth_data)}
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">公排滑落</label>
+						  <div class="layui-input-inline layui-module-itemL">
+							  <div>直推下级等级ID</div>
+							  <input type="text" name="info[net_down_levelid]" class="layui-input" value="{$info.net_down_levelid}" placeholder="">
+						  </div>
+						  <div class="layui-input-inline layui-module-itemL">
+							  <div>人数达到</div>
+							  <input type="text" name="info[net_down_num]" class="layui-input" value="{$info.net_down_num}">
+						  </div>
+						  <div class="layui-input-inline layui-module-itemL">
+							  <div>再次直推下级等级ID</div>
+							  <input type="text" name="info[net_down_next_levelid]" class="layui-input" value="{$info.net_down_next_levelid}" placeholder="">
+						  </div>
+						  <div class="layui-input-inline layui-module-itemL">
+							  <div>滑落给下级等级ID</div>
+							  <input type="text" name="info[slide_down_levelid]" class="layui-input" value="{$info.slide_down_levelid}" placeholder="">
+						  </div>
+						  {if getcustom('network_slide_down_max')}
+						  <div class="layui-input-inline layui-module-itemL">
+							  <div>下级接收人数上限</div>
+							  <input type="text" name="info[slide_down_max]" class="layui-input" value="{$info.slide_down_max}" placeholder="">
+						  </div>
+						  {/if}
+						  <div class="layui-form-mid layui-word-aux layui-clear">
+							  <input type="checkbox" name="info[slide_down_team]" value="1" {if $info['slide_down_team']==1}checked{/if} title="仅滑落给链动脱离的人" lay-skin="primary">
+							  <input type="checkbox" name="info[slide_down_team]" value="2" {if $info['slide_down_team']==2}checked{/if} title="仅滑落给现有下级(直推或间推)" lay-skin="primary">
+						  </div>
+						  <div class="layui-form-mid layui-word-aux layui-clear">
+							  1、直推下级满N个Y等级，再直推的人（U等级）自动滑落给下级T等级的人）<br/>
+							  2、滑落给予顺序：链动脱离的人—自己直推的人—链动裂变过来的人—公排滑落下来的人<br/>
+							  3、跳过U等级升级的会员不滑落<br/>
+							  4、人数设置0，代表不滑落<br/>
+						  </div>
+					  </div>
+  						{/if}
+					  {/if}
+					  {if getcustom('ciruikang_fenxiao')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">赠送商品</label>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>每购买</div>
+								<input type="text" name="info[crk_sumnum]" class="layui-input" value="{$info.crk_sumnum}">
+								个
+							</div>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>随机赠送</div>
+								<input type="text" name="info[crk_sendnum]" class="layui-input" value="{$info.crk_sendnum}">
+								个
+							</div>
+							<!-- <div class="layui-form-mid" style="margin-left:20px">统计订单状态</div>
+							<div class="layui-input-inline" style="width:150px">
+								<select name="info[crk_send_orderstatus]" lay-verify="required">
+									<option value="0" {if $info['crk_send_orderstatus'] == '0'}selected{/if}>付款后所有订单</option>
+									<option value="1" {if $info['crk_send_orderstatus'] == '1'}selected{/if}>仅确认收货订单</option>
+								</select>
+							</div> -->
+							<div class="layui-form-mid layui-word-aux">仅一次性购买商城商品升级的有赠送；每购满多少商品送多少商品；购买数量为累计数量=下单之前已完成的订单商品数量+本次购买的数量；</div>
+						</div>
+						{/if}
+
+						<div id="can_commission" {if !$isdefault_cat} style="display: none;" {/if}>
+							<span style="color:#333">分销设置</span><hr/>
+							<div class="layui-form-item">
+								<label class="layui-form-label">分销权限</label>
+								<div class="layui-input-inline" style="width:70%">
+									<input type="radio" name="info[can_agent]" value="0" title="无权限" {if $info['can_agent']==0 || $info['can_agent']==''}checked{/if} lay-filter="can_agent">
+									<input type="radio" name="info[can_agent]" value="1" title="一级分销" {if $info['can_agent']==1}checked{/if} lay-filter="can_agent">
+									<input type="radio" name="info[can_agent]" value="2" title="二级分销" {if $info['can_agent']==2}checked{/if} lay-filter="can_agent">
+									<input type="radio" name="info[can_agent]" value="3" title="三级分销" {if $info['can_agent']==3}checked{/if} lay-filter="can_agent">
+								</div>
+								<div class="layui-form-mid layui-word-aux layui-clear">开启则表示该级别的{:t('会员')}有分销权限，可以发展下级，拿相应提成</div>
+							</div>
+						{if getcustom('member_level_parent_not_commission')}
+						<div class="layui-form-item">
+						  <label class="layui-form-label">上级无任何分销奖励</label>
+						  <div class="layui-input-inline" style="width:70%">
+							  <input type="radio" name="info[parent_not_commission]" value="0" title="关闭" {if $info['parent_not_commission']==0 || $info['agent_to_origin']==''}checked{/if} >
+							  <input type="radio" name="info[parent_not_commission]" value="1" title="开启" {if $info['parent_not_commission']==1}checked{/if}>
+						  </div>
+						  <div class="layui-form-mid layui-word-aux layui-clear">开启后该等级购买下单，他的上级不享受任何分销奖励（限商城订单）</div>
+						</div>
+						{/if}	
+  						{if getcustom('agent_to_origin')}
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">发给原推荐人</label>
+							  <div class="layui-input-inline" style="width:70%">
+								  <input type="radio" name="info[agent_to_origin]" value="1" title="开启" {if $info['agent_to_origin']==1}checked{/if}>
+								  <input type="radio" name="info[agent_to_origin]" value="0" title="关闭" {if $info['agent_to_origin']==0 || $info['agent_to_origin']==''}checked{/if} >
+							  </div>
+							  <div class="layui-form-mid layui-word-aux layui-clear">开启后一级分销发放给原推荐人(仅一级分销)</div>
+						  </div>
+  						{/if}
+							<div class="layui-form-item" id="can_agentset"  style="border:0px dashed #f0cccc;padding-top:10px;margin-bottom:20px;{if $info['can_agent']==0 || $info['can_agent']==''}display:none{/if}">
+								{if getcustom('commission_max')}
+								<div class="layui-form-item canAgentF">
+									<label class="layui-form-label">奖励上限</label>
+									<div class="layui-input-inline" style="width:250px">
+										<input type="number" step="1" min="0" name="info[commission_max]" lay-verify="number|Ndouble" class="layui-input" value="{$info['commission_max']?$info['commission_max']:0}">
+									</div>
+									<div class="layui-form-mid layui-word-aux">达到奖励上限不再发放任何{:t('佣金')}，0表示不限制</div>
+								</div>
+								{/if}
+								<div class="layui-form-item">
+									<label class="layui-form-label">提成方式</label>
+									<div class="layui-input-inline" style="width:70%">
+										<input type="radio" class="canAgentF-radio" name="info[commissiontype]" value="0" title="百分比" {if $info['commissiontype']==0}checked{/if}  lay-filter="commissiontype">
+										<input type="radio" class="canAgentF-radio" name="info[commissiontype]" value="1" title="固定金额" {if $info['commissiontype']==1}checked{/if}  lay-filter="commissiontype">
+									</div>
+									<div class="layui-form-mid layui-word-aux">设置固定金额时按单返{:t('佣金')},和购买数量无关</div>
+								</div>
+								<div class="layui-form-item" id="tichengBox1" {if $info.commissiontype==2}style="display:none;"{/if}>
+									<label class="layui-form-label">提成金额</label>
+									<div class="layui-input-inline layui-module-itemL" commission1>
+										<div commission1 >一级(<span class="commissionunit">{$info['commissiontype']==1 ? '元':'%'}</span>) </div>
+										<input type="text" name="info[commission1]" class="layui-input" value="{$info.commission1}">
+									</div>
+									<div class="layui-input-inline layui-module-itemL" commission2 style="{if $info['can_agent']<2}display:none;{/if}">
+										<div commission2 style="{if $info['can_agent']<2}display:none;{/if}">二级(<span class="commissionunit">{$info['commissiontype']==1 ? '元':'%'}</span>)</div>
+										<input type="text" name="info[commission2]" class="layui-input" value="{$info.commission2}">
+									</div>
+									<div class="layui-input-inline layui-module-itemL" commission3 style="{if $info['can_agent']<3}display:none;{/if}">
+											<div commission3 style="{if $info['can_agent']<3}display:none;{/if}">三级(<span class="commissionunit">{$info['commissiontype']==1 ? '元':'%'}</span>)</div>
+										<input type="text" name="info[commission3]" class="layui-input" value="{$info.commission3}">
+									</div>
+									<div class="layui-input-inline layui-module-itemL">
+										<div>持续推荐奖励(<span class="commissionunit">{$info['commissiontype']==1 ? '元':'%'}</span>)</div>
+										<input type="text" name="info[commission_parent]" class="layui-input" value="{$info.commission_parent}">
+									</div>
+									{if getcustom('commission_parent_pj') && !getcustom('commission_parent_pj_stop') && $auth_data=='all' || in_array('commission_parent_pj',$auth_data)}
+									<div class="layui-input-inline layui-module-itemL">
+										<div>平级奖(<span class="commissionunit">{$info['commissiontype']==1 ? '元':'%'}</span>)</div>
+										<input type="text" name="info[commission_parent_pj]" class="layui-input" value="{$info.commission_parent_pj}">
+									</div>
+									{/if}
+
+									{if getcustom('commission_appointlevelid')}
+									<div class="layui-input-inline layui-module-itemL">
+										<div>指定等级ID</div>
+										<input type="text" name="info[commission_appointlevelid]" class="layui-input" value="{$info.commission_appointlevelid}">
+									</div>
+									{/if}
+									<div class="layui-form-mid layui-word-aux layui-clear">用户直接推荐的是一级，用户的下级推荐的是二级，用户的下级的下级推荐的是三级<br>
+									持续推荐奖励：当一二三级获得提成时，一二三级的直属上级（分销商身份）可获得下级提成金额的百分比或固定金额作为奖励，由平台发放（限商城订单）<br>
+										* 当商家开启独立收款并且开启商家返款扣除分销佣金时，提成金额比例+平台抽成金额比例不能超过30%（微信支付分账限制）
+									</div>
+								</div>
+								{if getcustom('commission_platform_avg_bonus')}
+								<div class="layui-form-item">
+									<label class="layui-form-label">平台奖励</label>
+									<div class="layui-input-inline" style="width:60px">
+										<input type="text" class="layui-input" name="info[platform_avgbonus_percent]" value="{$info.platform_avgbonus_percent}">
+									</div>
+									<div class="layui-form-mid layui-word-aux">%，可额外获得平台销售业绩x%的平均加权奖励</div>
+								</div>
+								{/if}
+								{if getcustom('commission_parent_pj_stop')}
+								{if $auth_data=='all' || in_array('commission_parent_pj_stop',$auth_data)}
+								<div class="layui-form-item">
+									<label class="layui-form-label">提成平级奖</label>
+									<div class="layui-input-inline" style="width:200px">
+										<input type="radio" name="info[commission_parent_pj_status]" value="0" title="关闭" {if $info['commission_parent_pj_status']==0}checked{/if}  lay-filter="commissionpj">
+										<input type="radio" name="info[commission_parent_pj_status]" value="1" title="开启" {if $info['commission_parent_pj_status']==1}checked{/if}  lay-filter="commissionpj">
+									</div>
+									<div class="layui-input-inline layui-module-itemL commissionpj" style="{if $info['commission_parent_pj_status']==0}display:none;{/if}">
+										<div>平级级数</div>
+										<input type="text" name="info[commission_parent_pj_lv]" class="layui-input" value="{$info.commission_parent_pj_lv|default=0}">
+									</div>
+									<div class="layui-input-inline layui-module-itemL commissionpj" style="{if $info['commission_parent_pj_status']==0}display:none;{/if}">
+										<div>平级奖(元)</div>
+										<input type="text" name="info[commission_parent_pj]" class="layui-input" value="{$info.commission_parent_pj}">
+									</div>
+									<div class="layui-input-inline layui-module-itemL commissionpj" style="{if $info['commission_parent_pj_status']==0}display:none;{/if}">
+										<div>支付金额比例(%)</div>
+										<input type="text" name="info[commission_parent_pj_order]" class="layui-input" value="{$info.commission_parent_pj_order}">
+									</div>
+									<div class="layui-form-mid layui-word-aux layui-clear">
+										1、开启平级奖后推荐人级别和下级相等时只发放平级奖不发放提成<br/>
+										2、开启平级奖后推荐人级别小于下级不发放提成<br/>
+										3、平级级数代表处理团队多少级以内的会员，超出级数不再发放奖金，0表示不限制
+									</div>
+								</div>
+								{/if}
+								{/if}
+								{if getcustom('plug_ttdz')}
+								<div class="layui-form-item">
+									<label class="layui-form-label">复购提成</label>
+									<div class="layui-input-inline layui-module-itemL" commission1>
+										<div commission1> 一级(<span class="commissionunit">{$info['commissiontype']==1 ? '元':'%'}</span>) </div>
+										<input type="text" name="info[commission4]" class="layui-input" value="{$info.commission4}">
+									</div>
+									<div class="layui-input-inline layui-module-itemL" commission2 style="{if $info['can_agent']<2}display:none;{/if}">
+										<div commission2 style="{if $info['can_agent']<2}display:none;{/if}">二级(<span class="commissionunit">{$info['commissiontype']==1 ? '元':'%'}</span>)</div>
+										<input type="text" name="info[commission5]" class="layui-input" value="{$info.commission5}">
+									</div>
+									<div class="layui-input-inline layui-module-itemL" commission3 style="{if $info['can_agent']<3}display:none;{/if}">
+										<div commission3 style="{if $info['can_agent']<3}display:none;{/if}">三级(<span class="commissionunit">{$info['commissiontype']==1 ? '元':'%'}</span>)</div>
+										<input type="text" name="info[commission6]" class="layui-input" value="{$info.commission6}">
+									</div>
+									<div class="layui-form-mid layui-word-aux layui-clear"></div>
+								</div>
+								{/if}
+
+								<div class="layui-form-item">
+									<label class="layui-form-label">推荐{:t('积分')}</label>
+									<div class="layui-input-inline layui-module-itemL" commission1>
+										<div commission1> 一级({:t('积分')}) </div>
+										<input type="text" name="info[score1]" class="layui-input" value="{$info.score1|default=0}">
+									</div>
+									<div class="layui-input-inline layui-module-itemL" commission2 style="{if $info['can_agent']<2}display:none;{/if}">
+										<div commission2 style="{if $info['can_agent']<2}display:none;{/if}">二级({:t('积分')})</div>
+										<input type="text" name="info[score2]" class="layui-input" value="{$info.score2|default=0}">
+									</div>
+									<div class="layui-input-inline layui-module-itemL" commission3 style="{if $info['can_agent']<3}display:none;{/if}">
+										<div commission3 style="{if $info['can_agent']<3}display:none;{/if}">三级({:t('积分')})</div>
+										<input type="text" name="info[score3]" class="layui-input" value="{$info.score3|default=0}">
+									</div>
+									<div class="layui-input-inline layui-module-itemL" commission1>
+										<div commission1>最高限制({:t('积分')})</div>
+										<input type="text" name="info[scoremax]" class="layui-input" value="{$info.scoremax|default=0}">
+									</div>
+									<div class="layui-form-mid layui-word-aux layui-clear">每推荐一个人奖励多少{:t('积分')}；最高限制指每个人通过推荐获得最高积分数，高于此设置将不再获得推荐积分，0表示不限制</div>
+								</div>
+								{if getcustom('member_shougou_parentreward')}
+								<div class="layui-form-item">
+									<label class="layui-form-label">首购推荐奖励</label>
+									<div class="layui-input-inline layui-module-itemL" commission1>
+										<div commission1> 一级(%) </div>
+										<input type="text" name="info[commissionsg1]" class="layui-input" value="{$info.commissionsg1|default=0}">
+									</div>
+									<div class="layui-input-inline layui-module-itemL" commission2 style="{if $info['can_agent']<2}display:none;{/if}">
+										<div commission2 style="{if $info['can_agent']<2}display:none;{/if}">二级(%)</div>
+										<input type="text" name="info[commissionsg2]" class="layui-input" value="{$info.commissionsg2|default=0}">
+									</div>
+									<div class="layui-input-inline layui-module-itemL" commission3 style="{if $info['can_agent']<3}display:none;{/if}">
+										<div commission3 style="{if $info['can_agent']<3}display:none;{/if}">三级(%)</div>
+										<input type="text" name="info[commissionsg3]" class="layui-input" value="{$info.commissionsg3|default=0}">
+									</div>
+									<div class="layui-form-mid layui-word-aux layui-clear">按当前购买者等级设置，返给推荐人奖励</div>
+								</div>
+								{/if}
+								{if getcustom('maidan_commission_score')}
+								<div class="layui-form-item">
+									<label class="layui-form-label">买单提成{:t('积分')}</label>
+									<div class="layui-input-inline layui-module-itemL" commission1>
+										<div commission1>一级(%) </div>
+										<input type="text" name="info[maidan_commission_score1]" class="layui-input" value="{$info.maidan_commission_score1|default=0}">
+									</div>
+									<div class="layui-input-inline layui-module-itemL" commission2 style="{if $info['can_agent']<2}display:none;{/if}">
+										<div commission2 style="{if $info['can_agent']<2}display:none;{/if}">二级(%)</div>
+										<input type="text" name="info[maidan_commission_score2]" class="layui-input" value="{$info.maidan_commission_score2|default=0}">
+									</div>
+									<div class="layui-input-inline layui-module-itemL" commission3 style="{if $info['can_agent']<3}display:none;{/if}">
+										<div commission3 style="{if $info['can_agent']<3}display:none;{/if}">三级(%)</div>
+										<input type="text" name="info[maidan_commission_score3]" class="layui-input" value="{$info.maidan_commission_score3|default=0}">
+									</div>
+									<div class="layui-form-mid layui-word-aux layui-clear">买单成功后奖励{:t('积分')}，奖励积分后，不再计算提成金额；0表示不赠送</div>
+								</div>
+								{/if}
+								{if getcustom('ciruikang_fenxiao')}
+								<div class="layui-form-item">
+									<label class="layui-form-label">一次性购买升级奖励</label>
+									<div class="layui-input-inline layui-module-itemL" commission1>
+										<div commission1>一级(%) </div>
+										<input type="text" name="info[onebuy_commission1]" class="layui-input" value="{$info.onebuy_commission1|default=0}">
+									</div>
+									<div class="layui-input-inline layui-module-itemL" commission2 style="{if $info['can_agent']<2}display:none;{/if}">
+										<div commission2 style="{if $info['can_agent']<2}display:none;{/if}">二级(%)</div>
+										<input type="text" name="info[onebuy_commission2]" class="layui-input" value="{$info.onebuy_commission2|default=0}">
+									</div>
+									<div class="layui-input-inline" style="width: 300px">
+										<input type="radio" name="info[onebuy_commissionjs]" title="按分销等级" value="0" {if !$info.onebuy_commissionjs || $info.onebuy_commissionjs==0}checked{/if}>
+										<input type="radio" name="info[onebuy_commissionjs]" title="按当前购买者等级" value="1" {if $info.onebuy_commissionjs==1}checked{/if}>
+									</div>
+									<div class="layui-form-mid layui-word-aux layui-clear">直接推荐一个一次性(首购）升级的，奖励上级、上上级</div>
+								</div>
+								{/if}
+								{if getcustom('member_realname_verify')}
+								<div class="layui-form-item">
+									<label class="layui-form-label">推荐实名认证{:t('佣金')}</label>
+									<div class="layui-input-inline layui-module-itemL" commission1>
+										<div commission1> 一级({:t('佣金')}) </div>
+										<input type="text" name="info[realname_commission1]" class="layui-input" value="{$info.realname_commission1|default=0}">
+									</div>
+									<div class="layui-form-mid layui-word-aux layui-clear">每推荐一个人实名认证奖励多少{:t('佣金')}</div>
+								</div>
+								{/if}
+								<div class="layui-form-item">
+									<label class="layui-form-label">推荐规则</label>
+									<div class="layui-input-inline" style="width:800px">
+										<input type="radio" name="info[agent_rule]" value="0" title="初次进入即绑定推荐关系" {if $info['agent_rule']==0 || $info['agent_rule']==''}checked{/if}>
+										<input type="radio" name="info[agent_rule]" value="1" title="有推荐人时绑定推荐关系" {if $info['agent_rule']==1}checked{/if}>
+										<input type="radio" name="info[agent_rule]" value="2" title="不绑定推荐关系" {if $info['agent_rule']==2}checked{/if}>
+										<input type="radio" name="info[agent_rule]" value="3" title="首次消费后绑定推荐关系" {if $info['agent_rule']==3}checked{/if}>
+									</div>
+									<div class="layui-form-mid layui-word-aux layui-clear">初次进入即绑定推荐关系：只有没有进入过平台的新{:t('会员')}才能被推荐，并且初次进入就确定了推荐人，终身绑定，不会再被其他人推荐；<br/>有推荐人时绑定推荐关系：没有推荐人时可以被推荐，一旦有了推荐人，该{:t('会员')}的推荐人就确定了，不会再被其他人推荐；<br/>不绑定推荐关系：即使该{:t('会员')}有推荐人，当被另一个人推荐时，TA的推荐人就会变成后来推荐TA的人。<br/>首次消费后绑定推荐关系：即{:t('会员')}在未消费前，当被另一个人推荐时，TA的推荐人就会变成后来推荐TA的人。</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label">自己拿一级提成</label>
+									<div class="layui-input-inline" style="width:500px">
+										<input type="radio" name="info[commission1own]" value="0" title="否" {if $info['commission1own']==0 || $info['commission1own']==''}checked{/if}>
+										<input type="radio" name="info[commission1own]" value="1" title="是" {if $info['commission1own']==1}checked{/if}>
+									</div>
+									<div class="layui-form-mid layui-word-aux layui-clear">开启则表示一级为自己，即自己购买商品自己拿一级{:t('佣金')}</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label">我的团队权限</label>
+									<div class="layui-input-inline" style="width:600px">
+										<input type="checkbox" name="info[team_showtel]" value="1" {if $info['team_showtel']==1}checked{/if} title="查看下级手机号" lay-skin="primary">
+										<input type="checkbox" name="info[team_givemoney]" value="1" {if $info['team_givemoney']==1}checked{/if} title="给下级转余额" lay-skin="primary">
+										<input type="checkbox" name="info[team_givescore]" value="1" {if $info['team_givescore']==1}checked{/if} title="给下级转积分" lay-skin="primary">
+										{if getcustom('member_levelup_givechild')}
+										{if $auth_data=='all' || in_array('MemberLevel/memberlevelupgivechild',$auth_data)}
+										<input type="checkbox" name="info[team_levelup]" value="1" {if $info['team_levelup']==1}checked{/if} title="给下级升级" lay-skin="primary" lay-filter="team_levelup">
+										{/if}
+										{/if}
+										{if getcustom('team_auth')}
+										<input type="checkbox" name="info[team_month_data]" value="1" {if $info['team_month_data']==1}checked{/if} title="月度数据" lay-skin="primary" lay-filter="primary">
+										<input type="checkbox" name="info[team_down_total]" value="1" {if $info['team_down_total']==1}checked{/if} title="下级人数" lay-skin="primary" lay-filter="primary">
+										<input type="checkbox" name="info[team_yeji]" value="1" {if $info['team_yeji']==1}checked{/if} title="团队业绩" lay-skin="primary" lay-filter="primary">
+										<input type="checkbox" name="info[team_self_yeji]" value="1" {if $info['team_self_yeji']==1}checked{/if} title="个人业绩" lay-skin="primary" lay-filter="primary">
+										<input type="checkbox" name="info[team_score]" value="1" {if $info['team_score']==1}checked{/if} title="积分" lay-skin="primary" lay-filter="primary">
+										{/if}
+										{if getcustom('yx_shortvideo_jindubag')}
+											{if $auth_data=='all' || in_array('Shortvideo',$auth_data)}
+												<input type="checkbox" name="info[team_shortvideo]" value="1" {if $info['team_shortvideo']==1}checked{/if} title="查看下级短视频记录" lay-skin="primary">
+											{/if}
+										{/if}
+									</div>
+								</div>
+								{if getcustom('member_levelup_givechild')}
+								{if $auth_data=='all' || in_array('MemberLevel/memberlevelupgivechild',$auth_data)}
+								<div class="layui-form-item team_levelup_div" style="{if $info['team_levelup']!=1} display:none {/if}">
+									<label class="layui-form-label">给下级升级设置</label>
+									<!-- <div class="layui-input-inline layui-module-itemL">
+										<div>等级ID</div>
+										<input type="text" name="info[team_levelup_id]" class="layui-input" value="{$info.team_levelup_id}">
+									</div>
+									<div class="layui-form-mid"></div>
+									<div class="layui-input-inline layui-module-itemL">
+										<div>数量</div>
+										<input type="text" name="info[team_levelup_num]" class="layui-input" value="{$info.team_levelup_num}">
+									</div> -->
+									
+									<div style="float:left;" >
+						
+										<div class="layui-input-inline" style="width:auto">
+											<table id="setcategorydiv"  class="layui-table" style="width:400px">
+												<thead>
+												<tr>
+													<th style="width:100px">名称</th>
+													<th style="width:100px">升级数量</th>
+													
+												</tr>
+												</thead>
+												{if $levellist}
+												{foreach $levellist as $v}
+												<tr><td>{$v['name']}</td><td><input type="number" name="team_levelup_data[{$v['id']}]" value="{$team_levelup_data[$v['id']]|default=0}" class="layui-input" style="width:70px" /></td></tr>
+												{/foreach}
+												{/if}
+											</table>
+										</div>
+									</div>
+									<div class="layui-form-mid layui-word-aux">可以给下级升级的等级和数量,只能给比自己低的等级升级，升级后可升级的数量累计</div>
+								</div>
+								{/if}
+								{/if}
+								{if getcustom('plug_huangfeihong')}
+								<div class="layui-form-item">
+									<label class="layui-form-label">业绩统计</label>
+									<div class="layui-input-inline" style="width:500px">
+										<input type="radio" name="info[tongji_yeji]" value="0" title="否" {if $info['tongji_yeji']==0 || $info['tongji_yeji']==''}checked{/if}>
+										<input type="radio" name="info[tongji_yeji]" value="1" title="是" {if $info['tongji_yeji']==1}checked{/if}>
+									</div>
+									<div class="layui-form-mid layui-word-aux layui-clear">开启后统计自己和所有下级的指定商品购买数量</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label">业绩统计商品ID</label>
+									<div class="layui-input-inline">
+										<input type="text" name="info[tongji_yeji_proids]" class="layui-input" value="{$info.tongji_yeji_proids}">
+									</div>
+									<div class="layui-form-mid layui-word-aux">商品ID多个使用英文逗号“,”分隔，不指定则统计所有购买商品</div>
+								</div>
+								{/if}
+
+								{if getcustom('commission_givedown')}
+								<div class="layui-form-item">
+									<label class="layui-form-label">千里马奖</label>
+									<div class="layui-input-inline layui-module-itemL">
+										<div>提成比例(%) </div>
+										<input type="text" name="info[givedown_percent]" class="layui-input" value="{$info.givedown_percent|default=0}">
+									</div>
+									<div class="layui-input-inline layui-module-itemL">
+										<div>提成金额(元)</div>
+										<input type="text" name="info[givedown_commission]" class="layui-input" value="{$info.givedown_commission|default=0}">
+									</div>
+									<div class="layui-form-mid">自定义名称</div>
+									<div class="layui-input-inline" style="width:170px">
+										<input type="text" name="info[givedown_txt]" class="layui-input" value="{$info.givedown_txt|default='千里马奖'}">
+									</div>
+									<div class="layui-form-mid layui-word-aux">拿出佣金的一部分比例给下级平分</div>
+								</div>
+								{/if}
+								{if getcustom('commission_bole')}
+								<div class="layui-form-item">
+									<label class="layui-form-label">分销伯乐奖</label>
+									<div class="layui-input-inline layui-module-itemL">
+										<div> 提成比例(%) </div>
+										<input type="text" name="info[giveup_percent]" class="layui-input" value="{$info.giveup_percent|default=0}">
+									</div>
+									<div class="layui-input-inline layui-module-itemL">
+										<div> 提成金额(元) </div>
+										<input type="text" name="info[giveup_commission]" class="layui-input" value="{$info.giveup_commission|default=0}">
+									</div>
+									<div class="layui-form-mid">仅发放原上级</div><!--新上级不发，只给原上级发-->
+									<div class="layui-input-inline" style="width: 80px;">
+										<input type="checkbox" lay-skin="switch" lay-text="开启|关闭" name="info[commission_bole_origin]" value="1" {if $info['commission_bole_origin']==1}checked{/if} title="" lay-skin="primary">
+									</div>
+									<div class="layui-form-mid layui-word-aux layui-clear">
+										拿下级会员分销提成的奖金比例+金额
+										<br>仅发放原上级：购买人脱离过的只给原上级或者没脱离过的当前上级发奖励
+									</div>
+								</div>
+								{/if}
+								{if getcustom('maidan_qrcode')}
+									<div class="layui-form-item" >
+										<label class="layui-form-label">买单分成</label>
+										<div class="layui-input-inline layui-module-itemL">
+											<div>直推人扫码分成(%) </div>
+											<input type="text" name="info[maidan_zt_ratio]" class="layui-input" value="{$info.maidan_zt_ratio|default=0}">
+										</div>
+										<div class="layui-input-inline layui-module-itemL">
+											<div> 直推人间接消费分成(%) </div>
+											<input type="text" name="info[maidan_zt_payother_ratio]" class="layui-input" value="{$info.maidan_zt_payother_ratio|default=0}">
+										</div>
+										<div class="layui-input-inline layui-module-itemL">
+											<div> 非直推人收款分成(%) </div>
+											<input type="text" name="info[maidan_nzt_payself_ratio]" class="layui-input" value="{$info.maidan_nzt_payself_ratio|default=0}">
+										</div>
+									</div>
+								{/if}
+								{if getcustom('business_agent')}
+									<div class="layui-form-item" >
+										<label class="layui-form-label">推荐商家提成</label>
+										<div class="layui-input-inline layui-module-itemL">
+											<div>直推(%) </div>
+											<input type="text" name="info[business_zt_ratio]" class="layui-input" value="{$info.business_zt_ratio|default=0}">
+										</div>
+										<div class="layui-input-inline layui-module-itemL">
+											<div>间推(%) </div>
+											<input type="text" name="info[business_jt_ratio]" class="layui-input" value="{$info.business_jt_ratio|default=0}">
+										</div>
+										<div class="layui-form-mid layui-word-aux">可以按结算金额、按平台抽成金额、按利润金额，获得商家所有类型订单的提成</div>
+									</div>
+								{/if}
+								{if getcustom('business_agent_jicha_pj')}
+								<div class="layui-form-item" >
+									<label class="layui-form-label">推荐商家提成</label>
+									<div class="layui-input-inline layui-module-itemL">
+										<div>平级(%) </div>
+										<input type="text" name="info[business_pj_ratio]" class="layui-input" value="{$info.business_pj_ratio|default=0}">
+									</div>
+									<div class="layui-form-mid">级差</div>
+									<div class="layui-input-inline" style="width: 80px;">
+										<input type="checkbox" lay-skin="switch" lay-text="开启|关闭" name="info[business_jicha_status]" value="1" {if $info['business_jicha_status']==1}checked{/if} title="级差" lay-skin="primary">
+									</div>
+									<div class="layui-form-mid layui-word-aux">可以按结算金额、按平台抽成金额、按利润金额，获得商家所有类型订单的提成</div>
+								</div>
+								{/if}
+								
+							</div>
+						  {if getcustom('coupon_xianxia_buy')}
+						  <div id="giveset_div">
+							  {php} $yeji_reward_data = json_decode($info['yeji_reward_data'],true);{/php}
+							  {if $yeji_reward_data}
+							  {foreach $yeji_reward_data as $k=>$give}
+							  <div class="layui-form-item">
+								  <label class="layui-form-label">{if $k==0}优惠券业绩奖励{/if}</label>
+								  <div class="layui-form-mid">业绩满</div>
+								  <div class="layui-input-inline" style="width:70px"><input type="text" name="yeji_limit[]" value="{$give.limit}" class="layui-input"></div>
+								  <div class="layui-form-mid">元，奖励</div>
+								  <div class="layui-input-inline" style="width:70px"><input type="text" name="yeji_reward[]" value="{$give.reward}" class="layui-input"></div>
+								  <div class="layui-form-mid">%</div>
+								  {if $k==0}
+								  <button type="button" class="layui-btn layui-btn-primary" onclick="adddata()">新增</button>
+								  {else}
+								  <button type="button" class="layui-btn layui-btn-primary" onclick="deldata(this)">删除</button>
+								  {/if}
+							  </div>
+							  {/foreach}
+							  {else}
+							  <div class="layui-form-item">
+								  <label class="layui-form-label">优惠券业绩奖励</label>
+								  <div class="layui-form-mid">业绩满</div>
+								  <div class="layui-input-inline" style="width:70px"><input type="text" name="yeji_limit[]" value="" class="layui-input"></div>
+								  <div class="layui-form-mid">元，奖励</div>
+								  <div class="layui-input-inline" style="width:70px"><input type="text" name="yeji_reward[]" value="" class="layui-input"></div>
+								  <div class="layui-form-mid">%</div>
+								  <button type="button" class="layui-btn layui-btn-primary" onclick="adddata()">新增</button>
+							  </div>
+							  {/if}
+						
+						  </div>
+						  <script>
+							  function adddata(){
+								  var html = '';
+								  html+='<div class="layui-form-item">';
+								  html+='	<label class="layui-form-label"></label>';
+								  html+='	<div class="layui-form-mid">业绩满</div>';
+								  html+='	<div class="layui-input-inline" style="width:70px"><input type="text" name="yeji_limit[]" value="" class="layui-input"></div>';
+								  html+='	<div class="layui-form-mid">元，奖励</div>';
+								  html+='	<div class="layui-input-inline" style="width:70px"><input type="text" name="yeji_reward[]" value="" class="layui-input"></div>';
+								  html+='	<div class="layui-form-mid">%</div>';
+								  html+='	<button type="button" class="layui-btn layui-btn-primary" onclick="deldata(this)">删除</button>';
+								  html+='</div>';
+								  $('#giveset_div').append(html);
+							  }
+							  function deldata(obj){
+								  $(obj).parent().remove();
+							  }
+						  </script>
+						  {/if}
+						  {if getcustom('member_create_child_order')}
+						  {if $create_child_order}
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">代客下单</label>
+							  <div class="layui-input-inline" style="width:500px">
+								  <input type="radio" name="info[create_child_order_status]" value="1" title="开启" {if !$info['id'] || $info['create_child_order_status']==1}checked{/if}>
+								  <input type="radio" name="info[create_child_order_status]" value="0" title="关闭" {if $info['id'] && $info['create_child_order_status']==0}checked{/if}>
+							  </div>
+						  </div>
+						  {/if}
+						  {/if}
+						  {if getcustom('member_level_zhitui_number_limit')}
+						  <div class="layui-form-item">
+						  <label class="layui-form-label">直推人数限制</label>
+						  <div class="layui-input-inline">
+							  <input type="text" name="info[zt_member_limit]" class="layui-input" value="{$info['zt_member_limit']}">
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">0:不限制 限制直推下级人数</div>
+						  </div>
+						  {/if}
+						</div>
+
+
+
+
+{if getcustom('credit_fenhong')}
+
+<span style="color:#333">分红设置</span><hr/>
+<div class="layui-form-item">
+						  <label class="layui-form-label">分红点</label>
+						  <div class="layui-input-inline">
+							  <input type="text" name="info[up_fhnum]" class="layui-input" value="{$info['up_fhnum']?$info['up_fhnum']:0}">
+						  </div>
+						  <div class="layui-form-mid layui-word-aux"></div>
+						  </div>
+
+
+	  {/if}
+
+
+
+
+
+
+
+						{if $auth_data=='all' || in_array('gdfenhong',$auth_data) || in_array('teamfenhong',$auth_data) || in_array('areafenhong',$auth_data)}
+						<span style="color:#333">分红设置</span><hr/>
+						{/if}
+						{if $auth_data=='all' || in_array('teamfenhong',$auth_data)}
+							<div class="layui-form-item">
+								<label class="layui-form-label">团队分红</label>
+								<div class="layui-input-inline layui-module-itemL">
+									<div>分红级数</div>
+									<input type="text" name="info[teamfenhonglv]" class="layui-input" value="{$info.teamfenhonglv|default=0}">
+								</div>
+								<div class="layui-input-inline layui-module-itemL">
+									<div>分红比例(%)</div>
+									<input type="text" name="info[teamfenhongbl]" class="layui-input" value="{$info.teamfenhongbl|default=0}">
+								</div>
+								{if $maidan_fenhong_new==1}
+								<div class="layui-input-inline layui-module-itemL">
+									<div>买单分红比例(%)</div>
+									<input type="text" name="info[teamfenhongbl_maidan]" class="layui-input" value="{$info.teamfenhongbl_maidan|default=0}">
+								</div>
+								{/if}
+								<div class="layui-input-inline layui-module-itemL">
+									<div>每单分红金额</div>
+									<input type="text" name="info[teamfenhong_money]" class="layui-input" value="{$info.teamfenhong_money|default=0}">
+								</div>
+								{if getcustom('teamfenhong_score_percent')}
+								<div class="layui-input-inline layui-module-itemL">
+									<div>分红{:t('积分')}比例(%)</div>
+									<input type="text" name="info[teamfenhong_score_percent]" class="layui-input" value="{$info.teamfenhong_score_percent|default=0}">
+								</div>
+								{/if}
+								<div class="layui-form-mid">只给最近的上级分红</div>
+								<div class="layui-input-inline" style="width: 80px;">
+									<input type="checkbox" lay-skin="switch" lay-text="开启|关闭" name="info[teamfenhongonly]" value="1" {if $info['teamfenhongonly']==1}checked{/if} title="只返最近的上级" lay-skin="primary">
+								</div>
+								<div class="layui-form-mid">包含自己</div>
+								<div class="layui-input-inline" style="width: 70px;">
+									<input type="checkbox" lay-skin="switch" lay-text="开启|关闭" name="info[teamfenhong_self]" value="1" {if $info['teamfenhong_self']==1}checked{/if} title="包含自己" lay-skin="primary">
+								</div>
+								{if getcustom('teamfenhong_removemax')}
+								<div class="layui-form-mid">去掉最高</div>
+								<div class="layui-input-inline" style="width: 70px;">
+									<input type="checkbox" lay-skin="switch" lay-text="开启|关闭" name="info[teamfenhong_removemax]" value="1" {if $info['teamfenhong_removemax']==1}checked{/if} lay-skin="primary">
+								</div>
+								{/if}
+								{if getcustom('fenhong_removefenxiao')}
+								<div class="layui-form-mid">扣除分销{:t('佣金')}</div>
+								<div class="layui-input-inline" style="width: 70px;">
+									<input type="checkbox" lay-skin="switch" lay-text="开启|关闭" name="info[teamfenhong_removefenxiao]" value="1" {if $info['teamfenhong_removefenxiao']==1}checked{/if} lay-skin="primary">
+								</div>
+								{/if}
+								{if getcustom('teamfenhong_money_product')}
+								<div class="layui-form-mid layui-word-aux layui-clear">
+									<div class="layui-form-mid">每单分红金额参与产品单独设置</div>
+									<div class="layui-input-inline" style="width: 70px;">
+										<input type="checkbox" lay-skin="switch" lay-text="开启|关闭" name="info[teamfenhong_money_product]" value="1" {if $info['teamfenhong_money_product']==1}checked{/if} lay-skin="primary">
+									</div>
+								</div>
+								{/if}
+								<div class="layui-form-mid layui-word-aux layui-clear">设置分红级数和分红比例后该等级的人可以拿到其下[分红级数]级所有{:t('会员')}的所有商城订单的分红提成比例+每单分红金额；<br>开启只给最近的上级分红表示如果下单人有多个上级均符合分红条件则只给离他最近的上级分红，其他上级不分红</div>
+								{if getcustom('teamfenhong_yejitj')}
+								<div class="layui-form-item" style="margin-bottom:0px">
+										<label class="layui-form-label"></label>
+										<div class="layui-input-inline layui-module-itemL">
+											<div class="layui-form-mid">上月业绩达标</div>
+											<input type="text" name="info[teamfenhong_yeji_money]" class="layui-input" value="{$info.teamfenhong_yeji_money|default=0}" style="margin-right: 0">
+											<div class="layui-form-mid">元</div>
+										</div>
+										<div class="layui-form-mid">业绩含自己</div>
+									  <div class="layui-input-inline" style="width: 30px;">
+											<input type="checkbox"  name="info[teamfenhong_yeji_self]" value="1" {if $info['id'] && $info['teamfenhong_yeji_self']==1}checked{/if} lay-skin="primary">
+										</div>
+									  <div class="layui-form-mid">业绩含运费</div>
+									  <div class="layui-input-inline" style="width: 30px;">
+											<input type="checkbox"  name="info[teamfenhong_yeji_yunfee]" value="1" {if !$info['id'] || $info['teamfenhong_yeji_yunfee']==1}checked{/if} lay-skin="primary">
+										</div>
+									  <div class="layui-form-mid">业绩累积</div>
+									  <div class="layui-input-inline" style="width: 30px;">
+											<input type="checkbox" name="info[teamfenhong_yeji_total]" value="1" {if $info['teamfenhong_yeji_total']==1}checked{/if}  lay-skin="primary" lay-filter="teamfenhong_yeji_total">
+										</div>
+									  <div id="teamfenhong_yeji_month_set" class="layui-input-inline layui-module-itemL" style="{if $info['teamfenhong_yeji_total'] !=1}display: none;{/if}">
+											<div class="layui-form-mid">累积</div>
+											<input type="text" name="info[teamfenhong_yeji_month]" class="layui-input" value="{$info.teamfenhong_yeji_month|default=0}" style="margin-right: 0">
+											<div class="layui-form-mid">月</div>
+										</div>
+										<div class="layui-form-mid layui-word-aux layui-clear">
+											上月业绩达标X元：如5月1日开始，统计4月1日至4月30日团队商城已支付的订单业绩，仅适用“分红结算周期”为月初结算模式，且数额大于0才起效
+											<br>业绩含自己：勾选后则会把自己的商城购买订单业绩也算入
+											<br>业绩含运费：选后则会把配送方式中的运费、服务费统计在内，否则减去统计
+											<br>业绩累积：开启后可设置累积X月（累积x月总业绩达标，大于0才起效），以当前月份之前的连续X个月开始统计计算，若统计的月份其中有被清零的月份，则从清零月份之后的月份开始统计，累积满X个月后，仍未达标团队业绩清零
+									</div>
+								</div>
+								{/if}
+							</div>
+							  {if getcustom('teamfenhong_share')}
+  								{if $auth_data=='all' || in_array('teamfenhong_share',$auth_data)}
+							  <div class="layui-form-item"><!--下级晋升为老板后给新上级贡献的见点奖和原推荐人（成为老板，如果原推荐人不是老板的时候100%全给新上级）平分（可以自定义），这个奖名称“团队分红共享奖”（名称可自定义）;按比例分的时候叫“共享奖”，不按比例的时候还是叫“团队分红”-->
+								  <label class="layui-form-label">团队分红共享奖</label>
+								  <div class="layui-input-inline layui-module-itemL">
+									  <div>新上级（本人）奖励比例(%)</div>
+									  <input type="text" name="info[teamfenhong_share_pid_bl]" class="layui-input" value="{$info.teamfenhong_share_pid_bl|default=100}">
+								  </div>
+								  <div class="layui-input-inline layui-module-itemL">
+									  <div>原上级奖励比例(%)</div>
+									  <input type="text" name="info[teamfenhong_share_pid_origin_bl]" class="layui-input" value="{$info.teamfenhong_share_pid_origin_bl|default=0}">
+								  </div>
+								  <div class="layui-input-inline layui-module-itemL">
+									  <div>原上级等级ID</div>
+									  <input type="text" name="info[teamfenhong_share_pid_origin_levelid]" class="layui-input" value="{$info.teamfenhong_share_pid_origin_levelid|default=0}">
+								  </div>
+								  <!--<div class="layui-input-inline layui-module-itemL">
+									  <div>下单人等级ID</div>
+									  <input type="text" name="info[teamfenhong_share_buy_levelid]" class="layui-input" value="{$info.teamfenhong_share_buy_levelid|default=0}">
+								  </div>-->
+								  <div class="layui-input-inline layui-module-itemL">
+									  <div>下级等级ID</div>
+									  <input type="text" name="info[teamfenhong_share_down_levelid]" class="layui-input" value="{$info.teamfenhong_share_down_levelid|default=0}">
+								  </div>
+								  <div class="layui-form-mid layui-word-aux layui-clear">
+									  本等级{:t('会员')}获得团队分红时，如果下级（符合条件）有原推荐人（符合条件），则两人共享此奖励，代替原团队分红发放，如原上级不存在或不符合条件则保持不变
+									  <br>等级ID：0表示不限制，多个等级ID可用英文逗号间隔；
+								  </div>
+							  </div>
+  								{/if}
+							  {/if}
+							{if getcustom('teamfenhong_peiyujiang')}
+							<div class="layui-form-item">
+								<label class="layui-form-label">团队培育奖</label>
+								<div class="layui-input-inline layui-module-itemL">
+									<div>奖励比例(%)</div>
+									<input type="text" name="info[teamfenhong_peiyujiang_bl]" class="layui-input" value="{$info.teamfenhong_peiyujiang_bl|default=0}">
+								</div>								
+								<div class="layui-form-mid layui-word-aux layui-clear">拿直推下级团队分红的百分比</div>
+							</div>
+							{/if}
+							{if $teamfenhong_pingji}
+							<div class="layui-form-item">
+								<label class="layui-form-label">团队分红平级奖</label>
+								<div class="layui-input-inline layui-module-itemL">
+									<div>分红级数</div>
+									<input type="text" name="info[teamfenhong_pingji_lv]" class="layui-input" value="{$info.teamfenhong_pingji_lv|default=0}">
+								</div>
+								<div class="layui-input-inline layui-module-itemL">
+									<div>奖励比例(%)</div>
+									<input type="text" name="info[teamfenhong_pingji_bl]" class="layui-input" value="{$info.teamfenhong_pingji_bl|default=0}">
+								</div>
+								{if $maidan_fenhong_new==1}
+								<div class="layui-input-inline layui-module-itemL">
+									<div>买单奖励比例(%)</div>
+									<input type="text" name="info[teamfenhong_pingji_bl_maidan]" class="layui-input" value="{$info.teamfenhong_pingji_bl_maidan|default=0}">
+								</div>
+								{/if}
+								<div class="layui-input-inline layui-module-itemL">
+									<div>每单奖励金额</div>
+									<input type="text" name="info[teamfenhong_pingji_money]" class="layui-input" value="{$info.teamfenhong_pingji_money|default=0}">
+								</div>
+								{if getcustom('fenhong_score_percent')}
+								<div class="layui-input-inline layui-module-itemL">
+									<div>奖励{:t('积分')}比例(%)</div>
+									<input type="text" name="info[teamfenhong_pingji_score_percent]" class="layui-input" value="{$info.teamfenhong_pingji_score_percent|default=0}">
+								</div>
+								{/if}
+
+								<input type="radio" name="info[teamfenhong_pingji_type]" value="0" title="按奖励金额" {if $info['teamfenhong_pingji_type']==0}checked{/if}>
+								<input type="radio" name="info[teamfenhong_pingji_type]" value="1" title="按订单金额" {if $info['teamfenhong_pingji_type']==1}checked{/if}>
+								<div class="layui-form-mid layui-word-aux layui-clear">如果下级有团队分红并且下级等级和自己等级相同则拿下级团队分红金额的奖励比例+每单奖励金额，只给最近的上级<br>按奖励金额表示拿下级团队分红金额的比例,按订单金额表示拿订单金额的比例</div>
+							</div>
+						  {if getcustom('teamfenhong_pingji_single_bl')}
+						  <fieldset class="layui-elem-field">
+							  <legend>团队分红平级单独比例</legend>
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">平一级</label>
+							  <div class="layui-input-inline layui-module-itemL">
+								  <div>奖励比例(%)</div>
+								  <input type="text" name="teamfenhong_pingji_single_bl[1]" class="layui-input" value="{$teamfenhong_pingji_single_bl[1]|default=0}">
+							  </div>
+
+							  <div class="layui-input-inline layui-module-itemL">
+								  <div>每单奖励金额</div>
+								  <input type="text" name="teamfenhong_pingji_single_money[1]" class="layui-input" value="{$teamfenhong_pingji_single_money[1]|default=0}">
+							  </div>
+						  </div>
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">平二级</label>
+							  <div class="layui-input-inline layui-module-itemL">
+								  <div>奖励比例(%)</div>
+								  <input type="text" name="teamfenhong_pingji_single_bl[2]" class="layui-input" value="{$teamfenhong_pingji_single_bl[2]|default=0}">
+							  </div>
+
+							  <div class="layui-input-inline layui-module-itemL">
+								  <div>每单奖励金额</div>
+								  <input type="text" name="teamfenhong_pingji_single_money[2]" class="layui-input" value="{$teamfenhong_pingji_single_money[2]|default=0}">
+							  </div>
+						  </div>
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">平三级</label>
+							  <div class="layui-input-inline layui-module-itemL">
+								  <div>奖励比例(%)</div>
+								  <input type="text" name="teamfenhong_pingji_single_bl[3]" class="layui-input" value="{$teamfenhong_pingji_single_bl[3]|default=0}">
+							  </div>
+
+							  <div class="layui-input-inline layui-module-itemL">
+								  <div>每单奖励金额</div>
+								  <input type="text" name="teamfenhong_pingji_single_money[3]" class="layui-input" value="{$teamfenhong_pingji_single_money[3]|default=0}">
+							  </div>
+							  <div class="layui-form-mid layui-word-aux layui-clear">团队分红平级奖自定义比例，不设置或设置为0按正常比例发放</div>
+						  </div>
+						  </fieldset>
+						  {/if}
+							{/if}
+						  {if getcustom('teamfenhong_not_send_cengji')}
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">不发放级数</label>
+							  <div class="layui-input-inline layui-module-itemL">
+								  <div>级数</div>
+								  <input type="text" name="info[teamfenhong_not_lv]" class="layui-input" value="{$info.teamfenhong_not_lv}">
+							  </div>
+							  <div class="layui-form-mid layui-word-aux ">多个使用逗号间隔，如设置1,2</div>
+						  </div>
+						  {/if}
+						  {if getcustom('teamfenhong_jicha')}
+						  <!--**********************团队级差分红start 20231118**************************-->
+						  <fieldset class="layui-elem-field">
+							  <legend>团队级差分红</legend>
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">团队级差分红</label>
+							  <div class="layui-input-inline layui-module-itemL">
+								  <div>分红比例(%)</div>
+								  <input type="text" name="info[teamjichabl]" class="layui-input" value="{$info.teamjichabl|default=0}">
+							  </div>
+							  <div class="layui-input-inline layui-module-itemL">
+								  <div>每单分红金额</div>
+								  <input type="text" name="info[teamjicha_money]" class="layui-input" value="{$info.teamjicha_money|default=0}">
+							  </div>
+							  <div class="layui-form-mid layui-word-aux layui-clear">设置分红级数和分红比例后该等级的人可以拿到其下[分红级数]级所有{:t('会员')}的所有商城订单的分红提成比例+每单分红金额；<br>开启只给最近的上级分红表示如果下单人有多个上级均符合分红条件则只给离他最近的上级分红，其他上级不分红</div>
+						  </div>
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">{:t('团队级差分红')}平级奖</label>
+
+							  <div class="layui-input-inline layui-module-itemL">
+								  <div>奖励比例(%)</div>
+								  <input type="text" name="info[teamjicha_pingji_bl]" class="layui-input" value="{$info.teamjicha_pingji_bl|default=0}">
+							  </div>
+
+							  <div class="layui-input-inline layui-module-itemL">
+								  <div>每单奖励金额</div>
+								  <input type="text" name="info[teamjicha_pingji_money]" class="layui-input" value="{$info.teamjicha_pingji_money|default=0}">
+							  </div>
+							  <input type="radio" name="info[teamjicha_pingji_type]" value="0" title="按奖励金额" {if $info['teamjicha_pingji_type']==0}checked{/if}>
+							  <input type="radio" name="info[teamjicha_pingji_type]" value="1" title="按订单金额" {if $info['teamjicha_pingji_type']==1}checked{/if}>
+							  <div class="layui-form-mid layui-word-aux layui-clear">如果下级有团队分红并且下级等级和自己等级相同则拿下级团队分红金额的奖励比例+每单奖励金额，只给最近的上级<br>按奖励金额表示拿下级团队分红金额的比例,按订单金额表示拿订单金额的比例</div>
+						  </div>
+						  </fieldset>
+
+						  <!--**********************团队级差分红end 20231118**************************-->
+						  {/if}
+						  <!--****************************团队长分红start 20231123***********************************-->
+						  {if getcustom('team_leader_fh')}
+						  <fieldset class="layui-elem-field">
+							  <legend>团队长分红</legend>
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">团队长分红</label>
+							  <div class="layui-input-inline layui-module-itemL">
+								  <div>分红级数</div>
+								  <input type="text" name="info[teamleader_fenhonglv]" class="layui-input" value="{$info.teamleader_fenhonglv|default=0}">
+							  </div>
+							  <div class="layui-input-inline layui-module-itemL">
+								  <div>分红比例(%)</div>
+								  <input type="text" name="info[teamleader_fenhongbl]" class="layui-input" value="{$info.teamleader_fenhongbl|default=0}">
+							  </div>
+
+							  <div class="layui-input-inline layui-module-itemL">
+								  <div>每单分红金额</div>
+								  <input type="text" name="info[teamleader_fenhong_money]" class="layui-input" value="{$info.teamleader_fenhong_money|default=0}">
+							  </div>
+							  <div class="layui-form-mid">包含自己</div>
+							  <div class="layui-input-inline" style="width: 70px;">
+								  <input type="checkbox" lay-skin="switch" lay-text="开启|关闭" name="info[teamleader_fenhong_self]" value="1" {if $info['teamleader_fenhong_self']==1}checked{/if} title="包含自己" lay-skin="primary">
+							  </div>
+							  <div class="layui-form-mid layui-word-aux layui-clear">
+								  设置分红级数和分红比例后该等级的人可以拿到其下[分红级数]级所有{:t('会员')}的所有商城订单的分红提成比例+每单分红金额；<br>
+							  </div>
+						  </div>
+						  </fieldset>
+						  {/if}
+						  <!--****************************团队长分红end 20231123*************************************-->
+						  {if getcustom('teamfenhong_bole') && ($auth_data=='all' || in_array('teamfenhong_bole',$auth_data))}
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">{:t('团队分红伯乐奖')}</label>
+							  <div class="layui-input-inline layui-module-itemL">
+								  <div>奖励比例(%)</div>
+								  <input type="text" name="info[teamfenhong_bole_bl]" class="layui-input" value="{$info.teamfenhong_bole_bl|default=0}">
+							  </div>
+							  <div class="layui-input-inline layui-module-itemL">
+								  <div>脱离奖励比例(%)</div>
+								  <input type="text" name="info[teamfenhong_bole_bl_tuoli]" class="layui-input" value="{$info.teamfenhong_bole_bl_tuoli|default=0}">
+							  </div>
+							  {if $maidan_fenhong_new==1}
+							  <div class="layui-input-inline layui-module-itemL">
+								  <div>买单奖励比例(%)</div>
+								  <input type="text" name="info[teamfenhong_bole_bl_maidan]" class="layui-input" value="{$info.teamfenhong_bole_bl_maidan|default=0}">
+							  </div>
+							  {/if}
+							  <div class="layui-input-inline layui-module-itemL">
+								  <div>每单奖励金额</div>
+								  <input type="text" name="info[teamfenhong_bole_money]" class="layui-input" value="{$info.teamfenhong_bole_money|default=0}">
+							  </div>
+							  <div class="layui-input-inline" style="width: auto">
+								  <input type="radio" name="info[teamfenhong_bole_type]" value="0" title="按奖励金额" {if $info['teamfenhong_bole_type']==0}checked{/if}>
+								  <input type="radio" name="info[teamfenhong_bole_type]" value="1" title="按订单金额" {if $info['teamfenhong_bole_type']==1}checked{/if}>
+							  </div>
+							  <div class="layui-form-mid">本等级只发一次</div>
+							  <div class="layui-input-inline" style="width: 80px;">
+								  <input type="checkbox" lay-skin="switch" lay-text="开启|关闭" name="info[teamfenhong_bole_one]" value="1" {if $info['teamfenhong_bole_one']==1}checked{/if} title="" lay-skin="primary">
+							  </div>
+							  <div class="layui-form-mid">仅发放原上级</div><!--新上级不发，只给原上级发-->
+							  <div class="layui-input-inline" style="width: 80px;">
+								  <input type="checkbox" lay-skin="switch" lay-text="开启|关闭" name="info[teamfenhong_bole_origin]" value="1" {if $info['teamfenhong_bole_origin']==1}checked{/if} title="" lay-skin="primary">
+							  </div>
+							  <div class="layui-form-mid layui-word-aux layui-clear">如果下级有团队分红则拿下级团队分红金额的奖励比例+每单奖励金额<br>按奖励金额表示拿下级团队分红金额的比例,按订单金额表示拿订单金额的比例
+								  <br>仅发放原上级：购买人脱离过的只给原上级或者没脱离过的当前上级发奖励</div>
+						  </div>
+						  {/if}
+  						  <!--团队见单分红start-->
+  						  {if getcustom('teamfenhong_jiandan')}
+							  {if $auth_data=='all' || in_array('teamfenhongJiandan',$auth_data)}
+							  <div class="layui-form-item">
+								  <label class="layui-form-label">团队见单分红</label>
+								  <div class="layui-input-inline layui-module-itemL">
+									  <div>分红级数</div>
+									  <input type="text" name="info[teamfenhong_jiandan_lv]" class="layui-input" value="{$info.teamfenhong_jiandan_lv|default=0}">
+								  </div>
+								  <div class="layui-input-inline layui-module-itemL">
+									  <div>分红比例(%)</div>
+									  <input type="text" name="info[teamfenhong_jiandan_bl]" class="layui-input" value="{$info.teamfenhong_jiandan_bl|default=0}">
+								  </div>
+								  {if $maidan_fenhong_new==1}
+								  <div class="layui-input-inline layui-module-itemL">
+									  <div>买单分红比例(%)</div>
+									  <input type="text" name="info[teamfenhong_jiandan_bl_maidan]" class="layui-input" value="{$info.teamfenhong_jiandan_bl_maidan|default=0}">
+								  </div>
+								  {/if}
+								  <div class="layui-input-inline layui-module-itemL">
+									  <div>每单分红金额</div>
+									  <input type="text" name="info[teamfenhong_jiandan_money]" class="layui-input" value="{$info.teamfenhong_jiandan_money|default=0}">
+								  </div>
+								  <div class="layui-form-mid">只给最近的上级分红</div>
+								  <div class="layui-input-inline" style="width: 80px;">
+									  <input type="checkbox" lay-skin="switch" lay-text="开启|关闭" name="info[teamfenhong_jiandan_only]" value="1" {if $info['teamfenhong_jiandan_only']==1}checked{/if} title="只返最近的上级" lay-skin="primary">
+								  </div>
+								  <div class="layui-form-mid">包含自己</div>
+								  <div class="layui-input-inline" style="width: 70px;">
+									  <input type="checkbox" lay-skin="switch" lay-text="开启|关闭" name="info[teamfenhong_jiandan_self]" value="1" {if $info['teamfenhong_jiandan_self']==1}checked{/if} title="包含自己" lay-skin="primary">
+								  </div>
+								  <div class="layui-form-mid layui-word-aux layui-clear">设置分红级数和分红比例后该等级的人可以拿到其下[分红级数]级所有{:t('会员')}的所有商城订单的分红提成比例+每单分红金额；<br>开启只给最近的上级分红表示如果下单人有多个上级均符合分红条件则只给离他最近的上级分红，其他上级不分红</div>
+							  </div>
+							  {/if}
+  						  {/if}
+  						  <!--团队见单分红end-->
+							{if getcustom('product_teamfenhong')}
+							<div class="layui-form-item">
+								<label class="layui-form-label">商品团队分红</label>
+								<div class="layui-input-inline layui-module-itemL">
+									<div>分红商品ID</div>
+									<input type="text" name="info[product_teamfenhong_ids]" class="layui-input" value="{$info.product_teamfenhong_ids|default=0}">
+								</div>
+								<div class="layui-input-inline layui-module-itemL">
+									<div>分红级数</div>
+									<input type="text" name="info[product_teamfenhonglv]" class="layui-input" value="{$info.product_teamfenhonglv|default=0}">
+								</div>
+								<div class="layui-input-inline layui-module-itemL">
+									<div>每个商品分红金额</div>
+									<input type="text" name="info[product_teamfenhong_money]" class="layui-input" value="{$info.product_teamfenhong_money|default=0}">
+								</div>
+								<div class="layui-form-mid">只给最近的上级分红</div>
+								<div class="layui-input-inline" style="width: 80px;">
+									<input type="checkbox" lay-skin="switch" lay-text="开启|关闭" name="info[product_teamfenhongonly]" value="1" {if $info['product_teamfenhongonly']==1}checked{/if} title="只返最近的上级" lay-skin="primary">
+								</div>
+								<div class="layui-form-mid">包含自己</div>
+								<div class="layui-input-inline" style="width: 100px;">
+									<input type="checkbox" lay-skin="switch" lay-text="开启|关闭" name="info[product_teamfenhong_self]" value="1" {if $info['product_teamfenhong_self']==1}checked{/if} title="包含自己" lay-skin="primary">
+								</div>
+
+								<div class="layui-form-mid layui-word-aux layui-clear">设置分红级数和分红金额后该等级的人可以拿到其下[分红级数]级所有{:t('会员')}的所有商城订单中购买分红商品数量*分红金额；<br>分红商品ID为0时表示不限制商品，多个商品ID用英文逗号分隔</div>
+							</div>
+							{/if}
+						  {if getcustom('business_teamfenhong')}
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">{:t('商家团队分红')}</label>
+							  <div class="layui-input-inline layui-module-itemL">
+								  <div>分红级数</div>
+								  <input type="text" name="info[business_teamfenhonglv]" class="layui-input" value="{$info.business_teamfenhonglv|default=0}">
+							  </div>
+							  <div class="layui-input-inline layui-module-itemL">
+								  <div>分红比例(%)</div>
+								  <input type="text" name="info[business_teamfenhongbl]" class="layui-input" value="{$info.business_teamfenhongbl|default=0}">
+							  </div>
+							  <div class="layui-form-mid layui-word-aux layui-clear">设置分红级数和分红比例后该等级的人可以拿到其下[分红级数]级推荐商家的所有商城订单的分红提成比例；</div>
+						  </div>
+						  {/if}
+						  {if getcustom('business_teamfenhong_pj')}
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">{:t('商家团队分红平级奖')}</label>
+							  <div class="layui-input-inline layui-module-itemL">
+								  <div>分红级数</div>
+								  <input type="text" name="info[business_teamfenhonglv_pj]" class="layui-input" value="{$info.business_teamfenhonglv_pj|default=0}">
+							  </div>
+							  <div class="layui-input-inline layui-module-itemL">
+								  <div>分红比例(%)</div>
+								  <input type="text" name="info[business_teamfenhongbl_pj]" class="layui-input" value="{$info.business_teamfenhongbl_pj|default=0}">
+							  </div>
+							  <input type="radio" name="info[business_teamfenhong_pingji_type]" value="0" title="按奖励金额" {if $info['business_teamfenhong_pingji_type']==0}checked{/if}>
+							  <input type="radio" name="info[business_teamfenhong_pingji_type]" value="1" title="按订单金额" {if $info['business_teamfenhong_pingji_type']==1}checked{/if}>
+							  <div class="layui-form-mid layui-word-aux layui-clear">设置分红级数和分红比例后该等级的人可以拿到其下[分红级数]级推荐商家的所有商城订单的分红提成比例；</div>
+						  </div>
+						  {/if}
+							{if getcustom('level_teamfenhong')}
+								{if $auth_data=='all' || in_array('level_teamfenhong',$auth_data)}
+								<div class="layui-form-item">
+									<label class="layui-form-label">{:t('等级团队分红')}</label>
+									<div class="layui-input-inline layui-module-itemL">
+										<div>团队等级ID</div>
+										<input type="text" name="info[level_teamfenhong_ids]" class="layui-input" value="{$info.level_teamfenhong_ids}">
+									</div>
+									<div class="layui-input-inline layui-module-itemL">
+										<div>分红级数</div>
+										<input type="text" name="info[level_teamfenhonglv]" class="layui-input" value="{$info.level_teamfenhonglv|default=0}">
+									</div>
+									<div class="layui-input-inline" style="width: 130px;margin-right: 0;">
+										<select name="info[level_teamfenhongbl_type]" lay-verify="required">
+											<option value="0" {if !$info['level_teamfenhongbl_type'] || $info['level_teamfenhongbl_type'] == 0}selected{/if} >分红比例(%)</option>
+											<option value="1" {if $info['level_teamfenhongbl_type'] == 1}selected{/if} >分红固定金额</option>
+										</select>
+									</div>
+									<div class="layui-input-inline layui-module-itemL">
+										<input type="text" name="info[level_teamfenhongbl]" class="layui-input" value="{$info.level_teamfenhongbl|default=0}">
+									</div>
+									<div class="layui-input-inline layui-module-itemL">
+										<div>每单分红金额</div>
+										<input type="text" name="info[level_teamfenhong_money]" class="layui-input" value="{$info.level_teamfenhong_money|default=0}">
+									</div>
+									<div class="layui-form-mid">只给最近的上级分红</div>
+									<div class="layui-input-inline" style="width: 100px;">
+										<input type="checkbox" lay-skin="switch" lay-text="开启|关闭" name="info[level_teamfenhongonly]" value="1" {if $info['level_teamfenhongonly']==1}checked{/if} title="只返最近的上级" lay-skin="primary">
+									</div>
+									<div class="layui-form-mid">直属下级等级超越此等级</div>
+									<div class="layui-input-inline" style="width: 100px;">
+										<input type="checkbox" lay-skin="switch" lay-text="开启|关闭" name="info[level_surpass]" value="1" {if $info['level_surpass']==1}checked{/if} title="直属下级等级超越此级别" lay-skin="primary">
+									</div>
+									<div class="layui-form-mid">级差</div>
+									<div class="layui-input-inline" style="width: 130px;margin-right: 0;">
+										<select name="info[level_jicha]" lay-verify="required">
+											<option value="-1" {if $info['level_jicha'] == -1}selected{/if} >关闭</option>
+											<option value="0" {if !$info['level_jicha'] || $info['level_jicha'] == 0}selected{/if} >跟随系统设置</option>
+											<option value="1" {if $info['level_jicha'] == 1}selected{/if} >开启</option>
+										</select>
+									</div>
+									<div class="layui-form-mid layui-word-aux layui-clear">
+										等级ID：多个用英文逗号“,”分隔；设置等级ID、分红级数和分红比例后伞下该等级的人可以拿到其下等级几代ID下[分红级数]所有{:t('会员')}的所有商城订单的分红提成比例或分红固定金额+每单分红金额；
+										<br>开启只给最近的上级分红表示如果下单人有多个上级均符合分红条件则只给离他最近的上级分红，其他上级不分红
+										<br>开启直属下级等级超越此级别后，需要直属下级等级大于此等级，且直属下级及直属下级的下级团队符合[团队等级ID]设置
+									</div>
+								</div>
+								{/if}
+							{/if}
+						{/if}
+						{if $auth_data=='all' || in_array('gdfenhong',$auth_data)}
+						{if getcustom('fenhong_gudong_yeji')}
+						  <fieldset class="layui-elem-field">
+							  <legend>股东分红设置</legend>
+					  	{/if}
+							<div class="layui-form-item">
+								<label class="layui-form-label">股东分红</label>
+								<div class="layui-input-inline layui-module-itemL">
+									<div>分红比例(%)</div>
+									<input type="text" name="info[fenhong]" class="layui-input" value="{$info['id']?$info['fenhong']:0}">
+								</div>
+								{if getcustom('fenhong_score_percent')}
+								<div class="layui-input-inline layui-module-itemL">
+									<div>分红{:t('积分')}比例(%)</div>
+									<input type="text" name="info[fenhong_score_percent]" class="layui-input" value="{$info.fenhong_score_percent|default=0}">
+								</div>
+								{/if}
+								{if getcustom('fenhong_maidan_percent') || $maidan_fenhong_new==1}
+								<div class="layui-input-inline layui-module-itemL">
+									<div>分红买单比例(%)</div>
+									<input type="text" name="info[fenhong_maidan_percent]" class="layui-input" value="{$info.fenhong_maidan_percent|default=0}">
+								</div>
+								{/if}
+								{if getcustom('fenhong_limit_num')}
+								<div class="layui-input-inline layui-module-itemL">
+									<div>分红限制人数</div>
+									<input type="text" name="info[fenhong_num]" class="layui-input" value="{$info.fenhong_num|default=0}">
+								</div>
+								{/if}
+								{if getcustom('plug_sanyang') || getcustom('everyday_hongbao') || getcustom('fenhong_max')}
+								<div class="layui-input-inline layui-module-itemL">
+									<div>每人分红金额上限</div>
+									<input type="number" min="0" name="info[fenhong_max_money]" class="layui-input" value="{$info.fenhong_max_money|default=0}">
+								</div>
+								{/if}
+								{if $sysset['partner_gongxian']==1}
+								<div class="layui-input-inline layui-module-itemL">
+									<div>团队业绩达</div>
+									<input type="number" min="0" name="info[fenhong_gongxian_minyeji]" class="layui-input" value="{$info.fenhong_gongxian_minyeji}">
+								</div>
+								<div class="layui-input-inline layui-module-itemL">
+									<div>贡献分红比例(%)</div>
+									<input type="number" min="0" name="info[fenhong_gongxian_percent]" class="layui-input" value="{$info.fenhong_gongxian_percent}">
+								</div>
+								<div class="layui-input-inline layui-module-itemL">
+									<div>下级每出现一个同级股东增加份额</div>
+									<input type="number" min="0" name="info[fenhong_gongxian_peraddnum]" class="layui-input" value="{$info.fenhong_gongxian_peraddnum}">
+								</div>
+								{/if}
+
+								{if getcustom('fenhong_removefenxiao')}
+								<div class="layui-form-mid">扣除分销{:t('佣金')}</div>
+								<div class="layui-input-inline" style="width: 70px;">
+									<input type="checkbox" lay-skin="switch" lay-text="开启|关闭" name="info[gdfenhong_removefenxiao]" value="1" {if $info['gdfenhong_removefenxiao']==1}checked{/if} lay-skin="primary">
+								</div>
+								{/if}
+								<div class="layui-form-mid layui-word-aux layui-clear">用于合伙人或股东分红，设置分红比例后该等级的所有人平均分摊所有商城订单的分红提成比例{if getcustom('plug_sanyang')}，分红上限为0则不限制{/if}</div>
+							</div>
+							  {if getcustom('fenhong_gudong_yeji')}
+							  <div class="layui-form-item">
+								  <label class="layui-form-label">股东分红拿奖条件</label>
+								  <div class="layui-input-inline layui-module-itemL">
+									  <div>团队级数</div>
+									  <input type="text" name="info[fenhong_yeji_lv]" class="layui-input" value="{$info['id']?$info['fenhong_yeji_lv']:0}">
+								  </div>
+								  <div class="layui-input-inline layui-module-itemL">
+									  <div>团队业绩达</div>
+									  <input type="number" min="0" name="info[fenhong_yeji_num]" class="layui-input" value="{$info.fenhong_yeji_num}">
+								  </div>
+								  <div class="layui-form-mid layui-word-aux layui-clear">X级内团队业绩达到Y才可以拿股东分红奖，团队级数设置0代表所有团队，团队业绩设置0代表不考核业绩</div>
+							  </div>
+						  </fieldset>
+						  {/if}
+
+						{/if}
+					  {if getcustom('fenhong_gudong_huiben')}
+  						{if $auth_data=='all' || in_array('gdfenhong_huiben',$auth_data)}
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">{:t('回本股东分红')}</label>
+						  <div class="layui-input-inline layui-module-itemL">
+							  <div>分红比例(%)</div>
+							  <input type="text" name="info[fenhong_huiben]" class="layui-input" value="{$info['id']?$info['fenhong_huiben']:0}">
+						  </div>
+
+						  <div class="layui-input-inline layui-module-itemL">
+							  <div>每人分红金额上限</div>
+							  <input type="number" min="0" name="info[fenhong_max_money_huiben]" class="layui-input" value="{$info.fenhong_max_money_huiben|default=0}">
+						  </div>
+						  <div class="layui-form-mid layui-word-aux layui-clear">用于合伙人或股东分红，设置分红比例后该等级的所有人平均分摊所有商城订单的分红提成比例，分红上限为0则不限制</div>
+					  </div>
+  						{/if}
+					  {/if}
+						{if $auth_data=='all' || in_array('areafenhong',$auth_data)}
+							<div class="layui-form-item">
+								<label class="layui-form-label">区域代理</label>
+								<div class="layui-input-inline" style="width:350px;">
+									<input type="radio" name="info[areafenhong]" value="0" title="关闭" {if $info['areafenhong']==0}checked{/if}>
+									{if getcustom('areafenhong_jiaquan') && ($auth_data=='all' || in_array('Largearea/*',$auth_data))}
+									<input type="radio" name="info[areafenhong]" value="10" title="大区" {if $info['areafenhong']==10}checked{/if}>
+									{/if}
+									<input type="radio" name="info[areafenhong]" value="1" title="省级" {if $info['areafenhong']==1}checked{/if}>
+									<input type="radio" name="info[areafenhong]" value="2" title="市级" {if $info['areafenhong']==2}checked{/if}>
+									<input type="radio" name="info[areafenhong]" value="3" title="区县" {if $info['areafenhong']==3}checked{/if}>
+								</div>
+								<div class="layui-input-inline layui-module-itemL">
+									<div>分红比例(%)</div>
+									<input type="text" name="info[areafenhongbl]" class="layui-input" value="{$info.areafenhongbl|default=0}">
+								</div>
+								{if $maidan_fenhong_new==1}
+								<div class="layui-input-inline layui-module-itemL">
+									<div>买单分红比例(%)</div>
+									<input type="text" name="info[areafenhongbl_maidan]" class="layui-input" value="{$info.areafenhongbl_maidan|default=0}">
+								</div>
+								{/if}
+								{if getcustom('fenhong_score_percent')}
+								<div class="layui-input-inline layui-module-itemL">
+									<div>分红{:t('积分')}比例(%)</div>
+									<input type="text" name="info[areafenhong_score_percent]" class="layui-input" value="{$info.areafenhong_score_percent|default=0}">
+								</div>
+								{/if}
+								<div class="layui-input-inline layui-module-itemL">
+									<div>人数限制</div>
+									<input type="text" name="info[areafenhongmaxnum]" class="layui-input" value="{$info.areafenhongmaxnum|default=0}">
+								</div>
+								{if getcustom('fenhong_removefenxiao')}
+								<div class="layui-form-mid">扣除分销{:t('佣金')}</div>
+								<div class="layui-input-inline" style="width: 70px;">
+									<input type="checkbox" lay-skin="switch" lay-text="开启|关闭" name="info[areafenhong_removefenxiao]" value="1" {if $info['areafenhong_removefenxiao']==1}checked{/if} lay-skin="primary">
+								</div>
+								{/if}
+								<div class="layui-form-mid layui-word-aux layui-clear">开启区域代理后需要开启用户申请升级，用户填写申请资料时选择要申请的代理区域<br>设置分红比例后该等级的同一个代理区域的人平均分摊所有商城内该区域的订单的分红提成比例，人数限制表示每个区域最多可以有多少区域代理 0表示不限制</div>
+							</div>
+						{/if}
+						{if getcustom('member_gongxian')}
+						  {if $member_gongxian_status}
+							<div class="layui-form-item">
+								<label class="layui-form-label">{:t('贡献')}有效期</label>
+							  <div class="layui-input-inline layui-module-itemR">
+								  <input type="number" min="0" name="info[gongxian_days]" class="layui-input" value="{$info.gongxian_days}"><div>天</div>
+							  </div>
+							  <div class="layui-form-mid layui-word-aux" style="margin-left:10px;">如设置的有效期为30天，则30天后过期，此项设置优先级高于平台设置</div>
+							</div>
+						  {/if}
+						{/if}
+						  {if getcustom('teamfenhong_gouche')}
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">{:t('购车基金')}条件</label>
+							  <div class="layui-input-inline layui-module-itemL">
+								  <div>直推下一级前（个会员）</div>
+								  <input type="text" name="info[gouche_down_num]" class="layui-input" value="{$info.gouche_down_num}">
+							  </div>
+							  <div class="layui-input-inline layui-module-itemL">
+								  <div>指定等级ID</div>
+								  <input type="text" name="info[gouche_levelid]" class="layui-input" value="{$info.gouche_levelid}" placeholder="选填">
+							  </div>
+							  <div class="layui-input-inline layui-module-itemL">
+								  <div>收入满(元)</div>
+								  <input type="text" name="info[gouche_bonus_total]" class="layui-input" value="{$info.gouche_bonus_total}" placeholder="选填">
+							  </div>
+							  <div class="layui-form-mid layui-word-aux">满足该条件可拿{:t('购车基金')}奖励，达到条件后不再受修改参数影响</div>
+						  </div>
+						  {/if}
+					  {if getcustom('teamfenhong_lvyou')}
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">{:t('旅游基金')}条件</label>
+						  <div class="layui-input-inline layui-module-itemL">
+								<div>直推下二级前（个会员）</div>
+							  <input type="text" name="info[lvyou_down_num]" class="layui-input" value="{$info.lvyou_down_num}">
+						  </div>
+						  <div class="layui-input-inline layui-module-itemL">
+								<div>指定等级ID</div>
+							  <input type="text" name="info[lvyou_levelid]" class="layui-input" value="{$info.lvyou_levelid}" placeholder="选填">
+						  </div>
+						  <div class="layui-input-inline layui-module-itemL">
+								<div>收入满(元)</div>
+							  <input type="text" name="info[lvyou_bonus_total]" class="layui-input" value="{$info.lvyou_bonus_total}" placeholder="选填">
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">满足该条件可拿{:t('旅游基金')}奖励，达到条件后不再受修改参数影响</div>
+					  </div>
+					  {/if}
+					  {if getcustom('teamfenhong_shouyi')}
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">{:t('团队收益')}</label>
+						  <div class="layui-input-inline layui-module-itemL">
+							  <div>分红级数</div>
+							  <input type="text" name="info[team_shouyi_lv]" class="layui-input" value="{$info.team_shouyi_lv}">
+						  </div>
+						  <div class="layui-input-inline layui-module-itemL">
+							  <div>分红比例(%)</div>
+							  <input type="text" name="info[team_shouyi]" class="layui-input" value="{$info.team_shouyi}">
+						  </div>
+						  <div class="layui-input-inline layui-module-itemL">
+							  <div>最低奖励金额(元)</div>
+							  <input type="text" name="info[team_shouyi_min]" class="layui-input" value="{$info.team_shouyi_min}">
+						  </div>
+						  <div class="layui-input-inline layui-module-itemL">
+							  <div>累计消费达到(元)</div>
+							  <input type="text" name="info[team_shouyi_ordermoney]" class="layui-input" value="{$info.team_shouyi_ordermoney}">
+						  </div>
+
+						  <div class="layui-form-mid layui-word-aux layui-clear">
+							  分红级数：不设置级数，一直向上发放到分红金额不足最低奖励金额为止，
+							  <br/>分红比例：拿奖计算比例，
+							  <br/>最低奖励金额：可发放的最小奖励金额，
+							  <br/>累计消费：不满足累计消费的会员跳过不拿奖,0为不限制
+							  <br/>举例说明 : A 推 B、B 推 C(C收益的 50%给 B,B 收益的 50%级给 A)，层层这样
+							  C收入 100元，B拿50，A拿25，
+						  </div>
+					  </div>
+					  {/if}
+					{if getcustom('member_level_salary_bonus')}
+					<span style="color:#333">工资补贴</span><span style="font-size: 12px;color: #999;">(从上到下从小到大设置工资奖励)</span><hr/>
+					<div class="layui-form-item">
+						{volist name="salary" id="item"}
+						  <div class="salary_bonus" style="width: 100%;padding:0 10px;background: #f8f8f8;display: flex;align-items: center;">
+							  <div class="layui-form-mid">直推会员满</div>
+							  <div class="layui-input-inline" style="width: 90px;">
+								  <input type="text" name="salary[member_num][]" class="layui-input" value="{$item.member_num}">
+							  </div>
+							  <div class="layui-form-mid">部门业绩达到</div>
+							  <div class="layui-input-inline" style="width: 90px;">
+								  <input type="text" name="salary[yj_amount][]" class="layui-input" value="{$item.yj_amount}">
+							  </div>
+							  <div class="layui-form-mid">元，补贴薪资</div>
+							  <div class="layui-input-inline" style="width: 90px;">
+								  <input type="text" name="salary[bonus][]" class="layui-input" value="{$item.bonus}">
+							  </div>
+							  <div class="layui-form-mid">元，进入佣金账号</div>
+							  <div class="layui-form-mid"><button class="layui-btn layui-btn-sm" onclick="addSalaryRow(this)">+</button><button class="layui-btn layui-btn-sm layui-btn-warm" onclick="delSalaryRow(this)">-</button></div>
+						  </div>
+						{/volist}
+					</div>
+					{/if}
+				  {if getcustom('fenhong_jiaquan_bylevel')}
+  					<span style="color:#333">加权分红设置</span><hr/>
+					<div class="layui-form-item">
+					  <label class="layui-form-label">{:t('分红份数')}</label>
+					  <div class="layui-input-inline">
+						  <input type="text" name="info[fenhong_copies]" class="layui-input" value="{$info.fenhong_copies}" lay-verify="required" lay-verType="tips">
+					  </div>
+					  <div class="layui-form-mid layui-word-aux">份，升级到该等级，可获得的{:t('分红份数')}</div>
+					</div>
+					<div class="layui-form-item">
+					  <label class="layui-form-label">直推{:t('分红份数')}</label>
+					  <div class="layui-input-inline">
+						  <input type="text" name="info[fenhong_zt_copies]" class="layui-input" value="{$info.fenhong_zt_copies}" lay-verify="required" lay-verType="tips">
+					  </div>
+					  <div class="layui-form-mid layui-word-aux">份，直推会员购买分红产品（含自购)，可拿到的{:t('分红份数')}</div>
+					</div>
+					{if getcustom('fenhong_jiaquan_copies')}
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">时间限制</label>
+						  <div class="layui-input-inline">
+							  <input type="text" name="info[fenhong_limit_stime]" id="fenhong_limit_stime" class="layui-input" value="{if $info.fenhong_limit_stime}{$info.fenhong_limit_stime|date='Y-m-d H:i'}{/if}">
+						  </div>
+						  <div class="layui-form-mid"> ~ </div>
+						  <div class="layui-input-inline">
+							  <input type="text" name="info[fenhong_limit_etime]" id="fenhong_limit_etime" class="layui-input" value="{if $info.fenhong_limit_etime}{$info.fenhong_limit_etime|date='Y-m-d H:i'}{/if}">
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">该时间段下单的订单有效</div>
+					  </div>
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">分红金额上限</label>
+						  <div class="layui-input-inline">
+							  <input type="number" name="info[fenhong_jiaquan_maxmoney]" class="layui-input" value="{$info.fenhong_jiaquan_maxmoney}" lay-verify="required" lay-verType="tips">
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">元，该等级，每个{:t('会员')}可获得的金额上限，"-1"表示不限制</div>
+					  </div>
+					{/if}
+				  {/if}
+				  {if getcustom('ciruikang_fenxiao')}
+  				<span style="color:#333">加权合作分红设置</span><hr/>
+  				<div class="layui-form-item">
+  					<label class="layui-form-label">加权合作分红</label>
+	  					<div class="layui-input-inline layui-module-itemL">
+							<div>直推人数满</div>
+							<input type="text" name="info[fenhong_weight_ztnum]" class="layui-input" value="{$info.fenhong_weight_ztnum}" style="margin-right: 0;">
+							<div>人</div>
+						</div>
+						<div class="layui-input-inline layui-module-itemL">
+							<div>等级ID为</div>
+							<input type="text" name="info[fenhong_weight_levelid]" class="layui-input" value="{$info.fenhong_weight_levelid}"style="margin-right: 0;">
+							<div>的下级</div>
+						</div>
+						<div class="layui-input-inline layui-module-itemL">
+							<div>当月业绩满</div>
+							<input type="text" name="info[fenhong_weight_yeji]" class="layui-input" value="{$info.fenhong_weight_yeji}"style="margin-right: 0;">
+							<div>万</div>
+						</div>
+						<div class="layui-input-inline layui-module-itemL">
+							<div>享公司当月业绩</div>
+							<input type="text" name="info[fenhong_weight_ratio]" class="layui-input" value="{$info.fenhong_weight_ratio}" style="margin-right: 0;">
+							<div>%的加权合作分红</div>
+						</div>
+						<div class="layui-form-mid layui-word-aux layui-clear">直推X个等级ID为Y的下级且自身和团队当月业绩满N万，享公司当月业绩Z%的加权合作分红；<br>等级ID、当月业绩、享公司当月业绩三个参数缺一不起效果；<br>等级ID填写一个等级ID，不能多填；<br>统计当月商城商品全部已确认收货的订单金额，下月月初凌晨发放</div>
+					</div>
+				  {/if}
+				  {if getcustom('team_jiandian') && ($auth_data=='all' || in_array('team_jiandian',$auth_data))}
+				  <div class="layui-form-item">
+					  <label class="layui-form-label">购物发放{:t('团队见点奖')}</label>
+					  <div class="layui-input-inline" style="width:200px;">
+						  <input type="radio" name="info[team_jiandian_status]" value="0" title="关闭" {if $info['team_jiandian_status']==0}checked{/if}>
+						  <input type="radio" name="info[team_jiandian_status]" value="1" title="开启" {if $info['team_jiandian_status']==1}checked{/if}>
+					  </div>
+					  <div class="layui-input-inline layui-module-itemL">
+						  <div>发放人数</div>
+						  <input type="text" name="info[team_jiandian_people]" class="layui-input" value="{$info.team_jiandian_people|default=0}">
+					  </div>
+					  <div class="layui-form-mid layui-word-aux layui-clear">开启后，该等级会员购物时按产品设置对上级发放{:t('团队见点奖')}；</div>
+				  </div>
+				  {/if}
+				  {if getcustom('team_fuchijin')}
+				  <div class="layui-form-item">
+					  <label class="layui-form-label">{:t('团队扶持金')}</label>
+					  <div class="layui-input-inline layui-module-itemL">
+						  <div>分红级数</div>
+						  <input type="text" name="info[team_fuchijin_lv]" class="layui-input" value="{$info.team_fuchijin_lv|default=0}">
+					  </div>
+					  <div class="layui-input-inline layui-module-itemL">
+						  <div>分红比例(%)</div>
+						  <input type="text" name="info[team_fuchijin_bl]" class="layui-input" value="{$info.team_fuchijin_bl|default=0}">
+					  </div>
+					  <div class="layui-form-mid layui-word-aux layui-clear">
+						  设置分红级数和分红比例后该等级的人可以拿到其下[分红级数]级所有{:t('会员')}的所有商城订单的金额的分红比例；
+						  <br>有紧缩
+						  <br>计算方式：找到设置的[分红级数]个人，平分[分红比例]*订单金额；
+						  </br>
+					  </div>
+				  </div>
+				  {/if}
+						<span style="color:#333">其他设置</span><hr/>
+						{if $info['isdefault'] != 1}
+						<div class="layui-form-item">
+							<label class="layui-form-label">等级有效期</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[yxqdate]" class="layui-input" value="{$info.yxqdate}" lay-verify="required" lay-verType="tips">
+							</div>
+							<div class="layui-form-mid">天</div>
+							<div class="layui-form-mid layui-word-aux">升级成为该等级后多少天自动变回默认等级，0表示长期</div>
+						</div>
+						{/if}
+					  {if getcustom('level_auto_down')}
+					  <div class="layui-form-item">
+						  <label class="layui-form-label"></label>
+						  <div class="layui-input-inline layui-module-itemL">
+								<div>降级考核推广人数(人)</div>
+							  <input type="text" name="info[down_level_tjr]" class="layui-input" value="{$info.down_level_tjr}">
+						  </div>
+						  <div class="layui-input-inline" style="width: 100px;">
+							  <select name="info[tjr_level_id]">
+								  {foreach $all_level as $level}
+								  <option value="{$level['id']}" {if $info['tjr_level_id']==$level['id']}selected{/if}>{$level['name']}</option>
+								  {/foreach}
+							  </select>
+						  </div>
+						  <div class="layui-input-inline layui-module-itemL">
+								<div>降级考核团队业绩</div>
+							  <input type="text" name="info[down_level_teamyeji]" class="layui-input" value="{$info.down_level_teamyeji}">
+						  </div>
+						  <div class="layui-form-mid layui-word-aux layui-clear">
+						  </div>
+					  </div>
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">考核方式</label>
+						  <div class="layui-input-inline" style="width:500px">
+							  <input type="radio" name="info[check_type]" value="0" title="不考核" {if $info['check_type']==0 || $info['check_type']==''}checked{/if}>
+							  <input type="radio" name="info[check_type]" value="1" title="一次性考核" {if $info['check_type']==1}checked{/if}>
+							  <input type="radio" name="info[check_type]" value="2" title="长期考核" {if $info['check_type']==2}checked{/if}>
+						  </div>
+						  <div class="layui-form-mid layui-word-aux layui-clear">一次性考核为第一次考核通过后更改为长期有效，长期考核为每次考核通过后考核时间向后推移</div>
+					  </div>
+					  {/if}
+					 {if getcustom('member_level_down_commission')}
+					  <div class="layui-form-item">
+						  <label class="layui-form-label"></label>
+						   <div class="layui-input-inline layui-module-itemL">
+								<div>累计业绩达到</div>
+							  <input type="text" name="info[down_level_totalcommission]" class="layui-input" value="{$info.down_level_totalcommission}">
+						  </div>
+						  <div class="layui-form-mid">元降为 </div>
+						  <div class="layui-input-inline" style="width: 100px;">
+							  <select name="info[down_level_id2]">
+								  {foreach $all_level as $level}
+								  <option value="{$level['id']}" {if $info['down_level_id2']==$level['id']}selected{/if}>{$level['name']}</option>
+								  {/foreach}
+							  </select>
+						  </div>
+					  </div>
+					   <style>
+						  .layui-form-select dl {z-index:1000}
+					   </style>
+					 	 <div class="layui-form-item">
+						  <label class="layui-form-label">恢复条件</label>
+						   <div class="layui-input-inline layui-module-itemL">
+							   <div>购买商品ID</div>
+							  <input type="text" name="info[recovery_level_proid]" class="layui-input" value="{$info.recovery_level_proid}">
+						  </div>
+						  <div class="layui-form-mid">降级后购买此商品ID后恢复等级,多个商品用,隔开 </div>
+					  </div>
+					  {/if}
+
+						{if getcustom('next_level_set') || getcustom('level_auto_down')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">到期等级</label>
+							<div class="layui-input-inline">
+								<span id="next_level_name" style="line-height: 40px;background: #eb8025;padding: 3px 6px;color: #fff;">{$info.next_level_name|default="默认等级"}</span>
+								<input type="hidden" id="next_level_id" name="info[next_level_id]" class="layui-input" value="{$info.next_level_id}">
+							</div>
+							<div class="layui-input-inline">
+								<button class="layui-btn layui-btn-primary" onclick="showChooseLevel()">选择等级</button>
+							</div>
+							<div class="layui-form-mid layui-word-aux">该等级到期后，指定下个等级，如果不指定，即回到默认等级</div>
+						</div>
+						<script>
+							var chooseLevelLayer;
+							function showChooseLevel(){
+								chooseLevelLayer = layer.open({type:2,title:'选择{:t(\'等级\')}',content:"{:url('MemberLevel/chooselevel')}",area:['1000px','600px'],shadeClose:true});
+							}
+							function chooselevel(res,args){
+								$('#next_level_name').html(res.name)
+								$('#next_level_id').val(res.id)
+							}
+						</script>
+						{/if}
+						{if $plug_businessqr}
+						<div class="layui-form-item">
+							<label class="layui-form-label">是否显示在商家</label>
+							<div class="layui-input-inline" style="width:500px">
+								<input type="radio" name="info[show_business]" value="0" title="否" {if $info['show_business']==0 || $info['show_business']==''}checked{/if}>
+								<input type="radio" name="info[show_business]" value="1" title="是" {if $info['show_business']==1}checked{/if}>
+							</div>
+							<div class="layui-form-mid layui-word-aux layui-clear">关闭后商家编辑商品等不显示此等级</div>
+						</div>
+						{/if}
+						{if getcustom('level_comwithdraw')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">佣金提现</label>
+							<div class="layui-input-inline" style="width:500px">
+								<input type="radio" name="info[comwithdraw]" value="1" title="开启" {if !$info['id'] || $info['comwithdraw']==1}checked{/if}>
+								<input type="radio" name="info[comwithdraw]" value="0" title="关闭" {if $info['id'] && $info['comwithdraw']==0}checked{/if}>
+							</div>
+						</div>
+						{/if}
+						{if getcustom('article_files') || getcustom('article_fabu')}
+						<div class="layui-form-item">
+						  <label class="layui-form-label">是否可查看资源</label>
+						  <div class="layui-input-inline" style="width:500px">
+							  <input type="radio" name="info[is_look_resource]" value="1" title="开启" {if !$info['id'] || $info['is_look_resource']==1}checked{/if}>
+							  <input type="radio" name="info[is_look_resource]" value="0" title="关闭" {if $info['id'] && $info['is_look_resource']==0}checked{/if}>
+						  </div>
+						</div>
+						<div class="layui-form-item">
+						  <label class="layui-form-label">是否可下载素材</label>
+						  <div class="layui-input-inline" style="width:500px">
+							  <input type="radio" name="info[is_download_resource]" value="1" title="开启" {if !$info['id'] || $info['is_download_resource']==1}checked{/if}>
+							  <input type="radio" name="info[is_download_resource]" value="0" title="关闭" {if $info['id'] && $info['is_download_resource']==0}checked{/if}>
+						  </div>
+						</div>
+						{/if}
+		  			{if getcustom('member_recharge_yj')}
+		  			<div class="layui-form-item">
+							<label class="layui-form-label">是否开启业绩</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[open_yj]" value="1" title="是" {if $info['open_yj']==1}checked{/if} lay-filter="openyjset">
+								<input type="radio" name="info[open_yj]" value="0" title="否" {if $info['open_yj']!=1}checked{/if} lay-filter="openyjset">
+							</div>
+							<div class="layui-form-mid layui-word-aux">只有充值可得业绩</div>
+						</div>
+						<div id="openyj" style="{if !$info['open_yj']|$info['open_yj'] ==0}display: none;{/if}">
+							<div class="layui-form-item">
+								<label class="layui-form-label">充值业绩比例</label>
+								<div class="layui-input-inline">
+									<span style="color:#000">1：</span>
+									<input type="text" name="info[recharge_yj_ratio]" class="layui-input" value="{$info['recharge_yj_ratio']?$info['recharge_yj_ratio']:1}" style="display:inline-block;width: 100px;">
+								</div>
+								<div class="layui-form-mid layui-word-aux">充值金额和获得业绩金额为1:1，即冲1元，得1元的业绩</div>
+							</div>
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">业绩提现比例：</label>
+							  <div class="layui-input-inline" style="width:auto; overflow: hidden;">
+								<div class="layui-tab">
+								  <div class="layui-tab-content">
+									  <div class="layui-tab-item layui-show give-coupon-shop">
+									  	<table class="layui-table choose-yj-up" style="width:500px" id="choose-yj-up">
+										  <thead>
+											  <tr>
+												  <th>金额</th>
+												  <th>提现比例</th>
+												  <th>操作</th>
+											  </tr>
+										  </thead>
+										  {if $yjlist}
+											  {foreach $yjlist as $k=>$item}
+											  <tr class="choose-tr-list">
+												  <td>
+												  	<input type="text" name="info[yj_datas][moneys][]" value="{$item.money}" class="layui-input" style="display:inline-block;width:80px"/> 元及之内
+												  </td>
+												  <td>
+													  <input type="text" name="info[yj_datas][ratios][]" value="{$item.ratio}" class="layui-input" style="display:inline-block;width:80px"/> %
+												  </td>
+												  <td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delyj(this)">删除</button></td>
+											  </tr>
+											  {/foreach}
+										  {/if}
+										  <tr class="choose-tr-list" id="yj_after">
+											  <td>
+											  	<input type="text" name="info[yj_moneys_after]" value="{$info['yj_moneys_after']}" class="layui-input" style="display:inline-block;width:80px"/> 元之外
+											  </td>
+											  <td>
+												  <input type="text" name="info[yj_ratios_after]" value="{$info['yj_ratios_after']}" class="layui-input" style="display:inline-block;width:80px"/> %
+											  </td>
+											  <td></td>
+										  </tr>
+										  <tr class="choose-tr-add">
+											  <td colspan="5" align="center"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="addyj()">添加</button></td>
+										  </tr>
+									  	</table>
+											  <script>
+												  function addyj(){
+													  var tr = '<tr class="choose-tr-list">' +
+															  '<td><input type="text" name="info[yj_datas][moneys][]" value="" class="layui-input" style="display:inline-block;width:80px"/> 元及之内</td>' +
+															  '<td><input type="text" name="info[yj_datas][ratios][]" value="" class="layui-input" style="display:inline-block;width:80px"/> %</td>' +
+															  '<td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delyj(this)">删除</button></td>' +
+															  '</tr>';
+													  $('.choose-yj-up').find('#yj_after').before(tr);
+												  }
+												  function delyj(obj){
+													  $(obj).closest('.choose-tr-list').remove();
+												  }
+											  </script>
+										  </div>
+								  </div>
+								</div>
+							  </div>
+						  </div>
+						</div>
+					{/if}
+						{if getcustom('shop_zthx_backmoney')}
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">订单自提核销返现</label>
+							  <div class="layui-input-inline">
+								  <input type="text" name="info[zthx_backmoney]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.zthx_backmoney|default = 0}">
+							  </div>
+							  <div class="layui-form-mid">%</div>
+							  <div class="layui-form-mid layui-word-aux" style="margin-left:10px;">自提核销的时候发放商品总金额（不含会员折扣等优惠）的百分比给买家到余额</div>
+						  </div>
+					  {/if}
+  					  {if getcustom('score_transfer_sxf')}
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">{:t('积分')}转赠手续费比例</label>
+							  <div class="layui-input-inline">
+								  <input type="text" name="info[score_transfer_sxf_ratio]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.score_transfer_sxf_ratio|default = 0.00}">
+							  </div>
+							  <div class="layui-form-mid">%</div>
+							  <div class="layui-form-mid layui-word-aux" style="margin-left:10px;">积分转赠时支付的手续费比例</div>
+						  </div>
+					  {/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label">特权说明</label>
+							<div class="layui-input-inline" style="width:500px">
+								<script id="explain" name="info[explain]" type="text/plain" style="width:100%;height:400px">{$info.explain}</script>
+							</div>
+						</div>
+					  {if getcustom('up_level_agree') || getcustom('up_level_agree2') || getcustom('up_level_agree3')}
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">是否开启升级协议</label>
+						  <div class="layui-input-inline">
+							  <input type="radio" name="info[is_agree]" value="1" title="是" {if $info['is_agree']==1}checked{/if} >
+							  <input type="radio" name="info[is_agree]" value="0" title="否" {if $info['is_agree']!=1}checked{/if} >
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">{$agree_desc}</div>
+					  </div>
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">升级协议</label>
+						  <div class="layui-input-inline" style="width:500px">
+							  <script id="agree_content" name="info[agree_content]" type="text/plain" style="width:100%;height:400px">{$info.agree_content}</script>
+						  </div>
+					  </div>
+					  {/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	var ueditor = UE.getEditor('explain',{imageScaleEnabled:false});
+	{if getcustom('up_level_agree') || getcustom('up_level_agree2') || getcustom('up_level_agree3')}
+	var ueditor2 = UE.getEditor('agree_content',{imageScaleEnabled:false});
+	{/if}
+
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		//return;
+		field['info[explain]'] = ueditor.getContent();
+		{if getcustom('up_level_agree') || getcustom('up_level_agree2') || getcustom('up_level_agree3')}
+		field['info[agree_content]'] = ueditor2.getContent();
+		{/if}
+		if(!field['info[up_getmembercard]']) field['info[up_getmembercard]'] = 0
+		if(!field['info[team_showtel]']) field['info[team_showtel]'] = 0
+		if(!field['info[team_givemoney]']) field['info[team_givemoney]'] = 0
+		if(!field['info[team_givescore]']) field['info[team_givescore]'] = 0
+		if(!field['info[team_levelup]']) field['info[team_levelup]'] = 0
+		if(!field['info[teamfenhongonly]']) field['info[teamfenhongonly]'] = 0
+		if(!field['info[level_teamfenhongonly]']) field['info[level_teamfenhongonly]'] = 0
+		if(!field['info[teamfenhong_self]']) field['info[teamfenhong_self]'] = 0
+		if(!field['info[product_teamfenhong_self]']) field['info[product_teamfenhong_self]'] = 0
+		if(!field['info[teamfenhong_removemax]']) field['info[teamfenhong_removemax]'] = 0
+		{if getcustom('fenhong_removefenxiao')}
+		if(!field['info[teamfenhong_removefenxiao]']) field['info[teamfenhong_removefenxiao]'] = 0
+		if(!field['info[gdfenhong_removefenxiao]']) field['info[gdfenhong_removefenxiao]'] = 0
+		if(!field['info[areafenhong_removefenxiao]']) field['info[areafenhong_removefenxiao]'] = 0
+		{/if}
+		{if getcustom('teamfenhong_jiandan')}
+		if(!field['info[teamfenhong_jiandan_only]']) field['info[teamfenhong_jiandan_only]'] = 0
+		if(!field['info[teamfenhong_jiandan_self]']) field['info[teamfenhong_jiandan_self]'] = 0
+		{/if}
+		{if getcustom('level_teamfenhong')}
+		if(!field['info[level_surpass]']) field['info[level_surpass]'] = 0
+		{/if}
+		{if getcustom('teamfenhong_yejitj')}
+		if(!field['info[teamfenhong_yeji_self]']) field['info[teamfenhong_yeji_self]'] = 0;
+		if(!field['info[teamfenhong_yeji_yunfee]']) field['info[teamfenhong_yeji_yunfee]'] = 0;
+		if(!field['info[teamfenhong_yeji_total]']) field['info[teamfenhong_yeji_total]'] = 0
+		{/if}
+		var index = layer.load();
+	  // console.log(obj)
+	  //return;
+		$.post("{:url('save')}",obj.field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.closeAll();
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+	//自定义表单验证
+	layui.form.verify({
+		Ndouble:[
+			/^[0-9]\d*$/
+			,'只能输入整数哦'
+		]
+	});
+	layui.form.on('select(changeCategory)', function(data){
+		var default_cat_id = $("#default_cat_id").val();
+		if(data.value == default_cat_id){
+			$('#can_commission').show();
+			$('.notDefaultShow').show();
+		}else{
+			$('#can_commission').hide();
+			$('.notDefaultShow').hide();
+		}
+	})
+	layui.form.on('radio(can_apply)', function(data){
+		if(data.value == '1'){
+			$('#can_applyset').show();
+		}else{
+			$('#can_applyset').hide();
+		}
+	})
+	layui.form.on('radio(can_agent)', function(data){
+		if(data.value != '0'){
+			if(data.value=='1'){
+				$('*[commission2]').hide();
+				$('[commission3]').hide();
+			}else if(data.value=='2'){
+				$('*[commission2]').show();
+				$('[commission3]').hide();
+			}else if(data.value=='3'){
+				$('*[commission2]').show();
+				$('[commission3]').show();
+			}
+			$('#can_agentset').show();
+		}else{
+			$('#can_agentset').hide();
+		}
+		if(data.value==99){
+			$('.canAgent99').show();
+			$('.canAgentF').hide();
+			$('.canAgentF-radio').attr('disabled','disabled');
+			$('.canAgent99-radio').attr('disabled',false);
+			layui.form.render('radio')
+		}else{
+			$('.canAgent99').hide();
+			$('.canAgentF').show();
+			$('.canAgentF-radio').attr('disabled',false);
+			$('.canAgent99-radio').attr('disabled','disabled');
+			layui.form.render('radio');
+		}
+	})
+
+	layui.form.on('radio(can_up)', function(data){
+		if(data.value == '1'){
+			$('#can_upset').show();
+		}else{
+			$('#can_upset').hide();
+		}
+	})
+	layui.form.on('radio(commissiontype)', function(data){
+		if(data.value == '1'){
+			$('.commissionunit').html('元');
+		}else{
+			$('.commissionunit').html('%');
+		}
+		if(data.value==2){
+			$('#tichengBox2').show();
+			$('#tichengBox1').hide();
+		}else {
+			$('#tichengBox1').show();
+			$('#tichengBox2').hide();
+		}
+	})
+		layui.form.on('radio(commissionpj)', function(data){
+			if(data.value == '1'){
+				$('.commissionpj').show();
+			}else{
+				$('.commissionpj').hide();
+			}
+		})
+	layui.form.on('checkbox(team_levelup)', function(data){
+		// console.log(data.elem.checked );
+		if(data.elem.checked){
+			$('.team_levelup_div').show();
+		}else{
+			$('.team_levelup_div').hide();
+		}
+	})
+
+	layui.form.on('radio(openyjset)', function(data){
+		if(data.value == '1'){
+			$('#openyj').show();
+		}else{
+			$('#openyj').hide();
+		}
+	})
+	var dhdata = {$info['apply_formdata']};
+	$(function(){
+		for(var i=0;i<dhdata.length;i++){
+			addelement(dhdata[i].key,dhdata[i].val1,dhdata[i].val2,dhdata[i].val3,dhdata[i].val4,dhdata[i].val6)
+		}
+	});
+	function toup(obj){
+		var onthis=$(obj).parent().parent();
+		var getUp=onthis.prev();
+		if (getUp.length<=0)  {
+			layer.msg("到顶了");
+			return;
+		}
+		onthis.after(getUp);
+	}
+	function todown(obj){
+		var onthis=$(obj).parent().parent();
+		var getdown=onthis.next();
+		if (getdown.length<=0){
+			layer.msg("到底了");
+			return;
+		}
+		getdown.after(onthis);
+	}
+
+	var ekey = 0;
+	//添加元素
+	function addelement(type,val1,val2,val3,val4,extVal6=''){
+		if(type=='input'){
+			var name = '单行输入';
+		}else if(type=='textarea'){
+			var name = '多行输入';
+		}else if(type=='radio'){
+			var name = '单项选择';
+		}else if(type=='checkbox'){
+			var name = '多项选择';
+		}else if(type=='selector'){
+			var name = '普通选择';
+		}else if(type=='time'){
+			var name = '时间选择';
+		}else if(type=='date'){
+			var name = '日期选择';
+		}else if(type=='region'){
+			var name = '省市区选择';
+		}else if(type=='switch'){
+			var name = '开关选择';
+		}else if(type=='upload'){
+			var name = '上传图片';
+		}
+		var addhtml = '';
+		addhtml += '<tr>'
+		addhtml += '<td>'+name+'<input type="hidden" name="datatype['+ekey+']" value="'+type+'"/></td>'
+		addhtml += '<td><input class="layui-input" type="text" style="width:120px" name="dataval1['+ekey+']" value="'+val1+'" placeholder="请输入字段名称"></td>'
+		addhtml += '<td>'
+		if(type=='input'){
+			addhtml += '<input class="layui-input" type="text" style="width:150px" name="dataval2['+ekey+']" value="'+val2+'" placeholder="请输入提示信息">'
+			{if getcustom('member_up_binding_tel')}
+			var authhtml = '';
+			addhtml += '<div style="display: inline-block"><p style="width: 85px;display: inline-block" class="input_fied"><select style="width:80px" name="dataval4['+ekey+']" lay-filter="selectItemChange"><option value="0">文本</option><option value="2" '+(val4==2?'selected="selected"':'')+'>手机号</option></select></p>';
+			if(val4==2){
+				 authhtml = '<input type="checkbox" name="dataval6['+ekey+']" value="1" lay-skin="switch" lay-text="开启验证码|关闭验证码" '+(extVal6==1?'checked':'')+'>'
+			}
+			addhtml += '<div  class="auth_tel">'+authhtml+'</div></div>';
+			{/if}
+		}else if(type=='textarea'){
+			addhtml += '<input class="layui-input" type="text" style="width:200px" name="dataval2['+ekey+']" value="'+val2+'" placeholder="请输入提示信息">'
+		}else if(type=='radio' || type=='checkbox' || type=='selector'){
+			if(val2){
+				for(var i=0;i<val2.length;i++){
+					addhtml += '<div><input class="layui-input" type="text" style="width:180px" name="dataval2['+ekey+'][]" value="'+val2[i]+'" placeholder="请输入选项名称">';
+					if(i==0){
+						addhtml += '<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="addxuanxiang(this,'+ekey+')"><i class="fa fa-plus"></i></button></div>'
+					}else{
+						addhtml += '<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="$(this).parent().remove()"><i class="fa fa-minus"></i></button></div>'
+					}
+				}
+			}else{
+				addhtml += '<div><input class="layui-input" type="text" style="width:180px" name="dataval2['+ekey+'][]" value="" placeholder="请输入选项名称">';
+				addhtml += '<button type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="addxuanxiang(this,'+ekey+')"><i class="fa fa-plus"></i></button></div>'
+			}
+		}else if(type == 'time'){
+
+			addhtml += '<div><input class="layui-input" type="text" style="width:200px" name="dataval2['+ekey+'][0]" value="'+(val2[0]?val2[0]:'00:00')+'" placeholder=\'开始时间，格式为"hh:mm"\'>';
+			addhtml += '<div><input class="layui-input" type="text" style="width:200px" name="dataval2['+ekey+'][1]" value="'+(val2[1]?val2[1]:'23:59')+'" placeholder=\'结束时间，格式为"hh:mm"\'>';
+		}else if(type == 'date'){
+			addhtml += '<div><input class="layui-input" type="text" style="width:200px" name="dataval2['+ekey+'][0]" value="'+(val2[0]?val2[0]:'1970-01-01')+'" placeholder=\'开始日期，格式为"YYYY-MM-DD"\'>';
+			addhtml += '<div><input class="layui-input" type="text" style="width:200px" name="dataval2['+ekey+'][1]" value="'+(val2[1]?val2[1]:'2080-01-01')+'" placeholder=\'结束日期，格式为"YYYY-MM-DD"\'>';
+		}else if(type == 'region'){
+			addhtml += '选择省市区';
+		}else if(type == 'switch'){
+			addhtml += '开启和关闭';
+		}else if(type == 'upload'){
+			addhtml += '<input class="layui-input" type="text" style="width:200px" name="dataval2['+ekey+']" value="'+val2+'" placeholder="请输入提示信息">'
+		}
+		addhtml += '</td>'
+		//addhtml += '<td><select style="width:60px" name="dataval3['+ekey+']"><option value="1">是</option><option value="0" '+(val3==0?'selected="selected"':'')+'>否</option></select></td>'
+		addhtml += '<td><input type="checkbox" name="dataval3['+ekey+']" value="1" lay-skin="switch" lay-text="开启|关闭" '+(val3==1?'checked':'')+'></td>'
+		addhtml += '<td>'
+		addhtml += '	<button title="删除" type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="$(this).parent().parent().remove()"><i class="fa fa-remove"></i></button>'
+		addhtml += '	<button title="上移" type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="toup(this)"><i class="fa fa-arrow-up"></i></button>'
+		addhtml += '	<button title="下移" type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="todown(this)"><i class="fa fa-arrow-down"></i></button>'
+		addhtml += '</td>'
+		addhtml += '</tr>'
+		// console.log(addhtml)
+		$('#datatable').append(addhtml);
+		layui.form.render('checkbox');
+		layui.form.render('select');
+		ekey++;
+	}
+	layui.form.on('select(selectItemChange)',function (data) {
+		console.log(data);
+		var authhtml = '';
+		if(data.value==2){
+			{if getcustom('member_up_binding_tel')}
+				var authhtml = '<input type="checkbox" name="dataval6['+ekey+']" value="1" lay-skin="switch" lay-text="开启验证码|关闭验证码" >'
+			{/if}
+		}
+		$(data.elem).closest('div').find('.auth_tel').html(authhtml)
+		layui.form.render('checkbox');
+	})
+	//添加选项
+	function addxuanxiang(obj,ekey){
+		$(obj).parent().parent().append('<div><input class="layui-input" type="text" style="width:180px" name="dataval2['+ekey+'][]" value="" placeholder="请输入选项名称"><button type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="$(this).parent().remove()"><i class="fa fa-minus"></i></button></div>');
+	}
+	//开关 radio联动下方div显示隐藏
+	layui.form.on('radio(diandaSwitchNew)', function(data){
+		// console.log(data.elem.name);
+		if(data.value == '0'){
+			$("div[diandaSwitchNew='"+data.elem.name+"']").show();
+		}else{
+			$("div[diandaSwitchNew='"+data.elem.name+"']").hide();
+		}
+	})
+{if getcustom('member_level_salary_bonus')}
+	function addSalaryRow(obj){
+		var html  = `<div class="salary_bonus"
+			 style="width: 100%;padding:0 10px;background: #f8f8f8;display: flex;align-items: center;">
+			<div class="layui-form-mid">直推会员满</div>
+			<div class="layui-input-inline" style="width: 90px;">
+				<input type="text" name="salary[member_num][]" class="layui-input" value="" >
+			</div>
+			<div class="layui-form-mid">部门业绩达到</div>
+			<div class="layui-input-inline" style="width: 90px;">
+				<input type="text" name="salary[yj_amount][]" class="layui-input" value="">
+			</div>
+			<div class="layui-form-mid">元，补贴薪资</div>
+			<div class="layui-input-inline" style="width: 90px;">
+				<input type="text" name="salary[bonus][]" class="layui-input" value="">
+			</div>
+			<div class="layui-form-mid">元，进入佣金账号</div>
+			<div class="layui-form-mid">
+				<button class="layui-btn layui-btn-sm" onClick="addSalaryRow(this)">+</button>
+				<button class="layui-btn layui-btn-sm layui-btn-warm" onClick="delSalaryRow(this)">-
+				</button>
+			</div>
+		</div>`;
+		$(obj).closest('.layui-form-item').append(html)
+	}
+	function delSalaryRow(obj){
+		var len = $(obj).closest('.layui-form-item').find('.salary_bonus').length;
+		if(len==1){
+			layer.msg('主人，留我一个吧~');
+			return;
+		}
+		$(obj).closest('.salary_bonus').remove()
+	}
+{/if}
+
+	{if getcustom('fenhong_jiaquan_copies')}
+	layui.laydate.render({
+		elem: '#fenhong_limit_stime',
+		trigger: 'click',
+		type:'datetime',
+		format:'yyyy-MM-dd HH:mm'
+	});
+	layui.laydate.render({
+		elem: '#fenhong_limit_etime',
+		trigger: 'click',
+		type:'datetime',
+		format:'yyyy-MM-dd HH:mm'
+	});
+	{/if}
+	{if getcustom('teamfenhong_yejitj')}
+		layui.form.on('checkbox(teamfenhong_yeji_total)', function(data){
+			if(data.elem.checked){
+				$("#teamfenhong_yeji_month_set").show();
+			}else{
+				$("#teamfenhong_yeji_month_set").hide();
+			}
+		})
+	{/if}
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

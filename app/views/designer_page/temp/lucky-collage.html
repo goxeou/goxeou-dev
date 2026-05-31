@@ -1,0 +1,65 @@
+<div class="dsn-mod dp-collage" ng-class="{'dsn-mod-select':Item.id == focus}" ng-style="{'background-color':Item.params.bgcolor,'margin':Item.params.margin_y+'px '+Item.params.margin_x+'px 0','padding':Item.params.padding_y+'px '+Item.params.padding_x+'px'}">
+	<div style="line-height: 170px; text-align: center; color: #999; font-size: 16px;width:100%" ng-show="Item.data == ''">一个商品都没有...</div>
+	<!--123排-->
+	<div class="dp-collage-item" ng-show="Item.params.style=='1' || Item.params.style=='2' || Item.params.style=='3'">
+		<div class="item" ng-repeat="item in Item.data" ng-init="index = $index" style="{{Item.params.style==2 ? 'width:49%;margin-right:'+(index%2==0?'2%':0) : (Item.params.style==3 ? 'width:32%;margin-right:'+(index%3!=2?'2%':0) :'width:100%')}}">
+			<div class="product-pic">
+				<img class="image" ng-src="{{item.pic}}"/>
+				<img class="saleimg" ng-src="{{Item.params.saleimg}}" ng-if="Item.params.saleimg!=''"/>
+			</div>
+			<div class="product-info">
+				<div class="p1" ng-if="Item.params.showname == 1">{{item.name}}</div>
+				<div class="p2">
+					<div class="p2-1" ng-if="Item.params.showprice != '0'">
+						<span class="t1" style="color:{:t('color1')}"><span style="font-size:12px">￥</span>{{item.sell_price}}</span>
+						<span class="t2" ng-if="Item.params.showprice == '1' && item.market_price*1 > item.sell_price*1">￥{{item.market_price}}</span>
+					</div>
+				</div>
+				<div class="p3">
+					<div class="p3-1">{{item.teamnum}}人团</div>
+					<div class="p3-2" ng-if="Item.params.showsales=='1' && item.sales>0"><span style="overflow:hidden">已拼成{{item.sales}}件</span></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="dp-collage-itemlist" ng-show="Item.params.style=='list'">
+		<div class="item" ng-repeat="item in Item.data">
+			<div class="product-pic">
+				<img class="image" ng-src="{{item.pic}}" mode="widthFix"/>
+				<img class="saleimg" ng-src="{{saleimg}}" ng-if="Item.params.saleimg!=''"/>
+			</div>
+			<div class="product-info">
+				<div class="p1" ng-if="Item.params.showname == 1">{{item.name}}</div>
+				<div class="p2" ng-if="Item.params.showprice != '0'">
+					<span class="t1" style="color:{:t('color1')}"><span style="font-size:12px;padding-right:1px">￥</span>{{item.sell_price}}</span>
+					<span class="t2" v-if="showprice == '1' && item.market_price*1 > item.sell_price*1">￥{{item.market_price}}</span>
+				</div>
+				<div class="p3">
+					<div class="p3-1">{{item.teamnum}}人团</div>
+					<div class="p3-2" ng-if="Item.params.showsales=='1' && item.sales>0"><span style="overflow:hidden">已拼成{{item.sales}}件</span></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="dp-collage-itemline" ng-show="Item.params.style=='line'">
+		<div class="item" ng-repeat="item in Item.data">
+			<div class="product-pic">
+				<img class="image" ng-src="{{item.pic}}"/>
+				<img class="saleimg" ng-src="{{saleimg}}" ng-if="Item.params.saleimg!=''"/>
+			</div>
+			<div class="product-info">
+				<div class="p1" ng-if="Item.params.showname == 1">{{item.name}}</div>
+				<div class="p2">
+					<div class="p2-1" ng-if="Item.params.showprice != '0'">
+						<span class="t1" style="color:{:t('color1')}"><span style="font-size:12px">￥</span>{{item.sell_price}}</span>
+						<span class="t2" ng-if="Item.params.showprice == '1' && item.market_price*1 > item.sell_price*1">￥{{item.market_price}}</span>
+					</div>
+				</div>
+				<div class="p3">
+					<div class="p3-1">{{item.teamnum}}人团</div>
+					<div class="p3-2" ng-if="Item.params.showsales=='1' && item.sales>0"><span style="overflow:hidden">已拼成{{item.sales}}件</span></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

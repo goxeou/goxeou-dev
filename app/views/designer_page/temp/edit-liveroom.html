@@ -1,0 +1,125 @@
+<div class="dsn-panel-editor-title">直播列表设置 (只支持小程序)</div>
+<div class="dsn-panel-editor-content">
+	<div class="layui-form-item">
+		<div class="layui-form-label">与上方距离</div>
+		<div class="slider" min="0" max="40" ng-model="Edit.params.margin_y"></div>
+		<span class="slider-span"><input ng-model="Edit.params.margin_y"/> px</span>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">背景颜色</div>
+		<div class="layui-input-inline">
+			<input class="layui-input" value="{{Edit.params.bgcolor}}" ng-model="Edit.params.bgcolor"/>
+		</div>
+		<span class="colorpicker" ng-model="Edit.params.bgcolor"></span>
+	</div>
+
+	<div class="layui-form-item">
+		<div class="layui-form-label">直播间来源</div>
+		<div class="layui-input-inline" style="width:500px">
+			<input class="radio" type="radio" name="{{Edit.id}}_liveroomfrom" value="1" ng-model="Edit.params.liveroomfrom" title="全部" ng-change="getliveroom(Edit.id)"/>
+			{if !$type}
+			<input class="radio" type="radio" name="{{Edit.id}}_liveroomfrom" value="0" ng-model="Edit.params.liveroomfrom" title="手动选择"/>
+			{/if}
+		</div>
+	</div>
+	<div ng-show="Edit.params.liveroomfrom == '0'">
+		<div ng-repeat="good in Edit.data" class="dsn-panel-editor-relative">
+			<div class="dsn-panel-editor-del" style="right:30px;font-size:12px" title="上移" ng-click="upItemChild(Edit.id,good.id)"><i class="fa fa-arrow-up"></i></div>
+			<div class="dsn-panel-editor-del" title="移除" ng-click="delliveroom(Edit.id,good.id)">×</div>
+			<div class="dsn-panel-editor-line flex">
+				<div class="dsn-panel-editor-goodimg flex0" ng-click="addliveroom('replace',Edit.id, good.id)" style="max-height:136px">
+					<img ng-src="{{good.coverImg}}" width="100%"/>
+					<div class="dsn-panel-editor-goodimg-t2">重新选择</div>
+				</div>
+				<div class="dsn-panel-editor-line-right">
+					<div class="layui-form-item">
+						<div class="layui-form-label">直播间名称</div>
+						<div class="layui-form-mid">{{good.name}}</div>
+					</div>
+					<div class="layui-form-item">
+						<div class="layui-form-label">主播名称</div>
+						<div class="layui-form-mid">{{good.anchorName}}</div>
+					</div>
+					<div class="layui-form-item">
+						<div class="layui-form-label">直播时间</div>
+						<div class="layui-form-mid">{{good.startTime}} ~ {{good.endTime}}</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="layui-btn layui-btn-primary" style="width:500px;margin-top:10px" ng-click="addliveroom('',Edit.id,'')"><i class="fa fa-plus-circle"></i> 添加一个直播间</div>
+	</div>
+	<div ng-show="Edit.params.liveroomfrom == '1'">
+		<div class="layui-form-item">
+			<div class="layui-form-label">排序方式</div>
+			<div class="layui-input-inline" style="width:500px">
+				<input class="radio" type="radio" name="{{Edit.id}}_sortby" value="sort" ng-model="Edit.params.sortby" ng-change="getliveroom(Edit.id)" title="默认"/>
+				<input class="radio" type="radio" name="{{Edit.id}}_sortby" value="starttimedesc" ng-model="Edit.params.sortby" ng-change="getliveroom(Edit.id)" title="开始时间↓"/></i>
+				<input class="radio" type="radio" name="{{Edit.id}}_sortby" value="starttime" ng-model="Edit.params.sortby" ng-change="getliveroom(Edit.id)" title="开始时间↑"/></i>
+				<input class="radio" type="radio" name="{{Edit.id}}_sortby" value="endtimedesc" ng-model="Edit.params.sortby" ng-change="getliveroom(Edit.id)" title="结束时间↓"/></i>
+				<input class="radio" type="radio" name="{{Edit.id}}_sortby" value="endtime" ng-model="Edit.params.sortby" ng-change="getliveroom(Edit.id)" title="结束时间↑"/></i>
+				<input class="radio" type="radio" name="{{Edit.id}}_sortby" value="rand" ng-model="Edit.params.sortby" ng-change="getliveroom(Edit.id)" title="随机"/>
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<div class="layui-form-label">显示数量</div>
+			<div class="layui-input-inline">
+				<input class="layui-input" ng-model="Edit.params.shownum" ng-blur="getliveroom(Edit.id)"/>
+			</div>
+		</div>
+	</div>
+
+	<hr>
+	<div class="layui-form-item">
+		<div class="layui-form-label">左右边距</div>
+		<div class="slider" min="0" max="40" ng-model="Edit.params.margin_x"></div>
+		<span class="slider-span"><input ng-model="Edit.params.margin_x"/> px</span>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">左右内边距</div>
+		<div class="slider" min="0" max="40" ng-model="Edit.params.padding_x"></div>
+		<span class="slider-span"><input ng-model="Edit.params.padding_x"/> px</span>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">上下内边距</div>
+		<div class="slider" min="0" max="40" ng-model="Edit.params.padding_y"></div>
+		<span class="slider-span"><input ng-model="Edit.params.padding_y"/> px</span>
+	</div>
+	{if !$type}
+	{if !$noshow_modules || !in_array('ModulePlatform',$noshow_modules)}
+	<div class="layui-form-item">
+		<div class="layui-form-label">显示平台</div>
+		<div class="layui-input-inline" style="width:500px">
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="所有平台" name="{{Edit.id}}_platform['all']" ng-model="Edit.params.platform['all']"/>
+			{foreach $platform as $pl}
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="{:getplatformname($pl)}" name="{{Edit.id}}_platform['{$pl}']" ng-model="Edit.params.platform['{$pl}']"/>
+			{/foreach}
+
+		</div>
+	</div>
+	{/if}
+	{if !$noshow_modules || !in_array('ModuleQuanxian',$noshow_modules)}
+	<div class="layui-form-item">
+		<div class="layui-form-label">显示范围</div>
+		<div class="layui-input-inline" style="width:500px">
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="所有人" name="{{Edit.id}}_quanxian['all']" ng-model="Edit.params.quanxian['all']"/>
+			{foreach $memberlevelList as $lv}
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="{$lv.name}" name="{{Edit.id}}_quanxian[{$lv.id}]" ng-model="Edit.params.quanxian[{$lv.id}]"/>
+			{/foreach}
+		</div>
+	</div>
+	{/if}
+	{include file="designer_page/temp/edit-plugin-mendian" /}
+	<div class="layui-form-item" ng-show="!Edit.params.quanxian['all']">
+    <div class="layui-form-label">显示用户</div>
+    <div class="layui-input-inline">
+			<input class="layui-input" ng-model="Edit.params.showmids"/>
+    </div>
+		<div class="layui-form-mid layui-word-aux">填写用户ID，多个用英文标点逗号(,)分割
+	</div>
+	{else}
+		<input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有平台" name="{{Edit.id}}_platform['all']" ng-model="Edit.params.platform['all']"/>
+		<input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有人" name="{{Edit.id}}_quanxian['all']" ng-model="Edit.params.quanxian['all']"/>
+		<input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有门店" name="{{Edit.id}}_mendian['all']" ng-model="Edit.params.mendian['all']"/>
+	{/if}
+</div>

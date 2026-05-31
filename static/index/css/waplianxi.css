@@ -1,0 +1,37 @@
+.toptab{width:100%;height:400px;font-size:16px;display:flex;flex-direction: column;color:#fff;background:url('/static/index/img/lianxi-banner.png');}
+.toptab .content{width:100%;padding:0 0.1rem;margin: 0 auto;height:0.6rem;line-height:0.6rem;display:flex;align-items: center;}
+.toptab .content .logo{color: #fff;font-size:0.2rem;display:flex;align-items: center;}
+.toptab .content .logo img{width:0.32rem;height:0.32rem;margin-right:0.1rem}
+.toptab .content .item{justify-content:flex-end;}
+.toptab .content .item a{color:#fff;margin-right:0.1rem}
+.toptab .content .line{margin-left:20px;border-left: 1px solid #ccc;height: 20px;display: inline-block;padding-left: 30px;vertical-align: middle;}
+.toptab .content .zixun{cursor:pointer;width:88px;height:32px;border-radius:2px;line-height:32px;text-align:center;font-size:13px;color:#fff;background: linear-gradient(90deg, #358BFF 0%, #36A4FF 100%);}
+.toptab .content .login{cursor:pointer;margin-left:0.1rem;width:0.8rem;height:0.3rem;border-radius:2px;line-height:0.3rem;text-align:center;font-size:0.13rem;color:#fff;background: linear-gradient(90deg, #FF8B35 0%, #FFA436 100%);}
+.toptab .con{width:100%;display:flex;flex-direction: column;align-items:center;justify-content:center}
+.toptab .con .f1{font-weight:bold;font-size:32px;color:#ffffff;margin-top:50px;height:50px;line-height:50px}
+.toptab .con .f2{font-size:18px;color:#ffffff;height:50px;line-height:50px}
+
+
+.bannertip{width:100%;background:#fff;position:relative;margin:0 auto;margin-top:-100px;margin-bottom:20px;box-shadow: 0px 3px 32px 0px rgba(33, 58, 86, 0.16);display:flex;flex-direction: column;align-items:center;padding:40px 0}
+.bannertip .title{color:#191C3D;font-size:22px;height:30px;line-height:30px;margin-bottom:20px}
+.bannertip .con{color:#191C3D;font-size:22px;display:flex;flex-direction: column;align-items:center;justify-content:center}
+.bannertip .con .inp1{height:63px;line-height:63px;color:#333;border:0;border-bottom:1px solid rgba(0,0,0,0.2)}
+.bannertip .con .inp2{width:100%;margin-top:20px;height:135px;line-height:40px;color:#333;border:0;border-bottom:1px solid rgba(0,0,0,0.2)}
+.bannertip .con .btn1{cursor:pointer;width: 300px;height: 56px;line-height: 56px;background: linear-gradient(90deg, #358BFF 0%, #36A4FF 100%);border-radius: 4px;color:#fff;font-size:22px;text-align:center;margin-top:50px}
+.inp1::-webkit-input-placeholder {color: #6C757D;font-size: 16px;}
+.inp2::-webkit-input-placeholder {color: #6C757D;font-size: 16px;}
+
+.contentbox{width:100%;background:#fff;}
+.contentbox .content{width:100%;margin:0 auto;display:flex;flex-wrap:wrap;padding-top:0.3rem;padding-bottom:0.4rem}
+.contentbox .content .left{width:100%;border-right:1px solid #EDEDED;display:flex;flex-direction: column;align-items:center;justify-content:center;margin-bottom:0.4rem}
+.contentbox .content .left .f1{display:flex;align-items:center;color:#333;font-weight:bold;font-size:0.26rem}
+.contentbox .content .left .f1 img{width:0.4rem;height:0.4rem}
+.contentbox .content .left .f2{color:#656565;font-size:22px;margin-top:20px}
+.contentbox .content .right{width:100%;;padding-left:60px}
+.contentbox .content .right .item{flex:1;display:flex;align-items:center;margin-bottom:20px}
+.contentbox .content .right .item img{width:22px;height:22px;margin-right:20px}
+.contentbox .content .right .item .f2{color:#656565;font-size:16px}
+
+.bottombox{width:100%;background:#151C29;padding:0.16rem 0}
+.bottombox .f2{display:flex;align-items:center;justify-content:center;color:#6B798E;font-size:0.12rem;margin-top:0}
+.layadmin-user-login-codeimg {padding: 10px 10px 0;}

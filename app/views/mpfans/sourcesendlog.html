@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>图文消息发送记录</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	.newspreview{width:312px}
+	.newspreview *{box-sizing: border-box;}
+	.newscontent{padding:12px;border:1px solid #ddd;}
+	.item1{width:100%;cursor:pointer}
+	.item1 img{width:100%;height:100%}
+	.item1 .title{height:40px;padding:0 10px;width:100%;position:absolute;bottom:0;left:0;color:#fff;background:rgba(100,100,100,0.5);display:flex;align-items:center;word-wrap: break-word;word-break: break-all;overflow:hidden;}
+	.item2{width:100%;cursor:pointer;margin-top:5px;padding-top:5px;border-top:1px solid #ddd;display:flex}
+	.item2 .title{flex:1;display:flex;align-items:center;}
+	.item2 img{width:50px;height:50px}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header">
+						图文消息发送记录
+						{if input('param.isopen')==1}<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>{/if}
+					</div>
+          <div class="layui-card-body" pad15>
+						<blockquote class="layui-elem-quote">群发消息同样占用公众号群发次数，即订阅号每天最多发送1次，服务号每月最多发送4次</blockquote>
+						<div class="layui-col-md4" style="padding-bottom:10px">
+							<!-- <a class="layui-btn layuiadmin-btn-list" href="javascript:void(0)" onclick="openmax('{:url('sourceedit')}')">添加</a> -->
+							<!-- <button class="layui-btn layui-btn-primary" onclick="datadel(0)">删除</button> -->
+						</div>
+						<div class="layui-form layui-col-md8 layui-form-search">
+							<!-- <div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">名称</label>
+								<div class="layui-input-inline">
+									<input type="text" name="name" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label">状态</label>
+								<div class="layui-input-inline"">
+									<select name="status">
+										<option value="">全部</option>
+										<option value="1">已开启</option>
+										<option value="0">已关闭</option>
+									</select>
+								</div>
+							</div> -->
+							<div class="layui-inline">
+								<label class="layui-form-label">创建时间</label>
+								<div class="layui-input-inline" style="width:180px">
+									<input type="text" name="ctime" id="ctime" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+									<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+								</button>
+							</div>
+						</div>
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+  var table = layui.table;
+	var datawhere = {};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{$Request.url}" //数据接口
+    ,page: true //开启分页
+    ,cols: [[ //表头
+			//{type:"checkbox"},
+      //{field: 'media_id', title: '素材ID',width:180},
+      {field: 'content', title: '素材内容',width:350,templet:function(d){
+				var news_item = d.content.news_item;
+				var html ='<div style="width:312px;padding:12px;border:1px solid #ddd">';
+				for(var i in news_item){
+					var m = news_item[i]
+					if(i==0){
+						html+='<div onclick="showqr(\''+m.url+'\',\''+m.title+'\')" style="width:100%;cursor:pointer">';
+						html+='<div style="position:relative"><img src="'+m.thumb_url+'" style="width:288px;height:160px;max-width:288px"/><div style="height:40px;padding:0 10px;width:100%;position:absolute;bottom:0;left:0;color:#fff;background:rgba(100,100,100,0.5);display:flex;align-items:center;word-wrap: break-word;word-break: break-all;overflow:hidden;">'+m.title+'</div></div>';
+						html+='';
+						html+='</div>';
+					}else{
+						html+='<div onclick="showqr(\''+m.url+'\',\''+m.title+'\')" style="width:100%;cursor:pointer;margin-top:5px;padding-top:5px;border-top:1px solid #ddd;display:flex">';
+						html+='<div style="flex:1;display:flex;align-items:center;">'+m.title+'</div>';
+						html+='<div><img src="'+m.thumb_url+'" style="width:50px;height:50px"/></div>';
+						html+='</div>';
+					}
+				}
+				html+='</div>';
+				return html;
+      }},
+      {field: 'is_to_all', title: '群发对象',templet:function(d){
+				if(d.is_to_all==1){
+					return '全部用户';
+				}else{
+					return d.tagname;
+				}
+      }},
+      {field: 'is_to_all', title: '判断为转载时',templet:function(d){
+				if(d.send_ignore_reprint==1){
+					return '转载时发送';
+				}else{
+					return '转载时不发送';
+				}
+      }},
+      {field: 'createtime', title: '创建时间',templet:function(d){ return date('Y-m-d H:i',d.createtime)}},
+      {field: 'createtime', title: '定时群发',templet:function(d){ 
+				if(d.isdingshi==1) return '是';else return '否';
+			}},
+      {field: 'sendtime', title: '群发时间',templet:function(d){ return date('Y-m-d H:i',d.sendtime)}},
+      {field: 'status', title: '状态',templet:function(d){
+				if(d.status==0) return '未发送';
+				if(d.status==1) return '发送中';
+				if(d.status==2) return '发送成功';
+				if(d.status==3) return '发送失败';
+      }},
+      {field: 'msg', title: '失败原因'},
+      {field: 'totalcount', title: '发送总数/成功数/失败数',templet:function(d){
+				return (d.totalcount!==null?d.totalcount:'') + ' / '+(d.sendcount!==null?d.sendcount:'') + ' / '+(d.errorcount!==null?d.errorcount:'')
+      },width:180},
+      {field: 'operation', title: '操作',templet:function(d){
+				var html = '';
+				html += '<button class="table-btn" onclick="datadel(\''+d.id+'\')">删除</button>';
+				return html;
+      }}
+    ]]
+  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	//日期范围选择
+	layui.laydate.render({ 
+		elem: '#ctime',
+		trigger: 'click',
+		range: '~' //或 range: '~' 来自定义分割字符
+	});
+	function datadel(id){
+		layer.confirm('确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('sourcesendlogdel')}",{id:id},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload();
+			})
+		})
+	}
+	//查看二维码
+	function showqr(url,title){
+		layer.open({
+			type:1,
+			area:['350px','420px'],
+			content:'<div style="margin:auto auto;text-align:center"><div style="margin:10px 30px" id="returl"></div><a style="font-size:12px;color:#666;word-break:break-all;padding:0 10px" href="'+url+'" target="_blank">'+url+'</a></div>',
+			title:title,
+			shadeClose:true
+		});
+		var qrcode = new QRCode('returl', {
+			text: 'your content',
+			width: 280,
+			height: 280,
+			colorDark : '#000000',
+			colorLight : '#ffffff',
+			correctLevel : QRCode.CorrectLevel.L
+		});
+		qrcode.clear();
+		qrcode.makeCode(url);
+	}
+	</script>
+	{include file="public/copyright"/}
+</body>
+</html>

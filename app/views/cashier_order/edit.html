@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>收银台订单</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+		.flex-s{display: flex;justify-content: flex-start;align-items: center}
+		.flex-sb{display: flex;justify-content: space-between;align-items: center}
+		.goods{margin-top: 10px;width: 500px;overflow: hidden;border-bottom: 1px solid #e6e6e6; padding-bottom: 8px;}
+		.goods .fl{padding:0 10px}
+		.goods .fr{flex: 1;}
+		.title{flex-wrap: wrap}
+		.red{color: #ff5620;font-weight: bold}
+		.order{padding: 10px 10px;line-height: 40px}
+		/*.goods .fr{min-width: 400px}*/
+		@media screen and (max-width: 450px){
+			.goods {width: 100%}
+			/*.goods .fr{width: auto;}*/
+		}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					订单详情
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<!-- <blockquote class="layui-elem-quote"></blockquote> -->
+					<div class="flex">
+						<div class="layui-form flex1" lay-filter="" style="padding-bottom:20px">
+							<input type="hidden" name="info[id]" value="{$info.id}"/>
+							<input type="hidden" name="info[type]" value="{$info.type}"/>
+							{volist name="info.prolist" id="item"}
+							<div class="goods flex-s">
+								<div class="fl"><img src="{$item.propic}" height="60" width="60"></div>
+								<div class="fr">
+									<div class="title">{$item.proname}{$item.ggname}</div>
+									<div class="info flex-sb">
+										<div class="red">￥{$item.sell_price}</div>
+										<div>×{$item.num}</div>
+									</div>
+								</div>
+							</div>
+							{/volist}
+							<div class="order">
+								<div class="flex-s">
+									<label>订单总价：</label><span class="red">￥{$info.pre_totalprice}</span>
+								</div>
+								<div class="flex-s">
+									<label>实际支付：</label><span class="red">￥{$info.totalprice}</span>
+								</div>
+								{if $info.coupon_money>0}
+								<div class="flex-s">
+									<label>优惠券抵扣：</label><span class="red">￥{$info.coupon_money}</span>
+								</div>
+								{/if}
+								{if $info.scoredk_money>0}
+								<div class="flex-s">
+									<label>积分抵扣：</label><span class="red">￥{$info.scoredk_money}</span>
+								</div>
+								{/if}
+								{if $info.leveldk_money>0}
+								<div class="flex-s">
+									<label>会员折扣：</label><span class="red">￥{$info.leveldk_money}</span>
+								</div>
+								{/if}
+								{if $info.moling_money>0}
+								<div class="flex-s">
+									<label>订单抹零：</label><span class="red">￥{$info.moling_money}</span>
+								</div>
+								{/if}
+								<div class="flex-s">
+									<label>订单编号：</label><span>{$info.ordernum}</span>
+								</div>
+								<div class="flex-s">
+									<label>下单时间：</label><span>{$info.createtime|date="Y-m-d H:i:s"}</span>
+								</div>
+								<div class="flex-s">
+									<label>支付时间：</label>{if $info.paytime}<span>{$info.paytime|date="Y-m-d H:i:s"}{/if}</span>
+								</div>
+								<div class="flex-s">
+									<label>支付方式：</label><span>{$info.paytype}</span>
+								</div>
+								{if getcustom('cashdesk_commission')} 
+								<div class="flex-s">
+									<label>一级{:t('佣金')}：</label>
+									<span>
+										<img src="{$info.comdata.parent1.headimg}" style="width:30px"/> 
+										{$info.comdata.parent1.nickname}
+										<span style="color:#ff8758">
+											{$info.comdata.parent1.money}元
+											{if $info.comdata.parent1.score}
+												+  {$info.comdata.parent1.score}{:t('积分')}
+											{/if}
+											</span>
+									</span>
+								</div>
+								<div class="flex-s">
+									<label>二级{:t('佣金')}：</label>
+									<span>
+										<img src="{$info.comdata.parent2.headimg}" style="width:30px"/> 
+										{$info.comdata.parent2.nickname}
+										<span style="color:#ff8758">
+											{$info.comdata.parent2.money}元
+											{if $info.comdata.parent2.score}
+												+  {$info.comdata.parent2.score}{:t('积分')}
+											{/if}
+											</span>
+									</span>
+								</div>
+								<div class="flex-s">
+									<label>三级{:t('佣金')}：</label>
+									<span>
+									<img src="{$info.comdata.parent3.headimg}" style="width:30px"/>
+									{$info.comdata.parent3.nickname}
+									<span style="color:#ff8758">
+											{$info.comdata.parent3.money}元
+											{if $info.comdata.parent3.score}
+												+  {$info.comdata.parent3.score}{:t('积分')}
+											{/if}
+											</span>
+									</span>
+								</div>
+								{/if}
+								<div class="flex-s">
+									<label>订单备注：</label>
+									{if $info.remark}
+									<span>{$info.remark}</span>
+									{else /}
+									<span>暂无</span>
+									{/if}
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label" style="width:110px"></label>
+								<div class="layui-input-block">
+									<button class="layui-btn" onclick="closeself()">关闭</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.form.on('radio(group_status)',function(data){
+        if(data.value == 1){
+            $('.group_status1').show();
+        }else{
+            $('.group_status1').hide();
+        }
+    })
+
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		console.log(field);return;
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.closeAll();
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+	</script>
+	{include file="public/copyright"/}
+</body>
+</html>

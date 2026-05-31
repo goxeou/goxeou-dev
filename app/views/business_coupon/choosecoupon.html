@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{:t('优惠券')}列表</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-body" pad15>
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+  var table = layui.table;
+	var datawhere = {};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{:url('index')}" //数据接口
+    ,page: true //开启分页
+    ,cols: [[ //表头
+			{type:"checkbox"},
+      {field: 'id', title: 'ID',sort:true, width:80},
+      {field: 'name', title: '名称'},
+      {field: 'type', title: '类型',templet:function(d){
+				if(d.type==1) return '代金券';
+				if(d.type==2) return '礼品券';
+				if(d.type==3) return '计次券';
+			}},
+      {field: 'money', title: '优惠金额',templet:function(d){
+				var html = '';
+				if(d.type==1){
+					html+='<div style="color:#000;font-size:16px">￥'+d.money+'</div>';
+					if(d.minprice>0){
+						html +='<div>满'+d.minprice+'元可用</div>'
+					}else{
+						html +='<div>无门槛</div>'
+					}
+				}
+				if(d.type==3){
+					html += d.limit_count + '次';
+				}
+				return html;
+			}},
+      {field: 'stock', title: '库存'},
+      {field: 'getnum', title: '已领取'},
+      {field: 'ctime', title: '活动时间',templet: '<div>{{d.starttime}} ~ {{d.endtime}}</div>'},
+      {field: 'createtime', title: '创建时间',sort:true,templet:function(d){ return date('Y-m-d H:i',d.createtime)},width:150},
+      {field: 'status', title: '状态',width:100},
+      {field: 'operation', title: '操作',templet: '<div><button class="table-btn" onclick="choosecp(\'{{d.id}}\')">选择</button></div>',align:'center'}
+    ]]
+  });
+	function choosecp(id){
+		var index = layer.load();
+		$.post("{:url('choosecoupon')}",{id:id},function(res){
+			layer.close(index);
+			window.parent.choosecoupon(res.data,"{$Request.param.args}");
+			var index = parent.layer.getFrameIndex(window.name);
+			parent.layer.close(index);
+		})
+	}
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	</script>
+</body>
+</html>

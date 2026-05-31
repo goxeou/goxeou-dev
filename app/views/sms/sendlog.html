@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>签名管理</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <!-- <div class="layui-card-header"><i class="fa fa-list"></i> 签名管理</div> -->
+					<div class="layui-tab layui-tab-brief">
+						<ul class="layui-tab-title">
+							<li onclick="location.href='{:url('set')}'">短信设置</li>
+							<li class="layui-this" onclick="location.href='{:url('sendlog')}'">发送记录</li>
+						</ul>
+					</div>
+          <div class="layui-card-body" pad15>
+						<div class="layui-col-md4" style="padding-bottom:10px">
+							<!-- <a class="layui-btn layuiadmin-btn-list" href="javascript:void(0)" onclick="openmax('{:url('addsign')}')">申请签名</a> -->
+						</div>
+						<div class="layui-form layui-form-search layui-col-md8">
+							<!-- <div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">名称</label>
+								<div class="layui-input-inline">
+									<input type="text" name="name" autocomplete="off" class="layui-input" value="">
+								</div>
+							</div> -->
+							<div class="layui-inline">
+								<label class="layui-form-label">发送时间</label>
+								<div class="layui-input-inline">
+									<input type="text" name="ctime" id="ctime" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+									<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+								</button>
+							</div>
+						</div>
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.laydate.render({ 
+		elem: '#ctime',
+		trigger: 'click',
+		range: '~' //或 range: '~' 来自定义分割字符
+	});
+  var table = layui.table;
+	var datawhere = {};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: '{$Request.url}' //数据接口
+    ,page: true //开启分页
+    ,cols: [[ //表头
+			{type:"checkbox"},
+      //{field: 'id', title: 'ID',sort:true,  width:80},
+      {field: 'PhoneNumbers', title: '手机号',templet:function(d){
+				if(d.num>1) return '<a href="javascript:void(0)" onclick="viewphone(\''+d.PhoneNumbers+'\')">'+d.num+'条(查看)</a>';
+				return d.PhoneNumbers
+			}},
+      {field: 'SignName', title: '签名'},
+      {field: 'TemplateCode', title: '模板'},
+      //{field: 'TemplateContent', title: '内容'},
+      {field: 'TemplateParam', title: '变量',templet:function(d){
+				if(d.TemplateParam){
+					var TemplateParam = JSON.parse(d.TemplateParam);
+					console.log(TemplateParam)
+					var html = '';
+					for(var i in TemplateParam){
+						console.log(i)
+						html+=i + ': '+ TemplateParam[i] + '<br>';
+					}
+					return html;
+				}else{
+					return '';
+				}
+			}},
+      {field: 'createtime', title: '发送时间',templet:function(d){ 
+				if(d.createtime){
+					return date('Y-m-d H:i:s',d.createtime)
+				}else{
+					return '';
+				}
+			}},
+			/*
+      {field: 'status', title: '状态',templet:function(d){ 
+				if(d.num>1){
+					return '群发';
+				}else{
+					if(d.status==0){
+						return '发送中';
+					}else if(d.status==1){
+						return '成功';
+					}else{
+						return '失败';
+					}
+				}
+			},width:80},
+      {field: 'err_msg', title: '备注',width:130,templet:function(d){
+				if(d.num>1){
+					return '成功'+(d.num - d.errnum) + '条,失败'+d.errnum+'条';
+				}else if(d.err_msg){
+					return d.err_msg
+				}
+				return '';
+			}},
+			*/
+    ]]
+  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	//查看
+	function viewphone(PhoneNumbers){
+		var html = '<div style="padding:10px 0 10px 20px">';
+		var PhoneNumbers = PhoneNumbers.split(',');
+		for(var i in PhoneNumbers){
+			if(i!=0 && i%5==4){
+				html+= PhoneNumbers[i] + '<br>'
+			}else{
+				html+= PhoneNumbers[i] + ' '
+			}
+		}
+		html+= '</div>';
+
+		layer.open({type:1,title:'手机号详情',area:'500px',content:html,resize:true,shadeClose:true,btn:['关闭']});
+	}
+	//删除
+	function datadel(id){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			var ids = [];
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id)
+		}
+		layer.confirm('确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('signdel')}",{ids:ids},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	</script>
+	{include file="public/copyright"/}
+</body>
+</html>

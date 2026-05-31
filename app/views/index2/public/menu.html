@@ -1,0 +1,22 @@
+<div class="top_wrap">
+    <div class="top_content">
+        <div class="content flex" >
+            <a href="/" class="logo"><img src="{$webinfo.logo}" title="{$webinfo.webname}"/>
+							<div class="title">{$webinfo.webname}</div>
+						</a>
+            <div class="item">
+                <a href="/" {eq name=":request()->action()" value="index"} class="on"{/eq}>首页</a>
+                <a href="{:url('funshow')}" {eq name=":request()->action()" value="funshow"} class="on"{/eq} >商城功能</a>
+                <a href="{:url('lianxi')}" {eq name=":request()->action()" value="lianxi"} class="on"{/eq} >联系我们</a>
+                <a href="{:url('help')}" {eq name=":request()->action()" value="help"} class="on"{/eq} >帮助中心</a>
+                
+            </div>
+            {if $reg_open}
+            <div class="zixun" onclick="location.href='{:url('Login/reg')}'">免费注册</div>
+            {else}
+            <div class="zixun" onclick="location.href='{:url('lianxi')}'">免费咨询</div>
+            {/if}
+            <div class="login" onclick="location.href='{:url('Backstage/index')}'">立即登录</div>
+        </div>
+    </div>
+</div>

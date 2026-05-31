@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <link rel="shortcut icon" href="favicon.ico"> 
+	<link href="__PUBLIC__/admin/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="__PUBLIC__/admin/css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link href="__PUBLIC__/admin/css/style.css?v=4.1.0" rel="stylesheet">
+    <link href="__PUBLIC__/admin/css/page.css" rel="stylesheet">
+</head>
+
+<script>
+var url = "/{$Request.module}/goods";
+//恢复
+var recoveryUrl = "{:url('live/recovery')}";
+//删除url
+var deleteUrl = "{:url('live/delete')}";
+</script>
+
+<body class="gray-bg">
+    <style>
+	.qiehuan{
+	    width:120px; height:40px; line-height:40px; font-size:14px; font-weight:bold; color:#333; background-color:#F5F5F6; float:left; margin-right:10px; text-align:center; cursor:pointer;
+	}
+	</style>
+    <div class="wrapper wrapper-content" id="server">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>直播间回收站列表</h5>
+                    </div>
+                    <div class="ibox-content">
+ 						<div class="row">
+						   <div class="col-sm-3 m-b-xs" style="margin-bottom:20px;">           
+                                <button type="button" class="btn btn-sm btn-danger" id="del">批量删除</button>
+                            </div> 
+                            
+                            <form action="{:url('live/lst')}" method="post" id="form_search">
+                                <div class="col-sm-3" style="float:right;">
+                                    <div class="input-group">
+                                        <input type="text" name="keyword" placeholder="请输入描述关键字/电话/用户名" value="{:input('param.keyword')}" class="input-sm form-control">
+                                        <span class="input-group-btn"><button type="submit" class="btn btn-sm btn-primary" id="submit_search2">搜索</button></span>
+                                    </div>
+                                </div>
+                               </form>                               
+                        </div>
+                        <div id="ajaxpagetest">
+                        {include file="live/hsajaxpage" /}
+                        </div>                        
+                        
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 全局js -->
+    <script src="__PUBLIC__/admin/js/jquery.min.js?v=2.1.4"></script>
+    <script src="__PUBLIC__/admin/js/plugins/layer/layer.min.js"></script>
+    <script src="__PUBLIC__/admin/js/bootstrap.min.js?v=3.3.6"></script>
+    <script src="__PUBLIC__/admin/js/plugins/validate/jquery.validate.min.js"></script>
+    <!-- iCheck -->
+    <script src="__PUBLIC__/admin/js/plugins/iCheck/icheck.min.js"></script>
+    <script src="__PUBLIC__/admin/js/common/admin.js"></script>
+    <script src="__PUBLIC__/admin/js/common/ajax.js"></script>
+
+	<script type="text/javascript">
+    $(function(){
+        $('.i-checks').iCheck({
+            checkboxClass: 'icheckbox_square-green',
+            radioClass: 'iradio_square-green',
+        });
+          	
+    });
+
+    function cl() {
+            window.location.href = "{:url('live/hslst')}";
+        }
+    </script>
+	
+</body>
+</html>

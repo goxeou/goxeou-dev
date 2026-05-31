@@ -1,0 +1,9 @@
+<div class="dsn-mod dsn-notice2" ng-class="{'dsn-mod-select':Item.id == focus}" style="color:{{Item.params.color}};background-color:{{Item.params.bgcolor}};margin:{{Item.params.margin_y}}px {{Item.params.margin_x}}px 0;padding:{{Item.params.padding_y}}px {{Item.params.padding_x}}px">
+	<div class="left" ng-show="Item.params.showimg==1"><img class="image" ng-src="{{Item.params.img}}"/></div>
+	<div class="right">
+		<img class="ico" ng-src="{{Item.params.icon}}" ng-show="Item.params.showicon==1"/>
+		<div class="itemlist" style="font-size:{{Item.params.fontsize}}px">
+			<div class="item" ng-repeat="d in Item.data">{{d.title}}</div>
+		</div>
+	</div>
+</div>

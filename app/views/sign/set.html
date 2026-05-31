@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>签到规则设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					<i class="fa fa-cog"></i> 签到规则设置
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w8" lay-filter="">
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">状态：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[status]" value="1" title="开启" {if !$info['id'] || $info['status']==1}checked{/if}>
+								<input type="radio" name="info[status]" value="0" title="关闭" {if $info['status']==0}checked{/if}>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">签到获得{:t('积分')}：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[score]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info['score']}">
+							</div>
+						</div>
+						<div id="lxqd_div">
+							{php} $lxqdata = json_decode($info['lxqdset'],true);{/php}
+							{if $lxqdata}
+							{foreach $lxqdata as $k=>$v}
+							<div class="layui-form-item">
+								<label class="layui-form-label">{if $k==0}连续签到设置：{/if}</label>
+								<div class="layui-form-mid">连续签到</div>
+								<div class="layui-input-inline" style="width:70px"><input type="text" name="lxqd_days[]" value="{$v['days']}" class="layui-input"></div>
+								<div class="layui-form-mid">天以上，每天签到获得</div>
+								<div class="layui-input-inline" style="width:70px"><input type="text" name="lxqd_score[]" value="{$v['score']}" class="layui-input"></div>
+								<div class="layui-form-mid">{:t('积分')},</div>
+                <div class="layui-form-mid">{:t('优惠券')}ID</div>
+                <div class="layui-input-inline" style="width:70px"><input type="text" name="lxqd_coupon_id[]" value="{$v['coupon_id']}" class="layui-input" id="lxqd_coupon_{$v['days']}"></div>
+                <input type="hidden" name="lxqd_coupon_name[]" value="{$v['coupon_name']}" class="layui-input" id="lxqd_coupon_name_{$v['days']}">
+                <div class="layui-form-mid">{:t('优惠券')}名称:<span id="lxqd_coupon_name_explain">{$v['coupon_name']}</span></div>
+                <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="showChooseCoupon(this,'lxqd')">添加</button>
+                <tr class="choose-tr-add"></tr>
+								{if $k==0}
+								<button class="layui-btn layui-btn-primary" onclick="addlxqd()"><i class="fa fa-plus"></i></button>
+								{else}
+								<button class="layui-btn layui-btn-primary" onclick="removelxqd(this)"><i class="fa fa-minus"></i></button>
+								{/if}
+							</div>
+							{/foreach}
+							{else}
+							<div class="layui-form-item">
+								<label class="layui-form-label">连续签到设置：</label>
+								<div class="layui-form-mid">连续签到</div>
+								<div class="layui-input-inline" style="width:70px"><input type="text" name="lxqd_days[]" value="" class="layui-input"></div>
+								<div class="layui-form-mid">天以上，每天签到获得</div>
+								<div class="layui-input-inline" style="width:70px"><input type="text" name="lxqd_score[]" value="" class="layui-input"></div>
+								<div class="layui-form-mid">{:t('积分')}</div>
+								<button class="layui-btn layui-btn-primary" onclick="addlxqd()"><i class="fa fa-plus"></i></button>
+							</div>
+							{/if}
+						</div>
+						<div id="lxzs_div">
+							{php} $lxzsata = json_decode($info['lxzsset'],true);{/php}
+							{if $lxzsata}
+							{foreach $lxzsata as $k=>$v}
+							<div class="layui-form-item">
+								<label class="layui-form-label">{if $k==0}连续签到赠送：{/if}</label>
+								<div class="layui-form-mid">连续签到</div>
+								<div class="layui-input-inline" style="width:70px"><input type="text" name="lxzs_days[]" value="{$v['days']}" class="layui-input"></div>
+								<div class="layui-form-mid">天，额外赠送</div>
+								<div class="layui-input-inline" style="width:70px"><input type="text" name="lxzs_score[]" value="{$v['score']}" class="layui-input"></div>
+								<div class="layui-form-mid">{:t('积分')},</div>
+                 <div class="layui-form-mid">{:t('优惠券')}ID</div>
+                <div class="layui-input-inline" style="width:70px"><input type="text" name="lxzs_coupon_id[]" value="{$v['coupon_id']}" class="layui-input" id="lxzs_coupon"></div>
+                <input type="hidden" name="lxzs_coupon_name[]" value="{$v['coupon_name']}" class="layui-input" id="lxzs_coupon_name">
+                <div class="layui-form-mid">{:t('优惠券')}名称:<span id="lxzs_coupon_name_explain">{$v['coupon_name']}</span></div>
+                <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="showChooseCoupon(this)">添加</button>
+								{if $k==0}
+								<button class="layui-btn layui-btn-primary" onclick="addlxzs()"><i class="fa fa-plus"></i></button>
+								{else}
+								<button class="layui-btn layui-btn-primary" onclick="removelxzs(this)"><i class="fa fa-minus"></i></button>
+								{/if}
+							</div>
+							{/foreach}
+							{else}
+							<div class="layui-form-item">
+								<label class="layui-form-label">连续签到赠送：</label>
+								<div class="layui-form-mid">连续签到</div>
+								<div class="layui-input-inline" style="width:70px"><input type="text" name="lxzs_days[]" value="" class="layui-input"></div>
+								<div class="layui-form-mid">天，额外赠送</div>
+								<div class="layui-input-inline" style="width:70px"><input type="text" name="lxzs_score[]" value="" class="layui-input"></div>
+								<div class="layui-form-mid">{:t('积分')}</div>
+                <div class="layui-form-mid">{:t('优惠券')}ID</div>
+                <div class="layui-input-inline" style="width:70px"><input type="text" name="coupon_id[]" value="{$v['coupon_id']}" class="layui-input" id="lxzs_coupon"></div>
+                <input type="hidden" name="coupon_name[]" value="{$v['coupon_name']}" class="layui-input" id="lxzs_coupon_name">
+                <div class="layui-form-mid">{:t('优惠券')}名称:<span id="lxzs_coupon_name"></span></div>
+                <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="showChooseCoupon(this)">添加</button>
+								<button class="layui-btn layui-btn-primary" onclick="addlxzs()"><i class="fa fa-plus"></i></button>
+							</div>
+							{/if}
+				
+						</div>
+						{if getcustom('sign_camera')}
+							<!-- 签到条件 复选框 1拍照 2拍视频 -->
+							<div class="layui-form-item">
+								<label class="layui-form-label">签到条件:</label>
+								<div class="layui-input-inline">
+									<input type="radio" name="info[camera]" value="0" title="无条件" {if !$info['camera'] && $info['camera'] ==0}checked{/if}>
+									<input type="radio" name="info[camera]" value="1" title="拍照" {if  $info['camera'] ==1}checked{/if}>
+									<input type="radio" name="info[camera]" value="2" title="拍视频" {if  $info['camera'] ==2}checked{/if}>									 
+								</div>
+							</div>					 
+						{/if}
+
+						{if getcustom('sign_forget')}
+						<!-- 补签 -->
+						<div class="layui-form-item">
+							<label class="layui-form-label">补签开关：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[is_forget]" value="1" title="开启" {if $info['is_forget'] == 1}checked{/if} lay-filter="is_forget">
+								<input type="radio" name="info[is_forget]" value="0" title="关闭" {if !$info['is_forget'] || $info['is_forget'] == 0}checked{/if} lay-filter="is_forget">
+							</div>
+						</div>
+						<!-- 如果允许补签是否需要人工审核 -->
+						<div class="layui-form-item sign_forget" {if !$info['is_forget'] || $info['is_forget'] == 0}style="display:none"{/if}>
+							<label class="layui-form-label">补签人工审核：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[is_check]" value="1" title="开启" {if $info['is_check'] == 1}checked{/if} lay-filter="is_check">
+								<input type="radio" name="info[is_check]" value="0" title="关闭" {if  $info['is_check'] == 0}checked{/if} lay-filter="is_check">
+							</div>
+						</div>
+						<!-- 补签条件单选 1无条件 2连续签到input天可补input天 -->
+						 <div class="layui-form-item sign_forget" {if !$info['is_forget'] || $info['is_forget'] == 0}style="display:none"{/if}>
+							<label class="layui-form-label">补签条件：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[condition]" value="1" title="无条件" {if !$info['condition'] || $info['condition'] == 1}checked{/if} lay-filter="condition">
+								<input type="radio" name="info[condition]" value="2" title="签到赠送" {if $info['condition'] == 2}checked{/if} lay-filter="condition">
+							</div>
+						</div>
+						 <!-- 连续签到xx天补xx天 -->
+						 <div class="layui-form-item sign_forget sign_forget_1" {if (!$info['is_forget'] || $info['is_forget'] == 0) || !$info['condition'] || $info['condition'] != 2}style="display:none"{/if} >
+							<label class="layui-form-label">补签条件：</label>
+							<div class="layui-form-mid">连续签到</div>
+							<div class="layui-input-inline" style="width:70px"><input class="layui-input" type="text" name="info[lxqd_forget]" value="{$info[lxqd_forget]}"  ></div>
+							<div class="layui-form-mid">赠送补签天数</div>
+							<div class="layui-input-inline" style="width:70px"><input  class="layui-input"  type="text" name="info[bq_day]" value="{$info[bq_day]}" ></div>
+							<div class="layui-form-mid">天</div>
+ 						</div>
+
+						 
+						{/if}
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">页面样式：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[style]" value="1" title="样式1" {if !$info['id'] || $info['style']==1}checked{/if} lay-filter="diandaSwitchMulti">
+								<input type="radio" name="info[style]" value="2" title="样式2" {if $info['style']==2}checked{/if} lay-filter="diandaSwitchMulti">
+							</div>
+
+							<div style="margin-left:160px;clear: both">
+								<div diandaSwitchMulti="info[style]" data-val="1" {if $info['style'] != 1} style="display:none"{/if}>
+									<img src="/static/img/sign-1.png" width="200">
+								</div>
+								<div diandaSwitchMulti="info[style]" data-val="2" {if $info['style'] != 2} style="display:none"{/if}>
+									<img src="/static/img/sign-2.png" width="200">
+								</div>
+							</div>
+						</div>
+
+
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">背景图：</label>
+							  <input type="hidden" name="info[bgpic]" id="pic" class="layui-input" value="{$info.bgpic}">
+							  <button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="pic" upload-preview="picPreview" onclick="uploader(this)">上传图片</button>
+							  <div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：750×940像素</div>
+							  <div id="picPreview" style="float:left;padding-top:10px;margin-left:160px;clear: both;">
+								  <div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.bgpic}"/></div></div>
+							  </div>
+						  </div>
+             			<div class="layui-form-item">
+							<label class="layui-form-label">显示签到排名：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[display]" value="1" title="开启" {if !$info['id'] || $info['display']==1}checked{/if}>
+								<input type="radio" name="info[display]" value="0" title="关闭" {if $info['display']==0}checked{/if}>
+							</div>
+						</div>
+
+						{if getcustom('sign_pay_bonus')}
+							<div class="layui-form-item">
+								<label class="layui-form-label">是否支付：</label>
+								<div class="layui-input-inline">
+									<input type="radio" name="info[ispay]" value="1" title="开启" {if !$info['id'] || $info['ispay']==1}checked{/if} lay-filter="paychanage">
+									<input type="radio" name="info[ispay]" value="0" title="关闭" {if $info['ispay']==0}checked{/if} lay-filter="paychanage">
+								</div>
+							</div>
+							<div id="paybox" {if  !$info['id'] || $info['ispay']==0}style="display:none"{/if}>
+								<div class="layui-form-item">
+									<label class="layui-form-label">支付金额：</label>
+									<div class="layui-input-inline">
+										<input type="text" name="info[payprice]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info['payprice']}">
+									</div>
+									<div class="layui-form-mid layui-word-aux">元 签到时支付的金额</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label">抽佣比例：</label>
+									<div class="layui-input-inline">
+										<input type="text" name="info[commission_rate]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info['commission_rate']}">
+									</div>
+									<div class="layui-form-mid layui-word-aux">% 平台抽佣得到比例</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label">开奖最低金额：</label>
+									<div class="layui-input-inline">
+										<input type="text" name="info[min_money]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info['min_money']}">
+									</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label">开奖金额到：</label>
+									<div class="layui-input-inline">
+										<input type="radio" name="info[moneytype]" value="1" title="余额" {if !$info['id'] || $info['moneytype']==1}checked{/if} >
+										<input type="radio" name="info[moneytype]" value="2" title="佣金" {if $info['moneytype']==2}checked{/if} >
+									</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label">是否显示奖金池：</label>
+									<div class="layui-input-inline">
+										<input type="radio" name="info[isshowbonus]" value="1" title="显示" {if !$info['id'] || $info['isshowbonus']==1}checked{/if}>
+										<input type="radio" name="info[isshowbonus]" value="0" title="关闭" {if $info['isshowbonus']==0}checked{/if} >
+									</div>
+								</div>
+								<div class="layui-form-item">
+								  <label class="layui-form-label">奖金池初始金额：</label>
+								  <div class="layui-input-inline">
+									  <input type="text" name="info[default_totalprice]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info['default_totalprice']|default=0}">
+								  </div>
+									<div class="layui-form-mid layui-word-aux">创建奖金池时的默认奖金池金额</div>
+								</div>
+							</div>
+						{/if}
+
+
+
+						{if in_array('wx',$platform)}
+						<div class="layui-form-item">
+							<label class="layui-form-label">小程序激励广告：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[rewardedvideoad]" class="layui-input" value="{$info['rewardedvideoad']}">
+							</div>
+							<div class="layui-form-mid layui-word-aux">填写广告位ID 在小程序后台"流量主-广告管理-激励广告"中查找，设置后点击签到时必须先看完激励广告视频才能签到成功</div>
+						</div>
+						{/if}
+
+						<!-- 详情编辑器 -->
+						<div class="layui-form-item">
+							<label class="layui-form-label">规则说明：</label>
+							<div class="layui-input-inline" style="width:500px">
+								<script id="guize" name="info[guize]" type="text/plain" style="width:100%;height:500px">{$info.guize}</script>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+					
+				</div>
+			</div>
+		</div>
+	</div>
+	{include file="public/js"/}
+	<script>
+             var coupon_id = '';
+             var coupon_name = '';
+             var coupon = '';
+							function showChooseCoupon(obj){
+								 //console.log($(obj).prev().find("span")); //设置优惠券名称
+								  coupon_name = $(obj).prev().find("span");
+							    //console.log($(obj).prev().prev().val()); //设置隐藏域
+							    coupon = $(obj).prev().prev();
+							    //console.log($(obj).prev().prev().prev().find("input").val('eeeeee'));
+							    coupon_id = $(obj).prev().prev().prev().find("input");
+								  chooseCouponLayer = layer.open({type:2,title:'选择{:t(\'优惠券\')}',content:"{:url('Coupon/choosecoupon')}",area:['1000px','600px'],shadeClose:true});
+						   }
+							function choosecoupon(res){
+								var detail = res;
+                coupon_name.text(res.name);
+                coupon.val(res.name);
+                coupon_id.val(res.id);
+							}
+
+	function addlxqd(){
+		var html = '';
+		html+='<div class="layui-form-item">';
+		html+='	<label class="layui-form-label"></label>';
+		html+='	<div class="layui-form-mid">连续签到</div>';
+		html+='	<div class="layui-input-inline" style="width:70px"><input type="text" name="lxqd_days[]" value="" class="layui-input"></div>';
+		html+='	<div class="layui-form-mid">天以上，每天签到获得</div>';
+		html+='	<div class="layui-input-inline" style="width:70px"><input type="text" name="lxqd_score[]" value="" class="layui-input"></div>';
+		html+='	<div class="layui-form-mid">{:t('积分')}</div>';
+    html+='<div class="layui-form-mid">{:t('优惠券')}ID</div>';
+    html+=' <div class="layui-input-inline" style="width:70px"><input type="text" name="lxqd_coupon_id[]" value="" class="layui-input"></div>';
+    html+='<input type="hidden" name="lxqd_coupon_name[]" value="" class="layui-input">';
+    html+='<div class="layui-form-mid">{:t('优惠券')}名称:<span></span></div>';
+    html+='<button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="showChooseCoupon(this)">添加</button>';
+		html+='	<button class="layui-btn layui-btn-primary" onclick="removelxqd(this)"><i class="fa fa-minus"></i></button>';
+		html+='</div>';
+		$('#lxqd_div').append(html);
+	}
+	function removelxqd(obj){
+		$(obj).parent().remove();
+	}
+	function addlxzs(){
+		var html = '';
+		html+='<div class="layui-form-item">';
+		html+='	<label class="layui-form-label"></label>';
+		html+='	<div class="layui-form-mid">连续签到</div>';
+		html+='	<div class="layui-input-inline" style="width:70px"><input type="text" name="lxzs_days[]" value="" class="layui-input"></div>';
+		html+='	<div class="layui-form-mid">天，额外赠送</div>';
+		html+='	<div class="layui-input-inline" style="width:70px"><input type="text" name="lxzs_score[]" value="" class="layui-input"></div>';
+		html+='	<div class="layui-form-mid">{:t('积分')}</div>';
+		html+='<div class="layui-form-mid">{:t('优惠券')}ID</div>';
+    html+=' <div class="layui-input-inline" style="width:70px"><input type="text" name="lxzs_coupon_id[]" value="" class="layui-input"></div>';
+    html+='<input type="hidden" name="lxzs_coupon_name[]" value="" class="layui-input">';
+    html+='<div class="layui-form-mid">{:t('优惠券')}名称:<span></span></div>';
+    html+='<button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="showChooseCoupon(this)">添加</button>';
+		html+='	<button class="layui-btn layui-btn-primary" onclick="removelxzs(this)"><i class="fa fa-minus"></i></button>';
+		html+='</div>';
+		$('#lxzs_div').append(html);
+	}
+	function removelxzs(obj){
+		$(obj).parent().remove();
+	}
+	var ueditor = UE.getEditor('guize');
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		field['info[guize]'] = ueditor.getContent();
+		var index = layer.load();
+		$.post('',field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status==1){
+				setTimeout(function(){
+					location.href = location.href
+				},1000)
+			}
+		})
+	})
+	layui.form.on('radio(is_forget)', function(data){
+		 if(data.value == 1){
+			$(".sign_forget").show();
+		 }else{
+			$(".sign_forget").hide();
+		 }
+	})
+
+	layui.form.on('radio(condition)', function(data){
+		 if(data.value == 2){
+			$(".sign_forget_1").show();
+		 }else{
+			$(".sign_forget_1").hide();
+		 }
+	})
+	layui.form.on('radio(paychanage)',function(data){
+		if(data.value==1){
+			$('#paybox').show();
+		}else{
+			$('#paybox').hide();
+		}
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

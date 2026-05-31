@@ -1,0 +1,13 @@
+<div class="dsn-mod dsn-shortvideolist" ng-class="{'dsn-mod-select':Item.id == focus}" ng-style="{'background-color':Item.params.bgcolor,'margin':Item.params.margin_y+'px '+Item.params.margin_x+'px 0','padding':Item.params.padding_y+'px '+Item.params.padding_x+'px'}">
+	<div style="line-height: 170px; text-align: center; color: #999; font-size: 16px;width:100%" ng-show="Item.data == ''">一个短视频都没有...</div>
+	<div class="shortvideolist">
+		<div class="dsn-shortvideolist-item" ng-repeat="item in Item.data" ng-init="idx = $index" style="margin-right:{{idx%2==0?'2%':'0'}};">
+			<img class="ff" ng-src="{{item.coverimg}}"/>
+			<div class="f2">
+				<div class="t1" ng-if="Item.params.showlogo==1"><img class="touxiang" ng-src="{{item.logo}}"/></div>
+				<div class="t2" ng-if="Item.params.showviewnum==1"><img class="tubiao" src="__STATIC__/img/shortvideo_playnum.png"/>{{item.view_num}}</div>
+				<div class="t3" ng-if="Item.params.showzannum==1"><img class="tubiao" src="__STATIC__/img/shortvideo_likenum.png"/>{{item.zan_num}}</div>
+			</div>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,72 @@
+<div class="dsn-panel-editor-title">微信小程序广告设置</div>
+
+<div class="dsn-panel-editor-content">
+	<div class="layui-form-item">
+    <div class="layui-form-label">与上方距离</div>
+    <div class="slider" min="0" max="40" ng-model="Edit.params.margin_y"></div>
+		<span class="slider-span"><input ng-model="Edit.params.margin_y"/> px</span>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">广告类型</div>
+		<div class="layui-input-inline" style="width:500px">
+			<input class="radio" type="radio" name="{{Edit.id}}_adtype" value="banner" ng-model="Edit.params.adtype" title="Banner广告"/>
+			<input class="radio" type="radio" name="{{Edit.id}}_adtype" value="video" ng-model="Edit.params.adtype" title="视频广告"/>
+			<input class="radio" type="radio" name="{{Edit.id}}_adtype" value="custom" ng-model="Edit.params.adtype" title="原生模板广告"/>
+		</div>
+	</div>
+	<div class="layui-form-item">
+    <div class="layui-form-label">广告ID</div>
+    <div class="layui-input-inline">
+      <input class="layui-input" value="" ng-model="Edit.params.unitid"/>
+    </div>
+		<div class="layui-form-mid layui-word-aux" style="margin-left:100px">注: 在小程序后台"流量主-广告管理-获取代码"中查找<br>如: 广告代码是&ltad-custom unit-id="adunit-74ed28bc32914a8b"&gt 则填写adunit-74ed28bc32914a8b即可</ad-custom></div>
+	</div>
+	<div class="layui-form-item">
+    <div class="layui-form-label">背景颜色</div>
+    <div class="layui-input-inline">
+      <input class="layui-input" value="" ng-model="Edit.params.bgcolor"/>
+    </div>
+		<span class="colorpicker" ng-model="Edit.params.bgcolor"></span>
+	</div>
+	<hr>
+	<div class="layui-form-item">
+    <div class="layui-form-label">左右外边距</div>
+    <div class="slider" min="0" max="40" ng-model="Edit.params.margin_x"></div>
+		<span class="slider-span"><input ng-model="Edit.params.margin_x"/> px</span>
+	</div>
+	<div class="layui-form-item">
+    <div class="layui-form-label">左右内边距</div>
+    <div class="slider" min="0" max="40" ng-model="Edit.params.padding_x"></div>
+		<span class="slider-span"><input ng-model="Edit.params.padding_x"/> px</span>
+	</div>
+	<div class="layui-form-item">
+    <div class="layui-form-label">上下内边距</div>
+		<div class="slider" min="0" max="40" ng-model="Edit.params.padding_y"></div>
+		<span class="slider-span"><input ng-model="Edit.params.padding_y"/> px</span>
+	</div>
+	{if !$type}
+	{if !$noshow_modules || !in_array('ModuleQuanxian',$noshow_modules)}
+	<div class="layui-form-item">
+		<div class="layui-form-label">显示范围</div>
+		<div class="layui-input-inline" style="width:500px">
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="所有人" name="{{Edit.id}}_quanxian['all']" ng-model="Edit.params.quanxian['all']"/>
+			{foreach $memberlevelList as $lv}
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="{$lv.name}" name="{{Edit.id}}_quanxian[{$lv.id}]" ng-model="Edit.params.quanxian[{$lv.id}]"/>
+			{/foreach}
+		</div>
+	</div>
+	{/if}
+	{include file="designer_page/temp/edit-plugin-mendian" /}
+	<div class="layui-form-item" ng-show="!Edit.params.quanxian['all']">
+    <div class="layui-form-label">显示用户</div>
+    <div class="layui-input-inline">
+			<input class="layui-input" ng-model="Edit.params.showmids"/>
+    </div>
+		<div class="layui-form-mid layui-word-aux">填写用户ID，多个用英文标点逗号(,)分割
+	</div>
+	{else}
+        <input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有平台" name="{{Edit.id}}_platform['all']" ng-model="Edit.params.platform['all']"/>
+        <input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有人" name="{{Edit.id}}_quanxian['all']" ng-model="Edit.params.quanxian['all']"/>
+        <input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有门店" name="{{Edit.id}}_mendian['all']" ng-model="Edit.params.mendian['all']"/>
+    {/if}
+</div>

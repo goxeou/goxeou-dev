@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>服务商配置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header"><i class="fa fa-cog"></i> 随行付服务商配置
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<blockquote class="layui-elem-quote">用于随行付服务商模式下商户进件及支付，不是服务商无须配置</blockquote>
+					<div class="layui-form form-label-w8" lay-filter="">
+						<div class="layui-form-item">
+							<label class="layui-form-label">服务商名称：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[mchname]" class="layui-input" value="{$info['mchname']}">
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">机构号：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[orgId]" class="layui-input" value="{$info['orgId']}">
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">一级机构号：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[orgIdOne]" class="layui-input" value="{$info['orgIdOne']}">
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">选填，后台申请分账时使用</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">公钥：</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[publicKey]" value="{$info['publicKey']}" class="layui-input"/>
+								{if $info['publicKey']}<div style="position: absolute;left: 0;top: 0;right: 0;bottom: 0; background: #fff;padding: .35rem .7rem;border: 1px solid rgba(0, 0, 0, .15);border-radius: .15rem;color: #636c72;" onclick="$(this).hide()">已隐藏内容，点击查看或编辑</div>{/if}
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">请填写公钥，去头去尾去回车，一行字符串</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">私钥：</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[privateKey]" value="{$info['privateKey']}" class="layui-input"/>
+								{if $info['privateKey']}<div style="position: absolute;left: 0;top: 0;right: 0;bottom: 0; background: #fff;padding: .35rem .7rem;border: 1px solid rgba(0, 0, 0, .15);border-radius: .15rem;color: #636c72;" onclick="$(this).hide()">已隐藏内容，点击查看或编辑</div>{/if}
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">请填写私钥，去头去尾去回车，一行字符串</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">密钥类型：</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="radio" name="info[signType]" value="RSA" {if !$info['signType'] || $info['signType']=='RSA'}checked{/if} title="RSA">
+								<input type="radio" name="info[signType]" value="RSA2" {if $info['signType']=='RSA2'}checked{/if} title="RSA2">
+							</div>
+							<div class="layui-form-mid layui-word-aux"></div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">进件费率：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[feepercent]" value="{$info['feepercent']}" class="layui-input"/>
+							</div>
+							<div class="layui-form-mid">%</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		$.post('',field,function(data){
+			dialog(data.msg,data.status,data.url);
+		})
+	})
+  </script>
+</body>
+</html>

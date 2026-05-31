@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>买单记录</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header"><i class="fa fa-list"></i> 买单记录
+					{if input('param.isopen')==1}<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>{/if}
+					</div>
+          <div class="layui-card-body" pad15>
+						<div style="float:left;padding-bottom:10px">
+							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="datadel(0)">删除</button>
+							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" data-form-export="{:url('excel')}">导出EXCEL</button>
+							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="shoukuan()">扫码收款</button>
+						</div>
+						<div class="layui-form layui-form-search">
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">{:t('会员')}ID</label>
+								<div class="layui-input-inline">
+									<input type="text" name="mid" autocomplete="off" class="layui-input" value="">
+								</div>
+							</div>
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">昵称</label>
+								<div class="layui-input-inline">
+									<input type="text" name="nickname" autocomplete="off" class="layui-input" value="">
+								</div>
+							</div>
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">订单号</label>
+								<div class="layui-input-inline">
+									<input type="text" name="ordernum" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">所属门店</label>
+								<div class="layui-input-inline">
+									<select name="mdid">
+										<option value="">全部</option>
+										{foreach $mdArr as $k=>$v}
+										<option value="{$k}">{$v}</option>
+										{/foreach}
+									</select>
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label">付款时间</label>
+								<div class="layui-input-inline" style="width:180px">
+									<input type="text" name="ctime" id="ctime" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+									<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+								</button>
+							</div>
+						</div>
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.laydate.render({ 
+		elem: '#ctime',
+		trigger: 'click',
+		range: '~', //或 range: '~' 来自定义分割字符
+		type:'datetime'
+	});
+  var table = layui.table;
+	var datawhere = {};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{$Request.url}" //数据接口
+    ,page: true //开启分页
+    ,cols: [[ //表头
+			{type:"checkbox"},
+      //{field: 'id', title: 'ID',sort:true,width:80},
+      {field: 'ordernum', title: '订单号',sort:true,width:160},
+      {field: 'mdname', title: '所属门店'},
+      {field: 'mid', title: '{:t('会员')}ID',width:80},
+      {field: 'nickname', title: '{:t('会员')}信息',templet:'<div>{{# if(d.nickname){ }}<img src="{{d.headimg}}" style="width:50px"> {{d.nickname}}{{# } }}</div>'},
+		  
+      {field: 'money', title: '付款金额',sort:true,templet:function(d){return '￥'+d.money}},
+      {field: 'paymoney', title: '实付金额',sort:true,templet:function(d){
+	  	var html = '';
+			html += '<p style="color:#f55555">￥'+d.paymoney+'</p>';
+		  	
+			return html;
+	  },minWidth:110},
+      {field: 'disprice', title: '{:t('会员')}折扣',sort:true,templet:function(d){return '￥'+d.disprice}},
+      {field: 'scoredk', title: '{:t('积分')}抵扣',sort:true,templet:function(d){return '￥'+d.scoredk}},
+      {field: 'couponmoney', title: '{:t('优惠券')}抵扣',sort:true,templet:function(d){return '￥'+d.couponmoney}},
+      
+      {field: 'scoredk', title: '{:t('积分')}抵扣',sort:true,templet:function(d){return '￥'+d.scoredk}},
+      {field: 'paytime', title: '付款时间',sort:true,templet:function(d){ return date('Y-m-d H:i',d.paytime)}},
+      {field: 'paytype', title: '付款方式'},
+      {field: 'remark', title: '备注'},
+      {field: 'op', title: '操作',templet:'<div><button class="table-btn" onclick="datadel({{d.id}})">删除</button><button class="table-btn" onclick="wifiprint({{d.id}})">打印小票</button></div>',width:100}
+    ]]
+  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	//打印小票
+	function wifiprint(id){
+		layer.confirm('确定要打印小票吗?',{icon: 7, title:'操作确认'}, function(index){
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('wifiprint')}",{id:id},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+			})
+		})
+	}
+	//删除
+	function datadel(id){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			var ids = [];
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id)
+		}
+		layer.confirm('确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('logdel')}",{ids:ids},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+
+	
+	function shoukuan(){
+		var html = '<div style="margin:20px auto;">';
+		html+='<form class="layui-form form-label-w6" lay-filter="">';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">付款码编号：</label>';
+		html+='		<div class="layui-input-inline" style="width:200px">';
+		html+='			<input type="text" name="auth_code" class="layui-input">';
+		html+='		</div>';
+		html+='		<div class="layui-form-mid layui-word-aux">请用扫码枪扫描微信付款码</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">{:t('会员')}信息：</label>';
+		html+='		<div class="layui-form-mid layui-word-aux" id="memberinfo"></div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">使用{:t('余额')}：</label>';
+		html+='		<div class="layui-input-inline" style="width:40px">';
+		html+='			<input type="checkbox" name="usemoney" value="1" lay-skin="primary" title="" checked>';
+		html+='		</div>';
+		html+='		<div class="layui-form-mid" ><span id="membermoney" style="color:green"></span></div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">收款金额：</label>';
+		html+='		<div class="layui-input-inline" style="width:200px">';
+		html+='			<input type="text" name="skmoney" class="layui-input">';
+		html+='		</div>';
+		html+='		<div class="layui-form-mid layui-word-aux">请输入收款金额</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">实收金额：</label>';
+		html+='		<div class="layui-form-mid" style="color:red;font-size:16px" id="realmoney"></div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label"></label>';
+		html+='		<div class="layui-input-inline">';
+		html+='			<button class="layui-btn layui-btn-normal" lay-submit lay-filter="submit_shoukuan">确定收款</button>';
+		html+='		</div>';
+		html+='	</div>';
+		html+='</div>';
+		html+='</form>'
+		layer.open({type:1,area:['600px','420px'],content:html,title:'扫码收款'});
+		layui.form.render();
+		var discount = 10;
+		var mid = 0;
+		var openid = '';
+		var realmoney = 0;
+		$('input[name=auth_code]').focus();
+		$('input[name=skmoney]').bind('input change propertychange',function(){
+			var skmoney = $(this).val();
+			skmoney = skmoney*1
+			if (isNaN(skmoney) || skmoney <= 0) {
+				$('#realmoney').text('￥0.00');
+				return;
+			}
+			realmoney = Math.round(skmoney * (0.1*discount) *100)/100;
+			console.log(realmoney)
+			$('#realmoney').text('￥'+realmoney.toFixed(2));
+		});
+		layui.form.on('submit(submit_shoukuan)', function(obj){
+			var field = obj.field;
+			if(!field.usemoney) field.usemoney = 0;
+			
+			if(field.auth_code && field.skmoney){
+				var index= layer.load();
+				$.post("{:url('shoukuan')}",{auth_code:field.auth_code,skmoney:field.skmoney,usemoney:field.usemoney,mid:mid,openid:openid,realmoney:realmoney.toFixed(2)},function(data){
+					layer.close(index);
+					dialog(data.msg,data.status,data.url);
+				})
+			}else if(field.auth_code){
+				var index= layer.load();
+				mid = 0;
+				openid = '';
+				realmoney = 0;
+				$.post("{:url('getmember')}",field,function(data){
+					layer.close(index);
+					if(data.status==0){
+						dialog(data.msg);
+					}else if(data.status==2){
+						$('#memberinfo').html(data.msg);
+					}else{
+						var memberinfo = data.member
+						discount = data.discount;
+						mid = memberinfo.id 
+						openid = data.openid 
+						var memberhtml = '';
+						memberhtml+= '<img src="'+memberinfo.headimg+'" style="width:40px;height:40px"> '+memberinfo.nickname;
+						memberhtml+= '&nbsp;&nbsp;<span style="color:red">['+memberinfo.levelname+'] ' + (discount!=10 ? discount+'折':'不打折') + '</span>';
+						$('#memberinfo').html(memberhtml);
+						$('#membermoney').html('可用{:t('余额')} ￥'+memberinfo.money);
+						$('input[name=skmoney]').focus();
+					}
+				})
+			}
+			return false;
+		})
+	}
+	</script>
+	{include file="public/copyright"/}
+</body>
+</html>

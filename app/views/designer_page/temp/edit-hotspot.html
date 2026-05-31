@@ -1,0 +1,107 @@
+<div class="dsn-panel-editor-title">单图设置<span class="tips"></span></div>
+
+<div class="dsn-panel-editor-content">
+	<div class="layui-form-item">
+    <div class="layui-form-label">与上方距离</div>
+    <div class="slider" min="0" max="40" ng-model="Edit.params.margin_y"></div>
+		<span class="slider-span"><input ng-model="Edit.params.margin_y"/> px</span>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">背景图片</div>
+		<div class="layui-input-inline">
+			<input class="layui-input" value="{{Edit.params.imgurl}}" ng-model="Edit.params.imgurl"/>
+    </div>
+		<div class="layui-btn layui-btn-primary" ng-click="uploadImg(Edit.id,'imgurl')">上传</div>
+	</div>
+
+	<div class="layui-form-item">
+    <div class="layui-form-label">左右边距</div>
+    <div class="slider" min="0" max="40" ng-model="Edit.params.margin_x"></div>
+		<span class="slider-span"><input ng-model="Edit.params.margin_x"/> px</span>
+	</div>
+	<!-- <div class="layui-form-item">
+    <div class="layui-form-label">左右内边距</div>
+    <div class="slider" min="0" max="40" ng-model="Edit.params.padding_x"></div>
+		<span class="slider-span"><input ng-model="Edit.params.padding_x"/> px</span>
+	</div>
+	<div class="layui-form-item">
+    <div class="layui-form-label">上下内边距</div>
+		<div class="slider" min="0" max="40" ng-model="Edit.params.padding_y"></div>
+		<span class="slider-span"><input ng-model="Edit.params.padding_y"/> px</span>
+	</div> -->
+	<div ng-repeat="spot in Edit.data" class="dsn-panel-editor-relative" style="width:600px">
+		<div class="dsn-panel-editor-del" style="right:30px;font-size:12px" title="上移" ng-click="upItemChild(Edit.id,spot.id)"><i class="fa fa-arrow-up"></i></div>
+    <div class="dsn-panel-editor-del" title="移除" ng-click="delItemChild(Edit.id,spot.id)">×</div>
+    <div class="dsn-panel-editor-line flex">
+			<div class="dsn-panel-editor-line-right">
+				<div class="layui-form-item">
+					<div class="layui-form-label">热区链接</div>
+					<div class="flex-y-center">
+						<input class="layui-input" style="width:170px" value="" ng-model="spot.hrefurl" placeholder=""/>
+						<span class="layui-btn layui-btn-primary" ng-click="chooseUrl(Edit.id, spot.id)">选择链接</span>
+						<span style="margin-left:10px">{{spot.hrefname}}</span>
+					</div>
+				</div>
+				<div class="layui-form-item">
+					<div class="layui-form-label">热区宽度</div>
+					<div class="slider" min="0" max="340" ng-model="spot.width"></div>
+					<span class="slider-span"><input ng-model="spot.width"/> px</span>
+				</div>
+				<div class="layui-form-item">
+					<div class="layui-form-label">热区高度</div>
+					<div class="slider" min="0" max="340" ng-model="spot.height"></div>
+					<span class="slider-span"><input ng-model="spot.height"/> px</span>
+				</div>
+				<div class="layui-form-item">
+					<div class="layui-form-label">与左方距离</div>
+					<div class="slider" min="0" max="340" ng-model="spot.left"></div>
+					<span class="slider-span"><input ng-model="spot.left"/> px</span>
+				</div>
+				<div class="layui-form-item">
+					<div class="layui-form-label">与上方距离</div>
+					<div class="slider" min="0" max="340" ng-model="spot.top"></div>
+					<span class="slider-span"><input ng-model="spot.top"/> px</span>
+				</div>
+			</div>
+    </div>
+	</div>
+	<hr>
+	<div class="layui-btn layui-btn-primary" style="width:600px;margin-top:10px" ng-click="addItemChild('spot', Edit.id)"><i class="fa fa-plus-circle"></i> 添加一个热区</div>
+	{if !$type}
+	{if !$noshow_modules || !in_array('ModulePlatform',$noshow_modules)}
+	<div class="layui-form-item">
+		<div class="layui-form-label">显示平台</div>
+		<div class="layui-input-inline" style="width:500px">
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="所有平台" name="{{Edit.id}}_platform['all']" ng-model="Edit.params.platform['all']"/>
+			{foreach $platform as $pl}
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="{:getplatformname($pl)}" name="{{Edit.id}}_platform['{$pl}']" ng-model="Edit.params.platform['{$pl}']"/>
+			{/foreach}
+
+		</div>
+	</div>
+	{/if}
+	{if !$noshow_modules || !in_array('ModuleQuanxian',$noshow_modules)}
+	<div class="layui-form-item">
+		<div class="layui-form-label">显示范围</div>
+		<div class="layui-input-inline" style="width:500px">
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="所有人" name="{{Edit.id}}_quanxian['all']" ng-model="Edit.params.quanxian['all']"/>
+			{foreach $memberlevelList as $lv}
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="{$lv.name}" name="{{Edit.id}}_quanxian[{$lv.id}]" ng-model="Edit.params.quanxian[{$lv.id}]"/>
+			{/foreach}
+		</div>
+	</div>
+	{/if}
+	{include file="designer_page/temp/edit-plugin-mendian" /}
+	<div class="layui-form-item" ng-show="!Edit.params.quanxian['all']">
+    <div class="layui-form-label">显示用户</div>
+    <div class="layui-input-inline">
+			<input class="layui-input" ng-model="Edit.params.showmids"/>
+    </div>
+		<div class="layui-form-mid layui-word-aux">填写用户ID，多个用英文标点逗号(,)分割
+	</div>
+	{else}
+		<input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有平台" name="{{Edit.id}}_platform['all']" ng-model="Edit.params.platform['all']"/>
+		<input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有人" name="{{Edit.id}}_quanxian['all']" ng-model="Edit.params.quanxian['all']"/>
+		<input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有门店" name="{{Edit.id}}_mendian['all']" ng-model="Edit.params.mendian['all']"/>
+	{/if}
+</div>

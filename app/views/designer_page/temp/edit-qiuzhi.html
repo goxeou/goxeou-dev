@@ -1,0 +1,120 @@
+{if getcustom('zhaopin')}
+<div class="dsn-panel-editor-title">求职设置</div>
+<div class="dsn-panel-editor-content">
+    <div class="layui-form-item">
+        <div class="layui-form-label">与上方距离</div>
+        <div class="slider" min="0" max="40" ng-model="Edit.params.margin_y"></div>
+        <span class="slider-span"><input ng-model="Edit.params.margin_y"/> px</span>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-form-label">样式选择</div>
+        <div class="layui-input-inline" style="width:500px">
+            <input class="radio" type="radio" name="{{Edit.id}}_style" value="1" ng-model="Edit.params.style" ng-change="changeImg(Edit.id, Edit.params.style)" title="单排"/>
+            <input class="radio" type="radio" name="{{Edit.id}}_style" value="2" ng-model="Edit.params.style" ng-change="changeImg(Edit.id, Edit.params.style)" title="双排"/>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-form-label">背景颜色</div>
+        <div class="layui-input-inline">
+            <input class="layui-input" value="{{Edit.params.bgcolor}}" ng-model="Edit.params.bgcolor"/>
+        </div>
+        <span class="colorpicker" ng-model="Edit.params.bgcolor"></span>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-form-label">排序方式</div>
+        <div class="layui-input-inline" style="width:500px">
+            <input class="radio" type="radio" name="{{Edit.id}}_sortby" value="sort" ng-model="Edit.params.sortby" ng-change="getzhaopin(Edit.id)" title="按排序"/>
+            <input class="radio" type="radio" name="{{Edit.id}}_sortby" value="createtimedesc" ng-model="Edit.params.sortby" ng-change="getzhaopin(Edit.id)" title="发布时间↓"/></i>
+            <input class="radio" type="radio" name="{{Edit.id}}_sortby" value="createtime" ng-model="Edit.params.sortby" ng-change="getzhaopin(Edit.id)" title="发布时间↑"/></i>
+            <input class="radio" type="radio" name="{{Edit.id}}_sortby" value="rand" ng-model="Edit.params.sortby" ng-change="getzhaopin(Edit.id)" title="随机"/>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-form-label">显示数量</div>
+        <div class="layui-input-inline">
+            <input class="layui-input" ng-model="Edit.params.shownum" ng-blur="getzhaopin(Edit.id)"/>
+        </div>
+    </div>
+    <hr>
+    <div class="layui-form-item">
+        <div class="layui-form-label">左右边距</div>
+        <div class="slider" min="0" max="40" ng-model="Edit.params.margin_x"></div>
+        <span class="slider-span"><input ng-model="Edit.params.margin_x"/> px</span>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-form-label">左右内边距</div>
+        <div class="slider" min="0" max="40" ng-model="Edit.params.padding_x"></div>
+        <span class="slider-span"><input ng-model="Edit.params.padding_x"/> px</span>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-form-label">上下内边距</div>
+        <div class="slider" min="0" max="40" ng-model="Edit.params.padding_y"></div>
+        <span class="slider-span"><input ng-model="Edit.params.padding_y"/> px</span>
+    </div>
+    {if !$type}
+    {if !$noshow_modules || !in_array('ModulePlatform',$noshow_modules)}
+    <div class="layui-form-item">
+        <div class="layui-form-label">显示平台</div>
+        <div class="layui-input-inline" style="width:500px">
+            <input class="checkbox" type="checkbox" lay-skin="primary" title="所有平台" name="{{Edit.id}}_platform['all']" ng-model="Edit.params.platform['all']"/>
+            {foreach $platform as $pl}
+            <input class="checkbox" type="checkbox" lay-skin="primary" title="{:getplatformname($pl)}" name="{{Edit.id}}_platform['{$pl}']" ng-model="Edit.params.platform['{$pl}']"/>
+            {/foreach}
+
+        </div>
+    </div>
+    {/if}
+    {if !$noshow_modules || !in_array('ModuleQuanxian',$noshow_modules)}
+    <div class="layui-form-item">
+        <div class="layui-form-label">显示范围</div>
+        <div class="layui-input-inline" style="width:500px">
+            <input class="checkbox" type="checkbox" lay-skin="primary" title="所有人" name="{{Edit.id}}_quanxian['all']" ng-model="Edit.params.quanxian['all']"/>
+            {foreach $memberlevelList as $lv}
+            <input class="checkbox" type="checkbox" lay-skin="primary" title="{$lv.name}" name="{{Edit.id}}_quanxian[{$lv.id}]" ng-model="Edit.params.quanxian[{$lv.id}]"/>
+            {/foreach}
+        </div>
+    </div>
+    {/if}
+    {if getcustom('show_location')}
+    {if $sysset.mode==3}
+    <hr>
+    <div class="layui-form-item">
+        <div class="layui-form-label">显示门店</div>
+        <div class="layui-input-inline" style="width:500px">
+            <input class="checkbox" type="checkbox" lay-skin="primary" title="所有门店" name="{{Edit.id}}_mendian['all']" ng-model="Edit.params.mendian['all']"/>
+            {foreach $mendianlist as $md}
+            <input class="checkbox" type="checkbox" lay-skin="primary" title="{$md.name}" name="{{Edit.id}}_mendian['md_{$md.id}']" ng-model="Edit.params.mendian['md_{$md.id}']"/>
+            {/foreach}
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-form-label">显示类型</div>
+        <div class="layui-input-inline" style="width:500px">
+            <input class="radio" type="radio"  title="全部" name="{{Edit.id}}_mendian_sort" value="sort" ng-model="Edit.params.mendian_sort" ng-change="getMendianSort(Edit.id)"/>
+            <input class="radio" type="radio"  title="按距离" name="{{Edit.id}}_mendian_sort" value="juli" ng-model="Edit.params.mendian_sort" ng-change="getMendianSort(Edit.id)"/>
+        </div>
+    </div>
+    <div class="layui-form-item" ng-show="Edit.params.mendian_sort == 'juli'">
+        <div class="layui-form-label">显示范围</div>
+        <div class="slider" min="1" max="100" ng-model="Edit.params.mendian_distance"></div>
+        <span class="slider-span"><input ng-model="Edit.params.mendian_distance"/> km</span>
+    </div>
+    <hr>
+    {/if}
+    {/if}
+    <div class="layui-form-item" ng-show="!Edit.params.quanxian['all']">
+        <div class="layui-form-label">显示用户</div>
+        <div class="layui-input-inline">
+            <input class="layui-input" ng-model="Edit.params.showmids"/>
+        </div>
+        <div class="layui-form-mid layui-word-aux">填写用户ID，多个用英文标点逗号(,)分割
+        </div>
+    </div>
+    {else}
+        <input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有平台" name="{{Edit.id}}_platform['all']" ng-model="Edit.params.platform['all']"/>
+        <input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有人" name="{{Edit.id}}_quanxian['all']" ng-model="Edit.params.quanxian['all']"/>
+        <input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有门店" name="{{Edit.id}}_mendian['all']" ng-model="Edit.params.mendian['all']"/>
+    {/if}
+</div>
+{/if}

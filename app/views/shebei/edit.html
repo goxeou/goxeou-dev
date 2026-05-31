@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{:t('credit1')}管理</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加{:t('credit1')}{else}<i class="fa fa-pencil"></i> 编辑{:t('credit1')}{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form">
+						<input type="hidden" name="info[id]" value="{$info.id}"/>
+				    		<div class="layui-form-item" >
+							<label class="layui-form-label">{:t('会员')}ID：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[mid]" class="layui-input" value="{$info.mid}">
+							</div>
+							<div class="layui-form-mid layui-word-aux">{if $bid==0}<a href="javascript:vodi(0)" onclick="openmax('{:url('Member/index')}/isopen/1')">查找{:t('会员')}ID</a>{/if}</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">订单金额：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[totalprice]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.totalprice}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">已分红：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[commission]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.commission}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">{:t('credit1')}：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[credit1]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.credit1}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">{:t('credit1')}剩余：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[after]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.after}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">状态：</label>
+							<div class="layui-input-inline" style="width:700PX">
+							    <input type="radio" name="info[status]" value="0" title="分红中" {if !$info['id'] || $info['status']==0}checked{/if}>
+							    <input type="radio" name="info[status]" value="1" title="已完成" {if $info['status']==1}checked{/if}>
+						
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<div class="layui-input-block">
+								<button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+  </div>
+	{include file="public/js"/}
+	<script charset="utf-8" src="https://map.qq.com/api/js?v=2.exp&key=ABLBZ-4BIKU-GFTVB-BK7IK-OLQ35-QCBFF"></script>
+	<script>
+    function addtime(){
+        var html = '';
+        html+='<div class="layui-form-item">';
+        html+=' <label class="layui-form-label"  style="width:100px"></label>';
+        html+=' <div class="layui-input-inline">';
+        html+='     <input type="text" name="info[timepoint][]" value="2021-09-27" class="layui-input timepoint">   ';
+        html+=' </div>';
+        html+=' <button class="layui-btn layui-btn-primary" onclick="removetime(this)"><i class="fa fa-minus"></i></button>';
+        html+='</div>';
+        $('#timedata').append(html);
+        layui.form.render();
+
+        $('.timepoint').each(function() {
+            layui.laydate.render({elem:this,type: 'time',trigger: 'click',format:'HH:mm' });
+        });
+
+    }
+    function removetime(obj){
+        $(obj).parent().remove();
+    }
+    $('.timepoint').each(function() {
+        layui.laydate.render({elem:this,type: 'time',trigger: 'click',format:'HH:mm' });
+    });
+    layui.laydate.render({ 
+        elem: '#start_time',
+        type: 'datetime',
+        trigger: 'click'
+    });
+    layui.laydate.render({ 
+        elem: '#end_time',
+        type: 'datetime',
+        trigger: 'click'
+    });
+    layui.laydate.render({ 
+        elem: '#yybegintime',
+        type: 'date',
+        trigger: 'click'
+    });
+    layui.laydate.render({ 
+        elem: '#yyendtime',
+        type: 'date',
+        trigger: 'click'
+    });
+    layui.form.on('radio(datetype)', function(data){
+        if(data.value == '1'){
+            $('#datebox2').hide();
+            $('#datebox1').show();
+        }else{
+            $('#datebox2').show();
+            $('#datebox1').hide();
+        }
+    })
+    layui.form.on('radio(rqtype)', function(data){
+        if(data.value == '1'){
+            $('#yydatebox2').hide();
+            $('#yydatebox3').hide();
+            $('#yydatebox1').show();
+        }else if(data.value == '2'){
+            $('#yydatebox2').show();
+            $('#yydatebox1').hide();
+            $('#yydatebox3').hide();
+        }else if(data.value == '3'){
+            $('#yydatebox2').hide();
+            $('#yydatebox1').hide();
+            $('#yydatebox3').show();
+        }
+    })
+
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+	
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.close(parent.layer.getFrameIndex(window.name));
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+
+  	</script>
+  
+
+	{include file="public/copyright"/}
+</body>
+</html>

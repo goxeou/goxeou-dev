@@ -1,0 +1,164 @@
+<!DOCTYPE html><!--custom_file(customer)-->
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>客户列表</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    {include file="public/css"/}
+    <style>
+        .pagination{display: flex;border: 1px solid #e6e6e6;padding: 6px;border-top: none}
+        .pagination li{padding: 0 12px;}
+        .pagination li a{color: #666;}
+        .pagination li.active{background: #009688;color: #fff;}
+        .layui-card-body .layui-table{margin: 0}
+    </style>
+</head>
+<body>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+            <div class="layui-card-header">客户列表
+                {if input('param.isopen')==1}<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>{/if}
+            </div>
+            <div class="layui-card-body" pad15>
+                <div class="layui-col-md4" style="padding-bottom:10px">
+                    <a class="layui-btn layuiadmin-btn-list" href="javascript:void(0)" onclick="openmax('{:url('edit')}')">添加</a>
+                    <button class="layui-btn layui-btn-primary layuiadmin-btn-list" data-form-export="{:url('excel')}/{$paramstr}">导出</button>
+                </div>
+                <div class="layui-form layui-col-md8 layui-form-search">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">ID</label>
+                        <div class="layui-input-inline" style="width:90px;">
+                            <input type="text" id="id" name="id" value="{$search.id}" placeholder="客户id" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">关键字</label>
+                        <div class="layui-input-inline" style="width:240px;">
+                            <input type="text" id="name" name="name" value="{$search.name}" placeholder="姓名|手机号|备注|客户编号" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <!--<div class="layui-inline">
+                        <label class="layui-form-label">创建时间</label>
+                        <div class="layui-input-inline" style="width:230px;">
+                            <input type="text" name="ctime" id="ctime" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>-->
+                    <div class="layui-inline">
+                        <button class="layui-btn layuiadmin-btn-replys" onclick="search()">
+                            <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="layui-col-md12">
+                    <table class="layui-table">
+                        <tr>
+                            <th>ID</th>
+                            <th>姓名</th>
+                            <th>电话</th>
+                            <th>地址</th>
+                            <th>客户编号</th>
+                            <th>备注</th>
+                            <th>操作</th>
+                        </tr>
+                        {volist name="data" id="item"}
+                        <tr>
+                            <td>{$item.id}</td>
+                            <td>{if $item.child}<p class="childhide" data-isshow="0" onclick="childToggle(this,{$item.id})"><img src="__STATIC__/admin/img/right-icon.png" height="15" width="15">{$item.name}</p>{else/}{$item.name}{/if}</td>
+                            <td>{$item.tel}</td>
+                            <td>{$item.address}</td>
+                            <td>{$item.number}</td>
+                            <td>{$item.remark}</td>
+                            <td>
+                                <button class="table-btn" onclick="openmax('{:url(\'edit\')}/isopen/1/id/{$item.id}')">编辑</button>
+                                <button class="table-btn" onclick="datadel({$item.id})">删除</button>
+                            </td>
+                        </tr>
+                        {if $item.child}
+                        {volist name="item.child" id="vo"}
+                        <tr class="item-{$item.id}" style="display: none">
+                            <td>{$vo.id}</td>
+                            <td>{$vo.name}</td>
+                            <td>{$vo.tel}</td>
+                            <td>{$vo.address}</td>
+                            <td>{$vo.number}</td>
+                            <td>{$vo.remark}</td>
+                            <td>
+                                <button class="table-btn" onclick="openmax('{:url(\'edit\')}/isopen/1/id/{$vo.id}')">编辑</button>
+                                <button class="table-btn" onclick="datadel({$vo.id})">删除</button>
+                            </td>
+                        </tr>
+                        {/volist}
+                        {/if}
+                        {/volist}
+                    </table>
+                    <div>
+                        {$page}
+                    </div>
+                    <table id="tabledata" lay-filter="tabledata"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{include file="public/js"/}
+<script>
+    var datawhere = {$datawhere};
+    function search(){
+        var url = "{:url('ShCustomer/index')}";
+        if($('#id').val()){
+            url += url+'/id/'+$('#id').val()
+        }
+        if($('#name').val()){
+            url += url+'/name/'+$('#name').val()
+        }
+        window.location.href = url;
+    }
+    function childToggle(obj,id){
+        // var isshow = $(obj).attr('isshow');
+        var isshow = $(obj).data('isshow');
+        if(isshow){
+            $('.layui-table').find('.item-'+id).hide();
+            $(obj).find('img').attr('src','__STATIC__/admin/img/right-icon.png');
+            $(obj).data('isshow',0);
+        }else{
+            $('.layui-table').find('.item-'+id).show();
+            $(obj).find('img').attr('src','__STATIC__/admin/img/down-icon.png');
+            $(obj).data('isshow',1);
+        }
+    }
+    //删除
+    function datadel(id) {
+        var ids = [];
+        if (id == 0) {
+            var checkStatus = table.checkStatus('tabledata')
+            var checkData = checkStatus.data; //得到选中的数据
+            if (checkData.length === 0) {
+                return layer.msg('请选择数据');
+            }
+            var ids = [];
+            for (var i = 0; i < checkData.length; i++) {
+                ids.push(checkData[i]['id']);
+            }
+        } else {
+            ids.push(id)
+        }
+        layer.confirm('确定要删除吗？删除后无法恢复！', { icon: 7, title: '操作确认' }, function (index) {
+            //do something
+            layer.close(index);
+            var index = layer.load();
+            $.post("{:url('del')}", { ids: ids }, function (data) {
+                layer.close(index);
+                dialog(data.msg, data.status);
+                if(data.status==1){
+                   window.location.reload();
+                }
+            })
+        });
+    }
+</script>
+{include file="public/copyright"/}
+</body>
+</html>

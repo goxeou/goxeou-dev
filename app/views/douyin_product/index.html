@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>商品管理</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+  <style>
+	.layui-form-select dl{ height:200px}
+  </style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header">商品管理</div>
+          <div class="layui-card-body" pad15>
+						<div class="layui-col-md4" style="padding-bottom:10px">
+							<!-- {if input('param.showtype')!=2}<a class="layui-btn layuiadmin-btn-list" href="javascript:void(0)" onclick="openmax('{:url('edit')}{if input('param.showtype')==21}&bid=-1{/if}{if $fromwxvideo==1}&fromwxvideo=1{/if}{if $fromdouyin==1}&fromdouyin=1{/if}')">添加</a>{/if} -->
+							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="datadel(0)">删除</button>
+							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="setst(0,1)">上架</button>
+							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="setst(0,0)">下架</button>
+							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="updatefromdouyin()">从抖店同步</button>
+						</div>
+						<div class="layui-form layui-col-md8 layui-form-search">
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">商品名称</label>
+								<div class="layui-input-inline">
+									<input type="text" name="name" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label">{if $bid > 0}平台{/if}分类</label>
+								<div class="layui-input-inline">
+									<select name="cid">
+										<option value="">全部</option>
+										{foreach $clist as $cv}
+											<option value="{$cv['id']}" {if $cv['id']==input('param.cid')}selected{/if}>{$cv['name']}</option>
+											{foreach $cv['child'] as $v}
+											<option value="{$v['id']}" {if $v['id']==input('param.cid')}selected{/if}>&nbsp;&nbsp;&nbsp;{$v['name']}</option>
+											{/foreach}
+										{/foreach}
+									</select>
+								</div>
+							</div>
+							{if $bid > 0}
+							<div class="layui-inline">
+								<label class="layui-form-label">商家分类</label>
+								<div class="layui-input-inline">
+									<select name="cid2">
+										<option value="">全部</option>
+										{foreach $clist2 as $cv}
+											<option value="{$cv['id']}" {if $cv['id']==input('param.cid')}selected{/if}>{$cv['name']}</option>
+											{foreach $cv['child'] as $v}
+											<option value="{$v['id']}" {if $v['id']==input('param.cid')}selected{/if}>&nbsp;&nbsp;&nbsp;{$v['name']}</option>
+											{/foreach}
+										{/foreach}
+									</select>
+								</div>
+							</div>
+							{/if}
+							<div class="layui-inline">
+								<label class="layui-form-label">分组</label>
+								<div class="layui-input-inline">
+									<select name="gid">
+										<option value="">全部</option>
+										{foreach $glist as $g}<option value="{$g['id']}" {if $g['id']==input('param.gid')}selected{/if}>{$g['name']}</option>{/foreach}
+									</select>
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label">状态</label>
+								<div class="layui-input-inline">
+									<select name="status">
+										<option value="">全部</option>
+										<option value="1">已上架</option>
+										<option value="0">未上架</option>
+									</select>
+								</div>
+							</div>
+							<div class="layui-inline">
+								<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+									<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+								</button>
+							</div>
+						</div>
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+  var table = layui.table;
+	var datawhere = {};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{$Request.url}" //数据接口
+    ,page: true //开启分页
+    ,cols: [[ //表头
+			{type:"checkbox"},
+      {field: 'id', title: 'ID',  sort: true,width:80},
+			{if input('param.showtype')==2}
+      {field: 'bname', title: '所属商户',width:160},
+			{/if}
+      {field: 'name', title: '商品信息',width:320,templet:function(d){
+				var html = '';
+				html += '<img src="'+d.pic+'" style="max-width:70px;float:left"/>';
+				html += '<div style="float: left;width:200px;margin-left: 10px;white-space:normal;line-height:20px;">';
+				html += '	<div style="width:100%;">'+(d.cid!=0?'<span style="color:red">['+d.cname+']'+(d.cname2?'['+d.cname2+']':'')+'</span>':'')+d.name+'</div>';
+				html += '	<div style="padding-top:5px;color:#f60">￥'+d.sell_price+'</div>';
+				html += '</div>';
+				return html;
+			}},
+      {field: 'createtime', title: '创建时间',sort: true,templet:function(d){ return date('Y-m-d H:i',d.createtime)}},
+      {field: 'status', title: '商品状态',templet:function(d){ return d.status==1?'<span style="color:green">已上架</span>':'<span style="color:red">未上架</span>'},width:100},
+			
+			{field: 'status', title: '审核状态',templet:function(d){ 
+				if(d.douyin_product_id=='') return '<button class="table-btn" style="color:#999;">未上传</button>';
+				if(d.douyin_check_status==1) return '<button class="table-btn" style="color:#999;">未提审</button>';
+				if(d.douyin_check_status==2) return '<button class="table-btn" style="color:blue">审核中</button>';
+				if(d.douyin_check_status==3) return '<button class="table-btn" style="color:green">审核通过</button>';
+				if(d.douyin_check_status==4) return '<button class="table-btn" style="color:red">审核驳回</button>';
+				return '';
+			},width:120},
+			{field: 'status', title: '上架状态',templet:function(d){ 
+				if(d.douyin_status==0) return '<button class="table-btn" style="color:#999;" onclick="douyin_setOnline(\''+d.id+'\')">未上架</button>';
+				if(d.douyin_status==1) return '<button class="table-btn" style="color:green" onclick="douyin_setOffline(\''+d.id+'\')">已上架</button>';
+				return '';
+			},width:100},
+      {field: 'operation', title: '操作',templet:function(d){
+				if('{$bid}'!=0 && d.linkid>0){
+					return '';
+				}
+				var html = '';
+				html += '<button class="table-btn" onclick="openmax(\'{:url('edit')}/id/'+d.id+'{if $fromwxvideo==1}&fromwxvideo=1{/if}{if $fromdouyin==1}&fromdouyin=1{/if}\')">编辑</button>';
+				html += '<button class="table-btn" onclick="datadel('+d.id+')">删除</button>';
+				if(d.status == 0){
+					html += '<button class="table-btn" onclick="setst('+d.id+',1)">上架</button>';
+				}else{
+					html += '<button class="table-btn" onclick="setst('+d.id+',0)">下架</button>';
+				}
+				return html;
+      }}
+    ]]
+  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	function procopy(id){
+		layer.confirm('确定要复制该商品吗?',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('procopy')}",{id:id},function(data){
+				layer.close(index);
+				if(data.status == 1){
+					tableIns.reload();
+					layer.confirm('复制成功，是否前去编辑？', {icon: 1, title:'提示',btn:['是','否']}, function(index){
+						layer.close(index);
+						openmax("{:url('edit')}/id/"+data.proid);
+					},function(index){
+						layer.close(index);
+					});
+				}else{
+					dialog(data.msg,data.status);
+				}
+			})
+		});
+	}
+	
+	//审核
+	function setcheckst(id,st){
+		if(st == 2){
+			var html = '';
+			html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+			html+='		<label class="layui-form-label" style="width:80px">驳回原因</label>';
+			html+='		<div class="layui-input-inline" style="width:350px">';
+			html+='			<textarea type="text" id="check_reason" class="layui-textarea"></textarea>';
+			html+='		</div>';
+			html+='	</div>';
+			var checkLayer = layer.open({type:1,area:['500px','250px'],title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+				yes:function(){
+					var index = layer.load();
+					$.post("{:url('setcheckst')}",{id:id,st:st,reason:$('#check_reason').val()},function(res){
+						layer.close(index);
+						dialog(res.msg,res.status);
+						layer.close(checkLayer);
+						tableIns.reload()
+					})
+				}
+			})
+		}else{
+			layer.confirm('确定要审核通过吗?',{icon: 7, title:'操作确认'}, function(index){
+				layer.close(index);
+				var index = layer.load();
+				$.post("{:url('setcheckst')}",{id:id,st:st},function(data){
+					layer.close(index);
+					dialog(data.msg,data.status);
+					tableIns.reload()
+				})
+			});
+		}
+	}
+	//删除
+	function datadel(id){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			var ids = [];
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id)
+		}
+		layer.confirm('确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('del')}",{ids:ids},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	//上下架
+	function setst(id,st){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id)
+		}
+		layer.confirm('确定要'+(st==0?'下架':'上架')+'吗?',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('setst')}",{ids:ids,st:st},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+
+	//上传商品到视频号
+	function towxvideo(id){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id)
+		}
+		var html = '';
+		html += '<div class="layui-form" lay-filter="" style="margin-top:20px">';
+		html += '<div class="layui-form-item">';
+		html += '	<label class="layui-form-label" style="width:120px">类目ID：</label>';
+		html += '	<div class="layui-input-inline" style="width:200px">';
+		html += '		<input type="text" name="info[third_cat_id]" id="third_cat_id" lay-verify="required" lay-verType="tips" class="layui-input" value="">';
+		html += '	</div>';
+		html += '	<button type="button" class="layui-btn layui-btn-primary" onclick="showChooseCategory()">选择</button>';
+		html += '</div>';
+		html += '<div class="layui-form-item">';
+		html += '	<label class="layui-form-label" style="width:120px">品牌：</label>';
+		html += '	<div class="layui-input-inline" style="width:200px">';
+		html += '		<select name="info[brand_id]" id="brand_id">';
+		{foreach $brand_list as $v}
+		html += '			<option value="{$v.brand_id}">{$v.brand_wording}</option>';
+		{/foreach}
+		html += '		</select>';
+		html += '	</div>';
+		html += '</div>';
+		
+		html += '<div class="layui-form-item" id="trademark_registration_certificate_div">';
+		html += '	<label class="layui-form-label" style="width:120px">商品资质图片：</label>';
+		html += '	<input type="hidden" name="info[qualification_pics]" value="" id="qualification_pics">';
+		html += '	<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this,true)" upload-input="qualification_pics" upload-preview="qualification_picsList" >上传图片</button>';
+		html += '	<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">如所选类目需要商品资质，请在此上传</div>';
+		html += '	<div id="qualification_picsList" style="float:left;padding-top:10px;padding-left:150px;clear:both">';
+		html += '	</div>';
+		html += '</div>';
+		html += '</div>';
+		var checkLayer = layer.open({type:1,area:['600px','400px'],title:'上传商品到视频号',content:html,shadeClose:true,btn: ['确定', '取消'],
+			yes:function(){
+				var third_cat_id = $('#third_cat_id').val();
+				var qualification_pics = $('#qualification_pics').val();
+				var brand_id = $('#brand_id').val();
+				if(!third_cat_id || !brand_id){
+					dialog('请选择类目和品牌');
+					return false;
+				}
+				var index = layer.load();
+				$.post("{:url('towxvideo')}",{ids:ids,third_cat_id:third_cat_id,qualification_pics:qualification_pics,brand_id:brand_id},function(res){
+					layer.close(index);
+					dialog(res.msg,res.status);
+					layer.close(checkLayer);
+					tableIns.reload();
+				})
+			}
+		});
+		layui.form.render();
+	}
+	function showChooseCategory(){
+		layer.open({type:2,title:'选择类目',content:"{:url('Wxvideo/allcategory')}&ischoose=1",area:['900px','600px'],shadeClose:true});
+	}
+	function chooseCategory(data){
+		console.log(data)
+		$("input[name='info[third_cat_id]']").val(data.third_cat_id);
+	}
+	//复制商品
+	function copyProduct(id){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择要复制的商品');
+			}
+			var ids = [];
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id)
+		}
+	
+		//选择账号
+		var html = '<div style="margin:20px auto;">';
+		html+='<div class="layui-form" lay-filter="">';
+		html+='<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+		html+='	<label class="layui-form-label" style="width:150px">选择账号</label>';
+		html+='	<div class="layui-input-inline" style="width:180px">';
+		html+='		<select id="toaid" name="toaid" style="width:100%;height: 38px;line-height: 38px;border:1px solid #e6e6e6;background-color: #fff;border-radius: 2px;" lay-filter="changeuserid">';
+		html+='			<option value="">请选择账号</option>';
+		{foreach $userlist as $k=>$v}
+		html+='			<option value="{$v["aid"]}">{$v["un"]}</option>';
+		{/foreach}
+		html+='		</select>';
+		html+='	</div>';
+		html+='</div>';
+		
+		html+='<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+		html+='	<label class="layui-form-label" style="width:150px">选择分类</label>';
+		html+='	<div class="layui-input-inline" style="width:180px">';
+		html+='		<select id="tocid" name="tocid" style="width:100%;height: 38px;line-height: 38px;border:1px solid #e6e6e6;background-color: #fff;border-radius: 2px;">';
+		html+='		</select>';
+		html+='	</div>';
+		html+='</div>';
+
+		html+='</div>';
+		html+='</div>'
+		var copyLayer = layer.open({type:1,title:'复制商品到其他账号',area:['500px','500px'],content:html,shadeClose:true,btn: ['确定', '取消'],
+			yes:function(){
+				var index = layer.load();
+				layer.confirm('确定要复制到该账号吗?',{icon: 7, title:'操作确认'}, function(index){
+					//do something
+					layer.close(index);
+					var index = layer.load();
+					var toaid = $('#toaid').val();
+					var tocid = $('#tocid').val();
+					$.post("{:url('userProcopy')}",{ids:ids,toaid:toaid,tocid:tocid},function(data){
+						layer.close(index);
+						if(data.status == 1){
+							dialog(data.msg,data.status);
+							layer.close(copyLayer);
+						}else{
+							dialog(data.msg,data.status);
+						}
+					})
+				},function(){
+					layer.close(index);
+				});
+			}
+		})
+		layui.form.render();
+		layui.form.on('select(changeuserid)', function(obj){
+			//var field = obj.field;
+			var toaid = obj.value;
+			var index= layer.load();
+			$.post("{:url('getcategory')}",{toaid:toaid},function(res){
+				layer.close(index);
+				var clist = res.data;
+				var html = '';
+				for(var i in clist){
+					html += '<option value="'+clist[i].id+'">'+clist[i].name+'</option>';
+					if(clist[i].child){
+						for(var j in clist[i].child){
+							html += '<option value="'+clist[i].child[j].id+'">&nbsp;&nbsp;&nbsp;'+clist[i].child[j].name+'</option>';
+						}
+					}
+				}
+				$('#tocid').html(html);
+				layui.form.render();
+			})
+		})
+	}
+
+	//导入
+	function daoru(){
+		var html = '<div style="margin:20px auto;">';
+		html+='<div class="layui-form" lay-filter="">';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label" style="width:150px">上传EXCEL文件：</label>';
+		html+='		<div class="layui-input-inline" style="width:300px">';
+		html+='			<input type="text" name="upload_file" id="upload_file" class="layui-input">';
+		html+='		</div>';
+		html+='		<button style="float:left;" type="button" class="layui-btn layui-btn-primary uploadexcel" upload-input="upload_file">上传</button>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item" style="padding:0 20px">';
+		html+='		<div class="layui-form-mid" style="color:red;">请按导入格式进行导入</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label" style="width:150px"></label>';
+		html+='		<div class="layui-form-mid"> <a href="__STATIC__/demo_product.xlsx">点击下载查看导入格式</a></div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item" style="margin-top:30px">';
+		html+='		<label class="layui-form-label" style="width:150px"></label>';
+		html+='		<div class="layui-input-inline">';
+		html+='			<button class="layui-btn layui-btn-normal" lay-submit lay-filter="submit_excel">确定导入</button>';
+		html+='		</div>';
+		html+='	</div>';
+		html+='</div>';
+		html+='</div>'
+		layer.open({type:1,area: ['600px', '360px'],title:'导入商品',content:html,shadeClose:true})
+		layui.form.render();
+		//文件上传
+		layui.upload.render({
+			elem: '.uploadexcel',
+			accept:'file',
+			url: "{:url('upload/index')}",
+			done: function(res){
+				if(res.status==0){
+					dialog(res.msg,0);
+				}else{
+					var item = this.item;
+					var inputid = $(this.item).attr('upload-input');
+					if(inputid){
+						$('#'+inputid).val(res.url);
+						$('#'+inputid).change();
+					}
+				}
+			}
+		});
+		layui.form.on('submit(submit_excel)', function(obj){
+			var field = obj.field;
+			console.log(field);
+			var index= layer.load();
+			$.post("{:url('importexcel')}",{file:field.upload_file},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		})
+	}
+	function wxvideoupdatest(){
+		layer.confirm('当出现状态不一致时可使用此功能，是否更新全部商品的视频号状态?',function(){
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('wxvideoupdatest')}",{},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	//撤回审核
+	function wxvideo_del_audit(proid){
+		layer.confirm('是否要撤回审核?',function(){
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('wxvideo_del_audit')}",{proid:proid},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	//视频号上架
+	function wxvideo_listing(proid){
+		layer.confirm('是否要上架?',function(){
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('wxvideo_listing')}",{proid:proid},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	//视频号下架
+	function wxvideo_delisting(proid){
+		layer.confirm('是否要下架?',function(){
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('wxvideo_delisting')}",{proid:proid},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+
+	//抖音上架
+	function douyin_setOnline(proid){
+		layer.confirm('是否要上架?',function(){
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('douyin_setOnline')}",{proid:proid},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	//抖音下架
+	function douyin_setOffline(proid){
+		layer.confirm('是否要下架?',function(){
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('douyin_setOffline')}",{proid:proid},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	//从抖音同步
+	function updatefromdouyin(){
+		layer.confirm('确定要从抖店同步吗?',function(){
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('updatefromdouyin')}",{},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	</script>
+	{include file="public/copyright"/}
+</body>
+</html>

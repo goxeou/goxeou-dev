@@ -1,0 +1,37 @@
+{if getcustom('zhaopin')}
+<div class="dsn-mod dp-article" ng-class="{'dsn-mod-select':Item.id == focus}" ng-style="{'background-color':Item.params.bgcolor,'margin':Item.params.margin_y+'px '+Item.params.margin_x+'px 0','padding':Item.params.padding_y+'px '+Item.params.padding_x+'px'}">
+    <div style="line-height: 170px; text-align: center; color: #999; font-size: 16px;" ng-show="Item.data == ''">一条招聘都没有...</div>
+    <!--单排-->
+    <div ng-show="Item.params.style=='1'" ng-repeat="item in Item.data" class="article-itemlist">
+        <div class="article-pic">
+            <img class="image" ng-src="{{item.thumb}}" style="{{Item.params.pic_width>0&&Item.params.pic_height>0?'width: '+Item.params.pic_width+'px;height: '+Item.params.pic_height+'px':''}}"/>
+        </div>
+        <div class="article-info">
+        <div class="p1">{{item.title}}</div>
+        <div class="p2">
+            <span style="overflow:hidden" class="flex1">{{item.num}}人</span>
+            <span style="overflow:hidden">{{item.salary}}</span>
+        </div>
+        <div class="p3" style="color: #666666">
+            {{item.welfare}}
+        </div>
+        <div class="p3" style="color: #666666">
+            {{item.address}}
+        </div>
+    </div>
+</div>
+    <!--双排-->
+    <div ng-show="Item.params.style=='2'" ng-repeat="item in Item.data" class="article-item2" ng-init="index = $index" style="margin-right:{{index%2==0?'2%':'0'}}">
+        <div class="article-pic">
+            <img class="image" ng-src="{{item.thumb}}"/>
+        </div>
+        <div class="article-info">
+            <div class="p1">{{item.title}}</div>
+            <div class="p2">
+                <span style="overflow:hidden" class="flex1" >{{item.num}}人</span>
+                <span style="overflow:hidden" >{{item.salary}}</span>
+            </div>
+        </div>
+    </div>
+</div>
+{/if}

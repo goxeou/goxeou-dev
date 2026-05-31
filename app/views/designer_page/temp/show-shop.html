@@ -1,0 +1,29 @@
+<!-- 样式1 -->
+<div class="dsn-mod dsn-shop1" ng-class="{'dsn-mod-select':Item.id == focus}" ng-show="Item.params.style == 1">
+	<img class="img" ng-src="{{Item.params.bgimg}}"/>
+	<div class="dsn-shop1-menu" ng-show="Item.params.menu == 1"  ng-style="{'color':Item.params.navcolor}">
+		<a ng-repeat="menu in Item.data" href="javascript:void(0);"><div class="dsn-shop1-nav"><img ng-src="{{menu.imgurl}}" style="width:20px;height:20px"><br>{{menu.text}}</div></a>
+	</div>
+	<div class="dsn-shop1-shopname" ng-show="Item.params.name == 1" style="font-size: 18px;">
+		<div class="dsn-shop1-name">{{system.name}}</div>
+	</div>
+	<div class="dsn-shop1-shoplogo" ng-show="Item.params.logo == 1"> 
+		<div class="dsn-shop1-shoplogo-img">
+			<img class="img" ng-src="{{system.logo || '{$Think.const.PRE_URL}/imgsrc/picture-1.jpg'}}"/>
+		</div>
+	</div>
+</div>
+<!-- 样式2 -->
+<div class="dsn-mod dsn-shop2" ng-class="{'dsn-mod-select':Item.id == focus}" ng-show="Item.params.style == 2">
+	<img class="shop2-img" ng-src="{{Item.params.bgimg}}"/>
+	<div class="shop2-shoplogo" ng-show="Item.params.logo == 1">
+		<img class="shop2-shoplogo-img" ng-src="{{system.logo}}"/>
+	</div>
+	<div class="shop2-shopname" ng-show="Item.params.name == 1">{{system.name}}</div>
+	<div class="shop2-menu" ng-show="Item.params.menu == 1" ng-style="{'color':Item.params.navcolor}">
+		<div class="shop2-nav" ng-repeat="menu in Item.data">
+			<img ng-src="{{menu.imgurl}}" style="width:18px;height:18px">
+			<div style="font-size:12px;margin-top:3px">{{menu.text}}</div>
+		</div>
+	</div>
+</div>

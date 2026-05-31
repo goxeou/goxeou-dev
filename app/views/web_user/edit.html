@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>编辑用户</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<script src="/static/admin/js/address3.js?v=1"></script>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$ainfo['id']}<i class="fa fa-plus"></i> 添加用户{else}<i class="fa fa-pencil"></i> 编辑用户{/if}
+					{if input('param.isopen')==1}<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>{/if}
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w10" lay-filter="">
+						<input type="hidden" name="ainfo[id]" value="{$ainfo['id']}">
+						<input type="hidden" name="uinfo[id]" value="{$uinfo['id']}">
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>登录账号：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="uinfo[un]" value="{$uinfo['un']}" lay-verify="required" lay-verType="tips" autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>登录密码：</label>
+							<div class="layui-input-inline">
+								<input type="text" class="layui-input" autocomplete="off" name="uinfo[pwd]" value="" {if $uinfo['id']} placeholder="留空表示不修改密码"{else} lay-verify="required" lay-verType="tips"{/if}>
+							</div>
+						</div>
+						{if getcustom('admin_user_group')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">分组：</label>
+							<div class="layui-input-inline" style="text-align:left">
+								<select name="ainfo[group_id]">
+									<option value="">请选择</option>
+									{foreach $groupArr as $k=>$v}
+									<option value="{$k}" {if $ainfo['group_id'] == $k}selected{/if}>{$v}</option>
+									{/foreach}
+								</select>
+							</div>
+						</div>
+						{/if}
+						{if getcustom('admin_login_page')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">独立登录编码：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="ainfo[login_page_code]" value="{$ainfo['login_page_code']}" autocomplete="off" class="layui-input">
+							</div>
+							<div class="layui-form-mid layui-word-aux">子用户独立登录编码参数例如：akuese 默认会生成8位随机码</div>
+						</div>
+						{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label">联系人：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="ainfo[linkman]" value="{$ainfo['linkman']}" autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">联系电话：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="ainfo[tel]" value="{$ainfo['tel']}" autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						<!-- <div class="layui-form-item">
+							<label class="layui-form-label">地区：</label>
+							<div class="layui-input-inline">
+								<select name="ainfo[province]" id="province" lay-filter="province"></select>
+							</div>
+							<div class="layui-input-inline">
+								<select name="ainfo[city]" id="city" lay-filter="city"></select>
+							</div>
+							<div class="layui-input-inline">
+								<select name="ainfo[area]" id="area" ></select>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">地址：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="ainfo[address]" value="{$ainfo['address']}" class="layui-input">
+							</div>
+						</div> -->
+						<div class="layui-form-item" id="endtimediv">
+							<label class="layui-form-label">到期时间：</label>
+							<div class="layui-input-inline">
+								<input type="text" id="endtime" name="ainfo[endtime]" value="{:date('Y-m-d H:i:s',$ainfo['endtime'])}" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">前端独立域名：</label>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>https://</div>
+								<input type="text" name="ainfo[domain]" value="{$ainfo['domain']}" autocomplete="off" class="layui-input" style="width: 190px;">
+							</div>
+							<div class="layui-form-mid layui-word-aux">不需要设置手机端独立访问域名无须填写</div>
+							<div class="layui-form-mid layui-word-aux layui-clear">设置后手机端可以用该域名进行访问，<span style="color: red;">注意：后台还是使用安装时的授权域名进行访问</span>
+								<br>设置方法：宝塔-网站-添加站点，域名填写此独立域名，根目录选择系统的原安装目录，配置ssl证书<br><span style="color: red;">设置后公众号和小程序相关域名配置也需要增加此域名</span></div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">版权信息：</label>
+							<div class="layui-input-inline" style="width:300px;">
+								<textarea type="text" name="ainfo[copyright]" class="layui-textarea" style="min-height:60px">{$ainfo['copyright']}</textarea>
+							</div>
+						</div>
+						{if getcustom('copyright_link')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">版权链接：</label>
+							<div class="layui-input-inline" style="width:300px;">
+								<input type="text" name="ainfo[copyright_link]" class="layui-input" value="{$ainfo.copyright_link}"/>
+							</div>
+						</div>
+						{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label">类型：</label>
+							<div class="layui-input-inline" style="width:500px">
+								{php}$platform = getplatformname();{/php}
+								{foreach $platform as $k=>$v}
+								<input type="checkbox" name="ainfo[platform][]" value="{$k}" title="{$v}" lay-skin="primary" {if in_array($k,explode(',',$ainfo['platform']))}checked{/if}>
+								{/foreach}
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">微支付抽成：</label>
+							<div class="layui-input-inline" style="width:500px">
+								<input type="radio" name="ainfo[chouchengset]" value="0" {if !$ainfo['chouchengset'] || $ainfo['chouchengset']==0}checked{/if} title="按默认抽成" lay-filter="achouchengset">
+								<input type="radio" name="ainfo[chouchengset]" value="1" {if $ainfo['chouchengset']==1}checked{/if} title="按百分百抽成" lay-filter="achouchengset">
+								<input type="radio" name="ainfo[chouchengset]" value="2" {if $ainfo['chouchengset']==2}checked{/if} title="固定抽成" lay-filter="achouchengset">
+								<input type="radio" name="ainfo[chouchengset]" value="3" {if $ainfo['chouchengset']==3}checked{/if} title="不抽成" lay-filter="achouchengset">
+							</div>
+							<div class="layui-form-mid layui-word-aux">设置抽成需开通服务商分账功能，实际分账金额必须小于（订单金额-手续费）*允许分账的最大比例</div>
+						</div>
+						<div class="layui-form-item" id="achouchengset1" {if $ainfo['chouchengset']!=1}style="display:none"{/if}>
+							<label class="layui-form-label"></label>
+							<div class="layui-input-inline layui-module-itemL">
+								<div> 抽成比例(%) </div>
+								<input type="text" name="ainfo[chouchengrate]" class="layui-input" value="{$ainfo.chouchengrate}">
+							</div>
+							<div class="layui-input-inline layui-module-itemL">
+								<div> 最低抽成金额(元) </div>
+								<input type="text" name="ainfo[chouchengmin]" class="layui-input" value="{$ainfo.chouchengmin}">
+							</div>
+						</div>
+						<div class="layui-form-item" id="achouchengset2" {if $ainfo['chouchengset']!=2}style="display:none"{/if}>
+							<label class="layui-form-label"></label>
+							<div class="layui-input-inline layui-module-itemL">
+								<div> 抽成金额(元) </div>
+								<input type="text" name="ainfo[chouchengmoney]" class="layui-input" value="{$ainfo.chouchengmoney}">
+							</div>
+						</div>
+						{if getcustom('choucheng_receiver')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">分账接收方：</label>
+							<div class="layui-input-inline" style="width:600px">
+								<input type="radio" name="ainfo[choucheng_receivertype]" value="0" title="服务商" {if !$ainfo || $ainfo['choucheng_receivertype']==0}checked{/if} lay-filter="choucheng_receivertype">
+								<input type="radio" name="ainfo[choucheng_receivertype]" value="1" title="商户号" {if $ainfo['choucheng_receivertype']==1}checked{/if} lay-filter="choucheng_receivertype">
+								<input type="radio" name="ainfo[choucheng_receivertype]" value="2" title="个人openid" {if $ainfo['choucheng_receivertype']==2}checked{/if} lay-filter="choucheng_receivertype">
+							</div>
+						</div>
+						
+						<div class="layui-form-item" id="choucheng_receivertype1" {if $ainfo['choucheng_receivertype']!=1}style="display:none"{/if}>
+							<label class="layui-form-label"></label>
+							<div class="layui-input-inline layui-module-itemL">
+								<div> 商户号(必填) </div>
+								<input style="width: 150px;" type="text" name="ainfo[choucheng_receivertype1_account]" class="layui-input" value="{$ainfo.choucheng_receivertype1_account}">
+							</div>
+							<div class="layui-input-inline layui-module-itemL">
+								<div> 商户全称(必填)</div>
+								<input style="width: 200px;" type="text" name="ainfo[choucheng_receivertype1_name]" class="layui-input" value="{$ainfo.choucheng_receivertype1_name}">
+							</div>
+						</div>
+						<div class="layui-form-item" id="choucheng_receivertype2" {if $ainfo['choucheng_receivertype']!=2}style="display:none"{/if}>
+							<label class="layui-form-label"></label>
+							<div class="layui-input-inline" style="width:300px">
+								<input type="radio" name="ainfo[choucheng_receivertype2_openidtype]" value="0" title="服务商openid" {if $ainfo['choucheng_receivertype2_openidtype']==0}checked{/if} lay-filter="choucheng_receivertype2_openidtype">
+								<input type="radio" name="ainfo[choucheng_receivertype2_openidtype]" value="1" title="子商户openid" {if $ainfo['choucheng_receivertype2_openidtype']==1}checked{/if} lay-filter="choucheng_receivertype2_openidtype">
+							</div>
+							<div class="layui-input-inline layui-module-itemL" >
+								<div> 公众号openid </div>
+								<input style="width:150px;" type="text" name="ainfo[choucheng_receivertype2_account]" class="layui-input" value="{$ainfo.choucheng_receivertype2_account}">
+							</div>
+							<div id="choucheng_receivertype2_accountwx" {if $ainfo['choucheng_receivertype2_openidtype']!=1}style="display:none"{/if}>
+								<div class="layui-input-inline layui-module-itemL">
+									<div> 小程序openid </div>
+									<input style="width:150px;" type="text" name="ainfo[choucheng_receivertype2_accountwx]" class="layui-input" value="{$ainfo.choucheng_receivertype2_accountwx}">
+								</div>
+							</div>
+							<div class="layui-input-inline layui-module-itemL">
+								<div> 姓名(选填) </div>
+								<input type="text" name="ainfo[choucheng_receivertype2_name]" class="layui-input" value="{$ainfo.choucheng_receivertype2_name}">
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="clear:both;margin-left:180px">服务商openid由服务商的APPID转换得到，子商户openid由子商户APPID转换得到</div>
+						</div>
+						{/if}
+
+						{if getcustom('agent_card')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">代理卡片：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="ainfo[agent_card]" value="1" title="开启" {if $ainfo['agent_card']==1}checked{/if}>
+								<input type="radio" name="ainfo[agent_card]" value="0" title="关闭" {if $ainfo['agent_card']==0}checked{/if}>
+							</div>
+						</div>
+						{/if}
+						{if getcustom('image_search')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">图搜：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="ainfo[image_search]" value="1" title="开启" {if $ainfo['image_search']==1}checked{/if}>
+								<input type="radio" name="ainfo[image_search]" value="0" title="关闭" {if $ainfo['image_search']==0}checked{/if}>
+							</div>
+						</div>
+						{/if}
+
+						{if getcustom('product_library_admin_user')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">公共库id：</label>
+							<div class="layui-input-inline">
+								<input type="number" name="ainfo[product_library_aid]" min="0" value="{$ainfo['product_library_aid'] ?? 1}" autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						{/if}
+					  {if getcustom('with_system_param')}
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">外链参数：</label>
+						  <div class="layui-input-inline">
+							  <input type="radio" name="ainfo[with_system_param]" value="1" title="开启" {if $ainfo['with_system_param']==1}checked{/if}>
+							  <input type="radio" name="ainfo[with_system_param]" value="0" title="关闭" {if $ainfo['with_system_param']==0}checked{/if}>
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">开启后，外部链接将携带系统的aid和mid</div>
+					  </div>
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">加密密钥：</label>
+						  <div class="layui-input-inline">
+							  <input type="text" id="system_param_key" class="layui-input" name="ainfo[system_param_key]" value="{$ainfo.system_param_key}">
+						  </div>
+						  <div class="layui-input-inline"><button class="layui-btn" onclick="randomString(16)">随机生成</button></div>
+					  </div>
+					  {/if}
+					{if getcustom('school_product')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">收集学生资料：</label>
+							<div class="layui-input-inline">
+							  <input type="radio" name="ainfo[need_school]" value="1" title="开启" {if $ainfo['need_school']==1}checked{/if}>
+							  <input type="radio" name="ainfo[need_school]" value="0" title="关闭" {if $ainfo['need_school']==0}checked{/if}>
+							</div>
+							<div class="layui-form-mid layui-word-aux">开启后，需要维护学校班级信息</div>
+						</div>
+  					{/if}
+  					{if getcustom('shoporder_cost_hide')}
+					  	<div class="layui-form-item">
+						  <label class="layui-form-label">隐藏销售统计项：</label>
+						  <div class="layui-input-inline">
+							  <input type="radio" name="ainfo[order_cost_hide]" value="1" title="开启" {if $ainfo['order_cost_hide']==1}checked{/if}>
+							  <input type="radio" name="ainfo[order_cost_hide]" value="0" title="关闭" {if $ainfo['order_cost_hide']==0}checked{/if}>
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">开启后，将会隐藏“销售统计”中的成本和利润展示项</div>
+					  	</div>
+					{/if}
+						{if getcustom('order_show_onlychildren')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">管理员仅可查看下级订单和会员：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="ainfo[order_show_onlychildren]" value="1" title="开启" {if $ainfo['order_show_onlychildren']==1}checked{/if}>
+								<input type="radio" name="ainfo[order_show_onlychildren]" value="0" title="关闭" {if $ainfo['order_show_onlychildren']==0}checked{/if}>
+							</div>
+						</div>
+						{/if}
+						{if getcustom('other_money')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">多账户：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="ainfo[othermoney_status]" value="1" title="开启" {if $ainfo['othermoney_status']==1}checked{/if}>
+								<input type="radio" name="ainfo[othermoney_status]" value="0" title="关闭" {if !$ainfo['othermoney_status'] || $ainfo['othermoney_status']==0}checked{/if}>
+							</div>
+						</div>
+						{/if}
+  						{if getcustom('commission_frozen')}
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">{:t('扶持金')}：</label>
+							  <div class="layui-input-inline">
+								  <input type="radio" name="ainfo[commission_frozen]" value="1" title="开启" {if $ainfo['commission_frozen']==1}checked{/if}>
+								  <input type="radio" name="ainfo[commission_frozen]" value="0" title="关闭" {if !$ainfo['commission_frozen'] || $ainfo['commission_frozen']==0}checked{/if}>
+							  </div>
+						  </div>
+  						{/if}
+						{if getcustom('member_gongxian')}
+						<div class="layui-form-item">
+						  <label class="layui-form-label">{:t('贡献')}：</label>
+						  <div class="layui-input-inline">
+							  <input type="radio" name="ainfo[member_gongxian_status]" value="1" title="开启" {if $ainfo['member_gongxian_status']==1}checked{/if}>
+							  <input type="radio" name="ainfo[member_gongxian_status]" value="0" title="关闭" {if !$ainfo['member_gongxian_status'] || $ainfo['member_gongxian_status']==0}checked{/if}>
+						  </div>
+						</div>
+						{/if}
+					  {if getcustom('touzi_fenhong')}
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">{:t('投资分红')}：</label>
+						  <div class="layui-input-inline">
+							  <input type="radio" name="ainfo[shareholder_status]" value="1" title="开启" {if $ainfo['shareholder_status']==1}checked{/if}>
+							  <input type="radio" name="ainfo[shareholder_status]" value="0" title="关闭" {if !$ainfo['shareholder_status'] || $ainfo['shareholder_status']==0}checked{/if}>
+						  </div>
+					  </div>
+					  {/if}
+					  {if getcustom('buybutton_custom')}
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">商城购买按钮：</label>
+						  <div class="layui-input-inline">
+							  <input type="radio" name="ainfo[buybtn_status]" value="1" title="开启" {if $ainfo['buybtn_status']==1}checked{/if}>
+							  <input type="radio" name="ainfo[buybtn_status]" value="0" title="关闭" {if !$ainfo['buybtn_status'] || $ainfo['buybtn_status']==0}checked{/if}>
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">开启后，可在商城商品编辑中自定义购买按钮</div>
+					  </div>
+					  {/if}
+					  {if getcustom('jushuitan')}
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">聚水潭erp：</label>
+						  <div class="layui-input-inline">
+							  <input type="radio" name="ainfo[jushuitan_status]" value="1" title="开启" {if $ainfo['jushuitan_status']==1}checked{/if}>
+							  <input type="radio" name="ainfo[jushuitan_status]" value="0" title="关闭" {if $ainfo['jushuitan_status']==0}checked{/if}>
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">开启后，可同步订单到聚水潭</div>
+					  </div>
+					  {/if}
+					  {if getcustom('erp_wangdiantong')}
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">旺店通erp：</label>
+						  <div class="layui-input-inline">
+							  <input type="radio" name="ainfo[wdt_status]" value="1" title="开启" {if $ainfo['wdt_status']==1}checked{/if}>
+							  <input type="radio" name="ainfo[wdt_status]" value="0" title="关闭" {if $ainfo['wdt_status']==0}checked{/if}>
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">开启后，商品和订单将同步到旺店通</div>
+					  </div>
+					  {/if}
+					   {if getcustom('mendian_upgrade')}
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">门店升级功能：</label>
+						  <div class="layui-input-inline">
+							  <input type="radio" name="ainfo[mendian_upgrade_status]" value="1" title="开启" {if $ainfo['mendian_upgrade_status']==1}checked{/if}>
+							  <input type="radio" name="ainfo[mendian_upgrade_status]" value="0" title="关闭" {if $ainfo['mendian_upgrade_status']==0}checked{/if}>
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">开启后申请门店入驻等功能</div>
+					  </div>
+					  {/if}
+					  {if getcustom('business_num_limit')}
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">多商户数量上限：</label>
+						  <div class="layui-input-inline">
+							  <input type="text" class="layui-input" name="ainfo[business_num_limit]" value="{$ainfo.business_num_limit}">
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">0为不限制</div>
+					  </div>
+					  {/if}
+					  {if getcustom('extend_yuyue_car')}
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">预约洗车：</label>
+						  <div class="layui-input-inline">
+							  <input type="radio" name="ainfo[yuyuecar_status]" value="1" title="开启" {if $ainfo['yuyuecar_status']==1}checked{/if}>
+							  <input type="radio" name="ainfo[yuyuecar_status]" value="0" title="关闭" {if $ainfo['yuyuecar_status']==0}checked{/if}>
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">功能位置：扩展-预约服务-服务商品，类型选项</div>
+					  </div>
+					  {/if}
+					  {if getcustom('product_bonus_pool')}
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">奖金池：</label>
+						  <div class="layui-input-inline">
+							  <input type="radio" name="ainfo[bonus_pool_status]" value="1" title="开启" {if $ainfo['bonus_pool_status']==1}checked{/if}>
+							  <input type="radio" name="ainfo[bonus_pool_status]" value="0" title="关闭" {if $ainfo['bonus_pool_status']==0}checked{/if}>
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">功能位置：商城商品-奖金池</div>
+					  </div>
+					  {/if}
+					  {if getcustom('member_overdraft_money')}
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">{:t('信用额度')}：</label>
+						  <div class="layui-input-inline">
+							  <input type="text" class="layui-input" name="ainfo[overdraft_init]" value="{$ainfo.overdraft_init|default=0}">
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">会员{:t('信用额度')}，初始值</div>
+					  </div>
+					  {/if}
+					  {if getcustom('admin_money')}
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">余额提醒阈值：</label>
+						  <div class="layui-input-inline">
+							  <input type="text" name="ainfo[money_notice_value]" class="layui-input" value="{$ainfo.money_notice_value}"/>
+						  </div>
+						  <div class="layui-form-mid layui-word-aux" style="margin-left:10px;">用户余额大于0，小于提醒阈值，弹窗提示，留空或余额为0不提示</div>
+					  </div>
+					  {/if}
+					  {if getcustom('product_supply_chain')}
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">供应链状态：</label>
+						  <div class="layui-input-inline">
+							  <input type="radio" name="ainfo[supplier_status]" lay-filter="supplier_status" value="0" title="关闭" {if !$ainfo['supplier_status'] || $ainfo['supplier_status']==0}checked{/if}>
+							  <input type="radio" name="ainfo[supplier_status]" lay-filter="supplier_status" value="1" title="开启" {if $ainfo['supplier_status']==1}checked{/if}>
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">开启后，可从海带网供应市场选品</div>
+					  </div>
+					  <div id="supplier-div" {if $ainfo['supplier_status']!=1}style="display:none;"{/if}>
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">供应链名称：</label>
+							  <div class="layui-input-inline">
+								  <input class="layui-input" type="text" name="ainfo[supplier_name]" value="{$ainfo.supplier_name|default='供应链'}" >
+							  </div>
+						  </div>
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">供应商：</label>
+							  <div class="layui-input-inline">
+								  <select class="layui-select" name="ainfo[supplier_id]">
+									  {volist name="supplierList" id="item"}
+									  <option value="{$item.id}" {if $ainfo.supplier_id==$item.id}selected{/if}>{$item.name}</option>
+									  {/volist}
+								  </select>
+							  </div>
+						  </div>
+  						</div>
+					  {/if}
+
+					  {if getcustom('plug_siming')}
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">pc后台首页展示数据：</label>
+						  <div class="layui-input-inline" style="width:555px">
+							  <div class="layui-form">
+								  <input type="checkbox" name="ainfo[pc_index_data][]" title="全部" value="all" {if in_array('all',explode(',',$ainfo['pc_index_data']))}checked{/if} lay-skin="tag">
+								  <input type="checkbox" name="ainfo[pc_index_data][]" title="客户总数" value="custom_num" {if in_array('all',explode(',',$ainfo['pc_index_data'])) || in_array('custom_num',explode(',',$ainfo['pc_index_data']))}checked{/if} lay-skin="tag">
+								  <input type="checkbox" name="ainfo[pc_index_data][]" title="收款金额" value="receive_money" {if in_array('all',explode(',',$ainfo['pc_index_data'])) || in_array('receive_money',explode(',',$ainfo['pc_index_data']))}checked{/if} lay-skin="tag">
+								  <input type="checkbox" name="ainfo[pc_index_data][]" title="已提现金额" value="withdraw_money" {if in_array('all',explode(',',$ainfo['pc_index_data'])) || in_array('withdraw_money',explode(',',$ainfo['pc_index_data']))}checked{/if} lay-skin="tag">
+								  <input type="checkbox" name="ainfo[pc_index_data][]" title="商品数量" value="product_num" {if in_array('all',explode(',',$ainfo['pc_index_data'])) || in_array('product_num',explode(',',$ainfo['pc_index_data']))}checked{/if} lay-skin="tag">
+								  <input type="checkbox" name="ainfo[pc_index_data][]" title="订单数" value="order_num" {if in_array('all',explode(',',$ainfo['pc_index_data'])) || in_array('order_num',explode(',',$ainfo['pc_index_data']))}checked{/if} lay-skin="tag">
+								  <input type="checkbox" name="ainfo[pc_index_data][]" title="订单金额" value="order_money" {if in_array('all',explode(',',$ainfo['pc_index_data'])) || in_array('order_money',explode(',',$ainfo['pc_index_data']))}checked{/if} lay-skin="tag">
+								  <input type="checkbox" name="ainfo[pc_index_data][]" title="已退款金额" value="refund_money" {if in_array('all',explode(',',$ainfo['pc_index_data'])) || in_array('refund_money',explode(',',$ainfo['pc_index_data']))}checked{/if} lay-skin="tag">
+								  <input type="checkbox" name="ainfo[pc_index_data][]" title="平台账户余额" value="plate_remain_money" {if in_array('all',explode(',',$ainfo['pc_index_data'])) || in_array('plate_remain_money',explode(',',$ainfo['pc_index_data']))}checked{/if} lay-skin="tag">
+							  </div>
+						  </div>
+						  <div class="layui-form-mid layui-word-aux" style="margin-left:10px;">勾选后用户可见，如需要展示部分数据需取消[全部]标签的选中</div>
+					  </div>
+
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">手机端后台财务页面展示数据：</label>
+						  <div class="layui-input-inline" style="width:555px">
+							  <div class="layui-form">
+								  <input type="checkbox" name="ainfo[mobile_index_data][]" title="全部" value="all" {if in_array('all',explode(',',$ainfo['mobile_index_data']))}checked{/if} lay-skin="tag">
+								  <input type="checkbox" name="ainfo[mobile_index_data][]" title="累计收款" value="total_receive" {if in_array('all',explode(',',$ainfo['mobile_index_data'])) || in_array('total_receive',explode(',',$ainfo['mobile_index_data']))}checked{/if} lay-skin="tag">
+								  <input type="checkbox" name="ainfo[mobile_index_data][]" title="累计退款" value="total_refund" {if in_array('all',explode(',',$ainfo['mobile_index_data'])) || in_array('total_refund',explode(',',$ainfo['mobile_index_data']))}checked{/if} lay-skin="tag">
+								  <input type="checkbox" name="ainfo[mobile_index_data][]" title="累计提现" value="total_withdraw" {if in_array('all',explode(',',$ainfo['mobile_index_data'])) || in_array('total_withdraw',explode(',',$ainfo['mobile_index_data']))}checked{/if} lay-skin="tag">
+								  <input type="checkbox" name="ainfo[mobile_index_data][]" title="累计佣金" value="total_commission" {if in_array('all',explode(',',$ainfo['mobile_index_data'])) || in_array('total_commission',explode(',',$ainfo['mobile_index_data']))}checked{/if} lay-skin="tag">
+							  </div>
+						  </div>
+						  <div class="layui-form-mid layui-word-aux" style="margin-left:10px;">勾选后用户可见，如需要展示部分数据需取消[全部]标签的选中</div>
+					  </div>
+  					  {/if}
+
+  						<div class="layui-form-item">
+						  <label class="layui-form-label"><span class="redstar">*</span>可选附件存储类型：</label>
+						  <div class="layui-input-inline" style="width:555px">
+							  <div class="layui-form" id="remotearr">
+								  <input type="checkbox" name="ainfo[remotearr][]" title="跟随平台" value="0" {if in_array('0',explode(',',$ainfo['remotearr']))}checked{/if} lay-filter="remotearr" lay-skin="tag">
+								  <input type="checkbox" name="ainfo[remotearr][]" title="本地存储" value="1" {if in_array('1',explode(',',$ainfo['remotearr']))}checked{/if} lay-filter="remotearr" lay-skin="tag">
+								  <input type="checkbox" name="ainfo[remotearr][]" title="阿里云" value="2" {if in_array('2',explode(',',$ainfo['remotearr']))}checked{/if} lay-filter="remotearr" lay-skin="tag">
+								  <input type="checkbox" name="ainfo[remotearr][]" title="七牛云" value="3" {if in_array('3',explode(',',$ainfo['remotearr']))}checked{/if} lay-filter="remotearr" lay-skin="tag">
+								  <input type="checkbox" name="ainfo[remotearr][]" title="腾讯云" value="4" {if in_array('4',explode(',',$ainfo['remotearr']))}checked{/if} lay-filter="remotearr" lay-skin="tag">
+							  </div>
+						  </div>
+						  <div class="layui-form-mid layui-word-aux" style="margin-left:10px;">
+							  <div class="layui-popover layui-default-link layui-inline">
+								  示例
+								  <div class="layui-popover-div">
+									  <img src="__STATIC__/admin/img/dianda_remote_select.png"   />
+								  </div>
+							  </div>
+							  勾选后用户可见，注意：取消用户使用中的类型需先切换为其他类型</div>
+					  </div>
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">默认附件存储类型：</label>
+						  <div class="layui-input-inline" style="width:300px">
+							  <select name="rinfo[type]" lay-filter="changetype">
+								  <option value="0" {if $rinfo['type']==0}selected{/if}>跟随平台附件设置</option>
+								  <option value="1" {if $rinfo['type']==1}selected{/if}>本地存储</option>
+								  <option value="2" {if $rinfo['type']==2}selected{/if}>阿里云</option>
+								  <option value="3" {if $rinfo['type']==3}selected{/if}>七牛云</option>
+								  <option value="4" {if $rinfo['type']==4}selected{/if}>腾讯云</option>
+							  </select>
+						  </div>
+					  </div>
+					  <div id="aliossset" {if $rinfo['type']!=2}style="display:none"{/if}>
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">Access Key ID：</label>
+						  <div class="layui-input-inline" style="width:300px">
+							  <input type="text" name="rinfo[alioss][key]" value="{$rinfo['alioss']['key']}" class="layui-input">
+						  </div>
+					  </div>
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">Access Key Secret：</label>
+						  <div class="layui-input-inline" style="width:300px">
+							  <input type="text" name="rinfo[alioss][secret]" value="{$rinfo['alioss']['secret']}" class="layui-input">
+						  </div>
+					  </div>
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">Bucket名称：</label>
+						  <div class="layui-input-inline" style="width:300px">
+							  <input type="text" name="rinfo[alioss][bucket]" value="{$rinfo['alioss']['bucket']}" class="layui-input">
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">空间名称</div>
+					  </div>
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">EndPoint（地域节点）</label>
+						  <div class="layui-input-inline" style="width:300px">
+							  <input type="text" name="rinfo[alioss][ossurl]" value="{$rinfo['alioss']['ossurl']}" class="layui-input">
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">如：oss-cn-qingdao.aliyuncs.com</div>
+					  </div>
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">Bucket域名：</label>
+						  <div class="layui-input-inline" style="width:300px">
+							  <input type="text" name="rinfo[alioss][url]" value="{$rinfo['alioss']['url']}" class="layui-input">
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">开头须加https:// ，微信小程序需要在downloadFile合法域名添加配置此url</div>
+					  </div>
+					  </div>
+					  <div id="qiniuset" {if $rinfo['type']!=3}style="display:none"{/if}>
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">Accesskey：</label>
+						  <div class="layui-input-inline" style="width:300px">
+							  <input type="text" name="rinfo[qiniu][accesskey]" value="{$rinfo['qiniu']['accesskey']}" class="layui-input">
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">在密钥管理中查找</div>
+					  </div>
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">Secretkey：</label>
+						  <div class="layui-input-inline" style="width:300px">
+							  <input type="text" name="rinfo[qiniu][secretkey]" value="{$rinfo['qiniu']['secretkey']}" class="layui-input">
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">在密钥管理中查找</div>
+					  </div>
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">Bucket：</label>
+						  <div class="layui-input-inline" style="width:300px">
+							  <input type="text" name="rinfo[qiniu][bucket]" value="{$rinfo['qiniu']['bucket']}" class="layui-input">
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">空间名称</div>
+					  </div>
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">Url：</label>
+						  <div class="layui-input-inline" style="width:300px">
+							  <input type="text" name="rinfo[qiniu][url]" value="{$rinfo['qiniu']['url']}" class="layui-input">
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">开头须加https:// ，微信小程序需要在downloadFile合法域名添加配置此url</div>
+					  </div>
+					  </div>
+					  <div id="cosset" {if $rinfo['type']!=4}style="display:none"{/if}>
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">APPID：</label>
+						  <div class="layui-input-inline" style="width:300px">
+							  <input type="text" name="rinfo[cos][appid]" value="{$rinfo['cos']['appid']}" class="layui-input">
+						  </div>
+					  </div>
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">SecretID：</label>
+						  <div class="layui-input-inline" style="width:300px">
+							  <input type="text" name="rinfo[cos][secretid]" value="{$rinfo['cos']['secretid']}" class="layui-input">
+						  </div>
+					  </div>
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">SecretKEY：</label>
+						  <div class="layui-input-inline" style="width:300px">
+							  <input type="text" name="rinfo[cos][secretkey]" value="{$rinfo['cos']['secretkey']}" class="layui-input">
+						  </div>
+					  </div>
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">Bucket：</label>
+						  <div class="layui-input-inline" style="width:300px">
+							  <input type="text" name="rinfo[cos][bucket]" value="{$rinfo['cos']['bucket']}" class="layui-input">
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">存储桶名称</div>
+					  </div>
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">bucket所属地域：</label>
+						  <div class="layui-input-inline" style="width:300px">
+							  <input type="text" name="rinfo[cos][local]" value="{$rinfo['cos']['local']}" class="layui-input">
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">地域代码，如：ap-beijing</div>
+					  </div>
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">Url：</label>
+						  <div class="layui-input-inline" style="width:300px">
+							  <input type="text" name="rinfo[cos][url]" value="{$rinfo['cos']['url']}" class="layui-input">
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">开头须加https:// ，微信小程序需要在downloadFile合法域名添加配置此url</div>
+					  </div>
+					  </div>
+					  {if getcustom('file_size_limit')}
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">用户附件上限：</label>
+						  <div class="layui-input-inline layui-module-itemR">
+							  <input type="number" step="1" name="ainfo[file_upload_limit]" value="{$ainfo['file_upload_limit']}" class="layui-input">
+							  <div>MB</div>
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">各个子系统附件上限（仅跟随平台存储或本地存储类型生效），0为继承平台限制，-1为不限制，到达上限后用户后台无法继续上传文件</div>
+					  </div>
+					  {/if}
+					  {if getcustom('wx_fws_liuliangzhu')}
+					  <div class="layui-form-item" id="adratio">
+						  <label class="layui-form-label">小程序广告分成：</label>
+						  <div class="layui-input-inline layui-module-itemR">
+							  <input style="width: 190px;" type="text" name="ainfo[ad_ratio]" value="{$ainfo['ad_ratio']}" autocomplete="off" class="layui-input">
+							  <div>%</div>
+						  </div>
+						  <div class="layui-input-inline"><button class="layui-btn" onclick="searchRatio()">查询比例</button></div>
+						  <div class="layui-form-mid layui-word-aux layui-clear">设置保存后为0是设置不成功或没开通</div>
+						  <div class="layui-form-mid layui-word-aux layui-clear">
+							  1、在设置比例前请仔细阅读<a href="https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/product/COMPONENT_OPERATOR_AMS/component_ams.html">【小程序流量主代运营介绍】</a> 和
+							  <a href="https://docs.qq.com/doc/DVmpBYm5hem5lYXhR">【流量主代运营】广告变现解决方案</a>。
+							  <br />
+							  2、服务商通过接口设置/更改分账比例，不代表比例生效，需要由商家在权限集授权流程中进行确认，才视为实际生效。具体授权发起流程可以参考 <a href="https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/operation/authorization/authorization_management.html#_2%E3%80%81%E6%9B%B4%E6%96%B0%E6%8E%88%E6%9D%83">更新授权</a>。<br />3、商家实际生效的分账比例可点击“查询比例”按钮进行查询实际生效比例。<br/> 4、服务商针对单个小程序设置个性化的广告收入分账的比例，如设置为40，则代表服务商获得收益的40%，当前用户获得收益的60%。<br/>5、修改分账比例后，需要重新发起授权，商家小程序在授权流程中进行确认，才视为生效。</div>
+					  </div>
+					  {/if}
+					  <div class="layui-form-item">
+							<label class="layui-form-label">快递查询AppCode：</label>
+							<div class="layui-input-inline" style="width:350px">
+								<input type="radio" name="ainfo[ali_appcode_choose]" value="1" title="跟随系统" {if !$ainfo['id'] || $ainfo['ali_appcode_choose']==1}checked{/if} lay-filter="appcode_choose">
+								<input type="radio" name="ainfo[ali_appcode_choose]" value="0" title="独立设置" {if $ainfo['id'] && $ainfo['ali_appcode_choose']===0}checked{/if} lay-filter="appcode_choose">
+								 {if getcustom('system_webuser_express_appcode')}
+								<input type="radio" name="ainfo[ali_appcode_choose]" value="2" title="控制台设置" {if $ainfo['id'] && $ainfo['ali_appcode_choose']==2}checked{/if} lay-filter="appcode_choose">
+								 {/if}
+							</div>
+						</div>
+						{if getcustom('system_webuser_express_appcode')}
+						<div class="layui-form-item" id="express_appcode" {if $ainfo['ali_appcode_choose']!=2}style="display:none"{/if}>
+						  <label class="layui-form-label"></label>
+						  <div class="layui-input-inline layui-module-itemL">
+							  <div> 快递查询AppCode </div>
+							  <input style="width: 200px;" type="text" name="ainfo[ali_appcode]" class="layui-input" value="{$ainfo.ali_appcode}">
+						  </div>
+						</div>
+						{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label">状态：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="ainfo[status]" value="1" title="开启" {if $ainfo['status']==1}checked{/if}>
+								<input type="radio" name="ainfo[status]" value="0" title="关闭" {if $ainfo['status']==0}checked{/if}>
+							</div>
+							<div class="layui-form-mid layui-word-aux">关闭后前端访问提示“账号未启用”，无法进入</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">模块权限：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="uinfo[auth_type]" value="1" title="所有" {if !$uinfo['aid'] || $uinfo['auth_type']==1}checked{/if} lay-filter="auth_type">
+								<input type="radio" name="uinfo[auth_type]" value="0" title="选择" {if $uinfo['aid'] && $uinfo['auth_type']==0}checked{/if} lay-filter="auth_type">
+							</div>
+						</div>
+					
+						<div class="layui-form-item" id="authdataset" style="{if !$uinfo['aid'] || $uinfo['auth_type']==1}display:none{/if}">
+							<label class="layui-form-label">权限设置：</label>
+							<div class="layui-input-block" style="margin-left:180px;">
+								<div style="margin-top:10px;color:#303030; font-size:14px; font-weight:600; ">
+									<input type="checkbox" title="全部选择" lay-skin="primary" lay-filter="checkall_all"/>
+								</div>
+								{php}$i=0;{/php}
+								{foreach $menudata as $k=>$v}
+								{php}$i++;{/php}
+								<div>
+									<div style="clear:left;margin-top:10px;color:#303030; font-size:14px; font-weight:600; ">
+										 <input type="checkbox" title="{$v['name']}" lay-skin="primary" lay-filter="checkall"/>
+									</div>
+									<div style="margin-left:20px">
+									{foreach $v['child'] as $k1=>$v1}
+									{php}
+									if(!$v1['authdata'] && $v1['child']){
+										$path = array();
+										echo '<div style="width: 100px;float:left;margin-top:8px;clear:left">'.$v1['name'].'</div>';
+										foreach($v1['child'] as $v2){
+											echo '<div style="min-width: 120px;float: left;">';
+											echo '	<input type="checkbox" value="'.$v2['path'].','.str_replace('/*','^_^',$v2['authdata']).'" name="auth_data[]" '.(in_array($v2['path'].','.$v2['authdata'],$auth_data)?'checked':'').' title="'.$v2['name'].'" lay-skin="primary"/>';
+											echo '</div>';
+										}
+										echo '<div style="clear:both;float: left;"></div>';
+									}
+									{/php}
+									{if !$v1['child'] || $v1['authdata']}
+									<div style="min-width: 120px;float: left;">
+										<input type="checkbox" value="{$v1.path},{:str_replace('/*','^_^',$v1['authdata'])}" name="auth_data[]" {if in_array($v1['path'].','.$v1['authdata'],$auth_data)}checked{/if} title="{$v1['name']}" lay-skin="primary"/>
+									</div>
+									{/if}
+									{/foreach}
+									</div>
+									<div style="clear:both;float: left;margin-bottom:10px"></div>
+								</div>
+								{/foreach}
+							</div>
+						</div>
+  {if getcustom('user_disabled_auth_data')}
+	  <div class="layui-form-item" id="disableAuthdataSet">
+		  <label class="layui-form-label">禁用权限：</label>
+		  <div class="layui-input-block" style="margin-left:180px;">
+			  <div style="margin-top:10px;color:#303030; font-size:14px; font-weight:600; ">
+				  <input type="checkbox" title="全系统" lay-skin="primary" lay-filter="checkall_all"/>
+			  </div>
+			  <div>
+				  <div style="clear:left;margin-top:10px; ">
+					  <input type="checkbox" title="删除权限" name="disabled_auth_data[]" value="alldel" lay-skin="primary" lay-filter="checkall"/>
+				  </div>
+				  <div style="clear:both;float: left;margin-bottom:10px"></div>
+			  </div>
+		  </div>
+	  </div>
+  {/if}
+  <!-- 需同步修改 public\user_auth.html -->
+  <div class="layui-form-item">
+	  <label class="layui-form-label">手机端权限：</label>
+	  <div class="layui-input-block" style="margin-left:180px;">
+		  <div style="margin-top:10px;color:#303030; font-size:14px; font-weight:600; ">
+			  <input type="checkbox" title="全部选择" lay-skin="primary" lay-filter="checkall_all"/>
+		  </div>
+		  <div>
+			  <div style="margin-top:10px;color:#303030; font-size:14px; font-weight:600; ">
+				  <input type="checkbox" title="查看权限" lay-skin="primary" lay-filter="checkall"/>
+			  </div>
+			  <div style="margin-left:20px">
+				  <div style="min-width: 120px;float: left;">
+					  <input type="checkbox" value="member" name="wxauth_data[]" {if in_array('member',$wxauth_data)}checked{/if} title="{:t('会员')}" lay-skin="primary"/>
+				  </div>
+				  <div style="min-width: 120px;float: left;">
+					  <input type="checkbox" value="product" name="wxauth_data[]" {if in_array('product',$wxauth_data)}checked{/if} title="商品" lay-skin="primary"/>
+				  </div>
+				  <div style="min-width: 120px;float: left;">
+					  <input type="checkbox" value="order" name="wxauth_data[]" {if in_array('order',$wxauth_data)}checked{/if} title="订单" lay-skin="primary"/>
+				  </div>
+				  <div style="min-width: 120px;float: left;">
+					  <input type="checkbox" value="finance" name="wxauth_data[]" {if in_array('finance',$wxauth_data)}checked{/if} title="财务" lay-skin="primary"/>
+				  </div>
+				  <div style="min-width: 120px;float: left;">
+					  <input type="checkbox" value="zixun" name="wxauth_data[]" {if in_array('zixun',$wxauth_data)}checked{/if} title="咨询" lay-skin="primary"/>
+				  </div>
+				  {if getcustom('expend')}
+				  <div style="min-width: 120px;float: left;">
+					  <input type="checkbox" value="expend" name="wxauth_data[]" {if in_array('expend',$wxauth_data)}checked{/if} title="财务-支出" lay-skin="primary"/>
+				  </div>
+				  {/if}
+				  <div style="clear:both;float: left;margin-bottom:10px"></div>
+			  </div>
+		  </div>
+		  <div>
+			  <div style="clear:left;margin-top:10px;color:#303030; font-size:14px; font-weight:600; ">
+				  <input type="checkbox" title="接收通知权限" lay-skin="primary" lay-filter="checkall"/>
+			  </div>
+			  <div style="margin-left:20px">
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="订单提交通知" name="notice_auth_data[]" {if in_array('tmpl_orderconfirm',$notice_auth_data)}checked{/if} value="tmpl_orderconfirm" lay-skin="primary"/>
+				  </div>
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="订单支付通知" name="notice_auth_data[]" {if in_array('tmpl_orderpay',$notice_auth_data)}checked{/if} value="tmpl_orderpay" lay-skin="primary"/>
+				  </div>
+
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="订单收货通知" name="notice_auth_data[]" {if in_array('tmpl_ordershouhuo',$notice_auth_data)}checked{/if} value="tmpl_ordershouhuo" lay-skin="primary"/>
+				  </div>
+
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="退款申请通知" name="notice_auth_data[]" {if in_array('tmpl_ordertui',$notice_auth_data)}checked{/if} value="tmpl_ordertui" lay-skin="primary"/>
+				  </div>
+
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="提现申请通知" name="notice_auth_data[]" {if in_array('tmpl_withdraw',$notice_auth_data)}checked{/if} value="tmpl_withdraw" lay-skin="primary"/>
+				  </div>
+
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="升级申请通知" name="notice_auth_data[]" {if in_array('tmpl_uplv',$notice_auth_data)}checked{/if} value="tmpl_uplv" lay-skin="primary"/>
+				  </div>
+
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="表单提交通知" name="notice_auth_data[]" {if in_array('tmpl_formsub',$notice_auth_data)}checked{/if} value="tmpl_formsub" lay-skin="primary"/>
+				  </div>
+
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="用户咨询通知" name="notice_auth_data[]" {if in_array('tmpl_kehuzixun',$notice_auth_data)}checked{/if} value="tmpl_kehuzixun" lay-skin="primary"/>
+				  </div>
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="买单付款通知" name="notice_auth_data[]" {if in_array('tmpl_maidanpay',$notice_auth_data)}checked{/if} value="tmpl_maidanpay" lay-skin="primary"/>
+				  </div>
+				  {if getcustom('shop_stock_warning_notice')}
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="库存不足通知" name="notice_auth_data[]" {if in_array('tmpl_stockwarning',$notice_auth_data)}checked{/if} value="tmpl_stockwarning" lay-skin="primary"/>
+				  </div>
+				  {/if}
+				  {if getcustom('product_pickup_device')}
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="商品柜设备缺货通知" name="notice_auth_data[]" {if in_array('tmpl_device_addstock_remind',$notice_auth_data)}checked{/if} value="tmpl_device_addstock_remind" lay-skin="primary"/>
+				  </div>
+				  {/if}
+
+				  <div style="clear:both;float: left;margin-bottom:10px"></div>
+			  </div>
+		  </div>
+
+		  <div>
+			  <div style="clear:left;margin-top:10px;color:#303030; font-size:14px; font-weight:600; ">
+				  <input type="checkbox" title="核销权限" lay-skin="primary" lay-filter="checkall"/>
+			  </div>
+			  <div style="margin-left:20px">
+				  {if getcustom('member_code') && getcustom('business_update_member_score')}
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="会员消费" name="hexiao_auth_data[]" {if in_array('member_code_buy',$hexiao_auth_data)}checked{/if} value="member_code_buy" lay-skin="primary"/>
+				  </div>
+				  {/if}
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="商城订单" name="hexiao_auth_data[]" {if in_array('shop',$hexiao_auth_data)}checked{/if} value="shop" lay-skin="primary"/>
+				  </div>
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="拼团订单" name="hexiao_auth_data[]" {if in_array('collage',$hexiao_auth_data)}checked{/if} value="collage" lay-skin="primary"/>
+				  </div>
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="幸运拼团订单" name="hexiao_auth_data[]" {if in_array('lucky_collage',$hexiao_auth_data)}checked{/if} value="lucky_collage" lay-skin="primary"/>
+				  </div>
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="周期购" name="hexiao_auth_data[]" {if in_array('cycle',$hexiao_auth_data)}checked{/if} value="cycle" lay-skin="primary"/>
+				  </div>
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="砍价订单" name="hexiao_auth_data[]" {if in_array('kanjia',$hexiao_auth_data)}checked{/if} value="kanjia" lay-skin="primary"/>
+				  </div>
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="秒杀订单" name="hexiao_auth_data[]" {if in_array('seckill',$hexiao_auth_data)}checked{/if} value="seckill" lay-skin="primary"/>
+				  </div>
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="预约订单" name="hexiao_auth_data[]" {if in_array('yuyue',$hexiao_auth_data)}checked{/if} value="yuyue" lay-skin="primary"/>
+				  </div>
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="{:t('积分')}兑换" name="hexiao_auth_data[]" {if in_array('scoreshop',$hexiao_auth_data)}checked{/if} value="scoreshop" lay-skin="primary"/>
+				  </div>
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="{:t('优惠券')}" name="hexiao_auth_data[]" {if in_array('coupon',$hexiao_auth_data)}checked{/if} value="coupon" lay-skin="primary"/>
+				  </div>
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="抽奖活动" name="hexiao_auth_data[]" {if in_array('choujiang',$hexiao_auth_data)}checked{/if} value="choujiang" lay-skin="primary"/>
+				  </div>
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="点餐订单" name="hexiao_auth_data[]" {if in_array('restaurant_shop',$hexiao_auth_data)}checked{/if} value="restaurant_shop" lay-skin="primary"/>
+				  </div>
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="外卖订单" name="hexiao_auth_data[]" {if in_array('restaurant_takeaway',$hexiao_auth_data)}checked{/if} value="restaurant_takeaway" lay-skin="primary"/>
+				  </div>
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="团购订单" name="hexiao_auth_data[]" {if in_array('tuangou',$hexiao_auth_data)}checked{/if} value="tuangou" lay-skin="primary"/>
+				  </div>
+				  {if getcustom('freight_selecthxbids')}
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="计次商品" name="hexiao_auth_data[]" {if in_array('shopproduct',$hexiao_auth_data)}checked{/if} value="shopproduct" lay-skin="primary"/>
+				  </div>
+				  {/if}
+				  {if getcustom('yx_hbtk')}
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="拓客活动" name="hexiao_auth_data[]" {if in_array('hbtk',$hexiao_auth_data)}checked{/if} value="hbtk" lay-skin="primary"/>
+				  </div>
+				  {/if}
+				  {if getcustom('huodong_baoming')}
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="活动报名" name="hexiao_auth_data[]" {if in_array('huodong_baoming',$hexiao_auth_data)}checked{/if} value="huodong_baoming" lay-skin="primary"/>
+				  </div>
+				  {/if}
+				  {if getcustom('yx_business_miandan')}
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="多商户免单" name="hexiao_auth_data[]" {if in_array('business_miandan',$hexiao_auth_data)}checked{/if} value="business_miandan" lay-skin="primary"/>
+				  </div>
+				  {/if}
+				  {if getcustom('restaurant_take_food')}
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="出餐" name="hexiao_auth_data[]" {if in_array('outfood',$hexiao_auth_data)}checked{/if} value="outfood" lay-skin="primary"/>
+				  </div>
+				  {/if}
+					{if getcustom('hotel')}
+					<div style="width: 120px;float: left;">
+						<input type="checkbox" title="{$text['酒店']}订单" name="hexiao_auth_data[]" {if in_array('hotel',$hexiao_auth_data)}checked{/if} value="hotel" lay-skin="primary"/>
+					</div>
+					{/if}
+				  <div style="clear:both;float: left;margin-bottom:10px"></div>
+			  </div>
+		  </div>
+		  <div>
+			  <div style="clear:left;margin-top:10px;color:#303030; font-size:14px; font-weight:600; ">
+				  <input type="checkbox" title="餐饮权限" lay-skin="primary" lay-filter="checkall"/>
+			  </div>
+			  <div style="margin-left:20px">
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="菜品管理" name="wxauth_data[]" {if in_array('restaurant_product',$wxauth_data)}checked{/if} value="restaurant_product" lay-skin="primary"/>
+				  </div>
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="餐桌设置" name="wxauth_data[]" {if in_array('restaurant_table',$wxauth_data)}checked{/if} value="restaurant_table" lay-skin="primary"/>
+				  </div>
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="餐桌管理" name="wxauth_data[]" {if in_array('restaurant_tableWaiter',$wxauth_data)}checked{/if} value="restaurant_tableWaiter" lay-skin="primary"/>
+				  </div>
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="点餐订单" name="wxauth_data[]" {if in_array('restaurant_shop',$wxauth_data)}checked{/if} value="restaurant_shop" lay-skin="primary"/>
+				  </div>
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="外卖订单" name="wxauth_data[]" {if in_array('restaurant_takeaway',$wxauth_data)}checked{/if} value="restaurant_takeaway" lay-skin="primary"/>
+				  </div>
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="预定" name="wxauth_data[]" {if in_array('restaurant_booking',$wxauth_data)}checked{/if} value="restaurant_booking" lay-skin="primary"/>
+				  </div>
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="寄存" name="wxauth_data[]" {if in_array('restaurant_deposit',$wxauth_data)}checked{/if} value="restaurant_deposit" lay-skin="primary"/>
+				  </div>
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="排队" name="wxauth_data[]" {if in_array('restaurant_queue',$wxauth_data)}checked{/if} value="restaurant_queue" lay-skin="primary"/>
+				  </div>
+				  <div style="clear:both;float: left;margin-bottom:10px"></div>
+			  </div>
+		  </div>
+		  {if getcustom('hotel')}	
+		  <div>
+			  <div style="clear:left;margin-top:10px;color:#303030; font-size:14px; font-weight:600; ">
+				  <input type="checkbox" title="{$text['酒店']}权限" lay-skin="primary" lay-filter="checkall"/>
+			  </div>
+			  <div style="margin-left:20px">
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="{$text['酒店']}订单" name="wxauth_data[]" {if in_array('hotel_order',$wxauth_data)}checked{/if} value="hotel_order" lay-skin="primary"/>
+				  </div>
+				  <div style="clear:both;float: left;margin-bottom:10px"></div>
+			  </div>
+		  </div>
+		 {/if}
+		 {if getcustom('mobile_admin_user_mendian_money')}
+      <div>
+          <div style="clear:left;margin-top:10px;color:#303030; font-size:14px; font-weight:600; ">
+              <input type="checkbox" title="首页{:t('门店')}余额权限" lay-skin="primary" lay-filter="checkall"/>
+          </div>
+          <div style="margin-left:20px">
+              <div style="width: 120px;float: left;">
+                  <input type="checkbox" title="余额明细" name="wxauth_data[]" {if in_array('mendian_mdmoneylog',$wxauth_data)}checked{/if} value="mendian_mdmoneylog" lay-skin="primary"/>
+              </div>
+              <div style="width: 120px;float: left;">
+                  <input type="checkbox" title="余额提现" name="wxauth_data[]" {if in_array('mendian_mdwithdraw',$wxauth_data)}checked{/if} value="mendian_mdwithdraw" lay-skin="primary"/>
+              </div>
+              <div style="width: 120px;float: left;">
+                  <input type="checkbox" title="提现记录" name="wxauth_data[]" {if in_array('mendian_mdwithdrawlog',$wxauth_data)}checked{/if} value="mendian_mdwithdrawlog" lay-skin="primary"/>
+              </div>
+              <div style="clear:both;float: left;margin-bottom:10px"></div>
+          </div>
+      </div>
+      {/if}
+	  </div>
+  </div>
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">备注：</label>
+						  <div class="layui-input-inline" style="width:300px;">
+							  <textarea type="text" name="ainfo[remark]" class="layui-textarea" style="min-height:60px">{$ainfo['remark']}</textarea>
+						  </div>
+					  </div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	{include file="public/js"/}
+	<script>
+	//address3('province','city','area',"{$ainfo['province']}","{$ainfo['city']}","{$ainfo['area']}");
+	layui.form.on('checkbox(checkall_all)',function(data){
+		if(data.elem.checked){
+			$(data.elem).parent().parent().find('input[type=checkbox]').prop('checked',true);
+		}else{
+			$(data.elem).parent().parent().find('input[type=checkbox]').prop('checked',false);
+		}
+		layui.form.render('checkbox'); 
+	})
+	layui.laydate.render({ 
+		elem: '#endtime',
+		type: 'datetime'
+	});
+	layui.form.on('radio(auth_type)', function(data){
+		if(data.value == '0'){
+			$('#authdataset').show();
+		}else{
+			$('#authdataset').hide();
+		}
+	})
+	layui.form.on('radio(achouchengset)', function(data){
+		if(data.value == '1'){
+			$('#achouchengset1').show();
+			$('#achouchengset2').hide();
+		}else if(data.value == '2'){
+			$('#achouchengset1').hide();
+			$('#achouchengset2').show();
+		}else{
+			$('#achouchengset1').hide();
+			$('#achouchengset2').hide();
+		}
+	})
+	layui.form.on('radio(ratioset)', function(data){
+		if(data.value == '1'){
+			$('#adratio').show();
+		}else{
+			$('#adratio').hide();
+		}
+	})
+	layui.form.on('radio(appcode_choose)', function(data){
+		if(data.value == '2'){
+			$('#express_appcode').show();
+		}else{
+			$('#express_appcode').hide();
+		}
+	})
+	layui.form.on('checkbox(checkall)',function(data){
+		if(data.elem.checked){
+			$(data.elem).parent().parent().find('input[type=checkbox]').prop('checked',true);
+		}else{
+			$(data.elem).parent().parent().find('input[type=checkbox]').prop('checked',false);
+		}
+		layui.form.render('checkbox'); 
+	})
+	layui.form.on('select(changetype)',function(data){
+		$('#aliossset').hide()
+		$('#qiniuset').hide()
+		$('#cosset').hide()
+		if(data.value==2){
+			$('#aliossset').show()
+		}
+		if(data.value==3){
+			$('#qiniuset').show()
+		}
+		if(data.value==4){
+			$('#cosset').show()
+		}
+	})
+	
+	layui.form.on('radio(choucheng_receivertype)', function(data){
+		$('#choucheng_receivertype1').hide();
+		$('#choucheng_receivertype2').hide();
+		if(data.value == '1'){
+			$('#choucheng_receivertype1').show();
+		}
+		if(data.value == '2'){
+			$('#choucheng_receivertype2').show();
+		}
+	});
+	layui.form.on('radio(choucheng_receivertype2_openidtype)', function(data){
+		$('#choucheng_receivertype2_accountwx').hide();
+		if(data.value == '1'){
+			$('#choucheng_receivertype2_accountwx').show();
+		}
+	});
+
+	//查询实际比例
+	function searchRatio(){
+		var uid = "{$uinfo['aid']}";
+		var index = layer.load();
+		$.post("{:url('getFwsRatio')}",{uid:uid},function(data){
+			if(data.status==1){
+				layer.alert('小程序分成比例：'+data.data+'%')
+			}else{
+				dialog(data.msg,0);
+			}
+			layer.close(index);
+		})
+	}
+
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		// console.log(field);
+		// console.log(field['ainfo[remotearr]'])
+		// if(!field['ainfo[remotearr]']) {
+		// 	layer.alert('可选附件存储类型至少选择一个');return false;
+		// }
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			{if input('param.isopen')==1}
+				dialog(data.msg,data.status);
+				if(data.status == 1){
+					setTimeout(function(){
+						parent.layer.closeAll();
+						parent.tableIns.reload()
+					},1000)
+				}
+			{else}
+				dialog(data.msg,data.status,data.url);
+			{/if}
+		})
+	})
+
+	function randomString(len) {
+		len = len || 32;
+		var $chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';/****默认去掉了容易混淆的字符oOLl,9gq,Vv,Uu,I1****/
+		var maxPos = $chars.length;
+		var pwd = '';
+		for (i = 0; i < len; i++) {
+			pwd += $chars.charAt(Math.floor(Math.random() * maxPos));
+		}
+		$('#system_param_key').val(pwd)
+	}
+
+	layui.form.on('radio(supplier_status)', function(data){
+		if(data.value == '1'){
+			$('#supplier-div').show();
+		}else{
+			$('#supplier-div').hide();
+		}
+	})
+  </script>
+</body>
+</html>

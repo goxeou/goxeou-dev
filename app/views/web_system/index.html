@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>控制台-{$webinfo.webname}</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+  <base target="mainFrame" />
+	<style>
+	::-webkit-scrollbar {
+			width: 4px;
+			height:4px;
+			background-color: rgba(0,0,0,0.1);
+	}
+	::-webkit-scrollbar-track {
+			background-color: #F5F5F5;
+	}
+	::-webkit-scrollbar-thumb {
+			background-color: #888;
+	}
+
+	.wb-subnav {width: 115px;left: 120px;top:50px;bottom: 0;color: #333;border-right: 1px solid #efefef;text-align: left;position: fixed;-webkit-transition: all 0.3s;transition: all 0.3s;background: #fff;z-index: 999;}
+	.wb-subnav ul{display: none;overflow: hidden;}
+	.wb-subnav ul a {padding-left: 25px;height: 100%;width: 100%;display: inline-block;}
+	.menu-header{line-height: 50px;height:50px;/*border-top: 1px solid #f7f7f8;*/cursor: pointer;padding-left: 5px;}
+	.menu-icon{width: 20px;height: 50px;float: left;text-align: center;font-size: 8px;color: #666;line-height: 50px;}
+
+	.wb-subnav .subnav-scene {overflow: hidden;height: 78px;line-height: 78px;padding-left: 20px;}
+	.wb-subnav ul li {height: 50px;line-height: 50px;font-size: 12px;}
+	.wb-subnav ul li a {color: #7c838a;}
+	.wb-subnav ul.single {display: block;}
+	.wb-subnav ul.single li a {padding-left: 20px;color: #666;}
+	.menu-header:hover{background: #f5f5f5;}
+	.menu-header.data-active:not(.active){background: #f5f5f5;}
+	.menu-header.point{position: relative;}
+	.menu-header.point:after{position: absolute;content: '';width:4px;height:4px;border-radius: 50%;left:77px;top:20px;border:2px solid red;}
+	.wb-subnav ul li.active, .wb-subnav ul li:hover {background: #edf6ff;}
+
+	.threemenu.point{position: relative;}
+	.threemenu.point:after{position: absolute;content: '';width:4px;height:4px;border-radius: 50%;left:100px;top:20px;border:2px solid red;}
+	.wb-subnav ul li.active a {color: #00aeff;}
+	.wb-subnav .wb-subnav-fold {position: absolute;width: 17px;height: 34px;background: #f5f7f9;top: 20px;left: 93px;line-height: 34px;color: #b1bfcb;border: 1px solid #efefef;border-right: none;cursor: pointer;text-align:center}
+	.layadmin-side-shrink2 .wb-subnav .wb-subnav-fold{left: 110px;background: #fff;transform: rotate(180deg);-webkit-transition: all 0.3s;transition: all 0.3s;}
+	</style>
+</head>
+<body class="layui-layout-body">
+  
+  <div id="LAY_app" class="layadmin-tabspage-none layadmin-side-shrink2">
+    <div class="layui-layout layui-layout-admin">
+      <div class="layui-header">
+        <!-- 头部区域 -->
+        <ul class="layui-nav layui-layout-left">
+          <li class="layui-nav-item layadmin-flexible " lay-unselect>
+            <a href="javascript:;" onclick="flexible(this)" title="侧边伸缩">
+              <i class="layui-icon layui-icon-shrink-right " id="LAY_app_flexible"></i>
+            </a>
+          </li>
+          <li class="layui-nav-item" lay-unselect>
+            <a href="javascript:void(0)" onclick="fullScreen()" title="全屏">
+              <img src="/static/admin/img/fullscreen.png" style="width:16px">
+            </a>
+          </li>
+          <li class="layui-nav-item" lay-unselect>
+            <a href="javascript:;" onclick="refresh()" title="刷新">
+              <i class="layui-icon layui-icon-refresh-3"></i>
+            </a>
+          </li>
+        </ul>
+        <ul class="layui-nav layui-layout-right" lay-filter="layadmin-layout-right">
+          <li class="layui-nav-item" lay-unselect title="客户端">
+            <a href="javascript:void(0)" onclick="window.parent.location.href='{:url('WebUser/alogin')}/uid/{:session('BST_ID')}'" lay-text="客户端">
+              <!-- <i class="layui-icon layui-icon-website"></i> --> 返回客户端
+            </a>
+          </li>
+          <li class="layui-nav-item layui-hide-xs" lay-unselect>
+            <a href="javascript:;" onclick="theme()">
+              <i class="layui-icon layui-icon-theme"></i>
+            </a>
+          </li>
+          <li class="layui-nav-item" lay-unselect>
+            <a href="javascript:;">
+              <cite>{:session('ADMIN_NAME')}</cite>
+            </a>
+            <dl class="layui-nav-child">
+              <dd><a href="{:url('setpwd')}">修改密码</a></dd>
+              <hr>
+              <dd layadmin-event="" style="text-align: center;"><a href="{:url('Login/logout')}" target="_self">退出</a></dd>
+            </dl>
+          </li>
+          
+          <li class="layui-nav-item layui-hide-xs" lay-unselect>
+            <a href="javascript:;" onclick="about()"><i class="layui-icon layui-icon-more-vertical"></i></a>
+          </li>
+          <li class="layui-nav-item layui-show-xs-inline-block layui-hide-sm" lay-unselect>
+            <a href="javascript:;" onclick="about()"><i class="layui-icon layui-icon-more-vertical"></i></a>
+          </li>
+        </ul>
+      </div>
+      
+      <!-- 侧边菜单 -->
+      <div class="layui-side layui-side-menu">
+        <div class="layui-side-scroll">
+            {if(!getcustom('admin_user_hide'))}
+            <a href="{:url('WebUser/index')}/type/1">
+                <div class="layui-logo">
+                    <span>控制台</span>
+                </div>
+            </a>
+            {else}
+            <div class="layui-logo">
+                <span>控制台</span>
+            </div>
+            {/if}
+          
+          <ul class="layui-nav layui-nav-tree" lay-shrink="all" id="LAY-system-side-menu" lay-filter="layadmin-system-side-menu">
+            {foreach $menudata as $k=>$menu}
+            <li class="layui-nav-item">
+              {if $menu['child']}
+                <a href="javascript:;" lay-tips="{$menu['name']}" lay-direction="2" style="padding-right:0;{if !$menu['icon']}padding-left:20px{/if}" onclick="showsubnav('{$k}')">
+                {if $menu['icon']}<i class="{$menu['icon']}"></i>{/if}
+                <cite>{$menu['name']}</cite>
+                </a>
+              {else}
+              <a href="javascript:;" lay-tips="{$menu['name']}" lay-direction="2" style="padding-right:0;{if !$menu['icon']}padding-left:20px{/if}" onclick="hidesubnav('{:url($menu['path'])}')">
+                {if $menu['icon']}<i class="{$menu['icon']}"></i>{/if}
+                <cite>{$menu['name']}</cite>
+              </a>
+              {/if}
+            </li>
+            {/foreach}
+          </ul>
+        </div>
+      </div>
+
+        <div class="wb-subnav" style="display:none">
+            <div style="width: 100%;height: 100%;overflow-y: auto">
+                {foreach $menudata as $k=>$menu}
+                <div id="subnav_{$k}" style="display:none">
+                    <div class="subnav-scene">{$menu.fullname}</div>
+                    {foreach $menu['child'] as $menu2}
+                        {if $menu2 && isset($menu2['child'])}
+                        <div class="menu-header" style="font-size:13px"><div class="menu-icon fa fa-caret-right"></div>{$menu2.name}</div>
+                        <ul style="">
+                        {foreach $menu2['child'] as $menu3}
+                        <li><a href="{:url($menu3['path'])}">{$menu3.name}</a></li>
+                        {/foreach}
+                        </ul>
+                        {else}
+                        <ul class="single">
+                            <li style="position: relative"><a href="{:url($menu2['path'])}" style="cursor: pointer;color:#333;font-size:13px">{$menu2.name}</a></li>
+                        </ul>
+                        {/if}
+                    {/foreach}
+                </div>
+                {/foreach}
+                <div class="wb-subnav-fold fa fa-angle-double-left" onclick="subnavflexible()"></div>
+            </div>
+        </div>
+
+
+      <!-- 主体内容 -->
+
+      <div class="layui-body" id="LAY_app_body">
+        <div class="layadmin-tabsbody-item layui-show">
+            {if(!getcustom('admin_user_hide'))}
+            <iframe src="{:url('WebUser/index')}/type/1" frameborder="0" class="layadmin-iframe" id="mainFrame" name="mainFrame"></iframe>
+            {else}
+            <iframe src="{:url('WebSystem/set')}/type/1" frameborder="0" class="layadmin-iframe" id="mainFrame" name="mainFrame"></iframe>
+            {/if}
+        </div>
+      </div>
+      <!-- 辅助元素，一般用于移动设备下遮罩 -->
+      <div class="layadmin-body-shade" onclick="flexible()"></div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	function showsubnav(key){
+		$('div[id^=subnav_]').hide();
+		$('#subnav_'+key).show();
+		$('.wb-subnav').show();
+		$('#LAY_app').removeClass('layadmin-side-shrink2')
+	}
+	function hidesubnav(url){
+		$('#mainFrame').attr('src',url);
+		$('.wb-subnav').hide();
+		$('div[id^=subnav_]').hide();
+		$('#LAY_app').addClass('layadmin-side-shrink2')
+	}
+	$(function(){
+		$(".menu-header").click(function(){
+			//$(".menu-header").removeClass('data-active');
+			//$(this).addClass('data-active');
+			if($(this).hasClass("active")){
+				$(this).next("ul").eq(0).hide()
+				$(this).find(".menu-icon").removeClass("fa-caret-down").addClass("fa-caret-right")
+				$(this).removeClass("active")
+			}else{
+				$(this).next("ul").eq(0).show()
+				$(this).find(".menu-icon").removeClass("fa-caret-right").addClass("fa-caret-down")
+				$(this).addClass("active")
+			}
+		})
+		$('.wb-subnav li').click(function(){
+			$('.wb-subnav li').removeClass('active');
+			$(this).addClass('active')
+		})
+	})
+	function subnavflexible(){
+		if($('#LAY_app').hasClass('layadmin-side-shrink2')){
+			//$('.wb-subnav').removeClass('subnavfold');
+			$('#LAY_app').removeClass('layadmin-side-shrink2')
+			//$('#LAY_app_body').css('left',$('#LAY_app_body').offset().left+110)
+		}else{
+			//$('.wb-subnav').addClass('subnavfold');
+			$('#LAY_app').addClass('layadmin-side-shrink2')
+			//$('#LAY_app_body').css('left',$('#LAY_app_body').offset().left-110)
+		}
+	}
+	function refresh(){
+		var iframe = $('body').find('.layadmin-iframe');
+		iframe[0].contentWindow.location.reload(true);
+	}
+	function getscreen(){
+		var width = $(window).width()
+		if(width >= 1200){
+			return 3; //大屏幕
+		} else if(width >= 992){
+			return 2; //中屏幕
+		} else if(width >= 768){
+			return 1; //小屏幕
+		} else {
+			return 0; //超小屏幕
+		}
+	}
+	function popup(options){
+    var success = options.success
+    ,skin = options.skin;
+    
+    delete options.success;
+    delete options.skin;
+    return layer.open($.extend({
+      type: 1
+      ,title: '提示'
+      ,content: ''
+      ,id: 'LAY-system-view-popup'
+      ,skin: 'layui-layer-admin' + (skin ? ' ' + skin : '')
+      ,shadeClose: true
+      ,closeBtn: false
+      ,success: function(layero, index){
+        var elemClose = $('<i class="layui-icon" close>&#x1006;</i>');
+        layero.append(elemClose);
+        elemClose.on('click', function(){
+          layer.close(index);
+        });
+        typeof success === 'function' && success.apply(this, arguments);
+      }
+    }, options))
+  }
+	$(function(){
+		var app = $('#LAY_app');
+		var iconElem = $('#LAY_app_flexible')
+		var screen = getscreen();
+		if(screen < 2){
+			iconElem.removeClass('layui-icon-shrink-right').addClass('layui-icon-spread-left');
+		}
+		//主题初始化
+    var local = layui.data('layuiAdmin');
+    local.theme && dotheme(local.theme);
+    
+    //低版本IE提示
+		var device = layui.device()
+    if(device.ie && device.ie < 10){
+			popup({
+				content: 'IE'+ device.ie + '下访问可能不佳，推荐使用：Chrome / Firefox / Edge 等高级浏览器'
+				,maxWidth: 300
+				//,shade: 0.01
+				,offset: 'auto'
+				,anim: 6
+				,id: 'LAY_errorIE'
+			})
+    }
+		$('body').on('mouseenter', '*[lay-tips]', function(){
+			var othis = $(this);
+			if(othis.parent().hasClass('layui-nav-item') && !$('#LAY_app').hasClass('layadmin-side-shrink')) return;
+			
+			var tips = othis.attr('lay-tips')
+			,offset = othis.attr('lay-offset') 
+			,direction = othis.attr('lay-direction')
+			,index = layer.tips(tips, this, {
+				tips: direction || 1
+				,time: -1
+				,success: function(layero, index){
+					if(offset){
+						layero.css('margin-left', offset + 'px');
+					}
+				}
+			});
+			othis.data('index', index);
+		}).on('mouseleave', '*[lay-tips]', function(){
+			layer.close($(this).data('index'));
+		});
+		//监听侧边导航点击事件
+		layui.element.on('nav(layadmin-system-side-menu)', function(elem){
+			if(elem.siblings('.layui-nav-child')[0] && $('#LAY_app').hasClass('layadmin-side-shrink')){
+				sideFlexible('spread');
+				layer.close(elem.data('index'));
+			}
+		});
+		//窗口resize事件
+		var resizeSystem = layui.data.resizeSystem = function(){
+			//layer.close(events.note.index);
+			layer.closeAll('tips');
+			if(!resizeSystem.lock){
+				setTimeout(function(){
+					sideFlexible(getscreen() < 2 ? '' : 'spread');
+					delete resizeSystem.lock;
+				}, 100);
+			}
+			resizeSystem.lock = true;
+		}
+		$(window).on('resize', layui.data.resizeSystem);
+	});
+	function sideFlexible(status){
+		var app = $('#LAY_app');
+		var iconElem =  $('#LAY_app_flexible');
+		var width = $(window).width()
+		var screen = getscreen();
+		//设置状态，PC：默认展开、移动：默认收缩
+		if(status === 'spread'){
+			//切换到展开状态的 icon，箭头：←
+			iconElem.removeClass('layui-icon-spread-left').addClass('layui-icon-shrink-right');
+			//移动：从左到右位移；PC：清除多余选择器恢复默认
+			if(screen < 2){
+				app.addClass('layadmin-side-spread-sm');
+			} else {
+				app.removeClass('layadmin-side-spread-sm');
+			}
+			app.removeClass('layadmin-side-shrink')
+		} else {
+			//切换到搜索状态的 icon，箭头：→
+			iconElem.removeClass('layui-icon-shrink-right').addClass('layui-icon-spread-left');
+			//移动：清除多余选择器恢复默认；PC：从右往左收缩
+			if(screen < 2){
+				app.removeClass('layadmin-side-shrink');
+			} else {
+				app.addClass('layadmin-side-shrink');
+			}
+			app.removeClass('layadmin-side-spread-sm')
+		}
+	}
+	function flexible(){
+		var iconElem = $('#LAY_app_flexible')
+    var isSpread = iconElem.hasClass('layui-icon-spread-left');
+		var status = isSpread ? 'spread' : null;
+		sideFlexible(status);
+	}
+	function note(othis){
+		var mobile = getscreen() < 2
+		var note = layui.data('layuiAdmin').note;
+		popup({
+			title: '便签'
+			,shade: 0
+			,offset: [
+				'41px'
+				,(mobile ? null : ($(othis).offset().left - 250) + 'px')
+			]
+			,anim: -1
+			,id: 'LAY_adminNote'
+			,skin: 'layadmin-note layui-anim layui-anim-upbit'
+			,content: '<textarea placeholder="内容"></textarea>'
+			,resize: false
+			,success: function(layero, index){
+				var textarea = layero.find('textarea')
+				var value = note === undefined ? '便签中的内容会存储在本地，这样即便你关掉了浏览器，在下次打开时，依然会读取到上一次的记录。是个非常小巧实用的本地备忘录' : note;
+				textarea.val(value).focus().on('keyup', function(){
+					layui.data('layuiAdmin', {key: 'note',value: this.value});
+				});
+			}
+		})
+	}
+	function about(){
+		var html = '<div class="layui-card-header">版本信息</div>';
+		html+='<div class="layui-card-body layui-text layadmin-about">';
+		html+='	<p>当前版本：v{$myversion}</p>';
+		html+='</div>';
+		html+='<div class="layui-card-body layui-text layadmin-about">';
+		
+		html+='</div>';
+		layer.open({
+			id: 'LAY_adminPopupAbout',
+			type: 1,
+			anim: -1,
+			title: false,
+			closeBtn: false,
+			offset: 'r',
+			shade: 0.1,
+			shadeClose: true,
+			skin: 'layui-anim layui-anim-rl layui-layer-adminRight',
+			area: '300px',
+			content:html
+		});
+	}
+		var themecolor = [
+			{main: '#50314F',selected: '#7A4D7B',alias: 'purple-red'}, //紫红
+			{main: '#20222A',selected: '#009688',alias: 'default'}, //主题色 选中色 默认别名
+			{main: '#03152A',selected: '#3B91FF',alias: 'dark-blue'}, //藏蓝
+			{main: '#2E241B',selected: '#A48566',alias: 'coffee'}, //咖啡
+			{main: '#344058',logo: '#1E9FFF',selected: '#1E9FFF',alias: 'ocean'}, //海洋
+			{main: '#3A3D49',logo: '#2F9688',selected: '#5FB878',alias: 'green'}, //墨绿
+			{main: '#20222A',logo: '#F78400',selected: '#F78400',alias: 'red'}, //橙色
+			{main: '#28333E',logo: '#AA3130',selected: '#AA3130',alias: 'fashion-red'}, //时尚红
+			{main: '#24262F',logo: '#3A3D49',selected: '#009688',alias: 'classic-black'} //经典黑
+		];
+	function theme(){
+		var local = layui.data('layuiAdmin')
+    var theme = local.theme || {}
+    var themeColorIndex =  parseInt((theme && theme.color) ? theme.color.index : 0) || 0;
+		console.log(theme)
+		console.log(themeColorIndex)
+		var html = '<div class="layui-card-header">配色方案</div>';
+		html += '<div class="layui-card-body layadmin-setTheme">';
+		html += '	<ul class="layadmin-setTheme-color">';
+		for(var index in themecolor){
+			var item = themecolor[index]
+			html += '	<li onclick="setTheme(this)" data-index="'+index+'" data-alias="'+item.alias+'" '+(index==themeColorIndex?'class="layui-this"':'')+' title="'+item.alias+'">';
+			html += '		<div class="layadmin-setTheme-header"></div>';
+			html += '		<div class="layadmin-setTheme-side" style="background-color: '+item.main+';">';
+			html += '			<div class="layadmin-setTheme-logo" style="background-color: '+item.logo+';"></div>';
+			html += '		</div>';
+			html += '	</li>';
+		}
+		html += '	</ul>';
+		html += '</div>';
+		layer.open({
+			id: 'LAY_adminPopupTheme',
+			type: 1,
+			anim: -1,
+			title: false,
+			closeBtn: false,
+			offset: 'r',
+			shade: 0.1,
+			shadeClose: true,
+			skin: 'layui-anim layui-anim-rl layui-layer-adminRight',
+			area: '300px',
+			content:html
+		});
+	}
+	function setTheme(othis){
+		othis = $(othis)
+		var index = othis.data('index')
+		var nextIndex = othis.siblings('.layui-this').data('index');
+		if(othis.hasClass('layui-this')) return;
+		othis.addClass('layui-this').siblings('.layui-this').removeClass('layui-this');
+		if(themecolor[index]){
+			themecolor[index].index = index
+			dotheme({color: themecolor[index]});
+		}
+	}
+	function dotheme(options){
+		var local = layui.data('layuiAdmin')
+		var id = 'LAY_layadmin_theme'
+		var style = document.createElement('style')
+		var styleText = layui.laytpl([
+			//主题色
+			'.layui-side-menu,'
+			,'.layadmin-pagetabs .layui-tab-title li:after,'
+			,'.layadmin-pagetabs .layui-tab-title li.layui-this:after,'
+			,'.layui-layer-admin .layui-layer-title,'
+			,'.layadmin-side-shrink .layui-side-menu .layui-nav>.layui-nav-item>.layui-nav-child'
+			,'{background-color:{{d.color.main}} !important;}'
+			//选中色
+			,'.layui-nav-tree .layui-this,'
+			,'.layui-nav-tree .layui-this>a,'
+			,'.layui-nav-tree .layui-nav-child dd.layui-this,'
+			,'.layui-nav-tree .layui-nav-child dd.layui-this a'
+			,'{background-color:{{d.color.selected}} !important;}'
+			//logo
+			,'.layui-layout-admin .layui-logo{background-color:{{d.color.logo || d.color.main}} !important;}}'
+		].join('')).render(options = $.extend({}, local.theme, options))
+		var styleElem = document.getElementById(id);
+		
+		//添加主题样式
+		if('styleSheet' in style){
+			style.setAttribute('type', 'text/css');
+			style.styleSheet.cssText = styleText;
+		} else {
+			style.innerHTML = styleText;
+		}
+		style.id = id;
+		
+		styleElem && $('body')[0].removeChild(styleElem);
+		$('body')[0].appendChild(style);
+		$('body').attr('layadmin-themealias', options.color.alias);
+		
+		//本地存储记录
+		local.theme = local.theme || {};
+		layui.each(options, function(key, value){
+			local.theme[key] = value;
+		});
+		layui.data('layuiAdmin', {key: 'theme',value: local.theme});
+	}
+	
+	//全屏
+	function fullScreen(){
+		var isfullScreen = isFullscreen()
+		if(!isfullScreen){
+			var el = document.documentElement;
+			var rfs = el.requestFullScreen || el.webkitRequestFullScreen || el.mozRequestFullScreen || el.msRequestFullScreen;
+
+			//typeof rfs != "undefined" && rfs
+			if (rfs) {
+					rfs.call(el);
+			}
+			else if (typeof window.ActiveXObject !== "undefined") {
+					//for IE，这里其实就是模拟了按下键盘的F11，使浏览器全屏
+					var wscript = new ActiveXObject("WScript.Shell");
+					if (wscript != null) {
+							wscript.SendKeys("{F11}");
+					}
+			}
+		}else{
+			exitScreen();
+		}
+	}
+	//退出全屏
+	function exitScreen(){
+			var el = document;
+			var cfs = el.cancelFullScreen || el.webkitCancelFullScreen || el.mozCancelFullScreen || el.exitFullScreen;
+
+			//typeof cfs != "undefined" && cfs
+			if (cfs) {
+					cfs.call(el);
+			}
+			else if (typeof window.ActiveXObject !== "undefined") {
+					//for IE，这里和fullScreen相同，模拟按下F11键退出全屏
+					var wscript = new ActiveXObject("WScript.Shell");
+					if (wscript != null) {
+							wscript.SendKeys("{F11}");
+					}
+			}
+	}
+	function isFullscreen(){
+			return document.fullscreenElement    ||
+						 document.msFullscreenElement  ||
+						 document.mozFullScreenElement ||
+						 document.webkitFullscreenElement || false;
+	}
+	setInterval(function(){ //保持连接 5分钟请求一次
+		$.post("{:url('linked')}",{});
+	},5*60000);
+	</script>
+</body>
+</html>
+

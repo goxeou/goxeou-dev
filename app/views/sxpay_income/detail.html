@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>商户申请资料</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<script src="/static/admin/js/address3.js?v=1"></script>
+	<style>
+	.layui-form-label{width:150px!important}
+	.imgpreview{float:left;padding-top:10px;padding-left:180px;clear: both;}
+	.imgpreview .layui-imgbox{margin-right: 20px;}
+	.layui-imgbox-margin .layui-imgbox{margin-right: 20px !important;}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-col-md12">
+        <div class="layui-card">
+          <div class="layui-card-header">
+						查看申请资料
+						<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+					</div>
+					
+          <div class="layui-card-body" pad15>
+						{if $info['id'] && $info['audit_detail']}
+						<div class="layui-col-md12">
+							{php}$audit_detail = json_decode($info['audit_detail'],true);{/php}
+							<blockquote class="layui-elem-quote layui-quote-nm">驳回原因：
+							{foreach $audit_detail as $k=>$v}
+							<p style="color:red">{$v.reject_reason}</p>
+							{/foreach}
+							</blockquote>
+						</div>
+						{/if}
+						{if $info['subject_type'] == 'SUBJECT_TYPE_MICRO'}
+            <div class="layui-form">
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>身份证人像面照片：</label>
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.id_card_copy}"/></div></div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>身份证国徽面照片：</label>
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.id_card_national}"/></div></div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>身份证姓名：</label>
+								<div class="layui-form-mid">{$info.id_card_name}</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>身份证号码：</label>
+								<div class="layui-form-mid">{$info.id_card_number}</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>身份证有效期限：</label>
+								<div class="layui-form-mid">{$info.id_card_valid_time1} - {if $info['id_card_valid_time_cq']==1}长期{else}{$info.id_card_valid_time2}{/if}</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>手机号码：</label>
+								<div class="layui-form-mid">{$info.contact_phone}</div>
+								<div class="layui-form-mid" style="color:#55a;cursor:pointer" title="修改" onclick="modifycontactinfo('mobile_phone')"><i class="fa fa-pencil"></i></div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>开户银行：</label>
+								<div class="layui-form-mid">{if $info.account_bank=='其他银行'}{$info.bank_name}{else}{$info.account_bank}{/if}</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>开户银行地区：</label>
+								<div class="layui-form-mid">{$info.bank_province}{$info.bank_city}{$info.bank_area}</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>银行账号：</label>
+								<div class="layui-form-mid">{$info.account_number}</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>门店名称：</label>
+								<div class="layui-form-mid">{$info.store_name}</div>
+							</div>
+							
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>门店地区：</label>
+								<div class="layui-form-mid">{$info.store_province}{$info.store_city}{$info.store_area}</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>门店详细地址：</label>
+								<div class="layui-form-mid">{$info.store_street}</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>门店门口照片：</label>
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.store_entrance_pic}"/></div></div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>店内环境照片：</label>
+								<div id="indoor_picPreview" class="">
+									<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.indoor_pic}"/></div></div>
+								</div>
+							</div>
+							{if $info.indoor_pic}
+							<div class="layui-form-item">
+								<label class="layui-form-label">经营场地证明：</label>
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.indoor_pic}"/></div></div>
+							</div>
+							{/if}
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>商户简称：</label>
+								<div class="layui-form-mid">{$info.merchant_shortname}</div>
+								<div class="layui-form-mid" style="color:#55a;cursor:pointer" title="修改" onclick="modifycontactinfo('merchant_name')"><i class="fa fa-pencil"></i></div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>客服电话：</label>
+								<div class="layui-form-mid">{$info.service_phone}</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>售卖商品/提供服务描述：</label>
+								<div class="layui-form-mid">{$info.product_desc}</div>
+							</div>
+							{if $info.business_addition_desc}
+							<div class="layui-form-item">
+								<label class="layui-form-label">补充说明：</label>
+								<div class="layui-form-mid">{$info.business_addition_desc}</div>
+							</div>
+							{/if}
+							{if $info['business_addition_pics']}
+							<div class="layui-form-item layui-imgbox-margin">
+								<label class="layui-form-label">补充材料：</label>
+								{php}$pics = explode(',',$info['business_addition_pics']);{/php}{foreach $pics as $pic}
+								<div class="layui-imgbox">
+									<a class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().remove();getpicsval('business_addition_pics','business_addition_picsList')" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+									<span class="layui-imgbox-img"><img src="{$pic}"></span>
+								</div>
+								{/foreach}
+							</div>
+							{/if}
+							{if $info['appid_config_list']}
+							<div class="layui-form-item">
+								<label class="layui-form-label">绑定的appid：</label>
+								{foreach $info['appid_config_list'] as $v}
+								{if $v.subscribe_appid}
+								<div class="layui-form-mid">{$v.subscribe_appid}(推荐关注)</div>
+								{/if}
+								{if $v.sub_appid}
+								<div class="layui-form-mid">{$v.sub_appid}</div>
+								{/if}
+								{/foreach}
+							</div>
+							{/if}
+							{if $info['jsapi_path_list']}
+							<div class="layui-form-item">
+								<label class="layui-form-label">配置的授权目录：</label>
+								{foreach $info['jsapi_path_list'] as $v}
+								<div class="layui-form-mid">{$v}</div>
+								{/foreach}
+							</div>
+							{/if}
+            </div>
+						{else}
+
+            <div class="layui-form">
+
+							超级管理员信息<hr/>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>姓 名：</label>
+								<div class="layui-form-mid">{$info.guanli_contact_name}</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>身份证号码：</label>
+								<div class="layui-form-mid">{$info.guanli_contact_id_number}</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>手机号码：</label>
+								<div class="layui-form-mid">{$info.guanli_contact_phone}</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>联系邮箱：</label>
+								<div class="layui-form-mid">{$info.guanli_contact_email}</div>
+							</div>
+							
+							<div id="license_form" {if $info['subject_type'] && $info['subject_type']!='SUBJECT_TYPE_INDIVIDUAL' && $info['subject_type']!='SUBJECT_TYPE_ENTERPRISE'}style="display:none"{/if}>
+								营业执照信息<hr/>
+								<div class="layui-form-item">
+									<label class="layui-form-label"><span class="redstar">*</span>营业执照照片：</label>
+									<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.business_license_copy}"/></div></div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label"><span class="redstar">*</span>注册号/统一社会信用代码：</label>
+								<div class="layui-form-mid">{$info.business_license_number}</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label"><span class="redstar">*</span>企业名称：</label>
+									<div class="layui-form-mid">{$info.business_merchant_name}</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label"><span class="redstar">*</span>个体户经营者/法人姓名：</label>
+									<div class="layui-form-mid">{$info.business_legal_person}</div>
+								</div>
+							</div>
+							<div id="cert_form" {if $info['subject_type']!='SUBJECT_TYPE_INSTITUTIONS' && $info['subject_type']!='SUBJECT_TYPE_OTHERS'}style="display:none"{/if}>
+								登记证书信息（<!--主体为党政、机关及事业单位/其他组织，必填。-->党政、机关及事业单位：请上传相关部门颁发的证书，如：事业单位法人证书、统一社会信用代码证书。`其他组织：请上传相关部门颁发的证书，如：社会团体法人登记证书、民办非企业单位登记证书、基金会法人登记证书。）<hr/>
+								<div class="layui-form-item">
+									<label class="layui-form-label"><span class="redstar">*</span>登记证书照片：</label>
+									<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.cert_copy}"/></div></div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label"><span class="redstar">*</span>登记证书类型：</label>
+									<div class="layui-form-mid">
+										{if $info.cert_type=='CERTIFICATE_TYPE_2388'}事业单位法人证书{/if}
+										{if $info.cert_type=='CERTIFICATE_TYPE_2389'}统一社会信用代码证书{/if}
+										{if $info.cert_type=='CERTIFICATE_TYPE_2390'}有偿服务许可证（军队医院适用）{/if}
+										{if $info.cert_type=='CERTIFICATE_TYPE_2391'}医疗机构执业许可证（军队医院适用）{/if}
+										{if $info.cert_type=='CERTIFICATE_TYPE_2392'}企业营业执照（挂靠企业的党组织适用）{/if}
+										{if $info.cert_type=='CERTIFICATE_TYPE_2393'}组织机构代码证（政府机关适用）{/if}
+										{if $info.cert_type=='CERTIFICATE_TYPE_2394'}社会团体法人登记证书{/if}
+										{if $info.cert_type=='CERTIFICATE_TYPE_2395'}民办非企业单位登记证书{/if}
+										{if $info.cert_type=='CERTIFICATE_TYPE_2396'}基金会法人登记证书{/if}
+										{if $info.cert_type=='CERTIFICATE_TYPE_2397'}慈善组织公开募捐资格证书{/if}
+										{if $info.cert_type=='CERTIFICATE_TYPE_2398'}农民专业合作社法人营业执照{/if}
+										{if $info.cert_type=='CERTIFICATE_TYPE_2399'}宗教活动场所登记证{/if}
+										{if $info.cert_type=='CERTIFICATE_TYPE_2400'}其他证书/批文/证明{/if}
+									</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label"><span class="redstar">*</span>证书号：</label>
+									<div class="layui-form-mid">{$info.cert_number}</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label"><span class="redstar">*</span>商户名称：</label>
+									<div class="layui-form-mid">{$info.cert_merchant_name}</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label"><span class="redstar">*</span>注册地址：</label>
+									<div class="layui-form-mid">{$info.cert_company_address}</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label"><span class="redstar">*</span>法定代表人：</label>
+									<div class="layui-form-mid">{$info.cert_legal_person}</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label"><span class="redstar">*</span>有效期限：</label>
+									<div class="layui-form-mid">{$info.cert_period_begin}</div>
+									<div class="layui-form-mid">至</div>
+									<div class="layui-form-mid">{if $info['cert_period_end_cq']==1}长期{else}{$info.cert_period_end}{/if}</div>
+								</div>
+							</div>
+							<div id="organization_form" {if $info['subject_type']=='SUBJECT_TYPE_MICRO' || $info['subject_type']=='SUBJECT_TYPE_INDIVIDUAL' || !$info['license_number'] || strlen($info['license_number'])==18}style="display:none"{/if}>
+								组织机构代码证(主体为企业/党政、机关及事业单位/其他组织，且证件号码不是18位时必填。)<hr/>
+								<div class="layui-form-item">
+									<label class="layui-form-label"><span class="redstar">*</span>组织机构代码证照片：</label>
+									<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.organization_copy}"/></div></div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label"><span class="redstar">*</span>组织机构代码：</label>
+									<div class="layui-form-mid">{$info.organization_code}</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label"><span class="redstar">*</span>有效期限：</label>
+									<div class="layui-form-mid">{$info.org_period_begin}</div>
+									<div class="layui-form-mid">至</div>
+									<div class="layui-form-mid">{if $info['org_period_end_cq']==1}长期{else}{$info.org_period_end}{/if}</div>
+								</div>
+							</div>
+
+							<div class="layui-form-item" id="certificate_letter_copy_form" {if $info['subject_type']!='SUBJECT_TYPE_INSTITUTIONS'}style="display:none"{/if}>
+								<label class="layui-form-label"><span class="redstar">*</span>单位证明函照片：</label>
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.certificate_letter_copy}"/></div></div>
+							</div>
+							经营者/法人身份证<hr/>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>身份证人像面照片：</label>
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.identity_id_card_copy}"/></div></div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>身份证国徽面照片：</label>
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.identity_id_card_national}"/></div></div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>身份证姓名：</label>
+								<div class="layui-form-mid">{$info.identity_id_card_name}</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>身份证号码：</label>
+								<div class="layui-form-mid">{$info.identity_id_card_number}</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>身份证有效期限：</label>
+								<div class="layui-form-mid">{$info.identity_id_card_valid_time1}</div>
+								<div class="layui-form-mid">至</div>
+								<div class="layui-form-mid">{if $info['identity_id_card_valid_time_cq']==1}长期{else}{$info.identity_id_card_valid_time2}{/if}</div>
+							</div>
+
+							经营资料<hr/>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>商户简称：</label>
+								<div class="layui-form-mid">{$info.business_merchant_shortname}</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>客服电话：</label>
+								<div class="layui-form-mid">{$info.business_service_phone}</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>经营场景类型：</label>
+								<div class="layui-form-mid">{if in_array('SALES_SCENES_STORE',json_decode($info['sales_scenes_type'],true))}线下门店{/if} {if in_array('SALES_SCENES_MP',json_decode($info['sales_scenes_type'],true))}公众号{/if} {if in_array('SALES_SCENES_MINI_PROGRAM',json_decode($info['sales_scenes_type'],true))}小程序{/if}</div>
+							</div>
+
+							<div id="sales_scenes_type_store" {if !in_array('SALES_SCENES_STORE',json_decode($info['sales_scenes_type'],true))}style="display:none"{/if}>
+								<div class="layui-form-item">
+									<label class="layui-form-label"><span class="redstar">*</span>门店名称：</label>
+									<div class="layui-form-mid">{$info.biz_store_name}</div>
+								</div>
+								
+								<div class="layui-form-item">
+									<label class="layui-form-label"><span class="redstar">*</span>门店地区：</label>
+									<div class="layui-form-mid">{$info.sales_store_province}{$info.sales_store_city}{$info.sales_store_area}</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label"><span class="redstar">*</span>门店详细地址：</label>
+									<div class="layui-form-mid">{$info.sales_store_street}</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label"><span class="redstar">*</span>门店门口照片：</label>
+									<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.sales_store_entrance_pic}"/></div></div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label"><span class="redstar">*</span>店内环境照片：</label>
+									<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.sales_indoor_pic}"/></div></div>
+								</div>
+							</div>
+
+							<div id="sales_scenes_type_mp" {if !in_array('SALES_SCENES_MP',json_decode($info['sales_scenes_type'],true))}style="display:none"{/if}>
+							
+								<div class="layui-form-item">
+									<label class="layui-form-label"><span class="redstar">*</span>公众号APPID：</label>
+									<div class="layui-form-mid">{$info.mp_sub_appid}</div>
+								</div>
+								
+								<div class="layui-form-item">
+									<label class="layui-form-label"><span class="redstar">*</span>公众号页面截图：</label>
+									{if $info['mp_pics']}{php}$pics = explode(',',$info['mp_pics']);{/php}{foreach $pics as $pic}
+									<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$pic}"/></div></div>
+									{/foreach}{/if}
+								</div>
+							</div>
+							
+							<div id="sales_scenes_type_mn" {if !in_array('SALES_SCENES_MINI_PROGRAM',json_decode($info['sales_scenes_type'],true))}style="display:none"{/if}>
+
+								<div class="layui-form-item">
+									<label class="layui-form-label"><span class="redstar">*</span>小程序APPID：</label>
+									<div class="layui-form-mid">{$info.mini_program_sub_appid}</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label"><span class="redstar">*</span>小程序页面截图：</label>
+									{if $info['mp_pics']}{php}$pics = explode(',',$info['mini_program_pics']);{/php}{foreach $pics as $pic}
+									<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$pic}"/></div></div>
+									{/foreach}{/if}
+								</div>
+							</div>
+
+							结算规则<hr/>
+							
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>所属行业：</label>
+								<div class="layui-input-inline" style="width:300px">
+									<select name="info[qualification_type]" lay-verify="required2" lay-verType="tips" lay-filter="qualification_type" id="qualification_type" disabled>
+										{if !$info['subject_type'] || $info['subject_type']=='SUBJECT_TYPE_INDIVIDUAL'}
+										<option value="">请选择</option>
+										<option {if $info['qualification_type']=='零售批发/生活娱乐/其他'}selected{/if}>零售批发/生活娱乐/其他</option>
+										<option {if $info['qualification_type']=='餐饮'}selected{/if}>餐饮</option>
+										<option {if $info['qualification_type']=='食品生鲜'}selected{/if}>食品生鲜</option>
+										<option {if $info['qualification_type']=='私立/民营医院/诊所'}selected{/if}>私立/民营医院/诊所</option>
+										<option {if $info['qualification_type']=='保健器械/医疗器械/非处方药品'}selected{/if}>保健器械/医疗器械/非处方药品</option>
+										<option {if $info['qualification_type']=='游艺厅/KTV/网吧'}selected{/if}>游艺厅/KTV/网吧</option>
+										<option {if $info['qualification_type']=='机票/机票代理'}selected{/if}>机票/机票代理</option>
+										<option {if $info['qualification_type']=='宠物医院'}selected{/if}>宠物医院</option>
+										<option {if $info['qualification_type']=='培训机构'}selected{/if}>培训机构</option>
+										<option {if $info['qualification_type']=='话费通讯'}selected{/if}>话费通讯</option>
+										<option {if $info['qualification_type']=='门户论坛/网络广告及推广/软件开发/其他'}selected{/if}>门户论坛/网络广告及推广/软件开发/其他</option>
+										<option {if $info['qualification_type']=='游戏'}selected{/if}>游戏</option>
+										<option {if $info['qualification_type']=='加油'}selected{/if}>加油</option>
+										{elseif $info['subject_type']=='SUBJECT_TYPE_ENTERPRISE'}
+										<option value="">请选择</option>
+										<option {if $info['qualification_type']=='零售批发/生活娱乐/网上商城/其他'}selected{/if}>零售批发/生活娱乐/网上商城/其他</option>
+										<option {if $info['qualification_type']=='餐饮'}selected{/if}>餐饮</option>
+										<option {if $info['qualification_type']=='食品生鲜'}selected{/if}>食品生鲜</option>
+										<option {if $info['qualification_type']=='电信运营商/宽带收费'}selected{/if}>电信运营商/宽带收费</option>
+										<option {if $info['qualification_type']=='私立/民营医院/诊所'}selected{/if}>私立/民营医院/诊所</option>
+										<option {if $info['qualification_type']=='保健器械/医疗器械/非处方药品'}selected{/if}>保健器械/医疗器械/非处方药品</option>
+										<option {if $info['qualification_type']=='游艺厅/KTV/网吧'}selected{/if}>游艺厅/KTV/网吧</option>
+										<option {if $info['qualification_type']=='机票/机票代理'}selected{/if}>机票/机票代理</option>
+										<option {if $info['qualification_type']=='宠物医院'}selected{/if}>宠物医院</option>
+										<option {if $info['qualification_type']=='旅行社'}selected{/if}>旅行社</option>
+										<option {if $info['qualification_type']=='宗教组织'}selected{/if}>宗教组织</option>
+										<option {if $info['qualification_type']=='房地产/房产中介'}selected{/if}>房地产/房产中介</option>
+										<option {if $info['qualification_type']=='共享服务'}selected{/if}>共享服务</option>
+										<option {if $info['qualification_type']=='文物经营/文物复制品销售'}selected{/if}>文物经营/文物复制品销售</option>
+										<option {if $info['qualification_type']=='拍卖典当'}selected{/if}>拍卖典当</option>
+										<option {if $info['qualification_type']=='培训机构'}selected{/if}>培训机构</option>
+										<option {if $info['qualification_type']=='保险业务'}selected{/if}>保险业务</option>
+										<option {if $info['qualification_type']=='众筹'}selected{/if}>众筹</option>
+										<option {if $info['qualification_type']=='财经/股票类资讯'}selected{/if}>财经/股票类资讯</option>
+										<option {if $info['qualification_type']=='话费通讯'}selected{/if}>话费通讯</option>
+										<option {if $info['qualification_type']=='婚介平台/就业信息平台/其他'}selected{/if}>婚介平台/就业信息平台/其他</option>
+										<option {if $info['qualification_type']=='在线图书/视频/音乐/网络直播'}selected{/if}>在线图书/视频/音乐/网络直播</option>
+										<option {if $info['qualification_type']=='游戏'}selected{/if}>游戏</option>
+										<option {if $info['qualification_type']=='门户论坛/网络广告及推广/软件开发/其他'}selected{/if}>门户论坛/网络广告及推广/软件开发/其他</option>
+										<option {if $info['qualification_type']=='物流/快递'}selected{/if}>物流/快递</option>
+										<option {if $info['qualification_type']=='加油'}selected{/if}>加油</option>
+										<option {if $info['qualification_type']=='民办中小学及幼儿园'}selected{/if}>民办中小学及幼儿园</option>
+										<option {if $info['qualification_type']=='公共事业（水电煤气）'}selected{/if}>公共事业（水电煤气）</option>
+										<option {if $info['qualification_type']=='信用还款'}selected{/if}>信用还款</option>
+										<option {if $info['qualification_type']=='民办大学及院校'}selected{/if}>民办大学及院校</option>
+										{elseif $info['subject_type']=='SUBJECT_TYPE_INSTITUTIONS'}
+										<option value="">请选择</option>
+										<option {if $info['qualification_type']=='公共事业（水电煤气）'}selected{/if}>公共事业（水电煤气）</option>
+										<option {if $info['qualification_type']=='交通罚款'}selected{/if}>交通罚款</option>
+										<option {if $info['qualification_type']=='公立医院'}selected{/if}>公立医院</option>
+										<option {if $info['qualification_type']=='公立学校'}selected{/if}>公立学校</option>
+										<option {if $info['qualification_type']=='挂号平台'}selected{/if}>挂号平台</option>
+										<option {if $info['qualification_type']=='其他缴费'}selected{/if}>其他缴费</option>
+										{elseif $info['subject_type']=='SUBJECT_TYPE_OTHERS'}
+										<option value="">请选择</option>
+										<option {if $info['qualification_type']=='宗教组织'}selected{/if}>宗教组织</option>
+										<option {if $info['qualification_type']=='机票/机票代理'}selected{/if}>机票/机票代理</option>
+										<option {if $info['qualification_type']=='私立/民营医院/诊所'}selected{/if}>私立/民营医院/诊所</option>
+										<option {if $info['qualification_type']=='咨询/娱乐票务/其他'}selected{/if}>咨询/娱乐票务/其他</option>
+										<option {if $info['qualification_type']=='民办中小学及幼儿园'}selected{/if}>民办中小学及幼儿园</option>
+										<option {if $info['qualification_type']=='民办大学及院校'}selected{/if}>民办大学及院校</option>
+										<option {if $info['qualification_type']=='公益'}selected{/if}>公益</option>
+										{/if}
+									}
+									</select>
+								</div>
+								<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+							</div>
+							
+							<div class="layui-form-item" id="qualificationsdiv" {if !$info['qualifications']}style="display:none"{/if}>
+								<label class="layui-form-label"><span class="redstar">*</span>特殊资质图片：</label>
+								<input type="hidden" name="info[qualifications]" value="{$info['qualifications']}" id="qualifications">
+								<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this,true)" maxwidth="2000" maxheight="2000" upload-input="qualifications" upload-preview="qualificationsList" >上传</button>
+								<div class="layui-form-mid layui-word-aux" style="margin-left:10px;" id="qualificationstips">根据所属行业的特殊资质要求提供（最多5张）</div>
+								<div id="qualificationsList" class="imgpreview">
+									{if $info['qualifications']}{php}$pics = explode(',',$info['qualifications']);{/php}{foreach $pics as $pic}
+									<div class="layui-imgbox">
+										<a class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().remove();getpicsval('qualifications','qualificationsList')" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+										<span class="layui-imgbox-img"><img src="{$pic}"></span>
+									</div>
+									{/foreach}{/if}
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">标准费率：</label>
+								<div class="layui-form-mid" style="margin-left:10px;" id="qualification_rate">{$info.qualification_rate}</div>
+								<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">有优惠费率时按照优惠费率执行，没有优惠费率时按照标准费率执行，标准费率规则可能随时会有调整，仅作为参考</div>
+							</div>
+							<div class="layui-form-item" id="activities_rate_div" {if !$info['activities_rate']}style="display:none"{/if}>
+								<label class="layui-form-label">优惠费率：</label>
+								<div class="layui-form-mid" style="margin-left:10px;" id="activities_rate">{$info['activities_rate']}%</div>
+								<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">优惠费率活动有效期至 2020年12月31日，优惠费率规则可能随时会有调整，仅作为参考</div>
+							</div>
+
+							结算银行账户<hr/>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>账户类型：</label>
+								<div class="layui-input-inline" style="width:600px">
+									<input type="radio" name="info[jiesuan_bank_account_type]" id="BANK_ACCOUNT_TYPE_CORPORATE" value="BANK_ACCOUNT_TYPE_CORPORATE" title="对公银行账户" {if !$info['jiesuan_bank_account_type'] || $info['jiesuan_bank_account_type']=='BANK_ACCOUNT_TYPE_CORPORATE'}checked{/if}/>
+									<input type="radio" name="info[jiesuan_bank_account_type]" id="BANK_ACCOUNT_TYPE_PERSONAL" value="BANK_ACCOUNT_TYPE_PERSONAL" title="个人银行卡" {if $info['jiesuan_bank_account_type']=='BANK_ACCOUNT_TYPE_PERSONAL'}checked{/if} {if $info['subject_type'] && $info['subject_type']!='SUBJECT_TYPE_INDIVIDUAL'}disabled="disabled"{/if}/>
+								</div>
+								<div  class="layui-form-mid layui-word-aux" style="clear:both;margin-left:180px;clear:both">1、若主体为企业/党政、机关及事业单位/其他组织，可填写：对公银行账户。2、若主体为个体户，可选择填写：对公银行账户或经营者个人银行卡。</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>开户名称：</label>
+								<div class="layui-input-inline" style="width:200px">
+									<input type="text" name="info[jiesuan_account_name]" lay-verify="required2" lay-verType="tips" class="layui-input" value="{$info.jiesuan_account_name}">
+								</div>
+								<div class="layui-form-mid layui-word-aux" style="clear:both;margin-left:180px;clear:both">1、选择“经营者个人银行卡”时，开户名称必须与“经营者证件姓名”一致。2、选择“对公银行账户”时，开户名称必须与营业执照上的“商户名称”一致。</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">开户银行：</label>
+								<div class="layui-input-inline" style="width:200px">
+									<select name="info[jiesuan_account_bank]" lay-filter="jiesuan_account_bank" lay-verify="required2" lay-verType="tips">
+										<option value="">请选择</option>
+										<option {if $info.jiesuan_account_bank=='工商银行'}selected{/if}>工商银行</option>
+										<option {if $info.jiesuan_account_bank=='交通银行'}selected{/if}>交通银行</option>
+										<option {if $info.jiesuan_account_bank=='招商银行'}selected{/if}>招商银行</option>
+										<option {if $info.jiesuan_account_bank=='民生银行'}selected{/if}>民生银行</option>
+										<option {if $info.jiesuan_account_bank=='中信银行'}selected{/if}>中信银行</option>
+										<option {if $info.jiesuan_account_bank=='浦发银行'}selected{/if}>浦发银行</option>
+										<option {if $info.jiesuan_account_bank=='兴业银行'}selected{/if}>兴业银行</option>
+										<option {if $info.jiesuan_account_bank=='光大银行'}selected{/if}>光大银行</option>
+										<option {if $info.jiesuan_account_bank=='广发银行'}selected{/if}>广发银行</option>
+										<option {if $info.jiesuan_account_bank=='平安银行'}selected{/if}>平安银行</option>
+										<option {if $info.jiesuan_account_bank=='北京银行'}selected{/if}>北京银行</option>
+										<option {if $info.jiesuan_account_bank=='华夏银行'}selected{/if}>华夏银行</option>
+										<option {if $info.jiesuan_account_bank=='农业银行'}selected{/if}>农业银行</option>
+										<option {if $info.jiesuan_account_bank=='建设银行'}selected{/if}>建设银行</option>
+										<option {if $info.jiesuan_account_bank=='邮政储蓄银行'}selected{/if}>邮政储蓄银行</option>
+										<option {if $info.jiesuan_account_bank=='中国银行'}selected{/if}>中国银行</option>
+										<option {if $info.jiesuan_account_bank=='宁波银行'}selected{/if}>宁波银行</option>
+										<option {if $info.jiesuan_account_bank=='其他银行'}selected{/if}>其他银行</option>
+									</select>
+								</div>
+								<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+							</div>
+							<div class="layui-form-item" {if $info.jiesuan_account_bank!='其他银行'}style="display:none"{/if} id="jiesuan_bank_name_item">
+								<label class="layui-form-label"><span class="redstar">*</span>开户银行全称（含支行）：</label>
+								<div class="layui-input-inline" style="width:200px">
+									<input type="text" name="info[jiesuan_bank_name]" lay-verType="tips" class="layui-input" value="{$info.jiesuan_bank_name}">
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>开户银行地区：</label>
+								<div class="layui-input-inline" style="width:150px">
+									<select name="info[jiesuan_bank_province]" id="jiesuan_bank_province" lay-filter="jiesuan_bank_province"></select>
+								</div>
+								<div class="layui-input-inline" style="width:150px">
+									<select name="info[jiesuan_bank_city]" id="jiesuan_bank_city" lay-filter="jiesuan_bank_city"></select>
+								</div>
+								<div class="layui-input-inline" style="width:150px">
+									<select name="info[jiesuan_bank_area]" id="jiesuan_bank_area" ></select>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>银行账号：</label>
+								<div class="layui-input-inline" style="width:200px">
+									<input type="text" name="info[jiesuan_account_number]" lay-verify="required2" lay-verType="tips" class="layui-input" value="{$info.jiesuan_account_number}">
+								</div>
+								<div class="layui-form-mid layui-word-aux" style="clear:both;margin-left:180px;"></div>
+							</div>
+							
+							补充材料<hr/>
+							<div class="layui-form-item">
+								<label class="layui-form-label">补充说明：</label>
+								<div class="layui-input-inline" style="width:200px">
+									<input type="text" name="info[business_addition_msg]" lay-verType="tips" class="layui-input" value="{$info.business_addition_msg}">
+								</div>
+								<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">可填写需要额外说明的文字</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">补充材料：</label>
+								<input type="hidden" name="info[business_addition_pics2]" value="{$info['business_addition_pics2']}" id="business_addition_pics2">
+								<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this,true)" maxwidth="2000" maxheight="2000" upload-input="business_addition_pics2" upload-preview="business_addition_pics2List" >上传</button>
+								<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">可上传补充材料证明，最多可上传5张照片</div>
+								<div id="business_addition_pics2List" class="imgpreview">
+									{if $info['business_addition_pics2']}{php}$pics = explode(',',$info['business_addition_pics2']);{/php}{foreach $pics as $pic}
+									<div class="layui-imgbox">
+										<a class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().remove();getpicsval('business_addition_pics2','business_addition_pics2List')" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+										<span class="layui-imgbox-img"><img src="{$pic}"></span>
+									</div>
+									{/foreach}{/if}
+								</div>
+							</div>
+						</div>
+
+						{/if}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	function modifycontactinfo(editfield){
+		var html = '<div style="margin:20px auto;">';
+		html+='<div class="layui-form" lay-filter="">';
+		html+='	<input type="hidden" name="id" value="{$info.id}" class="layui-input">';
+		html+='	<div class="layui-form-item">';
+		if(editfield == 'merchant_name'){
+			html+='		<label class="layui-form-label">商户简称：</label>';
+		}else if(editfield == 'mobile_phone'){
+			html+='		<label class="layui-form-label">手机号码：</label>';
+		}
+		html+='		<div class="layui-input-inline" style="width:200px">';
+		html+='			<input type="text" name="'+editfield+'" class="layui-input" lay-verify="required" lay-verType="tips">';
+		html+='		</div>';
+		html+='		<div class="layui-form-mid layui-word-aux"></div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label"></label>';
+		html+='		<div class="layui-input-inline">';
+		html+='			<button class="layui-btn layui-btn-normal" lay-submit lay-filter="modifycontactinfo">确认提交</button>';
+		html+='		</div>';
+		html+='	</div>';
+		html+='</div>';
+		html+='</div>'
+		layer.open({type:1,area:['500px','200px'],content:html,title:'修改资料',shadeClose:true});
+		layui.form.render();
+		layui.form.on('submit(modifycontactinfo)', function(obj){
+			var field = obj.field;
+			console.log(field);
+			var index= layer.load();
+			$.post("{:url('modifycontactinfo')}",field,function(data){
+				layer.close(index);
+				dialog(data.msg,data.status,data.url);
+			})
+		})
+	}
+	</script>
+	
+</body>
+</html>

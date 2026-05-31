@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>物流助手</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	.logistics{ width: 94%;  background: #fff; padding: 0 10px;display:flex;flex-direction:column;color: #979797;}
+	.logistics .on{color: #23aa5e;}
+	.logistics .item{display:flex;width: 96%;  margin: 0 2%;/*border-left: 1px #dadada solid;*/padding:0 0}
+	.logistics .item .f1{ width:30px;position:relative}
+	/*.logistics img{width: 15px; height: 15px; position: absolute; left: -8px; top:11px;}*/
+	.logistics .item .f1 img{ width: 15px; height: 100%;}
+
+	.logistics .item .f2{display:flex;flex-direction:column;flex:auto;padding:5px 0}
+	.logistics .item .f2 .t1{font-size: 15px;}
+	.logistics .item .f2 .t1{font-size: 13px;}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header">物流助手</div>
+          <div class="layui-card-body" pad15>
+						<blockquote class="layui-elem-quote">
+							<p>物流助手是微信官方为小程序提供的免费物流接口。接入后，你可使用本接口在多家快递公司获取电子面单单号等信息，再通过热敏打印机完成电子面单打印，即可将快件交给快递公司上门揽收</a>
+							<p>接入物流助手有什么好处：（1）可生成电子面单；<!-- （2）可回传物流轨迹给你； -->（2）用户可收到物流通知；（3）完全免费的官方接口；（4）用户可通过微信服务通知发送的物流消息，或快递单小程序码，回访小程序
+							<p>1、请前往微信公众平台（mp.weixin.qq.com），登录小程序账号，在[功能]中找到[物流助手]进行开通
+							<p>2、先点击[绑定物流账号]按钮绑定物流账号，然后在订单发货时选择[使用物流助手发货]生成运单
+							<p>3、用快递接口Api下单后，可选择以下任一方式打印电子面单 							
+							<p>（1）使用微信物流助手对接的第三方打单软件打印面单，当前已支持的第三方打单软件为：快递管家<a href="https://developers.weixin.qq.com/community/develop/article/doc/000ac4abfc85986fe7a8023ce5b413" target="_blank">点击获取对接指引</a>
+							<p>（2）使用物流公司接口或收件员上门打印电子面单；
+							<p>（3）点击下方列表中对应订单的[打印面单]使用热敏打印机打印
+							<p>（4）安装使用微信打单PC软件：目前支持 Windows XP 及以上版本。<a target="_blank" href="https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/express-download.html">下载打单软件</a>&nbsp;&nbsp;
+							<p>4、小程序用户下单，必须是授权用户才可以接收物流消息；
+							<a href="javascript:void(0)" onclick="openmax('{:url('printerlist')}')">添加打印员</a>
+							<p>5、注意:微信物流助手物流查询仅支持通过微信物流助手发货的订单。</p>
+						</blockquote>
+						<div class="layui-col-md12 layui-form" style="padding-bottom:10px">
+							<!-- <a class="layui-btn layuiadmin-btn-list" href="javascript:void(0)" onclick="openmax('{:url('edit')}')">添加运单</a> -->
+							<!-- <button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="datadel(0)">删除</button> -->
+							<button class="layui-btn layui-btn-primary" onclick="openmax('{:url('myaccount')}/isopen/1')">绑定物流账号</button>
+
+							<div class="layui-inline">
+								<label class="layui-form-label">状态</label>
+								<div class="layui-input-block" >
+									<input type="checkbox" name="setstatus" {if $miandanst==1}checked{/if} lay-skin="switch" lay-text="开启|关闭" lay-filter="setstatus">
+								</div>
+							</div>
+							<div class="layui-inline" style="display: inline-block; width: auto!important;">
+								<label class="layui-form-label" style="width: 270px;">是否优先使用微信物流助手查询物流轨迹</label>
+								<input type="radio" name="wx_status" value="0" title="否" {if $miandan_wx==0}checked{/if} lay-filter="setwx">
+								<input type="radio" name="wx_status" value="1" title="是" {if $miandan_wx==1}checked{/if} lay-filter="setwx">
+
+							</div>
+						</div>
+						<!-- <div class="layui-form layui-col-md6" style="text-align:right;padding-bottom:10px">
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label" style="width:60px">房间名称</label>
+								<div class="layui-input-block" style="width:120px;margin-left:90px">
+									<input type="text" name="name" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label" style="width:30px">状态</label>
+								<div class="layui-input-block" style="width:120px;margin-left:60px;text-align:left">
+									<select name="status">
+										<option value="">全部</option>
+										<option value="1">已开启</option>
+										<option value="0">已关闭</option>
+									</select>
+								</div>
+							</div>
+							<div class="layui-inline">
+								<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+									<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+								</button>
+							</div>
+						</div> -->
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script src="__STATIC__/admin/js/jQuery.print.js"></script>
+	<script>
+	var nowtime = {:time()};
+  var table = layui.table;
+	var datawhere = {};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{$Request.url}" //数据接口
+    ,page: true //开启分页
+    ,cols: [[ //表头
+			{type:"checkbox"},
+      {field: 'id', title: 'ID',  sort: true,width:80},
+      {field: 'order_id', title: '订单号'},
+      {field: 'delivery_name', title: '快递公司'},
+      {field: 'waybill_id', title: '快递单号'},
+      {field: 'address', title: '收货地址',templet: '<div><div style="font-weight:bold">{{d.receiver_name}} {{d.receiver_mobile}} {{d.receiver_tel}} </div><div style="line-height:20px;font-size:12px">{{d.receiver_province}}{{d.receiver_city}}{{d.receiver_area}} {{d.receiver_address}}</div></div>'},
+      
+      {field: 'cargo_detail_list', title: '商品信息',width:360,templet:function(d){
+				var html = '';
+				var cargo_detail_list = d.cargo_detail_list
+				cargo_detail_list = JSON.parse(cargo_detail_list);
+				for(var i in cargo_detail_list){
+					html += cargo_detail_list[i].name + ' × ' + cargo_detail_list[i].count + '<br>';
+				}
+				return html;
+      }},
+      {field: 'status', title: '状态',templet:function(d){
+				if(d.status == 1){
+					return '<span style="color:green">正常</span>';
+				}else{
+					return '<span style="color:red">已取消</span>';
+				}
+      }},
+      {field: 'operation', title: '操作',templet: function(d){
+				var html = '';
+				html += '<button class="table-btn" onclick="getorder(\''+d.order_id+'\',\''+d.delivery_id+'\',\''+d.waybill_id+'\')">打印面单</button>';
+				html += '<button class="table-btn" onclick="getpath(\''+d.order_id+'\',\''+d.delivery_id+'\',\''+d.waybill_id+'\')">查询轨迹</button>';
+				if(d.status == 1){
+					html += '<br><button class="table-btn" onclick="quxiao(\''+d.order_id+'\',\''+d.delivery_id+'\',\''+d.waybill_id+'\')">取消</button>';
+				}else{
+					html += '<br><button class="table-btn" onclick="datadel(\''+d.id+'\')">删除</button>';
+				}
+				return html;
+			}}
+    ]]
+		,done: function(res, curr, count){
+			nowtime = res.nowtime
+		}
+  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	//打印面单
+	function getorder(order_id,delivery_id,waybill_id){
+		var index = layer.load();
+		$.post("{:url('getorder')}",{order_id:order_id,delivery_id:delivery_id,waybill_id:waybill_id},function(data){
+			layer.close(index);
+			if(data.status == 0){
+				dialog(data.msg,data.status);
+			}else{
+				layer.open({id:'printcontent',type:1,title:'运单详情' + (data.data.order_status==1 ? ' - 该运单已取消' : ''),area:['850px','90%'],content:data.data.print_html,resize:true,shadeClose:true,btn:['打印'],yes:function(){
+					$("#printcontent").print({  })
+				}})
+			}
+		})
+	}
+	//查询轨迹
+	function getpath(order_id,delivery_id,waybill_id){
+		var index = layer.load();
+		$.post("{:url('getpath')}",{order_id:order_id,delivery_id:delivery_id,waybill_id:waybill_id},function(data){
+			layer.close(index);
+			if(data.status == 0){
+				dialog(data.msg,data.status);
+			}else{
+				var path_item_list = data.data.path_item_list
+				var html = '';
+				html += '<div style="padding:5px"></div>';
+				if(path_item_list.length==0){
+					html += '<div style="font-size:14px;color:#f05555;padding:10px;"><i class="fa fa-info-circle"></i> 暂未查到物流信息</div>';
+				}else{
+					for(var i in path_item_list){
+						var item = path_item_list[i]
+						html += '<div class="logistics">';
+						html += '	<div class="item '+(i==0?'on':'')+'">';
+						html += '		<div class="f1"><img src="__STATIC__/admin/img/dot'+(i==0?'2':'1')+'.png"></div>';
+						html += '		<div class="f2">';
+						html += '			<span class="t2">'+date('Y-m-d H:i',item.action_time)+'</span>';
+						html += '			<span class="t1">'+item.action_msg+'</span>';
+						html += '		</div>';
+						html += '	</div>';
+						html += '</div>';
+					}
+				}
+				var logisticsLayer = layer.open({type:1,title:false,content:html,area:"800px",shadeClose:true,btn: ['关闭']})
+			}
+		})
+	}
+	//取消
+	function quxiao(order_id,delivery_id,waybill_id){
+		layer.confirm('确定要取消吗?',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('quxiao')}",{order_id:order_id,delivery_id:delivery_id,waybill_id:waybill_id},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	//删除
+	function datadel(id){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id);
+		}
+		layer.confirm('确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('del')}",{ids:ids},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	layui.form.on('switch(setstatus)', function(data){
+		var st = 0
+		if(data.elem.checked){
+			st = 1;
+		}
+		$.post("{:url('setstatus')}",{st:st},function(data){})
+	})
+	layui.form.on('radio(setwx)', function(data){
+		var st = data.value;
+		$.post("{:url('setwx')}",{st:st},function(data){
+			dialog('设置成功')
+		})
+	})
+	</script>
+	{include file="public/copyright"/}
+</body>
+</html>

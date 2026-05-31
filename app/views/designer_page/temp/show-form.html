@@ -1,0 +1,53 @@
+<div class="dsn-mod dsn-form" ng-class="{'dsn-mod-select':Item.id == focus}" ng-style="{'color':Item.params.color,'background-color':Item.params.bgcolor,'margin':Item.params.margin_y+'px '+Item.params.margin_x+'px','margin-top':Item.params.margin_top*1+Item.params.margin_y*1+'px','padding':Item.params.padding_y+'px '+Item.params.padding_x+'px','font-size':Item.params.fontsize+'px'}">
+	<div style="line-height: 170px; text-align: center; color: #999; font-size: 16px;" ng-if="Item.data == ''">没有表单信息...</div>
+	
+	<div class="{{Item.params.style==1?'item':'item2'}}" ng-repeat="(idx,item) in Item.data.content" style="border-color:{{Item.params.linecolor}}" ng-if="Item.params.isquery!=1 || item.query == 1">
+    <span class='label' style="height: auto">{{item.val1}}<span ng-if="item.val3==1 && Item.params.showmuststar && Item.params.isquery!=1" style="color:red"> *</span></span>
+		<input ng-if="item.key=='input'" type="text" name="form{{idx}}" class="input" placeholder="{{item.val2}}" style="background-color:{{Item.params.inputbgcolor}};border-color:{{Item.params.inputbordercolor}}"/>
+		<textarea ng-if="item.key=='textarea'" name="form{{idx}}" class='textarea' placeholder="{{item.val2}}" style="background-color:{{Item.params.inputbgcolor}};border-color:{{Item.params.inputbordercolor}}"></textarea>
+		<div class="radio1" ng-if="item.key=='radio'" style="flex-wrap:wrap;height: auto;">
+			<div ng-repeat="item1 in item.val2" class="radio2">
+				<div class="myradio"></div>{{item1}}<span style="padding-left:10px"></span>
+			</div>
+		</div>
+		<div class="checkbox1" ng-if="item.key=='checkbox'" style="flex-wrap:wrap">
+			<div ng-repeat="item1 in item.val2" class='checkbox2'>
+				<div class="mycheckbox"></div>{{item1}}<span style="padding-left:10px"></span>
+			</div>
+		</div>
+		<div ng-if="item.key=='switch'" class="layui-unselect layui-form-switch" lay-skin="_switch"><em></em><i></i></div>
+	
+		<picker ng-if="item.key=='selector'" mode="selector" name="form{{idx}}" value="" class='xyy-pic' range="{{item.val2}}" bindchange="bindPickerChange" data-idx="{{idx}}">
+			<div class="picker" ng-if="item.val2[formdata[idx]]">当前选择: {{item.val2[formdata[idx]]}}</div>
+			<div wx:else>请选择</div>
+		</picker>
+		<picker ng-if="item.key=='time'" mode="time" name="form{{idx}}" value="" start="{{item.val2[0]}}" end="{{item.val2[1]}}" class="xyy-pic" range="{{item.val2}}" bindchange="bindPickerChange" data-idx="{{idx}}">
+			<div class="picker" ng-if="formdata[idx]">当前选择: {{formdata[idx]}}</div>
+			<div wx:else>请选择</div>
+		</picker>
+		<picker ng-if="item.key=='date'" mode="date" name="form{{idx}}" value="" start="{{item.val2[0]}}" end="{{item.val2[1]}}" class="xyy-pic" range="{{item.val2}}" bindchange="bindPickerChange" data-idx="{{idx}}">
+			<div class="picker" ng-if="formdata[idx]">当前选择: {{formdata[idx]}}</div>
+			<div wx:else>请选择</div>
+		</picker>
+		<picker ng-if="item.key=='region'" mode="region" name="form{{idx}}" value="" class="xyy-pic" bindchange="bindPickerChange" data-idx="{{idx}}">
+			<div class="picker" ng-if="formdata[idx]">当前选择: {{formdata[idx]}}</div>
+			<div wx:else>请选择省市区</div>
+		</picker>
+		<div ng-if="item.key=='upload'" style="margin-left:10px">
+			<img src="__STATIC__/imgsrc/upload.png" style="width:60px;height:60px"/>
+		</div>
+		<div ng-if="item.key=='upload_file'" style="margin-left:10px">
+			<img src="__STATIC__/imgsrc/upload.png" style="width:60px;height:60px"/>
+		</div>
+		<div ng-if="item.key=='upload_video'" style="margin-left:10px">
+			<img src="__STATIC__/imgsrc/upload.png" style="width:60px;height:60px"/>
+		</div>
+	</div>
+	<div class="item" ng-if="Item.data.payset==1 && Item.params.isquery!=1" style="border: none;padding-left: 16px;">
+		<span class='label' style="font-weight: bold;width:100px ;">支付金额：</span>
+		<input type="text" class="input" name="money" value='{{Item.data.price}}' ng-if="Item.data.priceedit==1" style="font-weight: bold;"/>
+		<span class="" ng-if="Item.data.priceedit==0" style="font-weight: bold;">{{Item.data.price}}</span>
+		<span style="font-weight: bold;" >元</span>
+	</div>
+	<div ng-if="Item.data != ''" class="form-btn" style="background-color:{{Item.params.btnbgcolor}};border:1px solid {{Item.params.btnbordercolor}};font-size:{{Item.params.btnfontsize}}px;color:{{Item.params.btncolor}};width:{{Item.params.btnwidth}}px;height:{{Item.params.btnheight}}px;line-height:{{Item.params.btnheight}}px;border-radius:{{Item.params.btnradius}}px">{{Item.params.btntext}}</div>
+</div>

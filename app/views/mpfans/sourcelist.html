@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>素材管理</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	.newspreview{width:312px}
+	.newspreview *{box-sizing: border-box;}
+	.newscontent{padding:12px;border:1px solid #ddd;}
+	.item1{width:100%;cursor:pointer}
+	.item1 img{width:100%;height:100%}
+	.item1 .title{height:40px;padding:0 10px;width:100%;position:absolute;bottom:0;left:0;color:#fff;background:rgba(100,100,100,0.5);display:flex;align-items:center;word-wrap: break-word;word-break: break-all;overflow:hidden;}
+	.item2{width:100%;cursor:pointer;margin-top:5px;padding-top:5px;border-top:1px solid #ddd;display:flex}
+	.item2 .title{flex:1;display:flex;align-items:center;}
+	.item2 img{width:50px;height:50px}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header">素材管理</div>
+          <div class="layui-card-body" pad15>
+							<blockquote class="layui-elem-quote">添加、编辑、删除图文素材都将自动同步到微信公众平台，修改图文素材后手机端查看会有几分钟的延迟<br><!-- 群发消息同样占用公众号群发次数，即订阅号每天最多发送1次，服务号每月最多发送4次 --></blockquote>
+						<div class="layui-col-md4" style="padding-bottom:10px">
+							<a class="layui-btn layuiadmin-btn-list" href="javascript:void(0)" onclick="openmax('{:url('sourceedit')}')">添加</a>
+							<!-- <button class="layui-btn layui-btn-primary" onclick="openmax('{:url('sourcesendlog')}/isopen/1')">群发记录</button> -->
+						</div>
+						<div class="layui-form layui-col-md8 layui-form-search">
+							<!-- <div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">名称</label>
+								<div class="layui-input-inline">
+									<input type="text" name="name" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label">状态</label>
+								<div class="layui-input-inline">
+									<select name="status">
+										<option value="">全部</option>
+										<option value="1">已开启</option>
+										<option value="0">已关闭</option>
+									</select>
+								</div>
+							</div>
+							<div class="layui-inline">
+								<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+									<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+								</button>
+							</div> -->
+						</div>
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+  var table = layui.table;
+	var datawhere = {};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{$Request.url}" //数据接口
+    ,page: true //开启分页
+    ,cols: [[ //表头
+			//{type:"checkbox"},
+      //{field: 'media_id', title: '素材ID',width:180},
+      {field: 'content', title: '素材内容',width:350,templet:function(d){
+				var news_item = d.content.news_item;
+				var html ='<div style="width:312px;padding:12px;border:1px solid #ddd">';
+				for(var i in news_item){
+					var m = news_item[i]
+					if(i==0){
+						html+='<div onclick="showqr(\''+m.url+'\',\''+m.title+'\')" style="width:100%;cursor:pointer">';
+						html+='<div style="position:relative"><img src="'+m.thumb_url+'" style="width:288px;height:160px;max-width:288px"/><div style="height:40px;padding:0 10px;width:100%;position:absolute;bottom:0;left:0;color:#fff;background:rgba(100,100,100,0.5);display:flex;align-items:center;word-wrap: break-word;word-break: break-all;overflow:hidden;">'+m.title+'</div></div>';
+						html+='';
+						html+='</div>';
+					}else{
+						html+='<div onclick="showqr(\''+m.url+'\',\''+m.title+'\')" style="width:100%;cursor:pointer;margin-top:5px;padding-top:5px;border-top:1px solid #ddd;display:flex">';
+						html+='<div style="flex:1;display:flex;align-items:center;">'+m.title+'</div>';
+						html+='<div><img src="'+m.thumb_url+'" style="width:50px;height:50px"/></div>';
+						html+='</div>';
+					}
+				}
+				html+='</div>';
+				return html;
+      }},
+      {field: 'need_open_comment', title: '评论功能',templet:function(d){
+				if(d.need_open_comment==1){
+					if(d.only_fans_can_comment==1){
+						return '粉丝才可以评论'
+					}else{
+						return '所有人都可以评论';
+					}
+				}else{
+					return '未开启评论';
+				}
+      }},
+      {field: 'create_time', title: '创建时间',templet:function(d){ return date('Y-m-d H:i',d.content.create_time)}},
+      {field: 'update_time', title: '更新时间',templet:function(d){ return date('Y-m-d H:i',d.content.update_time)}},
+      {field: 'operation', title: '操作',templet:function(d){
+				var html = '';
+				html += '<button class="table-btn" onclick="openmax(\'{:url('sourceedit')}/media_id/'+d.media_id+'\')">编辑</button>';
+				html += '<button class="table-btn" onclick="datadel(\''+d.media_id+'\')">删除</button>';
+				html += '<button class="table-btn" onclick="showqr(\''+d.content.news_item[0].url+'\',\''+d.content.news_item[0].title+'\')">链接地址</button>';
+				html += '<button class="table-btn" onclick="preview(\''+d.media_id+'\')">预览</button>';
+				//html += '<button class="table-btn" onclick="qunfa(\''+d.media_id+'\')">群发</button>';
+				return html;
+      }}
+    ]]
+  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	function datadel(media_id){
+		layer.confirm('确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('sourcedel')}",{media_id:media_id},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload();
+			})
+		})
+	}
+	//查看二维码
+	function showqr(url,title){
+		layer.open({
+			type:1,
+			area:['350px','420px'],
+			content:'<div style="margin:auto auto;text-align:center"><div style="margin:10px 30px" id="returl"></div><a style="font-size:12px;color:#666;word-break:break-all;padding:0 10px" href="'+url+'" target="_blank">'+url+'</a></div>',
+			title:title,
+			shadeClose:true
+		});
+		var qrcode = new QRCode('returl', {
+			text: 'your content',
+			width: 280,
+			height: 280,
+			colorDark : '#000000',
+			colorLight : '#ffffff',
+			correctLevel : QRCode.CorrectLevel.L
+		});
+		qrcode.clear();
+		qrcode.makeCode(url);
+	}
+	//预览
+	function preview(media_id){
+		$.post("{:url('gethistorywx')}",{},function(res){
+			var historywx = res.data
+			var html = '<div style="margin:20px auto;">';
+			html+='<div class="layui-form" lay-filter="">';
+			html+='	<div class="layui-form-item">';
+			html+='		<label class="layui-form-label" style="width:80px">微信号：</label>';
+			html+='		<div class="layui-input-inline" style="width:200px">';
+			html+='			<input type="text" name="towxname" class="layui-input">';
+			html+='		</div>';
+			html+='		<div class="layui-form-mid layui-word-aux">关注公众号后，才能接收图文消息预览</div>';
+			html+='		<div class="layui-form-mid layui-word-aux" style="margin-left:110px">预览功能仅用于公众号查看文章效果，不适用于公众传播，预览链接会在短期内失效</div>';
+			html+='	</div>';
+			html+='	<div class="layui-form-item">';
+			html+='		<label class="layui-form-label" style="width:80px"></label>';
+			html+='		<div class="layui-input-inline" style="width: 400px;">';
+			for(var i=0;i<historywx.length;i++){
+			html+='		<div style="display:inline-block;background:#e5e7ec;border:1px solid #e7e7eb;border-radius:3px;padding:2px 5px;margin-bottom:5px"><a href="javascript:void(0)" onclick="$(\'input[name=towxname]\').val(\''+historywx[i].towxname+'\')">'+historywx[i].towxname+'</a> <a href="javascript:void(0)" onclick="removehistorywx('+historywx[i].id+',this)">×</a></div>';
+			}
+			html+='		</div>';
+			html+='	</div>';
+			html+='	<div class="layui-form-item">';
+			html+='		<label class="layui-form-label" style="width:80px"></label>';
+			html+='		<div class="layui-input-inline">';
+			html+='			<button class="layui-btn layui-btn-normal" lay-submit lay-filter="submit_preview">确 定</button>';
+			html+='		</div>';
+			html+='	</div>';
+			html+='</div>';
+			html+='</div>'
+			layer.open({type:1,area:['600px'],content:html,title:'发送预览',shadeClose:true});
+			layui.form.render();
+			layui.form.on('submit(submit_preview)', function(obj){
+				var field = obj.field;
+				field.media_id = media_id;
+				console.log(field);
+				if(field.towxname == ''){
+					dialog('请填写接收预览的微信号');return;
+				}
+				var index= layer.load();
+				$.post("{:url('submit_preview')}",field,function(data){
+					layer.close(index);
+					dialog(data.msg,data.status);
+				})
+			})
+		})
+	}
+	function removehistorywx(id,obj){
+		$(obj).parent().remove();
+		$.post("{:url('removehistorywx')}",{id:id},function(data){})
+	}
+	//群发
+	function qunfa(media_id){
+		$.post("{:url('getsourcedata')}",{media_id:media_id},function(res){
+			if(res.status==0){
+				dialog(res.msg);return;
+			}
+			var news_item = res.data.news_item
+			var nowtime = parseInt(res.time);
+			console.log(news_item);
+			var html = '<div style="margin:20px auto;">';
+			html+='<div style="color:red;margin:20px">注意：群发消息公用公众号群发次数，即订阅号每天最多发送1次，服务号每月最多发送4次</div>';
+			html+='<div class="layui-form" lay-filter="">';
+			html+='	<div class="layui-form-item">';
+			html+='		<label class="layui-form-label" style="width:120px">图文消息：</label>';
+			html+='		<div class="layui-input-inline" style="width:400px">';
+			html+='			<input type="hidden" name="info[media_id]" value="'+media_id+'">';
+			html+='			<div class="newspreview">';
+			html+='				<div class="newscontent">';
+			html+='					<div style="height:30px;color:#666">更新时间：'+date('Y-m-d H:i',res.data.update_time)+'</div>';
+			html+='					<div id="newscontent_content">';
+			for(var i=0;i<news_item.length;i++){
+				var item = news_item[i]
+				if(i==0){
+					html += '<div onclick="changeindex('+i+')" class="item1">';
+					html += '	<div style="position:relative;width: 100%;overflow: hidden;height: 160px;">';
+					html += '		<img src="'+item.thumb_url+'"/>';
+					html += '		<div class="title">'+item.title+'</div>';
+					html += '	</div>';
+					html += '</div>';
+				}else{
+					html += '<div onclick="changeindex('+i+')" class="item2">';
+					html += '	<div class="title">'+item.title+'</div>';
+					html += '	<div><img src="'+item.thumb_url+'"/></div>';
+					html += '</div>';
+				}
+			}
+			html+='					</div>';
+			html+='				</div>';
+			html+='			</div>';
+			html+='		</div>';
+			html+='	</div>';
+			html+='	<div class="layui-form-item">';
+			html+='		<label class="layui-form-label" style="width:120px">群发对象：</label>';
+			html+='		<div class="layui-input-inline" style="width:400px">';
+			html+='			<input type="radio" name="info[is_to_all]" value="1" title="全部用户" checked lay-filter="is_to_all">';
+			html+='			<input type="radio" name="info[is_to_all]" value="0" title="选择标签" lay-filter="is_to_all">';
+			html+='		</div>';
+			html+='	</div>';
+			html+='	<div class="layui-form-item" style="display:none" id="send_tag_id">';
+			html+='		<label class="layui-form-label" style="width:120px">选择标签：</label>';
+			html+='		<div class="layui-input-inline" style="width:200px">';
+			html+='			<select name="info[tag_id]">';
+			html+='				<option value="">请选择标签</option>';
+			var tagslist = res.tagslist
+			for(var i=0;i<tagslist.length;i++){
+				html+='			<option value="'+tagslist[i].tagid+'">'+tagslist[i].name+'</option>';
+			}
+			html+='			</select>';
+			html+='		</div>';
+			html+='	</div>';
+			html+='	<div class="layui-form-item">';
+			html+='		<label class="layui-form-label" style="width:120px">被判断为转载时：</label>';
+			html+='		<div class="layui-input-inline" style="width:400px">';
+			html+='			<input type="radio" name="info[send_ignore_reprint]" value="0" title="不群发" checked>';
+			html+='			<input type="radio" name="info[send_ignore_reprint]" value="1" title="群发">';
+			html+='		</div>';
+			html+='	</div>';
+			html+='	<div class="layui-form-item">';
+			html+='		<label class="layui-form-label" style="width:120px">群发时间：</label>';
+			html+='		<div class="layui-input-inline" style="width:400px">';
+			html+='			<input type="radio" name="info[isdingshi]" value="0" title="立即群发" checked lay-filter="isdingshi">';
+			html+='			<input type="radio" name="info[isdingshi]" value="1" title="定时群发" lay-filter="isdingshi">';
+			html+='		</div>';
+			html+='	</div>';
+			html+='	<div class="layui-form-item" id="send_sendtime2">';
+			html+='		<label class="layui-form-label" style="width:120px">&nbsp;</label>';
+			html+='		<div class="layui-input-inline" style="width:400px">&nbsp;';
+			html+='		</div>';
+			html+='	</div>';
+			html+='	<div class="layui-form-item" style="display:none" id="send_sendtime">';
+			html+='		<label class="layui-form-label" style="width:120px">选择时间：</label>';
+			html+='		<div class="layui-input-inline" style="width:100px">';
+			html+='			<select name="info[send_day]">';
+			html+='				<option value="'+date('Y-m-d',nowtime)+'">今天</option>';
+			html+='				<option value="'+date('Y-m-d',nowtime+86400)+'">明天</option>';
+			html+='				<option value="'+date('Y-m-d',nowtime+86400*2)+'">'+date('Y-m-d',nowtime+86400*2)+'</option>';
+			html+='				<option value="'+date('Y-m-d',nowtime+86400*3)+'">'+date('Y-m-d',nowtime+86400*3)+'</option>';
+			html+='				<option value="'+date('Y-m-d',nowtime+86400*4)+'">'+date('Y-m-d',nowtime+86400*4)+'</option>';
+			html+='				<option value="'+date('Y-m-d',nowtime+86400*5)+'">'+date('Y-m-d',nowtime+86400*5)+'</option>';
+			html+='				<option value="'+date('Y-m-d',nowtime+86400*6)+'">'+date('Y-m-d',nowtime+86400*6)+'</option>';
+			html+='			</select>';
+			html+='		</div>';
+			html+='		<div class="layui-input-inline" style="width:100px">';
+			html+='			<select name="info[send_hour]">';
+			for(var i=0;i<24;i++){
+				var hour = i<10 ? '0'+i : i;
+				html+='			<option value="'+hour+'">'+hour+'</option>';
+			}
+			html+='			</select>';
+			html+='		</div>';
+			html+='		<div class="layui-form-mid">时</div>';
+			html+='		<div class="layui-input-inline" style="width:100px">';
+			html+='			<select name="info[send_minute]">';
+			for(var i=0;i<60;i++){
+				var minute = i<10 ? '0'+i : i;
+				html+='			<option value="'+minute+'">'+minute+'</option>';
+			}
+			html+='			</select>';
+			html+='		</div>';
+			html+='		<div class="layui-form-mid">分</div>';
+			html+='	</div>';
+			html+='	<div class="layui-form-item">';
+			html+='		<label class="layui-form-label" style="width:120px"></label>';
+			html+='		<div class="layui-input-inline">';
+			html+='			<button class="layui-btn layui-btn-normal" lay-submit lay-filter="submit_send">确 定</button>';
+			html+='		</div>';
+			html+='	</div>';
+			html+='</div>';
+			html+='</div>'
+			layer.open({type:1,area:['620px'],content:html,title:'消息群发',shadeClose:true});
+			layui.form.render();
+			layui.laydate.render({ 
+				elem: '#sendtimeselect',
+				type: 'datetime',
+				trigger: 'click'
+			});
+			layui.form.on('radio(isdingshi)',function(obj){
+				console.log(obj)
+				if(obj.value==1){
+					$('#send_sendtime').show();
+					$('#send_sendtime2').hide();
+				}else{
+					$('#send_sendtime').hide();
+					$('#send_sendtime2').show();
+				}
+			})
+			layui.form.on('radio(is_to_all)',function(obj){
+				console.log(obj)
+				if(obj.value==0){
+					$('#send_tag_id').show();
+				}else{
+					$('#send_tag_id').hide();
+				}
+			})
+			layui.form.on('submit(submit_send)', function(obj){
+				var field = obj.field;
+				if(field['info[isdingshi]']==0){
+					var tipsmsg = '您选择了立即群发，操作后将无法撤回，确定要群发吗？'
+				}else{
+					var tipsmsg = '群发将在 '+field['info[send_day]']+' '+field['info[send_hour]']+':'+field['info[send_minute]']+' 执行，确定要定时群发吗？'
+				}
+				layer.confirm(tipsmsg,{icon: 7, title:'操作确认'}, function(index){
+					layer.close(index);
+					var index= layer.load();
+					$.post("{:url('sourcesendall')}",field,function(data){
+						layer.close(index);
+						dialog(data.msg,data.status,data.url);
+					})
+				})
+			})
+		})
+	}
+	</script>
+	{include file="public/copyright"/}
+</body>
+</html>

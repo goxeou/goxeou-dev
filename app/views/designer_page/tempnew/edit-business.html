@@ -1,0 +1,383 @@
+<style>
+	.slider .layui-slider .layui-slider-bar{background: rgb(55, 114, 232) !important;}
+	.slider .layui-slider .layui-slider-wrap .layui-slider-wrap-btn{border: 2px solid #3772E8 !important;}
+	.dsn-panel-editor-relative {width: auto;height: auto;position: relative;border-bottom: 1px solid #e5e5e5;}
+	.dsn-panel-editor-line {overflow: hidden;background: #fff;border:none;border-radius: 3px;margin-top: 5px;padding: 0px;}
+	.dsn-panel-editor-goodimg {overflow: hidden;width: 88px;height:88px;border: none;float: left;position: relative;background: #fff;cursor: pointer;border-radius:3px;}
+	.dsn-panel-editor-goodimg-t2{height: 22px;width: 88px;background: rgba(0,0,0,0.5);position: absolute;left: 0px;bottom: 0px;font-size: 12px;text-align: center;line-height: 22px;color: #fff;}
+	.title-div{font-size: 14px;font-weight: bold;color: #2D2D2D;width: 100%;padding: 9px 0;box-sizing: border-box;}
+	.title-div .icon-div {cursor: pointer;}
+	.title-div .icon-div img{width: 10px;height: 10px;}
+	.img-div{width: 88px;height:88px;cursor: pointer;border-radius: 5px;overflow: hidden;}
+	.editor-goodimg{height: 22px;width: 89px;background: rgba(0,0,0,0.5);position: absolute;left: 0px;bottom: 0px;font-size: 12px;text-align: center;line-height: 22px;color: #fff;
+		border-radius: 0px 0px 5px 5px;}
+	.dsn-panel .slider-span input{border-radius: 5px;height: 30px;line-height: 30px;}
+	.dsn-panel .slider{width: 150px;}
+	.layui-btn-primary:hover {border-color: #3772E8;color: #333}
+</style>
+<div class="dsn-panel-editor-title">商家设置</div>
+<div class="dsn-panel-editor-content">
+	<div class="layui-form-item" style="margin-top: 15px;">
+		<div class="layui-form-label">与上方距离</div>
+		<div class="slider" min="0" max="40" ng-model="Edit.params.margin_y"></div>
+		<span class="slider-span"><input ng-model="Edit.params.margin_y"/> px</span>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">样式</div>
+		<div class="layui-input-inline">
+			<input class="radio" type="radio" name="{{Edit.id}}_showstyle" title="默认样式" value="1" ng-model="Edit.params.showstyle" />
+			{if getcustom('business_nearby_list')}
+			<input class="radio" type="radio" name="{{Edit.id}}_showstyle" title="样式二" value="2" ng-model="Edit.params.showstyle"/>
+			{/if}
+		</div>
+	</div>
+	<div class="layui-form-item" ng-show="Edit.params.showstyle == '1'">
+		<div class="layui-form-label">背景颜色</div>
+		<div class="layui-input-inline" style="width:180px">
+			<input class="layui-input" value="{{Edit.params.bgcolor}}" ng-model="Edit.params.bgcolor"/>
+		</div>
+		<span class="colorpicker" coloralpha="1" ng-model="Edit.params.bgcolor"></span>
+	</div>
+	{if getcustom('business_module_showcategroy')}
+	<div class="layui-form-item">
+		<div class="layui-form-label">分类</div>
+		<div class="layui-input-inline">
+			<input class="radio" type="radio" name="{{Edit.id}}_showcategroy" title="显示" value="1" ng-model="Edit.params.showcategroy" />
+			<input class="radio" type="radio" name="{{Edit.id}}_showcategroy" title="不显示" value="0" ng-model="Edit.params.showcategroy"/>
+		</div>
+	</div>
+	{/if}
+	<div class="layui-form-item" ng-show="Edit.params.showstyle == '1'">
+		<div class="layui-form-label">评分</div>
+		<div class="layui-input-inline">
+			<input class="radio" type="radio" name="{{Edit.id}}_showpingfen" title="显示" value="1" ng-model="Edit.params.showpingfen" />
+			<input class="radio" type="radio" name="{{Edit.id}}_showpingfen" title="不显示" value="0" ng-model="Edit.params.showpingfen"/>
+		</div>
+	</div>
+	<div class="layui-form-item" ng-show="Edit.params.showstyle == '1'">
+		<div class="layui-form-label">销量</div>
+		<div class="layui-input-inline">
+			<input class="radio" type="radio" name="{{Edit.id}}_showsales" title="显示" value="1" ng-model="Edit.params.showsales" />
+			<input class="radio" type="radio" name="{{Edit.id}}_showsales" title="不显示" value="0" ng-model="Edit.params.showsales"/>
+		</div>
+	</div>
+	<div class="layui-form-item" ng-show="Edit.params.showstyle == '1'">
+		<div class="layui-form-label">简介</div>
+		<div class="layui-input-inline">
+			<input class="radio" type="radio" name="{{Edit.id}}_showjianjie" title="显示" value="1" ng-model="Edit.params.showjianjie" />
+			<input class="radio" type="radio" name="{{Edit.id}}_showjianjie" title="不显示" value="0" ng-model="Edit.params.showjianjie"/>
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">地址</div>
+		<div class="layui-input-inline">
+			<input class="radio" type="radio" name="{{Edit.id}}_showaddress" title="显示" value="1" ng-model="Edit.params.showaddress" />
+			<input class="radio" type="radio" name="{{Edit.id}}_showaddress" title="不显示" value="0" ng-model="Edit.params.showaddress"/>
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">距离</div>
+		<div class="layui-input-inline">
+			<input class="radio" type="radio" name="{{Edit.id}}_showdistance" title="显示" value="1" ng-model="Edit.params.showdistance" />
+			<input class="radio" type="radio" name="{{Edit.id}}_showdistance" title="不显示" value="0" ng-model="Edit.params.showdistance"/>
+		</div>
+	</div>
+	{if getcustom('business_show_turnover')}
+	<div class="layui-form-item">
+		<div class="layui-form-label">商家营业额</div>
+		<div class="layui-input-inline">
+			<input class="radio" type="radio" name="{{Edit.id}}_showturnover" title="显示" value="1" ng-model="Edit.params.showturnover" />
+			<input class="radio" type="radio" name="{{Edit.id}}_showturnover" title="不显示" value="0" ng-model="Edit.params.showturnover"/>
+		</div>
+		<div class="layui-form-mid layui-word-aux" style="float: left;">只有商家编辑显示营业额，此处才会显示</div>
+	</div>
+	{/if}
+	<div class="layui-form-item" ng-show="Edit.params.showstyle == '1'">
+		<div class="layui-form-label">商品</div>
+		<div class="layui-input-inline">
+			<input class="radio" type="radio" name="{{Edit.id}}_showproduct" title="显示" value="1" ng-model="Edit.params.showproduct" />
+			<input class="radio" type="radio" name="{{Edit.id}}_showproduct" title="不显示" value="0" ng-model="Edit.params.showproduct"/>
+		</div>
+	</div>
+	{if $auth_data=='all' || in_array('BusinessMaidan/*',$auth_data)}
+	<div class="layui-form-item" ng-show="Edit.params.showstyle == '1'">
+		<div class="layui-form-label">买单导航按钮</div>
+		<div class="layui-input-inline">
+			<input class="radio" type="radio" name="{{Edit.id}}_showmaidan" title="显示" value="1" ng-model="Edit.params.showmaidan" />
+			<input class="radio" type="radio" name="{{Edit.id}}_showmaidan" title="不显示" value="0" ng-model="Edit.params.showmaidan"/>
+		</div>
+	</div>
+	{/if}
+	{if getcustom('business_selfscore') && ($auth_data=='all' || in_array('ScoreshopProduct/*',$auth_data))}
+	<div class="layui-form-item" ng-show="Edit.params.showstyle == '1'">
+		<div class="layui-form-label">{:t('积分')}兑换商品</div>
+		<div class="layui-input-inline">
+			<input class="radio" type="radio" name="{{Edit.id}}_showscoreshop" title="显示" value="1" ng-model="Edit.params.showscoreshop" />
+			<input class="radio" type="radio" name="{{Edit.id}}_showscoreshop" title="不显示" value="0" ng-model="Edit.params.showscoreshop"/>
+		</div>
+	</div>
+	{/if}
+	{if getcustom('business_instore_button')}
+		<div class="layui-form-item" ng-show="Edit.params.showstyle == '1'">
+			<div class="layui-form-label">进店按钮</div>
+			<div class="layui-input-inline">
+				<input class="radio" type="radio" name="{{Edit.id}}_showinstore" title="显示" value="1" ng-model="Edit.params.showinstore" />
+				<input class="radio" type="radio" name="{{Edit.id}}_showinstore" title="不显示" value="0" ng-model="Edit.params.showinstore"/>
+			</div>
+		</div>
+	{/if}
+	<div class="layui-form-item" ng-show="Edit.params.showstyle == '1'">
+		<div class="layui-form-label">进入页面</div>
+		<div class="layui-input-inline">
+			<input class="radio" type="radio" name="{{Edit.id}}_intotype" title="设计首页" value="0" ng-model="Edit.params.intotype"/>
+			{if getcustom('restaurant')}
+				{if $auth_data=='all' || in_array('RestaurantTakeawayOrder/*',$auth_data) || in_array('RestaurantTakeawayComment/*',$auth_data)|| in_array('RestaurantTakeawayFreight/*',$auth_data) || in_array('RestaurantTakeawaySet/*',$auth_data) || in_array('RestaurantTakeawayAdv/*',$auth_data)}
+				<input class="radio" type="radio" name="{{Edit.id}}_intotype" title="外卖" value="1" ng-model="Edit.params.intotype"/>
+				{/if}
+				{if $auth_data=='all' || in_array('RestaurantShopOrder/*',$auth_data) || in_array('RestaurantShopComment/*',$auth_data)|| in_array('RestaurantShopSet/*',$auth_data)}
+				<input class="radio" type="radio" name="{{Edit.id}}_intotype" title="点餐" value="2" ng-model="Edit.params.intotype"/>
+				{/if}
+			{/if}
+		</div>
+		<div class="layui-form-mid layui-word-aux" style="float: left;">无设计首页则跳转默认首页</div>
+	</div>
+	{if getcustom('yx_business_miandan')}
+		{if $auth_data=='all' || in_array('BusinessMiandan/*',$auth_data)}
+			<div class="layui-form-item">
+				<div class="layui-form-label">商户免单</div>
+				<div class="layui-input-inline">
+					<input class="radio" type="radio" name="{{Edit.id}}_showbusinessmiandan" title="显示" value="1" ng-model="Edit.params.showbusinessmiandan" />
+					<input class="radio" type="radio" name="{{Edit.id}}_showbusinessmiandan" title="不显示" value="0" ng-model="Edit.params.showbusinessmiandan"/>
+				</div>
+			</div>
+		{/if}
+	{/if}
+	{if getcustom('business_index_cuxiao')}
+	<div>
+		{if $auth_data=='all' || in_array('SeckillProduct/*',$auth_data)}
+			<div class="layui-form-item" ng-show="Edit.params.showstyle == '1'">
+				<div class="layui-form-label">秒杀商品</div>
+				<div class="layui-input-inline">
+					<input class="radio" type="radio" name="{{Edit.id}}_showseckill" title="显示" value="1" ng-model="Edit.params.showseckill" />
+					<input class="radio" type="radio" name="{{Edit.id}}_showseckill" title="不显示" value="0" ng-model="Edit.params.showseckill"/>
+				</div>
+			</div>
+		{/if}
+		{if $auth_data=='all' || in_array('TuangouProduct/*',$auth_data)}
+			<div class="layui-form-item" ng-show="Edit.params.showstyle == '1'">
+				<div class="layui-form-label">团购商品</div>
+				<div class="layui-input-inline">
+					<input class="radio" type="radio" name="{{Edit.id}}_showtuangou" title="显示" value="1" ng-model="Edit.params.showtuangou" />
+					<input class="radio" type="radio" name="{{Edit.id}}_showtuangou" title="不显示" value="0" ng-model="Edit.params.showtuangou"/>
+				</div>
+			</div>
+		{/if}
+		{if $auth_data=='all' || in_array('KanjiaProduct/*',$auth_data)}
+		<div class="layui-form-item" ng-show="Edit.params.showstyle == '1'">
+			<div class="layui-form-label">砍价商品</div>
+			<div class="layui-input-inline">
+				<input class="radio" type="radio" name="{{Edit.id}}_showkanjia" title="显示" value="1" ng-model="Edit.params.showkanjia" />
+				<input class="radio" type="radio" name="{{Edit.id}}_showkanjia" title="不显示" value="0" ng-model="Edit.params.showkanjia"/>
+			</div>
+		</div>
+		{/if}
+		{if $auth_data=='all' || in_array('CollageProduct/*',$auth_data)}
+		<div class="layui-form-item" ng-show="Edit.params.showstyle == '1'">
+			<div class="layui-form-label">拼团商品</div>
+			<div class="layui-input-inline">
+				<input class="radio" type="radio" name="{{Edit.id}}_showcollage" title="显示" value="1" ng-model="Edit.params.showcollage" />
+				<input class="radio" type="radio" name="{{Edit.id}}_showcollage" title="不显示" value="0" ng-model="Edit.params.showcollage"/>
+			</div>
+		</div>
+		{/if}
+		{if $auth_data=='all' || in_array('LuckyCollageProduct/*',$auth_data)}
+		<div class="layui-form-item" ng-show="Edit.params.showstyle == '1'">
+			<div class="layui-form-label">幸运拼团</div>
+			<div class="layui-input-inline">
+				<input class="radio" type="radio" name="{{Edit.id}}_showluckycollage" title="显示" value="1" ng-model="Edit.params.showluckycollage" />
+				<input class="radio" type="radio" name="{{Edit.id}}_showluckycollage" title="不显示" value="0" ng-model="Edit.params.showluckycollage"/>
+			</div>
+		</div>
+		{/if}
+
+		<div class="layui-form-item">
+			<div class="layui-form-label">显示数量</div>
+			<div class="layui-input-inline">
+				<input class="layui-input" ng-model="Edit.params.showcuxiaonum" />
+			</div>
+		</div>
+	</div>
+
+	{/if}
+
+	<div class="layui-form-item">
+		<div class="layui-form-label">商家来源</div>
+		<div class="layui-input-inline">
+			{if !$type}
+			<input class="radio" type="radio" name="{{Edit.id}}_businessfrom" value="0" ng-model="Edit.params.businessfrom" title="手动选择"/>
+			{/if}
+			<input class="radio" type="radio" name="{{Edit.id}}_businessfrom" value="1" ng-model="Edit.params.businessfrom" title="商家分类" ng-change="getbusiness(Edit.id)"/>
+			{if getcustom('design_business_history')}
+			<input class="radio" type="radio" name="{{Edit.id}}_businessfrom" value="2" ng-change="delbusinessall(Edit.id)" ng-model="Edit.params.businessfrom" title="浏览过商家"/>
+			{/if}
+		</div>
+	</div>
+	<div ng-show="Edit.params.businessfrom == '0'">
+		<div ng-repeat="good in Edit.data" class="dsn-panel-editor-relative">
+			<div class="dsn-panel-editor-del" style="right:30px;font-size:12px" title="上移" ng-click="upItemChild(Edit.id,good.id)"><i class="fa fa-arrow-up"></i></div>
+			<div class="dsn-panel-editor-del" title="移除" style="top:6px" ng-click="delbusiness(Edit.id,good.id)">×</div>
+			<div class="dsn-panel-editor-line flex">
+				<div class="dsn-panel-editor-goodimg flex0" ng-click="addbusiness('replace',Edit.id, good.id)">
+					<img ng-src="{{good.logo}}" width="100%"/>
+					<div class="dsn-panel-editor-goodimg-t2">重新选择商家</div>
+				</div>
+				<div class="dsn-panel-editor-line-right">
+					<div class="layui-form-item manual-selection-item">
+						<div class="layui-form-label">商家名称</div>
+						<div class="layui-form-mid layui-input-inline">{{good.name}}</div>
+					</div>
+					<div class="layui-form-item manual-selection-item">
+						<div class="layui-form-label">商家地址</div>
+						<div class="layui-form-mid layui-input-inline">{{good.address}}</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="layui-btn layui-btn-primary" style="display: block;margin-top: 5px;border-radius:5px ;" ng-click="addbusiness('',Edit.id,'')">添加</div>
+	</div>
+	<div ng-show="Edit.params.businessfrom == '1'">
+		{if !$categroy_selmore }
+		<div class="layui-form-item">
+			<div class="layui-form-label">商家分类</div>
+			<div class="layui-input-inline">
+				<select class="layui-input" style="width:200px;-webkit-appearance:menulist" lay-ignore ng-model="Edit.params.category" ng-change="getbusiness(Edit.id)">
+					<option value="">全部分类</option>
+					{if !$type}
+						{foreach $blist as $cv}
+							<option value="{$cv['id']}">{$cv['name']}</option>
+							{foreach $cv['child'] as $v}
+							<option value="{$v['id']}">&nbsp;&nbsp;&nbsp;{$v['name']}</option>
+							{/foreach}
+						{/foreach}
+					{/if}
+				</select>
+			</div>
+		</div>
+		{else}
+			<div class="layui-form-item">
+				<div class="layui-form-label" style="width:180px">分类模式(默认单选模式)</div>
+				<div class="layui-input-inline">
+					<input class="radio" type="radio" name="{{Edit.id}}_categoryseltype" value="0" ng-model="Edit.params.categoryseltype" ng-checked="!Edit.params.categoryseltype || Edit.params.categoryseltype == '0'" ng-change="getbusiness(Edit.id)" title="单选模式"/>
+					<input class="radio" type="radio" name="{{Edit.id}}_categoryseltype" value="1" ng-model="Edit.params.categoryseltype" ng-checked="Edit.params.categoryseltype && Edit.params.categoryseltype == '1'" ng-change="getbusiness(Edit.id)" title="多选模式"/>
+				</div>
+			</div>
+			<div ng-show="!Edit.params.categoryseltype || Edit.params.categoryseltype != '1'" class="layui-form-item">
+				<div class="layui-form-label">商家分类</div>
+				<div class="layui-input-inline">
+					<select class="layui-input" style="width:200px;-webkit-appearance:menulist" lay-ignore ng-model="Edit.params.category" ng-change="getbusiness(Edit.id)">
+						<option value="">全部分类</option>
+						{if !$type}
+							{foreach $blist as $cv}
+								<option value="{$cv['id']}">{$cv['name']}</option>
+								{foreach $cv['child'] as $v}
+								<option value="{$v['id']}">&nbsp;&nbsp;&nbsp;{$v['name']}</option>
+								{/foreach}
+							{/foreach}
+						{/if}
+					</select>
+				</div>
+			</div>
+			<div ng-show="Edit.params.categoryseltype && Edit.params.categoryseltype == '1'" class="layui-form-item">
+				<div class="layui-form-label">商家分类</div>
+				<div class="layui-input-inline">
+					<input class="checkbox" type="checkbox" lay-skin="primary" value="0" title="全部分类" ng-model="Edit.params.categorymore[0]" ng-change="getbusiness(Edit.id)"/>
+					{if !$type}
+					{foreach $blist as $cv}
+						<input class="checkbox" type="checkbox" lay-skin="primary" value="{$cv['id']}" title="{$cv['name']}" ng-model="Edit.params.categorymore[{$cv['id']}]" ng-change="getbusiness(Edit.id)"/>
+						{foreach $cv['child'] as $v}
+							<input class="checkbox" type="checkbox" value="{$v['id']}" lay-skin="primary" title="{$v['name']}" ng-model="Edit.params.categorymore[{$v['id']}]" ng-change="getbusiness(Edit.id)"/>
+						{/foreach}
+					{/foreach}
+					{/if}
+				</div>
+			</div>
+
+		{/if}
+		<div class="layui-form-item">
+			<div class="layui-form-label">排序方式</div>
+			<div class="layui-input-inline">
+				<input class="radio" type="radio" name="{{Edit.id}}_sortby" value="sort" ng-model="Edit.params.sortby" ng-change="getbusiness(Edit.id)" title="默认"/>
+				<input class="radio" type="radio" name="{{Edit.id}}_sortby" value="createtimedesc" ng-model="Edit.params.sortby" ng-change="getbusiness(Edit.id)" title="创建时间↓"/></i>
+				<input class="radio" type="radio" name="{{Edit.id}}_sortby" value="createtime" ng-model="Edit.params.sortby" ng-change="getbusiness(Edit.id)" title="创建时间↑"/></i>
+				<input class="radio" type="radio" name="{{Edit.id}}_sortby" value="scoredesc" ng-model="Edit.params.sortby" ng-change="getbusiness(Edit.id)" title="评分"/>
+				<input class="radio" type="radio" name="{{Edit.id}}_sortby" value="sales" ng-model="Edit.params.sortby" ng-change="getbusiness(Edit.id)" title="销量"/>
+				<input class="radio" type="radio" name="{{Edit.id}}_sortby" value="juli" ng-model="Edit.params.sortby" ng-change="getbusiness(Edit.id)" title="距离"/>
+				<input class="radio" type="radio" name="{{Edit.id}}_sortby" value="rand" ng-model="Edit.params.sortby" ng-change="getbusiness(Edit.id)" title="随机"/>
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<div class="layui-form-label">显示数量</div>
+			<div class="layui-input-inline">
+				<input class="layui-input" ng-model="Edit.params.shownum" ng-blur="getbusiness(Edit.id)"/>
+			</div>
+		</div>
+		<div class="layui-form-item" ng-show="Edit.params.sortby == 'juli'">
+			<div class="layui-form-label">显示范围</div>
+			<div class="slider" min="1" max="100" ng-model="Edit.params.distance"></div>
+			<span class="slider-span"><input ng-model="Edit.params.distance"/> km</span>
+		</div>
+	</div>
+
+	<hr>
+	<div class="layui-form-item">
+		<div class="layui-form-label">左右边距</div>
+		<div class="slider" min="0" max="40" ng-model="Edit.params.margin_x"></div>
+		<span class="slider-span">{{Edit.params.margin_x}} px</span>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">左右内边距</div>
+		<div class="slider" min="0" max="40" ng-model="Edit.params.padding_x"></div>
+		<span class="slider-span">{{Edit.params.padding_x}} px</span>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">上下内边距</div>
+		<div class="slider" min="0" max="40" ng-model="Edit.params.padding_y"></div>
+		<span class="slider-span">{{Edit.params.padding_y}} px</span>
+	</div>
+	{if !$type}
+	{if !$noshow_modules || !in_array('ModulePlatform',$noshow_modules)}
+	<div class="layui-form-item">
+		<div class="layui-form-label">显示平台</div>
+		<div class="layui-input-inline" style="border-radius: 0;padding: 2px;">
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="所有平台" name="{{Edit.id}}_platform['all']" ng-model="Edit.params.platform['all']"/>
+			{foreach $platform as $pl}
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="{:getplatformname($pl)}" name="{{Edit.id}}_platform['{$pl}']" ng-model="Edit.params.platform['{$pl}']"/>
+			{/foreach}
+		</div>
+	</div>
+	{/if}
+	{if !$noshow_modules || !in_array('ModuleQuanxian',$noshow_modules)}
+	<div class="layui-form-item">
+		<div class="layui-form-label">显示范围</div>
+		<div class="layui-input-inline" style="border-radius: 0;padding: 2px;">
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="所有人" name="{{Edit.id}}_quanxian['all']" ng-model="Edit.params.quanxian['all']"/>
+			{foreach $memberlevelList as $lv}
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="{$lv.name}" name="{{Edit.id}}_quanxian[{$lv.id}]" ng-model="Edit.params.quanxian[{$lv.id}]"/>
+			{/foreach}
+		</div>
+	</div>
+	{/if}
+	{include file="designer_page/tempnew/edit-plugin-mendian" /}
+	<div class="layui-form-item" ng-show="!Edit.params.quanxian['all']">
+    <div class="layui-form-label">显示用户</div>
+    <div class="layui-input-inline" style="border-radius: 0;padding: 2px;">
+			<input class="layui-input" ng-model="Edit.params.showmids"/>
+    </div>
+		<div class="layui-form-mid layui-word-aux">填写用户ID，多个用英文标点逗号(,)分割
+	</div>
+	{else}
+		<input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有平台" name="{{Edit.id}}_platform['all']" ng-model="Edit.params.platform['all']"/>
+		<input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有人" name="{{Edit.id}}_quanxian['all']" ng-model="Edit.params.quanxian['all']"/>
+		<input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有门店" name="{{Edit.id}}_mendian['all']" ng-model="Edit.params.mendian['all']"/>
+	{/if}
+</div>

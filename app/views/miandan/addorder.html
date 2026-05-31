@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>创建运单</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<script src="__STATIC__/admin/js/address3.js?v=1"></script>
+	<style>
+	.layui-form-label{width:110px}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<!-- <div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 创建运单{else}<i class="fa fa-pencil"></i> 编辑运单{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div> -->
+				<div class="layui-card-body" pad15>
+					<div class="layui-form">
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar"></span>订单编号：</label>
+							<div class="layui-form-mid" style="color:#333">{$info.order_id}</div>
+						</div>
+						<input type="hidden" name="info[mid]" value="{$info.mid}"/>
+						<input type="hidden" name="info[order_id]" value="{$info.order_id}"/>
+						<input type="hidden" name="info[add_source]" value="{$info.add_source}"/>
+						<input type="hidden" name="info[wx_appid]" value="{$info.wx_appid}"/>
+						<input type="hidden" name="info[openid]" value="{$info.openid}"/>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>快递公司：</label>
+							<div class="layui-input-inline" style="width:300px">
+								<select name="info[delivery_info]">
+									{foreach $deliverylist as $k=>$v}
+									{foreach $v['service_type'] as $k2=>$v2}
+									<option value="{$v.biz_id},{$v.delivery_id},{$v.delivery_name},{$v2.service_type},{$v2.service_name}" {if $lastorder['delivery_id']==$v['delivery_id'] && $lastorder['service_type'] == $v['service_type']}>{$v.delivery_name} - {$v2.service_name}</option>
+									{/foreach}
+									{/foreach}
+								</select>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar"></span>上门揽件时间：</label>
+							<div class="layui-input-inline">
+								<input type="text" autocomplete="off" id="expect_time" name="info[expect_time]" value="{if $info['expect_time']}{:date('Y-m-d H:i:s',$info['expect_time'])}{/if}" class="layui-input">
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">不填写表示已事先约定取件时间；如果是下顺丰散单，则必填，否则不会有收件员上门揽件</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar"></span>分单数量：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="number" min="1" name="info[express_num]" class="layui-input" value="1"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">根据填写数字创建多个运单</div>
+						</div>
+
+						<span style="color:#333">包裹信息</span><hr/>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar"></span>包裹信息：</label>
+							<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">包裹数量</div>
+							<div class="layui-input-inline" style="width:70px"><input type="text" name="info[cargo_count]" lay-verify="required" value="{:count($cargo_detail_list)}" class="layui-input"></div>
+							<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">包裹总重量(千克)</div>
+							<div class="layui-input-inline" style="width:70px"><input type="text" name="info[cargo_weight]" lay-verify="required" value="1" class="layui-input"></div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar"></span></label>
+							<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">包裹长度(cm)</div>
+							<div class="layui-input-inline" style="width:70px"><input type="text" name="info[cargo_space_x]" value="10" lay-verify="required" class="layui-input"></div>
+							<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">包裹宽度(cm)</div>
+							<div class="layui-input-inline" style="width:70px"><input type="text" name="info[cargo_space_y]" value="10" lay-verify="required" class="layui-input"></div>
+							<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">包裹高度(cm)</div>
+							<div class="layui-input-inline" style="width:70px"><input type="text" name="info[cargo_space_z]" value="10" lay-verify="required" class="layui-input"></div>
+						</div>
+						<div id="giveset_div">
+						{foreach $cargo_detail_list as $k=>$v}
+						<div class="layui-form-item">
+							<label class="layui-form-label">{if $k==0}商品详情：{/if}</label>
+							<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">商品名</div>
+							<div class="layui-input-inline" style="width:300px"><input type="text" name="cargo_detail_list_name[]" value="{$v.name}" class="layui-input"></div>
+							<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">商品数量</div>
+							<div class="layui-input-inline" style="width:70px"><input type="text" name="cargo_detail_list_count[]" value="{$v.count}" class="layui-input"></div>
+							{if $k==0}
+							<button type="button" class="layui-btn layui-btn-primary" onclick="adddata()">新增</button>
+							{else}
+							<button type="button" class="layui-btn layui-btn-primary" onclick="deldata(this)">删除</button>
+							{/if}
+						</div>
+						{/foreach}
+						</div>
+						<script>
+						function adddata(){
+							var html = '';
+							html+='<div class="layui-form-item">';
+							html+='	<label class="layui-form-label"></label>';
+							html+='	<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">商品名</div>';
+							html+='	<div class="layui-input-inline" style="width:300px"><input type="text" name="cargo_detail_list_name[]" value="" class="layui-input"></div>';
+							html+='	<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">商品数量</div>';
+							html+='	<div class="layui-input-inline" style="width:70px"><input type="text" name="cargo_detail_list_count[]" value="" class="layui-input"></div>';
+							html+='	<button type="button" class="layui-btn layui-btn-primary" onclick="deldata(this)">删除</button>';
+							html+='</div>';
+							$('#giveset_div').append(html);
+						}
+						function deldata(obj){
+							$(obj).parent().remove();
+						}
+						</script>
+						<div class="layui-form-item" id="pstype02_div" style="{if $info['pstype']==1 ||  $info['pstype']==3}display:none{/if}">
+							<label class="layui-form-label">是否保价：</label>
+							<div class="layui-input-inline" style="width:70px">
+								<input type="checkbox" name="info[use_insured]" value="1" lay-text="是|否" lay-skin="switch" lay-filter="insuredset" {if $info['insuredset']==1}checked{/if}>
+							</div>
+							<div style="float:left;{if !$info['id'] || $info['use_insured']==0}display:none{/if}" id="insuredsetdiv">
+								<div class="layui-form-mid">保价金额</div>
+								<div class="layui-input-inline" style="width:70px"><input type="text" name="info[insured_value]" value="{$info.insured_value}" class="layui-input"></div>
+								<div class="layui-form-mid">元</div>
+							</div>
+						</div>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar"></span>备注信息：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[custom_remark]" class="layui-input" value="{$info.custom_remark}"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">快递备注信息，比如"易碎物品"，不超过1024字节</div>
+						</div>
+
+
+						<span style="color:#333">收件人信息</span><hr/>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>姓名：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[receiver_name]" class="layui-input" lay-verify="required" value="{$info.receiver_name}"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">发件人姓名</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>手机号码：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[receiver_mobile]" class="layui-input"  lay-verify="required" value="{$info.receiver_mobile}"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">座机号码和手机号不能同时为空</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>地区：</label>
+							<div class="layui-input-inline">
+								<select name="info[receiver_province]" id="receiver_province" lay-verify="required" lay-filter="receiver_province"></select>
+							</div>
+							<div class="layui-input-inline">
+								<select name="info[receiver_city]" id="receiver_city" lay-verify="required" lay-filter="receiver_city"></select>
+							</div>
+							<div class="layui-input-inline">
+								<select name="info[receiver_area]" id="receiver_area" lay-verify="required" ></select>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>详细地址：</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[receiver_address]" value="{$info.receiver_address}" lay-verify="required"  class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar"></span>座机号码：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[receiver_tel]" class="layui-input" value="{$info.receiver_tel}"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">座机号码和手机号不能同时为空</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar"></span>公司名称：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[receiver_company]" class="layui-input" value="{$info.receiver_company}"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">发件人公司名称</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar"></span>邮编：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[receiver_post_code]" class="layui-input" value="{$info.receiver_post_code}"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">发件人邮编</div>
+						</div>
+
+
+						<span style="color:#333">发件人信息</span><hr/>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>姓名：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[sender_name]" class="layui-input" lay-verify="required" value="{$lastorder.sender_name}"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">发件人姓名</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>手机号码：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[sender_mobile]" class="layui-input" lay-verify="required" value="{$lastorder.sender_mobile}"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">座机号码和手机号不能同时为空</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>地区：</label>
+							<div class="layui-input-inline">
+								<select name="info[sender_province]" id="sender_province"lay-verify="required"  lay-filter="sender_province"></select>
+							</div>
+							<div class="layui-input-inline">
+								<select name="info[sender_city]" id="sender_city" lay-verify="required" lay-filter="sender_city"></select>
+							</div>
+							<div class="layui-input-inline">
+								<select name="info[sender_area]" id="sender_area" lay-verify="required" ></select>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>详细地址：</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[sender_address]" value="{$lastorder.sender_address}" lay-verify="required" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar"></span>座机号码：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[sender_tel]" class="layui-input" value="{$lastorder.sender_tel}"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">座机号码和手机号不能同时为空</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar"></span>公司名称：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[sender_company]" class="layui-input" value="{$lastorder.sender_company}"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">发件人公司名称</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar"></span>邮编：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[sender_post_code]" class="layui-input" value="{$lastorder.sender_post_code}"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">发件人邮编</div>
+						</div>
+						
+						<span style="color:#333">商品信息 (会展示到物流服务通知和电子面单中)</span><hr/>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>小程序路径：</label>
+							<div class="layui-input-inline" style="width:300px">
+								<input type="text" name="info[shop_wxa_path]" class="layui-input" lay-verify="required" value="{$info.shop_wxa_path}"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>商品缩略图：</label>
+							<input type="hidden" name="info[shop_img_url]" id="shop_img_url" class="layui-input" value="{$info.shop_img_url}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="shop_img_url" upload-preview="shop_img_urlPreview" onclick="uploader(this)">上传图片</button>
+							<div id="shop_img_urlPreview" style="float:left;padding-top:10px;padding-left:140px;clear: both;">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.shop_img_url}"/></div></div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>商品名称：</label>
+							<div class="layui-input-inline" style="width:500px">
+								<input type="text" name="info[shop_goods_name]" class="layui-input" lay-verify="required" value="{$info.shop_goods_name}"/>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar"></span>商品数量：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[shop_goods_count]" class="layui-input" value="{$info.shop_goods_count}"/>
+							</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	address3('sender_province','sender_city','sender_area',"{$lastorder.sender_province}","{$lastorder.sender_city}","{$lastorder.sender_area}");
+	address3('receiver_province','receiver_city','receiver_area',"{$info.receiver_province}","{$info.receiver_city}","{$info.receiver_area}");
+	layui.form.on('switch(insuredset)',function(data){
+		if(data.elem.checked){
+			$('#insuredsetdiv').show();
+		}else{
+			$('#insuredsetdiv').hide();
+		}
+	})
+	//日期时间选择器
+	layui.laydate.render({ 
+		elem: '#expect_time',
+		type: 'datetime',
+		trigger: 'click'
+	});
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		
+		var index = layer.load();
+		$.post("",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.close(parent.layer.getFrameIndex(window.name));
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+	//选择链接
+	function chooseUrl(){
+		layer.open({type:2,shadeClose:true,area:['1200px', '650px'],'title':'选择链接',content:"{:url('DesignerPage/chooseurl')}"})
+	}
+	function chooseLink(urlname,url){
+		$("input[name='info[producturl]']").val(url);
+	}
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

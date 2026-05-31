@@ -1,0 +1,25 @@
+{if getcustom('extend_tour')}
+<div class="dsn-mod dp-product" ng-class="{'dsn-mod-select':Item.id == focus}" ng-style="{'background-color':Item.params.bgcolor,'margin':Item.params.margin_y+'px '+Item.params.margin_x+'px 0','padding':Item.params.padding_y+'px '+Item.params.padding_x+'px'}">
+    <div style="line-height: 170px; text-align: center; color: #999; font-size: 16px;width:100%" ng-show="Item.data == ''">一个活动都没有...</div>
+    <!--123排-->
+    <div class="dp-product-item" ng-show="Item.params.style=='1' || Item.params.style=='2' || Item.params.style=='3' || Item.params.style=='waterfall'">
+        <div class="item" ng-repeat="item in Item.data" ng-init="index = $index" style="{{Item.params.style==2 || Item.params.style=='waterfall'  ? 'width:49%;margin-right:'+(index%2==0?'2%':0) : (Item.params.style==3 ? 'width:32%;margin-right:'+(index%3!=2?'2%':0) :'width:100%')}}" ng-style="{'background-color':Item.params.probgcolor}">
+            <div class="product-pic" ng-style="{'background-color':Item.params.probgcolor}">
+                <img class="image" ng-src="{{item.pic}}"/>
+                <img class="saleimg" ng-src="{{Item.params.saleimg}}" ng-if="Item.params.saleimg!=''"/>
+            </div>
+            <div class="product-info" ng-style="{'background-color':Item.params.probgcolor}" ng-if="Item.params.showname != '0' || Item.params.showprice != '0' || Item.params.showsales!='0'">
+                <div class="p1" ng-if="Item.params.showname == 1">{{item.name}}</div>
+                <div class="p2">
+                    <div class="p2-1" ng-if="Item.params.showprice == 1">
+                        <span class="t1" style="color:{:t('color1')}"><span style="font-size:12px">￥</span>{{item.sell_price}}</span>
+                    </div>
+                </div>
+                <div class="p3" ng-if="Item.params.showsales=='1' && item.sales>0">已售{{item.sales}}件</div>
+                <div class="p4" style="background:rgba({:t('color1rgb')},0.1);color:{:t('color1')}" ng-if="Item.params.showcart==1"><span class="iconfont icon_gouwuche"></span></div>
+                <div class="p4" style="background:rgba({:t('color1rgb')},0.1);color:{:t('color1')}" ng-if="Item.params.showcart==2"><img ng-src="{{Item.params.cartimg}}" class="img"/></div>
+            </div>
+        </div>
+    </div>
+</div>
+{/if}

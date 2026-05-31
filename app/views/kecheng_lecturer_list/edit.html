@@ -1,0 +1,501 @@
+<!DOCTYPE html><!--custom_file(kecheng_lecturer)-->
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>课程管理</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+  <style>
+  #ggnamediv .layui-input,#ggvaldiv .layui-input{ display:inline;height:30px}
+  .video{width: 140px;float: left; padding-top: 10px;margin-left: 130px;clear: both;}
+  .upload-img{float:left;padding-top:10px;padding-left:140px;clear: both;}
+  .upload-img .layui-imgbox{margin-right: 20px;}
+  </style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+        <div class="layui-card-header">
+          {if !$info['id']}<i class="fa fa-plus"></i> 添加课程内容{else}<i class="fa fa-pencil"></i> 编辑课程内容{/if}
+          <i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+        </div>
+        <div class="layui-card-body" pad15>
+          {if $info['ischecked']==2}<blockquote class="layui-elem-quote" style="color:red">课程未审核通过，驳回原因：{$info.check_reason}</blockquote>{/if}
+          <div class="layui-form form-label-w6">
+            <div class="layui-tab" lay-filter="mytab">
+              <ul class="layui-tab-title">
+                <li class="layui-this" lay-id="1">课程信息</li>
+                <li lay-id="2">课程详情</li>
+              </ul>
+              <div class="layui-tab-content">
+                <div class="layui-tab-item layui-show">
+                  <input type="hidden" name="id" value="{$info['id']}"/>
+                  <div class="layui-form-item">
+                    <label class="layui-form-label"><span class="redstar">*</span>课程名称：</label>
+                    <div class="layui-input-inline" style="width:400px">
+                      <input type="text" name="info[name]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info['name']}">
+                    </div>
+                  </div>
+                  <div class="layui-form-item">
+                    <label class="layui-form-label"><span class="redstar">*</span>课程分类：</label>
+                    <div class="layui-input-inline" style="width:300px">
+                      <select name="info[cid]" id="cid" lay-verify="required" lay-verType="tips" >
+                      <option value="">--请选择--</option>
+                      {foreach $clist as $cv}
+                        <option value="{$cv['id']}" {if in_array($cv['id'],$info['cid'])}selected{/if}>{$cv['name']}</option>
+                        {foreach $cv['child'] as $v}
+                        <option value="{$v['id']}" {if in_array($v['id'],$info['cid'])}selected{/if}>&nbsp;&nbsp;&nbsp;{$v.name}</option>
+                        {/foreach}
+                      {/foreach}
+                      </select>
+                    </div>
+                  </div>
+                  {if $hasallauth}
+                  <div class="layui-form-item">
+                    <label class="layui-form-label"><span class="redstar">*</span>所属讲师：</label>
+                    <div class="layui-input-inline" style="width:300px">
+                      <select name="info[lecturerid]" id="lecturerid" lay-verify="required" lay-verType="tips" >
+                      <option value="">--请选择--</option>
+                      {foreach $lecturers as $lv}
+                        <option value="{$lv['id']}" {if $lv['id']==$info['lecturerid']}selected{/if}>{$lv['nickname']} {$lv['tel']}</option>
+                      {/foreach}
+                      </select>
+                    </div>
+                  </div>
+                  {/if}
+                  <div class="layui-form-item">
+                    <label class="layui-form-label">课程主图：</label>
+                    <button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="pic" upload-preview="picPreview" onclick="uploader(this)">上传图片</button>
+                    <div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：640×640像素</div>
+                    <div id="picPreview" style="float:left;padding-top:10px;padding-left:130px;clear: both;">
+                      <div class="layui-imgbox imgbox-required">
+                        <div class="layui-imgbox-img"><img src="{$info['pic']}"/></div>
+                        <input type="text" name="info[pic]" id="pic" class="layui-input" value="{$info['pic']}">
+                      </div>
+                    </div> 
+                  </div>
+                  <div class="layui-form-item">
+                    <label class="layui-form-label">课程图片：</label>
+                    <input type="hidden" name="info[pics]" value="{$info['pics']}" id="pics">
+                    <button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this,true)" upload-input="pics" upload-preview="picList" >批量上传</button>
+                    <div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：640×640像素</div>
+                    <div id="picList" class="picsList-class-padding">
+                      {if $info['pics']}
+                        {php}$pics = explode(',',$info['pics']);{/php}
+                        {foreach $pics as $pic}
+                        <div class="layui-imgbox">
+                          <a class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().remove();getpicsval('pics','picList')" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+                          <span class="layui-imgbox-img"><img src="{$pic}"></span>
+                        </div>
+                        {/foreach}
+                      {/if}
+                    </div>
+                  </div>
+                  <div class="layui-form-item">
+                    <label class="layui-form-label">课程价格：</label>
+                    <div class="layui-input-inline">
+                      <!-- <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="lvpriceset()" id="lvpricebtn">{if $info['lvprice']==1}关闭{else}开启{/if}会员价</button> -->
+                      <input type="hidden" name="info[lvprice]" value="{$info['id']?$info['lvprice']:'0'}"/>
+                      <table class="layui-table" style="margin-top:20px;">
+                        <thead>
+                          <tr>
+                            <th class="lvprice-data" style="width: 100px;">等级</th>
+                              {foreach $levellist as $level}
+                              <th class="lvprice-data" style="{if !$info['lvprice']}display: none;{/if}">{$level.name}</th>
+                              {/foreach}
+                            <th class="price-data">销售价(元)</th>
+                            <th class="price-underline">划线价(元)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td class="lvprice-data" style="width: 100px;">价格（元） </td>
+                              {foreach $levellist as $level}
+                              <td class="lvprice-data" style="{if !$info['lvprice']}display: none;{/if}"><input type="text" name="info[lvprice_data][{$level['id']}][money_price]" value="{$info['lvprice_data'][$level['id']]['money_price']|default=0}" class="layui-input" style="width: 80px;"><br>
+                              {/foreach}
+                            <td class="price-data"><input type="text" name="info[price]" value="{$info.price|default=0}" class="layui-input" style="width: 80px;"><br>
+                            <td class="price-underline"><input type="text" name="info[market_price]" value="{$info.market_price|default=0}" class="layui-input" style="width: 80px;"><br>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <!-- <div class="layui-form-item">
+                    <label class="layui-form-label"></label>
+                    <div class="layui-form-mid layui-word-aux">注意：当开启会员价时，不同的会员等级存在价格差</span>
+                    </div>
+                  </div> -->
+
+                  <!-- s -->
+                  <div class="layui-form-item">
+                    <label class="layui-form-label">课程类型：</label>
+                    <div class="layui-input-inline" style="width:600px">
+                      <input type="radio" name="info[kctype]" {if $info['kctype']==1 || !$info['id']}checked{/if} value="1"  title="图文" lay-skin="primary" lay-filter="kctypeset">
+                      <input type="radio" name="info[kctype]" {if $info['kctype']==3}checked{/if} value="3"  title="视频" lay-skin="primary" lay-filter="kctypeset">
+                    </div>
+                  </div>
+                  <div class="layui-form-item">
+                    <label class="layui-form-label">免费内容：</label>
+                    <div class="layui-input-inline" style="width:500px">
+                      <script id="freecontent" name="info[freecontent]" type="text/plain" style="width:100%;height:400px">{$info.freecontent}</script>
+                    </div>
+                    <div class="layui-form-mid layui-word-aux">免费内容在收费内容前面展示</div>
+                  </div>
+                  <div {if $info['kctype']!=3}style="display:none"{/if} id="video_box">
+                    <div class="layui-form-item">
+                      <label class="layui-form-label w100" >视 频：</label>
+                      <div class="layui-input-inline" style="width:400px">
+                        <input type="text" name="info[video_url]" id="video" lay-verType="tips" class="layui-input" value="{$info['video_url']}">
+                      </div>
+                      <button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="video" onclick="uploader(this)">上传视频</button>
+                      <video src="{$info['video_url']}" controls="controls" class="video">
+                      您的浏览器不支持 video 标签。
+                      </video>
+                      <div class="layui-form-mid layui-word-aux" style="margin-left:10px;">填写视频链接或上传视频，视频链接必须为mp4格式的源链接，视频大小须在50MB以内{if getcustom('video_qq_url')}<br>腾讯视频原网页地址仅支持以https://v.qq.com/x/page/开头的网址{/if}</div>
+                    </div>
+                    <div class="layui-form-item">
+                      <label class="layui-form-label w100" >视频时长：</label>
+                      <div class="layui-input-inline" style="width:100px">
+                        <input type="number" name="info[video_duration]" id="video_duration" value="{$info.video_duration}" class="layui-input">
+                      </div>
+                      <div class="layui-form-mid">秒</div>
+                    </div>
+                    <video id="myvideo" style="display:none"></video>
+                    {if getcustom('video_speed')}
+                    <div class="layui-form-item" id="isjinzhi_box">
+                      <label class="layui-form-label">视频倍速：</label>
+                      <div class="layui-input-inline">
+                        <input type="radio" name="info[isspeed]" value="1" title="开启" {if !$info['id'] || $info['isspeed']==1}checked{/if}/>
+                        <input type="radio" name="info[isspeed]" value="0" title="关闭" {if $info['id'] && $info['isspeed']==0}checked{/if}/>
+                      </div>
+                    </div>
+                    {/if}
+                  </div>
+                  <div class="layui-form-item  {if $info['kctype']==1 || !$info['id']}hide{/if}" id="isjinzhi_box">
+                    <label class="layui-form-label">禁止快进：</label>
+                    <div class="layui-input-inline">
+                      <input type="radio" name="info[isjinzhi]" value="1" title="是" {if !$info['id'] || $info['isjinzhi']==1}checked{/if}/>
+                      <input type="radio" name="info[isjinzhi]" value="0" title="否" {if $info['id'] && $info['isjinzhi']==0}checked{/if}/>
+                    </div>
+                  </div>
+                  <!-- e -->
+                  {if $hasallauth}
+                    <div class="layui-form-item">
+                      <label class="layui-form-label">查看人数：</label>
+                      <div class="layui-input-inline">
+                        <input type="text" name="info[join_num]" class="layui-input" value="{$info['join_num']?$info['join_num']:'0'}" />
+                      </div>
+                      <div class="layui-form-mid layui-word-aux"></div>
+                    </div>
+                    <div class="layui-form-item">
+                      <label class="layui-form-label">分销设置：</label>
+                      <div class="layui-input-block" style="width:900px">
+                        <input type="radio" name="info[commissionset]" value="0" {if !$info['id'] || $info['commissionset']==0}checked{/if} title="按照{:t('会员')}等级" lay-filter="commissionset">
+                        <input type="radio" name="info[commissionset]" value="1" {if $info['commissionset']==1}checked{/if} title="单独设置提成比例" lay-filter="commissionset">
+                        <input type="radio" name="info[commissionset]" value="2" {if $info['commissionset']==2}checked{/if} title="单独设置提成金额" lay-filter="commissionset">
+                        <input type="radio" name="info[commissionset]" value="3" {if $info['commissionset']==3}checked{/if} title="分销送{:t('积分')}" lay-filter="commissionset">
+                        <span  {if $info['lvprice']==0}style="display:none"{/if} id="commissionset4input">
+                        <input type="radio" name="info[commissionset]" value="4" {if $info['commissionset']==4}checked{/if} title="按差价拿{:t('佣金')}" lay-filter="commissionset">
+                        </span>
+                        <input type="radio" name="info[commissionset]" value="-1" {if $info['commissionset']==-1}checked{/if} title="不参与分销" lay-filter="commissionset">
+                      </div>
+                      <div class="layui-form-mid layui-word-aux">按照{:t('会员')}等级：按照{:t('会员')}等级中设置的提成比例进行提成分配，提成=对应{:t('会员')}等级的提成比例×{$jiesuantypeDesc}×购买数量<br>
+                      单独设置提成比例：按照单独设置的提成比例进行提成分配，提成=设置的百分比×{$jiesuantypeDesc}×购买数量<br>
+                      单独设置提成金额：按照单独设置的提成金额进行提成分配，提成=提成金额×购买数量<br>
+                      分销送{:t('积分')}：分销提成不给{:t('佣金')}而是给{:t('积分')}，得到的积分=提成{:t('积分')}×购买数量<br>
+                      <span id="commissionset4tips" {if $info['lvprice']==0}style="display:none"{/if}>按差价拿{:t('佣金')}：当开启会员价时，不同的会员等级存在价格差，如果上级与下级之间存在价格差，则此价格差作为{:t('佣金')}返给上级</span>
+                      </div>
+                    </div>
+                    {php}
+                    $commissiondata1 = json_decode($info['commissiondata1'],true);
+                    if(!$commissiondata1) $commissiondata1 = [];
+                    $commissiondata2 = json_decode($info['commissiondata2'],true);
+                    if(!$commissiondata2) $commissiondata2 = [];
+                    $commissiondata3 = json_decode($info['commissiondata3'],true);
+                    if(!$commissiondata3) $commissiondata3 = [];
+                    {/php}
+                    <div id="commissionset1" {if $info['commissionset']!=1}style="display:none"{/if}>
+                      {if !$aglevellist}
+                      <div class="layui-form-item">
+                        <label class="layui-form-label">提成比例：</label>
+                        <div class="layui-form-mid" style="color:red">未设置具有分销权限的{:t('会员')}等级，请先在[{:t('会员')}]-[等级及分销]设置分销权限</div>
+                      </div>
+                      {else}
+                      {foreach $aglevellist as $level}
+                      <div class="layui-form-item">
+                        <label class="layui-form-label"  style="width:120px">{$level.name}：</label>
+                        <div class="layui-input-inline layui-module-itemL">
+                          <div> 一级(%) </div>
+                          <input type="text" name="commissiondata1[{$level.id}][commission1]" class="layui-input" value="{$commissiondata1[$level['id']]['commission1']}">
+                        </div>
+                        {if $level['can_agent']>1}
+                        <div class="layui-input-inline layui-module-itemL">
+                          <div>二级(%)</div>
+                          <input type="text" name="commissiondata1[{$level.id}][commission2]" class="layui-input" value="{$commissiondata1[$level['id']]['commission2']}">
+                        </div>
+                        {/if}
+                        {if $level['can_agent']>2}
+                        <div class="layui-input-inline layui-module-itemL">
+                          <div>三级(%)</div>
+                          <input type="text" name="commissiondata1[{$level.id}][commission3]" class="layui-input" value="{$commissiondata1[$level['id']]['commission3']}">
+                        </div>
+                        {/if}
+                      </div>
+                      {/foreach}
+                      {/if}
+                    </div>
+                    <div id="commissionset2" {if $info['commissionset']!=2}style="display:none"{/if}>
+                      {if !$aglevellist}
+                      <div class="layui-form-item">
+                        <label class="layui-form-label">提成金额：</label>
+                        <div class="layui-form-mid" style="color:red">未设置具有分销权限的{:t('会员')}等级，请先在[{:t('会员')}]-[等级及分销]设置分销权限</div>
+                      </div>
+                      {else}
+                      {foreach $aglevellist as $level}
+                      <div class="layui-form-item">
+                        <label class="layui-form-label"  style="width:120px">{$level.name}：</label>
+                        <div class="layui-input-inline layui-module-itemL">
+                          <div> 一级(元) </div>
+                          <input type="text" name="commissiondata2[{$level.id}][commission1]" class="layui-input" value="{$commissiondata2[$level['id']]['commission1']}">
+                        </div>
+                        {if $level['can_agent']>1}
+                        <div class="layui-input-inline layui-module-itemL">
+                          <div>二级(元)</div>
+                          <input type="text" name="commissiondata2[{$level.id}][commission2]" class="layui-input" value="{$commissiondata2[$level['id']]['commission2']}">
+                        </div>
+                        {/if}
+                        {if $level['can_agent']>2}
+                        <div class="layui-input-inline layui-module-itemL">
+                          <div>三级(元)</div>
+                          <input type="text" name="commissiondata2[{$level.id}][commission3]" class="layui-input" value="{$commissiondata2[$level['id']]['commission3']}">
+                        </div>
+                        {/if}
+                      </div>
+                      {/foreach}
+                      {/if}
+                    </div>
+                    <div id="commissionset3" {if $info['commissionset']!=3}style="display:none"{/if}>
+                      {if !$aglevellist}
+                      <div class="layui-form-item">
+                        <label class="layui-form-label">提成{:t('积分')}：</label>
+                        <div class="layui-form-mid" style="color:red">未设置具有分销权限的{:t('会员')}等级，请先在[{:t('会员')}]-[等级及分销]设置分销权限</div>
+                      </div>
+                      {else}
+                      {foreach $aglevellist as $level}
+                      <div class="layui-form-item">
+                        <label class="layui-form-label"  style="width:120px">{$level.name}：</label>
+                        <div class="layui-input-inline layui-module-itemL">
+                          <div> 一级({:t('积分')}) </div>
+                          <input type="text" name="commissiondata3[{$level.id}][commission1]" class="layui-input" value="{$commissiondata3[$level['id']]['commission1']}">
+                        </div>
+                        {if $level['can_agent']>1}
+                        <div class="layui-input-inline layui-module-itemL">
+                          <div>二级({:t('积分')})</div>
+                          <input type="text" name="commissiondata3[{$level.id}][commission2]" class="layui-input" value="{$commissiondata3[$level['id']]['commission2']}">
+                        </div>
+                        {/if}
+                        {if $level['can_agent']>2}
+                        <div class="layui-input-inline layui-module-itemL">
+                          <div>三级({:t('积分')})</div>
+                          <input type="text" name="commissiondata3[{$level.id}][commission3]" class="layui-input" value="{$commissiondata3[$level['id']]['commission3']}">
+                        </div>
+                        {/if}
+                      </div>
+                      {/foreach}
+                      {/if}
+                    </div>
+                    <div class="layui-form-item">
+                      <label class="layui-form-label">序号：</label>
+                      <div class="layui-input-inline">
+                        <input type="text" name="info[sort]" value="{$info['id']?$info['sort']:'0'}" class="layui-input">
+                      </div>
+                      <div class="layui-form-mid layui-word-aux">用于排序,越大越靠前</div>
+                    </div>
+                  {/if}
+                  <div class="layui-form-item">
+                    <label class="layui-form-label">状态：</label>
+                    <div class="layui-input-inline">
+                      <input type="radio" name="info[status]" value="1" title="已上架" {if !$info['id'] || $info['status']==1}checked{/if}/>
+                      <input type="radio" name="info[status]" value="0" title="未上架" {if $info['id'] && $info['status']==0}checked{/if}/>
+                    </div>
+                  </div>
+
+                  <div class="layui-form-item">
+                    <label class="layui-form-label"></label>
+                    <div class="layui-input-block">
+                      <button class="layui-btn layui-btn-normal" onclick="gonext(2)">下一步:编辑课程详情</button>
+                      <button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+                    </div>
+                  </div>
+
+                </div>
+                <div class="layui-tab-item">
+                  <?php 
+                  $pagetitle='课程详情';
+                  $pagedata= $info['detail'] && json_decode($info['detail']) ? $info['detail'] : '[{"id":"M0000000000000","temp":"richtext","params":{bgcolor:"#FFFFFF",margin_x:"0",margin_y:"0",padding_x:"10",padding_y:"10","quanxian":{"all":true},"platform":{"all":true}},"data":"","other":"","content":""}]';
+                  ?>
+                  {include file="designer_page/designer_editor" /}
+                  <div class="layui-form-item">
+                    <label class="layui-form-label"></label>
+                    <div class="layui-input-block">
+                      <button class="layui-btn layui-btn-normal" onclick="gonext(1)">上一步:编辑课程信息</button>
+                      <button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    var lvprice = $("input[name='info[lvprice]']").val();
+    if(lvprice == 0){
+      $('.lvprice-data').hide();
+      $('.price-data').show();
+    }else{
+      $('.lvprice-data').show();
+      $('.price-data').hide();
+    }
+  layui.form.on('radio(commissionset)', function(data){
+    if(data.value == '1'){
+      $('#commissionset1').show();
+      $('#commissionset2').hide();
+      $('#commissionset3').hide();
+    }else if(data.value == '2'){
+      $('#commissionset1').hide();
+      $('#commissionset2').show();
+      $('#commissionset3').hide();
+    }else if(data.value == '3'){
+      $('#commissionset1').hide();
+      $('#commissionset2').hide();
+      $('#commissionset3').show();
+    }else{
+      $('#commissionset1').hide();
+      $('#commissionset2').hide();
+      $('#commissionset3').hide();
+    }
+  });
+  layui.form.on('radio(isdt)', function(data){
+    if(data.value == '1'){
+      $('#isdt_div').show();
+    }else{
+      $('#isdt_div').hide();
+    }
+  })
+  layui.form.on('radio(scoredkmaxset)', function(data){
+    if(data.value == '1'){
+      $('#scoredkmaxset1').show();
+      $('#scoredkmaxunit').html('%');
+    }else if(data.value == '2'){
+      $('#scoredkmaxset1').show();
+      $('#scoredkmaxunit').html('元');
+    }else{
+      $('#scoredkmaxset1').hide();
+    }
+  })
+  {if getcustom('kecheng_lecturer')}
+  layui.form.on('radio(kctypeset)', function(data){
+    if(data.value == '1'){
+      $('#voice_box').hide();
+      $('#video_box').hide();
+      $('#isjinzhi_box').hide();
+    }else if(data.value == '3'){
+      $('#voice_box').hide();
+      $('#isjinzhi_box').show();
+      $('#video_box').show();
+    }
+  })
+  layui.form.on('radio(chaptertype)', function(data){
+    if(data.value == '2'){
+      $('#freecontent').show();
+      $('#isdt').hide();
+    }else{
+      $('#freecontent').hide();
+      $('#isdt').show();
+    }
+  })
+  {/if}
+  $(".layui-form input#video").bind("input change propertychange",function(event){
+    var videourl = $('#video').val();
+    if(videourl){
+      $("#myvideo").prop("src", videourl);
+      $("#myvideo")[0].addEventListener("loadedmetadata", function() {
+        var tol = Math.floor(this.duration); //获取总时长
+        $('#video_duration').val(tol);
+      });
+    }else{
+      $('#video_duration').val(0);
+    }
+  })
+  function lvpriceset(){
+    var lvprice = $("input[name='info[lvprice]']").val();
+    if(lvprice == 0){
+      $("input[name='info[lvprice]']").val('1');
+      $('#lvpricebtn').text('关闭会员价');
+      $('.lvprice-data').show();
+      $('.price-data').hide();
+    }else{
+      $("input[name='info[lvprice]']").val('0');
+      $('#lvpricebtn').text('开启会员价');
+      $('.lvprice-data').hide();
+      $('.price-data').show();
+    }
+  }
+    function gonext(layid){
+      $(window).scrollTop(0);
+      layui.element.tabChange('mytab', layid);
+    }
+    layui.element.on('tab(mytab)', function(){
+      try{
+        changeconentxy();
+      }catch(e){}
+    })
+    //var ueditor = UE.getEditor('editor');
+  
+    var specs = [];
+
+    layui.form.on('checkbox(gettjset)', function(data){
+      console.log(data)
+      if(data.elem.checked){
+        $('#gettjset').hide();
+      }else{
+        $('#gettjset').show();
+      }
+    })
+    function chooseUrl2(){
+      layer.open({type:2,shadeClose:true,area:['1200px', '650px'],'title':'选择链接',content:"{:url('DesignerPage/chooseurl')}&callback=chooseLink2"})
+    }
+    function chooseLink2(urlname,url){
+      $("input[name='info[gettjurl]']").val(url);
+    }
+    </script>
+
+  <script>
+  var ueditor = UE.getEditor('freecontent',{imageScaleEnabled:false});
+  layui.form.on('submit(formsubmit)', function(obj){
+    var field = obj.field
+    field.specs = JSON.stringify(specs)
+    field['info[freecontent]'] = ueditor.getContent();
+    field['info[detail]'] = geteditordata();
+    var index = layer.load();
+    $.post("{:url('save')}",field,function(data){
+      layer.close(index);
+      dialog(data.msg,data.status);
+      if(data.status == 1){
+        setTimeout(function(){
+          parent.layer.closeAll();
+          parent.tableIns.reload()
+        },1000)
+      }
+    })
+  })
+  </script>
+  {include file="public/copyright"/}
+</body>
+</html>

@@ -1,0 +1,104 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>多端平台</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    {include file="public/css"/}
+</head>
+<style>
+    .app-list{
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        flex-direction: row;
+    }
+    .app-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #ffffff;
+        border: 1px solid #ebebeb;
+        width: 250px;
+        height: 90px;
+        overflow: hidden;
+        margin: 0 0 16px 16px;
+        padding: 10px;
+        cursor: pointer;
+        border-radius: 10px;
+    }
+    .app-item-icon {
+        width: 60px;
+        height: 60px;
+        display: block;
+    }
+    .app-item-title {
+        font-size: 15px;
+        margin-bottom: 10px;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        line-height: initial;
+        color: black;
+    }
+    .app-item-desc {
+        font-size: 13px;
+        line-height: 20px;
+        color: #999999;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
+<body>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+            <div class="layui-card-header">多端平台
+                {if input('param.isopen')==1}
+                <i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+                {/if}
+            </div>
+
+            <div class="layui-card-body" pad15>
+                <div class="app-list">
+                    {foreach $app_list as $key=>$vo }
+
+                    <a href="{:url($vo['url'])}" class="app-item">
+                        <img class="app-item-icon" src="{$vo['icon_url']}"/>
+                        <div>
+                            <span class="app-item-title">{$vo['title']}</span>
+                            <span class="app-item-desc">{$vo['desc']}</span>
+                        </div>
+                    </a>
+                    {/foreach}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{include file="public/js"/}
+<script>
+    $('.app-item').on('click', function(){
+		$(window.parent.document).find('#LAY_app').removeClass('layadmin-side-shrink2').find('.wb-subnav').show();
+        $(window.parent.document).find("a[lay-tips='平台']").trigger('click');
+        $(window.parent.document).find("li.active").removeClass('active');
+
+        let url = $(this).attr('href');
+        $(window.parent.document).find("a[href='"+ url +"']").trigger('click').parent('li').addClass('active');
+        let title = $(this).find('.app-item-title').text()
+
+		console.log(title);
+
+        $(window.parent.document).find(".menu-item:contains('" + title + "')").show().siblings('.menu-item').hide().parents('.subnav-group').show().siblings().hide();
+
+	    $(window.parent.document).find(".menu-item:contains('" + title + "')").trigger('click').find('.multiple').show();
+
+
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>订单管理</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header">
+			<div class="layui-tab layui-tab-brief">
+				<ul class="layui-tab-title">
+					<li {if !input('?param.status') || input('param.status')===''}class="layui-this"{/if} onclick="location.href='{:url('index')}'">全部</li>
+					<li {if input('param.status')==='0'}class="layui-this"{/if} onclick="location.href='{:url('index')}/status/0'">待审核</li>
+					<li {if input('param.status')=='1'}class="layui-this"{/if} onclick="location.href='{:url('index')}/status/1'">已审核</li>
+					<li {if input('param.status')=='2'}class="layui-this"{/if} onclick="location.href='{:url('index')}/status/2'">已取走</li>
+					<li {if input('param.status')=='3'}class="layui-this"{/if} onclick="location.href='{:url('index')}/status/3'">未通过</li>
+					<li {if input('param.status')=='4'}class="layui-this"{/if} onclick="location.href='{:url('index')}/status/4'">已过期</li>
+				</ul>
+			</div>
+			{if input('param.isopen')==1}<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>{/if}
+          </div>
+          <div class="layui-card-body" pad15>
+			<div class="layui-col-md12">
+				<div class="layui-col-md3">
+					<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="datadel(0)">删除</button>
+				</div>
+				<div class="layui-col-md9 layui-form layui-form-search">
+					<div class="layui-inline layuiadmin-input-useradmin" style="display:none">
+						<label class="layui-form-label">{:t('会员')}ID</label>
+						<div class="layui-input-inline">
+							<input type="text" name="mid" value="{$Request.param.mid}" autocomplete="off" class="layui-input">
+						</div>
+					</div>
+					<div class="layui-inline layuiadmin-input-useradmin">
+						<label class="layui-form-label">名称</label>
+						<div class="layui-input-inline">
+							<input type="text" name="name" autocomplete="off" class="layui-input">
+						</div>
+					</div>
+					<div class="layui-inline">
+						<label class="layui-form-label">寄存人</label>
+						<div class="layui-input-inline">
+							<input type="text" name="linkman" autocomplete="off" class="layui-input">
+						</div>
+					</div>
+					<div class="layui-inline">
+						<label class="layui-form-label">手机号</label>
+						<div class="layui-input-inline">
+							<input type="text" name="tel" autocomplete="off" class="layui-input">
+						</div>
+					</div>
+					<div class="layui-inline">
+						<label class="layui-form-label">寄存时间</label>
+						<div class="layui-input-inline" style="width:180px">
+							<input type="text" name="createtime" id="create_time" autocomplete="off" class="layui-input">
+						</div>
+					</div>
+					<div class="layui-inline">
+						<label class="layui-form-label">状态</label>
+						<div class="layui-input-inline">
+							<select name="status">
+								<option value="">全部</option>
+								<option value="0" {if input('param.status')==='0'}selected{/if}>待审核</option>
+								<option value="1" {if input('param.status')==='1'}selected{/if}>已审核</option>
+								<option value="2" {if input('param.status')==='2'}selected{/if}>已取走</option>
+								<option value="3" {if input('param.status')==='3'}selected{/if}>未通过</option>
+								<option value="4" {if input('param.status')==='3'}selected{/if}>已过期</option>
+							</select>
+						</div>
+					</div>
+					<div class="layui-inline">
+						<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+							<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+						</button>
+					</div>
+				</div>
+			</div>
+			<div class="layui-col-md12">
+				<table id="tabledata" lay-filter="tabledata"></table>
+			</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+  	var table = layui.table;
+	var datawhere = {};
+	{if input('?param.status') && input('param.status')!==''}
+	datawhere['status'] = "{$Request.param.status}";
+	{/if}
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{$Request.url}" //数据接口
+    ,page: true //开启分页
+		//,size:'sm'
+    ,cols: [[ //表头
+      {type:"checkbox"},
+			{field: 'id', title: 'ID',  sort: true,width:70},
+			{field: 'nickname', title: '头像昵称',templet:function(d){
+				if(d.headimg){
+					return '<img src="'+d.headimg+'" style="width:50px;height:50px"/> '+d.nickname;
+				}
+				return '';
+			}},
+			{field: 'name', title: '寄存名称'},
+			{field: 'num', title: '寄存数量'},
+			{field: 'linkman', title: '存酒人'},
+			{field: 'tel', title: '手机号'},
+			{field: 'pic', title: '照片',templet:function(d){
+				if(d.pic){
+					return '<img src="'+d.pic+'" style="width:70px;height:auto" onclick="preview(this)"/>'
+				}
+				return '';
+			}},
+			{field: 'message', title: '备注'},
+			{field: 'createtime', title: '存酒时间',sort: true,width:160,templet:function(d){ return '<div style="color:#080">'+ date('Y-m-d H:i:s',d.createtime)+'</div>'}},
+			{field: 'takeout_time', title: '取走时间',sort: true,width:160,templet:function(d){ 
+				if(!d.takeout_time) return '';
+				return '<div style="color:#080">'+ date('Y-m-d H:i:s',d.takeout_time)+'</div>'
+			}},
+			{field: 'status', title: '状态',templet:function(d){
+				var html = '';
+				if(d.status==0) html+='<div style="color:#ff8758">待审核</span>';
+				if(d.status==1) html+='<div style="color:#008000">已审核</span>';
+				if(d.status==2) html+='<div style="color:#bbb">已取走</span>';
+				if(d.status==3) html+='<div style="color:#bbb">未通过</span>';
+				if(d.status==4) html+='<div style="color:#bbb">已过期</span>';
+				return html;
+			},width:80},
+      //{field: 'createtime', title: '下单时间',sort: true,templet:function(d){ return date('Y-m-d H:i',d.createtime)},width:150},
+      {field: 'operation', title: '操作',width:180,templet:function(d){
+			var html = '';
+			if(d.status==0){ //待审核
+				html += '<button class="table-btn" onclick="setst('+d.id+',1)">审核通过</button>';
+				html += '<button class="table-btn" onclick="setst('+d.id+',3)">审核驳回</button>';
+			}
+			if(d.status==1){ //已审核
+				html += '<button class="table-btn" onclick="setst('+d.id+',2)">改为已取走</button>';
+			}
+			  if(d.status>=1){ //已审核
+				  html += '<button class="table-btn" onclick="openmax(\'{:url('log')}/isopen/1/id/'+d.id+'\')">存取记录</button>';
+			  }
+			html += '<button class="table-btn" onclick="openmax(\'{:url('edit')}/isopen/1/id/'+d.id+'\')">编辑</button>';
+			html += '<button class="table-btn" onclick="datadel('+d.id+')">删除</button>';
+			return html;
+      }}
+    ]]
+  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//日期范围选择
+	layui.laydate.render({ 
+		elem: '#create_time',
+		trigger: 'click',
+		range: '~' //或 range: '~' 来自定义分割字符
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	//删除
+	function datadel(id){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			var ids = [];
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id)
+		}
+		layer.confirm('确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('del')}",{ids:ids},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	function setst(id,st,queue_no){
+		var tips = '确定要操作吗?';
+		if(st==1){
+			var tips = '确定要审核通过吗?';
+		}
+		if(st==2){
+			var tips = '确定要改为已取走吗?';
+		}
+		if(st==3){
+			var tips = '确定要审核驳回吗?';
+		}
+		layer.confirm(tips,function(){
+			var index = layer.load();
+			$.post("{:url('setst')}",{id:id,st:st},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		})
+	}
+	</script>
+
+
+
+	{include file="public/copyright"/}
+</body>
+</html>

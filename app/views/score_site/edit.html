@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>添加站点</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<script src="__STATIC__/admin/js/address3.js"></script>
+	<style>
+		.layui-form-select{z-index: 9999}
+		.map-search-res:hover{
+			background-color: gray;
+		}
+		.layui-imgbox-close{width: 25px;height: 22px;right: -18px;top:-10px;}
+		#picList .layui-imgbox .layui-imgbox-img{height: auto;}
+		#picList .layui-imgbox{margin-right: 25px;height: auto}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加站点{else}<i class="fa fa-pencil"></i> 编辑站点{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					{if $info['status']==2}<blockquote class="layui-elem-quote" style="color:red">站点未审核通过，驳回原因：{$info.reason}</blockquote>{/if}
+					<div class="layui-form form-label-w8">
+						<input type="hidden" name="info[id]" value="{$info.id}"/>
+						<input type="hidden" name="uinfo[id]" value="{$uinfo['id']}">
+						<div class="layui-tab layui-tab-brief" lay-filter="mytab">
+							<ul class="layui-tab-title">
+								<li class="layui-this" lay-id="1">基本信息</li>
+								<!--{if getcustom('business_apply_form')}<li lay-id="2">自定义信息</li>{/if}-->
+							</ul>
+							<div class="layui-tab-content">
+								<!--基本信息start-->
+								<div class="layui-tab-item layui-show">
+						<!--<div class="layui-form-item">-->
+						<!--	<label class="layui-form-label">站点分类：</label>-->
+						<!--	<div class="layui-input-inline" style="width:300px">-->
+						<!--		<select name="info[cid]" xm-select="selectCid" xm-select-max="5" xm-select-search>-->
+						<!--		<option value="">--请选择--</option>-->
+						<!--		{foreach $clist as $cv}-->
+						<!--			<option value="{$cv['id']}" {if in_array($cv['id'],$info['cid'])}selected{/if}>{$cv['name']}</option>-->
+						<!--		{/foreach}-->
+						<!--		</select>-->
+						<!--	</div>-->
+						<!--</div>-->
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>站点名称：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[name]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.name}">
+							</div>
+						</div>
+					
+						<div class="layui-form-item" style="{if $bid!=0}display:none{/if}">
+							<label class="layui-form-label">{:t('会员')}ID：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[mid]" class="layui-input" value="{$info.mid}">
+							</div>
+							<div class="layui-form-mid layui-word-aux">{if $bid==0}<a href="javascript:vodi(0)" onclick="openmax('{:url('Member/index')}/isopen/1')">查找{:t('会员')}ID</a>{/if}</div>
+						</div>
+						
+			         	<div class="layui-form-item">
+                            <label class="layui-form-label">余额：</label>
+                            <div class="layui-input-inline" style="width:500px">
+                                <input type="text" id="money" name="info[money]" disabled="disabled" class="layui-input" value="{$info.money}">
+                            </div>
+                        </div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">提现比例：</label>
+							<div class="layui-input-inline">
+								<input type="text" id="withdrawfee" name="info[withdrawfee]" class="layui-input" value="{$info.withdrawfee}">
+							</div>
+                            <div class="layui-form-mid layui-word-aux" >1:?</div>
+						</div>
+                        <!--<div class="layui-form-item">-->
+                        <!--    <label class="layui-form-label">最低提现金额：</label>-->
+                        <!--    <div class="layui-input-inline">-->
+                        <!--        <input type="text" id="withdrawmin" name="info[withdrawmin]" class="layui-input" value="{$info.withdrawmin}">-->
+                        <!--    </div>-->
+                        <!--    <div class="layui-form-mid layui-word-aux" ></div>-->
+                        <!--</div>-->
+				
+					  
+					
+						<div class="layui-form-item">
+							<label class="layui-form-label">联系人：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[linkman]" class="layui-input" value="{$info.linkman}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">联系电话：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[linktel]" class="layui-input" value="{$info.linktel}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">客服电话：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[tel]" class="layui-input" value="{$info.tel}">
+							</div>
+						</div>
+					    <div class="layui-form-item">
+							<label class="layui-form-label">营业时间：</label>
+							<div class="layui-input-inline" style="width:120px">
+								<input type="text" name="info[start_hours]" class="layui-input" value="{$info.start_hours}" id="start_hours" autocomplete="off">
+							</div>
+							<div class="layui-form-mid">到</div>
+							<div class="layui-input-inline" style="width:120px">
+								<input type="text" name="info[end_hours]" class="layui-input" value="{$info.end_hours}" id="end_hours" autocomplete="off">
+							</div>
+						
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">商家LOGO：</label>
+							<input type="hidden" name="info[logo]" id="logo" lay-verType="tips" class="layui-input" value="{$info.logo}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="logo" upload-preview="logoPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：640×640像素</div>
+							<div id="logoPreview" class="picsList-class-padding">
+								<div class="layui-imgbox" style="width:100px;">
+									<div class="layui-imgbox-img"><a {if $info['logo']} style="display: block;" {else /} style="display: none;"  {/if}  class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().find('img').attr('src','').hide();getpicsval('logo','logoPreview');$(this).hide();" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a><img src="{$info.logo}"/></div>
+								</div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">商家照片：</label>
+							<input type="hidden" name="info[pics]" value="{$info['pics']}" id="pics">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this,true)" upload-input="pics" upload-preview="picList" >批量上传</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：600*340像素</div>
+							<div id="picList" class="picsList-class-padding">
+								{if $info['pics']}
+								{php}$pics = explode(',',$info['pics']);{/php}
+								{foreach $pics as $pic}
+								<div class="layui-imgbox">
+									<a class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().remove();getpicsval('pics','picList')" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+									<span class="layui-imgbox-img" style="height: auto;"><img src="{$pic}" onclick="previewImg('{$pic}')"></span>
+								</div>
+								{/foreach}{/if}
+							</div>
+						</div>
+					
+						<div class="layui-form-item">
+							<label class="layui-form-label">视频：</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[video]" id="video" lay-verType="tips" class="layui-input" value="{$info['video']}">
+							</div>
+							<input type="hidden" name="info[video_duration]" id="video_duration" value="{$info.video_duration}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="video" onclick="uploader(this)">上传视频</button>
+					
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">填写视频链接或上传视频，视频链接必须为mp4格式的源链接，视频大小须在50MB以内</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">商家描述：</label>
+							<div class="layui-input-inline" style="width:700px">
+								<input type="text" name="info[desc]" class="layui-input" value="{$info.desc}">
+							</div>
+						</div>
+				
+					
+
+					
+						<div class="layui-form-item">
+							<label class="layui-form-label">商家简介：</label>
+							<div class="layui-input-inline" style="width:500px;">
+								<script id="content" name="info[content]" type="text/plain" style="width:100%;height:500px">{$info.content}</script>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">商家地址：</label>
+							<div style="display: flex;flex-direction: column;">
+								<div class="areaDiv" style="margin-bottom: 8px">
+									<div class="layui-input-inline" style="width: 150px">
+										<select name="info[province]" id="province" lay-filter="province" {if !$info.id}lay-verify="required"{/if}></select>
+									</div>
+									<div class="layui-input-inline" style="width: 150px">
+										<select name="info[city]" id="city" lay-filter="city"></select>
+									</div>
+									<div class="layui-input-inline" style="width: 150px" style="display:none">
+										<!--							<select name="custom[form{$customeKey}][]" id="region{$customeKey}_area"></select>-->
+										<select name="info[district]" id="district"></select>
+									</div>
+								</div>
+								<div class="adressDiv">
+								<div class="layui-input-inline" style="width:500px">
+									<input type="text" id="address" name="info[address]" class="layui-input layui-input-search" value="{$info.address}">
+									<div style="position: absolute;width: 500px;z-index: 100;" class="search-keywords">
+
+									</div>
+								</div>
+								<button class="layui-btn layui-btn-primary" id="searchbtn">搜索</button>
+								</div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div id="l-map" style="width:600px;height:350px">地图加载中...</div>
+							<div style="margin-left:160px;margin-top:10px">
+								<div class="layui-input-inline" style="width:200px">
+									<input type="text" name="info[longitude]" id="mapjd" class="layui-input" value="{$info.longitude|default='116.39782905578613'}"/>
+								</div>
+								<div class="layui-input-inline" style="width:200px">
+									<input type="text" name="info[latitude]" id="mapwd" class="layui-input" value="{$info.latitude|default='39.90358020251377'}"/>
+								</div>
+							</div>
+						</div>
+
+			
+                       <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+                			<legend>其他设置</legend>
+                		</fieldset>
+						<div class="layui-form-item">
+							<label class="layui-form-label">证明材料：</label>
+							<input type="hidden" name="info[zhengming]" value="{$info['zhengming']}" id="zhengming">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this,true)" upload-input="zhengming" upload-preview="zhengmingList" >批量上传</button>
+							<div id="zhengmingList" class="picsList-class-padding">
+								{if $info['zhengming']}
+								{php}$pics = explode(',',$info['zhengming']);{/php}
+								{foreach $pics as $pic}
+								<div class="layui-imgbox">
+									<a class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().remove();getpicsval('zhengming','zhengmingList')" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+									<span class="layui-imgbox-img"><img src="{$pic}" onclick="previewImg('{$pic}')"></span>
+								</div>
+								{/foreach}{/if}
+							</div>
+						</div>
+					
+						
+						<!-- <div class="layui-form-item">
+							<label class="layui-form-label">微信号：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[weixin]" class="layui-input" value="{$info.weixin}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">支付宝：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[aliaccount]" class="layui-input" value="{$info.aliaccount}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">开户行：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[bankname]" class="layui-input" value="{$info.bankname}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">持卡人：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[bankcarduser]" class="layui-input" value="{$info.bankcarduser}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">银行卡号：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[bankcardnum]" class="layui-input" value="{$info.bankcardnum}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">消费人数：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[sales]" value="{$info.sales|default=0}" class="layui-input">
+							</div>
+						</div> -->
+					
+
+				
+				
+						<div class="layui-form-item">
+							<label class="layui-form-label">状态：</label>
+							<div class="layui-input-inline" style="width:380px">
+								<input type="radio" name="info[status]" value="0" title="待审核" {if $info['id'] && $info['status']==0}checked{/if} lay-filter="changest">
+								<input type="radio" name="info[status]" value="1" title="已通过" {if !$info['id'] || $info['status']==1}checked{/if} lay-filter="changest">
+								<input type="radio" name="info[status]" value="2" title="已驳回" {if $info['id'] && $info['status']==2}checked{/if} lay-filter="changest">
+								<input type="radio" name="info[status]" value="-1" title="已过期" {if $info['id'] && $info['status']==-1}checked{/if} lay-filter="changest">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">序号：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[sort]" value="{$info.sort|default=0}" class="layui-input">
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">用于排序,越大越靠前</div>
+						</div>
+					
+
+						<div id="changestset" {if $info['status']!=2}style="display:none"{/if}>
+							<div class="layui-form-item">
+								<label class="layui-form-label">驳回原因：</label>
+								<div class="layui-input-inline" style="width:310px">
+									<input type="text" name="info[reason]" value="{$info['reason']}" class="layui-input"/>
+								</div>
+							</div>
+						</div>
+					  
+					
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				</div>
+      </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+  {if getcustom('return_component')}
+  <script>
+	  address3('return_province','return_city','return_area',"{$info.return_province}","{$info.return_city}","{$info.return_area}");
+  </script>
+  {/if}
+  <script src="__STATIC__/admin/js/searchaddress.js?v=2024720"></script>
+  <script>
+	  address3('province','city','district',"{$info.province}","{$info.city}","{$info.district}");
+  </script>
+	<script charset="utf-8" src="https://map.qq.com/api/js?v=2.exp&key={$sysset_webinfo.map_key_qq}"></script>
+	<script>
+
+	layui.laydate.render({
+		elem: '#endtime',
+		type: 'datetime'
+	});
+	
+	layui.laydate.render({ 
+		elem: '#start_hours',
+		type: 'time',
+		format:'HH:mm',
+		trigger: 'click'
+	});
+	layui.laydate.render({ 
+		elem: '#end_hours',
+		type: 'time',
+		format:'HH:mm',
+		trigger: 'click'
+	});
+	//所有的时间控件
+	$('.timeinput').each(function (e){
+	var objId = $(this).attr('id');
+	layui.laydate.render({
+		elem: "#"+objId,
+		type: 'time'
+	})
+	})
+	//所有的日期控件
+	$('.dateinput').each(function (e){
+		var objId = $(this).attr('id');
+		layui.laydate.render({
+			elem: "#"+objId,
+			type: 'date'
+		})
+	})
+	{if $register_record}
+		$('.region_item').each(function (index,obj){
+			var regionId = $(obj).attr('id');
+			var areatext = $(obj).data('text');
+			var provinceId = regionId+'_province';
+			var cityId = regionId+'_city';
+			var areaId = regionId+'_area';
+			var provinceVal = '';
+			var cityVal = '';
+			var areaVal = '';
+			if(areatext){
+				var areaAry = areatext.split(',');
+				if(areaAry.length>0){
+					provinceVal = areaAry[0];
+				}
+				if(areaAry.length>1){
+					cityVal = areaAry[1];
+				}
+				if(areaAry.length>2){
+					areaVal = areaAry[2];
+				}
+			}
+			address3(provinceId,cityId,areaId,provinceVal,cityVal,areaVal);
+		})
+	{/if}
+	layui.form.on('radio(wxpayst)',function(data){
+		if(data.value == '1'){
+			$('#wxpayst_div').show();
+		}else{
+			$('#wxpayst_div').hide();
+		}
+	})
+
+	layui.form.on('radio(auth_type)', function(data){
+		if(data.value == '0'){
+			$('#authdataset').show();
+		}else{
+			$('#authdataset').hide();
+		}
+	})
+	layui.form.on('checkbox(checkall_all)',function(data){
+		if(data.elem.checked){
+			$(data.elem).parent().parent().find('input[type=checkbox]').prop('checked',true);
+		}else{
+			$(data.elem).parent().parent().find('input[type=checkbox]').prop('checked',false);
+		}
+		layui.form.render('checkbox'); 
+	})
+	layui.form.on('checkbox(checkall)',function(data){
+		if(data.elem.checked){
+			$(data.elem).parent().parent().find('input[type=checkbox]').prop('checked',true);
+		}else{
+			$(data.elem).parent().parent().find('input[type=checkbox]').prop('checked',false);
+		}
+		layui.form.render('checkbox'); 
+	})
+	layui.form.on('radio(changest)', function(data){
+		if(data.value == '2'){
+			$('#changestset').show();
+		}else{
+			$('#changestset').hide();
+		}
+	})
+	layui.form.on('select(groupidChange)',function(data){
+		if(data.value == 0){
+			$('#quanxianset_div').show();
+		}else{
+			$('#quanxianset_div').hide();
+		}
+	});
+	var ueditor = UE.getEditor('content');
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		field['info[content]'] = ueditor.getContent();
+		//console.log(field);return;
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.close(parent.layer.getFrameIndex(window.name));
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+  </script>
+	<script>
+	
+	var chooseUrlField = '';
+	function chooseUrl2(field){
+		chooseUrlField = field;
+		layer.open({type:2,shadeClose:true,area:['1200px', '650px'],'title':'选择链接',content:"{:url('DesignerPage/chooseurl')}&callback=chooseLink2"})
+	}
+	function chooseLink2(urlname,url){
+		$("#"+chooseUrlField).val(url);
+	}
+
+	function previewImg(url){
+		layer.open({type:1,area:'500px',content:'<div style="margin:auto auto;text-align:center"><img src="'+url+'" style="max-width:100%;max-height:100%"/></div>',title:false,shadeClose:true})
+	}
+	// 地图详细地址框按回车键搜索
+	$(".layui-input-search").keydown(function (e) {
+		if (e.which == 13) {
+				//拼接省市县
+				var address = $('#province').val() + $('#city').val() + $('#district').val() + $("#address").val();
+				if(address == ""){
+					dialog("请输地址！");
+					return ;
+				}
+				clearOverlays(markers);
+				//根据输入的关键字在搜索范围内检索
+				searchService.search(address);
+		}
+	});
+	{if getcustom('business_fenxiao')}
+	//开关 radio联动下方div显示隐藏
+	layui.form.on('radio(protect_status)', function(data){
+		// console.log(data.elem.name);
+		if(data.value == '0'){
+			$(".protect_div").hide();
+		}else{
+			$(".protect_div").show();
+		}
+	})
+	{/if}
+	{if getcustom('ciruikang_fenxiao')}
+	address3('areasafe_province','areasafe_city','areasafe_area',"{$info.areasafe_province}","{$info.areasafe_city}","{$info.areasafe_area}");
+	layui.form.on('radio(areasafeChange)',function(data){
+		setareasafe(this);
+	});
+	function setareasafe(e){
+		var formdata = layui.form.val('form');
+		var areasafe = $(e).val();
+		if(areasafe>0){
+			$('.areasafe_address').show();
+			$('.areasafe_province_div').show();
+			$('.areasafe_city_div').hide();
+			$('.areasafe_area_div').hide();
+
+			if(areasafe==2){
+				$('.areasafe_city_div').show();
+			}else if(areasafe==3){
+				$('.areasafe_city_div').show();
+				$('.areasafe_area_div').show();
+			}
+		}else{
+			$('.areasafe_address').hide();
+		}
+	}
+	{/if}
+		{if getcustom('business_reward_member')}
+		layui.form.on('radio(reward_member)',function(data){
+			if(data.value == '1'){
+				$('#reward_member_div').show();
+			}else{
+				$('#reward_member_div').hide();
+			}
+		})
+		{/if}
+	{if getcustom('business_maidan_scoredk')}
+	layui.form.on('radio(scoredkmaxset)', function(data){
+		if(data.value == '1'){
+			$('#scoredkmaxset1').show();
+			$('#scoredkmaxunit').html('%');
+		}else if(data.value == '2'){
+			$('#scoredkmaxset1').show();
+			$('#scoredkmaxunit').html('元');
+		}else{
+			$('#scoredkmaxset1').hide();
+		}
+	})
+	{/if}
+	{if getcustom('maidan_invite')}
+	layui.form.on('radio(maidaninviteset)', function(data){
+		if(data.value == '1'){
+			$('#maidaninviteset1').show();
+		}else{
+			$('#maidaninviteset1').hide();
+		}
+	})
+	{/if}
+	{if getcustom('business_more_account')}
+	var accountlenth = '{$submchidlength}';
+	$(function(){		
+		$("#addaccount").click(function(){	
+			var i = accountlenth++;
+			var xhtml='<tr>';
+				xhtml +='<td><input type="text" placeholder="接收方站点号" name="accountInfo['+i+'][submchid]" class="layui-input "  value=""/></td>'; 
+				xhtml +='<td><input type="text" placeholder="接收方名称" name="accountInfo['+i+'][subname]" class="layui-input" value=""></td>'; 
+				xhtml +='<td><input type="text" placeholder="接收方费率" name="accountInfo['+i+'][feepercent]" class="layui-input" value=""></td>'; 
+				xhtml +='<td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="$(this).parent().parent().remove()">删除</button> </td>';
+				xhtml +=' </tr>';
+			$('#moreaccount').append(xhtml);
+		})
+	})			
+	{/if}
+	</script>
+</body>
+</html>

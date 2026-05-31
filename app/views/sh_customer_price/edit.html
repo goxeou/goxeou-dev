@@ -1,0 +1,101 @@
+<!DOCTYPE html><!--custom_file(product_weight)-->
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>客户定价</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+		.ggitem{display: flex;align-items: center;border: 1px solid #eeeeee;padding:15px}
+		.ggname{text-align: center;width: 15%;}
+		.ggtable{border-left: 1px solid #EEEEEE;padding-left: 20px;min-width: 400px}
+		.bold{font-weight: bold}
+		.price{font-weight: bold;color: #ff5700}
+		.flextd{display: flex;align-items: center}
+
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					<i class="fa fa-edit"></i> {$info.pname}
+					{if input('param.isopen')==1}<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>{/if}
+				</div>
+				<div class="layui-card-body">
+					<div class="layui-form">
+						<input type="hidden" name="id" value="{$info.id}">
+						<input type="hidden" name="weight" value="{$info.weight}">
+						<div class="layui-form-item">
+							<label class="layui-form-label">客户：</label>
+							<div class="layui-input-inline" style="width:50%;padding-top: 8px;font-weight: bold;">
+								{$info.customer_name}
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">客户定价：</label>
+							<div class="layui-input-inline ggcontent" style="width:100%">
+								<div class="ggitem" id="ggitem{$item.id}">
+									<div class="ggname">
+										<p>{$info.pname} {$info.ggname}</p>
+										<p class="price">￥{$info.price}/{$info.weight}g</p>
+									</div>
+									<div class="ggtable">
+										<table class="layui-table" width="100%" lay-skin="line">
+											<thead>
+											<tr id="tr0">
+												<td width="30%">
+													客户
+												</td>
+												<td>
+													价格
+												</td>
+											</tr>
+											</thead>
+											<tbody>
+											<tr>
+												<td>
+													{$info.customer_name}
+												</td>
+												<td>
+													<input class="layui-input" type="number" value="{$info.price}" name="price">
+												</td>
+											</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="layui-form-item" style="margin-top: 10px">
+							<div class="layui-input-block" style="width: 100%;text-align: center">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">确定</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+  </div>
+  {include file="public/js"/}
+	<script>
+		var online = true;
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		var index = layer.load();
+		$.post("{:url('edit')}",field,function(data){
+			layer.close(index);
+			layer.msg(data.msg)
+			if(data.status == 1){
+				parent.layer.closeAll();
+				parent.tableIns.reload()
+			}
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

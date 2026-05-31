@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>送货单</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	.table1 th,.table1 td{border:1px solid #666;height:{$sysset['shipping_linenum'] && $sysset['shipping_linenum']>0?$sysset['shipping_linenum']*30: '30'}px;line-height:30px;text-align:center;word-break: break-all;}
+	@media print{
+		.page-break{
+			page-break-before: always;
+		}
+		.avoid-page-break{
+			page-break-after: avoid;
+		}
+	}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+      	<div class="layui-card-header">
+      		批量打印送货单：系统-送货单设置 可调整送货单文字、行数等。
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form" lay-filter="">
+						{php}$num = count($goodslist)-1;{/php}
+						{foreach $goodslist as $key=>$goods}
+							<div style="height:45px"></div>
+							<input type="hidden" name="info[id]" value="{$goods['id']}">
+							{php}$i = 0;$num2 = count($goods['order_goods3'])-1;{/php}
+							{foreach $goods['order_goods3'] as $kkk=>$order_goods}
+							<div class="layui-form-item">
+								<div class="layui-input-inline" style="width:1050px;color:#111;display:flex" id="printcontent_{$key}">
+									<div style="width:1000px">
+										<!-- <div style="text-align:center;font-weight:bold;font-size:20px">{$bname}</div> -->
+										<div style="text-align:center;font-weight:bold;position:relative;"><span style="font-size:20px">{$shipping_pagetitle}</span><span style="position:absolute;right:0;font-weight:bold;font-size:16px">NO:{$goods.ordernum}</span></div>
+										<div style="text-align:left;position:relative;font-weight:bold;font-size:16px"><span style="padding-right:">客户名称：{$goods.linkman}&nbsp;&nbsp;&nbsp;&nbsp;{if $goods.company}&nbsp;&nbsp;单位：{$goods.company}&nbsp;&nbsp;{/if}&nbsp;&nbsp;&nbsp;&nbsp;客户电话：{$goods.tel} <span style="position:absolute;right:0">送货日期：{:date('Y-m-d')}</span></div>
+										{if $goods.freight_type==11}
+										<div style="font-size:16px">发货地址：{$goods['freight_content']['send_address']} {$goods['freight_content']['send_tel']}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;收货地址：{$goods['freight_content']['receive_address']} {$goods['freight_content']['receive_tel']}</div>
+										{else}
+										<div style="font-size:16px">客户地址：{$goods.area} {$goods.address}</div>
+										{/if}
+										{if $goods.mdid}
+										<div style="font-size:16px">
+											<span>{:t('门店')}：{$goods.mname?$goods.mname:''}</span>
+											<span style="margin-left: 20px">{:t('门店')}地址：{$goods.maddress}</span>
+										</div>
+										{/if}
+
+										<div style="width:100%;font-size:16px">
+											<table style="width:100%;border-collapse: collapse;border:1px solid #666" class="table1">
+												<tr>
+													<td style="width: 40px;">序号</td>
+													<td>品名及规格</td>
+													<td style="min-width: 80px;">数量</td>
+													{if !getcustom('baikangxie')}
+														{if $sysset && $sysset['printmoney'] == 1}
+														<td style="min-width: 80px;">单价</td>
+														<td style="min-width: 80px;">金额</td>
+														{/if}
+													{/if}
+													<td style="width:250px">备注</td>
+												</tr>
+												
+													{foreach $order_goods as $k=>$v}
+													{php}$i++;{/php}
+													{if ($v['type']=='yf' || $v['type']=='totalprice' || $v['type']=='totalprice2')}
+														{if $sysset && $sysset['printmoney'] == 1}
+															{if $v['type']=='yf'}
+															<tr>
+																<td>{$i}</td>
+																<td>运费</td>
+																<td style="font-weight: bold;transform: scaleY(1.5);">1</td>
+																<td></td>
+																{if $sysset && $sysset['printmoney'] == 1}<td>{$goods.freight_price}</td>{/if}
+																<td></td>
+															</tr>
+															{elseif $v['type']=='totalprice'}
+															<tr>
+																<td colspan="2">合计金额(小写)</td>
+																<td colspan="{if $sysset && $sysset['printmoney'] == 1}4{else}3{/if}">{$goods.totalprice}</td>
+															</tr>
+															{elseif $v['type']=='totalprice2'}
+															<tr>
+																<td colspan="2">合计金额(大写)</td>
+																<td colspan="{if $sysset && $sysset['printmoney'] == 1}4{else}3{/if}">{$goods.totalprice2}</td>
+															</tr>
+															{/if}
+														{/if}
+													{elseif $v['type']=='remark'}
+													<tr>
+														<td colspan="{if $sysset && $sysset['printmoney'] == 1}6{else}5{/if}" style="text-align: left">买家留言：{$goods.message}</td>
+													</tr>
+													{else}
+													<tr>
+														<td>{$i}</td>
+														<td>
+															{if !$sysset || ($sysset && !$sysset['shipping_linenum'])}
+																{$v.name} {$v.ggname}
+															{else}
+															<div style="overflow: hidden;text-overflow: ellipsis;display: -webkit-box;-webkit-box-orient: vertical;-webkit-line-clamp: {$sysset['shipping_linenum']};">
+																{$v.name} {$v.ggname}
+															</div>
+															{/if}
+														</td>
+														<td style="font-weight: bold;transform: scaleY(1.5);">{$v.num}</td>
+														{if !getcustom('baikangxie')}
+															{if $sysset && $sysset['printmoney'] == 1}
+															<td>{$v.sell_price}</td>
+															<td>{if $v['id']}{$v['sell_price']*$v['num']}{/if}</td>
+															{/if}
+														{/if}
+														<td>{$v.remark}</td>
+													</tr>
+													{/if}
+													{/foreach}
+													{if $kkk<$num2}
+														<tr>
+															<td colspan="6" style="text-align: center;">订单未结束，请翻看下一页</td>
+														</tr>
+													{/if}
+											</table>
+										</div>
+										<div style="text-align:left;position:relative;font-size:16px"><span style="padding-right:200px">制单人：</span><span style="padding-right:200px">送货人：</span>收货人：</div>
+									</div>
+									{if $sysset && $sysset['printlian'] == 1}
+									<div style="width:30px;display:flex;justify-content:center;font-size:14px;align-items:center;text-align: center;">
+										第<br>一<br>联<br>存<br>根<br>（白）<br> &nbsp;&nbsp;<br>第<br>二<br>联<br>客<br>户<br>（红）<br>
+									</div>
+									{/if}
+								</div>
+							</div>
+							{if $key<$num || ($key==$num && $kkk<$num2)}
+							<div class="page-break"></div>
+							{/if}
+							{/foreach}
+						{/foreach}
+						<div class="layui-form-item printbtn">
+							<div class="layui-input-block" style="margin-left:130px;">
+								<button class="layui-btn" onclick="printbtn({$count})">打 印</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+  </div>
+	{include file="public/js"/}
+	<script src="__STATIC__/admin/js/jQuery.print.js"></script>
+	<script>
+	function printbtn(kkk){
+			$(".layui-card-header").hide();
+			$(".printbtn").hide();
+			$("#printcontent_"+kkk).print({})
+			$(".layui-card-header").show();
+			$(".printbtn").show();
+	}
+	//layui.form.on('submit(formsubmit)', function(obj){
+		//$("#printcontent").print({
+		//})
+	//})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>商户入驻申请</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<script src="/static/admin/js/address3.js?v=20220330"></script>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-col-md12">
+        <div class="layui-card">
+          <div class="layui-card-header">
+						{if !$info['id']}<i class="fa fa-plus"></i> 商户入驻申请{else}<i class="fa fa-pencil"></i> 修改申请单{/if}
+						<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+					</div>
+					
+          <div class="layui-card-body" pad15>
+						{if $info['id'] && $info['taskStatus']==2}
+						<div class="layui-col-md12">
+							<blockquote class="layui-elem-quote layui-quote-nm">审核未通过：<p style="color:red">{$info.suggestion}</p>
+							</blockquote>
+						</div>
+						{/if}
+						{if $info['id'] && $info['taskStatus']==1}
+						<div class="layui-col-md12">
+							<blockquote class="layui-elem-quote layui-quote-nm">已审核通过</blockquote>
+						</div>
+						{/if}
+						{if $info['id'] && $info['isEspecial']=='01' && $info['suggestion2']}
+						<div class="layui-col-md12">
+							<blockquote class="layui-elem-quote layui-quote-nm">复核信息: <p style="color:red">{$info.suggestion2}</p>请于{$info.specialMerFlagEndTime}前完成修改</blockquote>
+						</div>
+						{/if}
+						{if $info['id'] && $info['applyment_state_desc']}
+						<div class="layui-col-md12"><blockquote class="layui-elem-quote layui-quote-nm">{$info['applyment_state_desc']}</blockquote></div>
+						{/if}
+            <div class="layui-form form-label-w10" lay-filter="form">
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>主体类型：</label>
+								<div class="layui-input-inline" style="width:600px">
+									<input type="radio" name="info[subject_type]" value="SUBJECT_TYPE_INDIVIDUAL" title="个体户" {if !$info['id'] || $info['subject_type']=='SUBJECT_TYPE_INDIVIDUAL'}checked{/if} lay-filter="subject_type"/>
+									<input type="radio" name="info[subject_type]" value="SUBJECT_TYPE_ENTERPRISE" title="企业" {if $info['subject_type']=='SUBJECT_TYPE_ENTERPRISE'}checked{/if} lay-filter="subject_type"/>
+									<input type="radio" name="info[subject_type]" value="SUBJECT_TYPE_MICRO" title="个人" {if $info['subject_type']=='SUBJECT_TYPE_MICRO'}checked{/if} lay-filter="subject_type"/>
+								</div>
+							</div>
+							
+							<div id="qyform" {if $info['subject_type']=='SUBJECT_TYPE_MICRO'}style="display:none"{/if}>
+								营业执照信息<hr/>
+								<div class="layui-form-item">
+									<label class="layui-form-label"><span class="redstar">*</span>营业执照照片：</label>
+									<input type="hidden" name="info[business_license_copy]" id="business_license_copy" lay-verType="tips" class="layui-input" value="{$info.business_license_copy}">
+									<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="business_license_copy" upload-preview="business_license_copyPreview" onclick="uploader(this)">上传图片</button>
+									<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">图片需小于2MB</div>
+									<div id="business_license_copyPreview" class="picsList-class-padding">
+										<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.business_license_copy}"/></div></div>
+									</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label"><span class="redstar">*</span>统一社会信用代码：</label>
+									<div class="layui-input-inline" style="width:200px">
+										<input type="text" name="info[business_license_number]" id="business_license_number" lay-verify="required2" lay-verType="tips" class="layui-input" value="{$info.business_license_number}" onblur="license_number_change(this)">
+									</div>
+									<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label"><span class="redstar">*</span>企业名称：</label>
+									<div class="layui-input-inline" style="width:200px">
+										<input type="text" name="info[business_merchant_name]" lay-verify="required2" lay-verType="tips" class="layui-input" value="{$info.business_merchant_name}">
+									</div>
+									<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">请填写营业执照上的名称，个体户若营业执照上商户名称为“空“或“无”时，填写"个体户+经营者姓名"，如“个体户张三”</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label"><span class="redstar">*</span>经营者/法人姓名：</label>
+									<div class="layui-input-inline" style="width:200px">
+										<input type="text" name="info[business_legal_person]" lay-verify="required2" lay-verType="tips" class="layui-input" value="{$info.business_legal_person}">
+									</div>
+									<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">请填写营业执照的经营者/法定代表人姓名</div>
+								</div>
+							</div>
+
+							经营者/法人身份证<hr/>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>身份证人像面：</label>
+								<input type="hidden" name="info[identity_id_card_copy]" id="identity_id_card_copy" lay-verType="tips" class="layui-input" value="{$info.identity_id_card_copy}">
+								<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="identity_id_card_copy" upload-preview="identity_id_card_copyPreview" onclick="uploader(this)">上传图片</button>
+								<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">图片需小于2MB</div>
+								<div id="identity_id_card_copyPreview" class="picsList-class-padding">
+									<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.identity_id_card_copy}"/></div></div>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>身份证国徽面：</label>
+								<input type="hidden" name="info[identity_id_card_national]" id="identity_id_card_national" lay-verType="tips" class="layui-input" value="{$info.identity_id_card_national}">
+								<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="identity_id_card_national" upload-preview="identity_id_card_nationalPreview" onclick="uploader(this)">上传图片</button>
+								<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">图片需小于2MB</div>
+								<div id="identity_id_card_nationalPreview" class="picsList-class-padding">
+									<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.identity_id_card_national}" /></div></div>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>身份证姓名：</label>
+								<div class="layui-input-inline" style="width:200px">
+									<input type="text" name="info[identity_id_card_name]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.identity_id_card_name}">
+								</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>身份证号码：</label>
+								<div class="layui-input-inline" style="width:200px">
+									<input type="text" name="info[identity_id_card_number]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.identity_id_card_number}">
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>身份证有效期：</label>
+								<div class="layui-input-inline" style="width:100px">
+									<input type="text" name="info[identity_id_card_valid_time1]" id="identity_id_card_valid_time1" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info['identity_id_card_valid_time1']}">
+								</div>
+								<div class="layui-form-mid">至</div>
+								<div class="layui-input-inline" style="width:100px">
+									<input type="text" name="info[identity_id_card_valid_time2]" id="identity_id_card_valid_time2" class="layui-input" value="{$info['identity_id_card_valid_time2']}" {if $info['identity_id_card_valid_time_cq']==1}style="display:none"{/if}>
+								</div>
+								<input type="checkbox" value="长期" title="长期" name="info[identity_id_card_valid_time_cq]" value="1" {if $info['identity_id_card_valid_time_cq']==1}checked{/if} lay-filter="identity_id_card_valid_time_cq"/>
+							</div>
+							
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>联系人手机号：</label>
+								<div class="layui-input-inline" style="width:200px">
+									<input type="text" name="info[contact_mobile]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.contact_mobile}">
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>联系人邮箱：</label>
+								<div class="layui-input-inline" style="width:200px">
+									<input type="text" name="info[contact_email]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.contact_email}">
+								</div>
+							</div>
+							
+							经营资料<hr/>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>商户简称：</label>
+								<div class="layui-input-inline" style="width:200px">
+									<input type="text" name="info[merchant_shortname]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.merchant_shortname}">
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>客服电话：</label>
+								<div class="layui-input-inline" style="width:200px">
+									<input type="text" name="info[service_phone]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.service_phone}">
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>经营类目：</label>
+								<div class="layui-input-inline" style="width:400px">
+									<select name="info[mccCd]" lay-verify="required">
+										<option value="">请选择类目</option>
+										{foreach $mccCdArr as $k=>$v}<option value="{$k}" {if $k == $info['mccCd']}selected{/if}>{$v}</option>{/foreach}
+									</select>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>经营地区：</label>
+								<div class="layui-input-inline" style="width:150px">
+									<select name="info[store_province]" id="store_province" lay-filter="store_province"></select>
+								</div>
+								<div class="layui-input-inline" style="width:150px">
+									<select name="info[store_city]" id="store_city" lay-filter="store_city"></select>
+								</div>
+								<div class="layui-input-inline" style="width:150px">
+									<select name="info[store_area]" id="store_area" ></select>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>经营详细地址：</label>
+								<div class="layui-input-inline" style="width:200px">
+									<input type="text" name="info[store_street]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.store_street}">
+								</div>
+								<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">填写详细街道门牌号，无需填写省市区信息</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>门头照：</label>
+								<input type="hidden" name="info[store_entrance_pic]" id="store_entrance_pic" lay-verType="tips" class="layui-input" value="{$info.store_entrance_pic}">
+								<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="store_entrance_pic" upload-preview="store_entrance_picPreview" onclick="uploader(this)" maxwidth="1200" maxheight="1200">上传图片</button>
+								<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">图片需小于2MB</div>
+								<div id="store_entrance_picPreview" class="picsList-class-padding">
+									<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.store_entrance_pic}"/></div></div>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>内景照：</label>
+								<input type="hidden" name="info[indoor_pic]" id="indoor_pic" lay-verType="tips" class="layui-input" value="{$info.indoor_pic}">
+								<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="indoor_pic" upload-preview="indoor_picPreview" onclick="uploader(this)" maxwidth="1200" maxheight="1200">上传图片</button>
+								<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">图片需小于2MB</div>
+								<div id="indoor_picPreview" class="picsList-class-padding">
+									<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.indoor_pic}"/></div></div>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">其他资料照片：</label>
+								<input type="hidden" name="info[store_other_pics]" value="{$info['store_other_pics']}" id="store_other_pics">
+								<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this,true)" maxwidth="1200" maxheight="1200" upload-input="store_other_pics" upload-preview="store_other_picsList" >上传</button>
+								<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">可上传补充材料证明，最多可上传3张照片，图片需小于2MB</div>
+								<div id="store_other_picsList" class="picsList-class-padding">
+									{if $info['store_other_pics']}{php}$pics = explode(',',$info['store_other_pics']);{/php}{foreach $pics as $pic}
+									<div class="layui-imgbox">
+										<a class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().remove();getpicsval('store_other_pics','store_other_picsList')" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+										<span class="layui-imgbox-img"><img src="{$pic}"></span>
+									</div>
+									{/foreach}{/if}
+								</div>
+							</div>
+							
+							结算银行账户<hr/>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>账户类型：</label>
+								<div class="layui-input-inline" style="width:600px">
+									<input type="radio" name="info[jiesuan_bank_account_type]" id="BANK_ACCOUNT_TYPE_CORPORATE" value="BANK_ACCOUNT_TYPE_CORPORATE" title="对公银行账户" {if !$info['jiesuan_bank_account_type'] || $info['jiesuan_bank_account_type']=='BANK_ACCOUNT_TYPE_CORPORATE'}checked{/if} {if $info['subject_type'] && $info['subject_type']=='SUBJECT_TYPE_MICRO'}disabled="disabled"{/if} lay-filter="jiesuan_bank_account_type"/>
+									<input type="radio" name="info[jiesuan_bank_account_type]" id="BANK_ACCOUNT_TYPE_PERSONAL" value="BANK_ACCOUNT_TYPE_PERSONAL" title="个人银行卡" {if $info['jiesuan_bank_account_type']=='BANK_ACCOUNT_TYPE_PERSONAL'}checked{/if} lay-filter="jiesuan_bank_account_type"/>
+								</div>
+								<div class="layui-form-mid layui-word-aux" style="clear:both;margin-left:180px;clear:both">1、选择“经营者个人银行卡”时，开户名称必须与“经营者证件姓名”一致。2、选择“对公银行账户”时，开户名称必须与营业执照上的“商户名称”一致。</div>
+							</div>
+							
+							<div class="layui-form-item" id="account_license_pic_div" {if $info['jiesuan_bank_account_type']=='BANK_ACCOUNT_TYPE_PERSONAL'}style="display:none"{/if}>
+								<label class="layui-form-label"><span class="redstar">*</span>开户许可证：</label>
+								<input type="hidden" name="info[account_license_pic]" id="account_license_pic" lay-verType="tips" class="layui-input" value="{$info.account_license_pic}">
+								<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="account_license_pic" upload-preview="account_license_picPreview" onclick="uploader(this)" maxwidth="1200" maxheight="1200">上传图片</button>
+								<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">图片需小于2MB</div>
+								<div id="account_license_picPreview" class="picsList-class-padding">
+									<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.account_license_pic}"/></div></div>
+								</div>
+							</div>
+							<div class="layui-form-item" id="bank_card_pic_div" {if !$info['jiesuan_bank_account_type'] || $info['jiesuan_bank_account_type']=='BANK_ACCOUNT_TYPE_CORPORATE'}style="display:none"{/if}>
+								<label class="layui-form-label"><span class="redstar">*</span>银行卡卡号面：</label>
+								<input type="hidden" name="info[bank_card_pic]" id="bank_card_pic" lay-verType="tips" class="layui-input" value="{$info.bank_card_pic}">
+								<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="bank_card_pic" upload-preview="bank_card_picPreview" onclick="uploader(this)" maxwidth="1200" maxheight="1200">上传图片</button>
+								<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">图片需小于2MB</div>
+								<div id="bank_card_picPreview" class="picsList-class-padding">
+									<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.bank_card_pic}"/></div></div>
+								</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>开户名称/持卡人姓名：</label>
+								<div class="layui-input-inline" style="width:200px">
+									<input type="text" name="info[jiesuan_account_name]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.jiesuan_account_name}">
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>开户银行：</label>
+								<div class="layui-input-inline" style="width:200px">
+									<select name="info[jiesuan_account_bank]" lay-filter="jiesuan_account_bank" lay-verify="required" lay-verType="tips">
+										<option value="">请选择</option>
+										{volist name="banklist" id="bank"}
+										<option value="{$bank}" {if $info.jiesuan_account_bank==$bank}selected{/if}>{$bank}</option>
+										{/volist}
+									</select>
+								</div>
+								<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>开户银行地区：</label>
+								<div class="layui-input-inline" style="width:150px">
+									<select name="info[jiesuan_bank_province]" id="jiesuan_bank_province" lay-filter="jiesuan_bank_province"></select>
+								</div>
+								<div class="layui-input-inline" style="width:150px">
+									<select name="info[jiesuan_bank_city]" id="jiesuan_bank_city" lay-filter="jiesuan_bank_city"></select>
+								</div>
+								<div class="layui-input-inline" style="display:none">
+									<select name="info[jiesuan_bank_area]" id="jiesuan_bank_area" ></select>
+								</div>
+							</div>
+							<div class="layui-form-item" id="jiesuan_bank_name_item">
+								<label class="layui-form-label"><span class="redstar">*</span>所属分支行：</label>
+								<div class="layui-input-inline" style="width:300px">
+									<select name="info[jiesuan_bank_name]" id="jiesuan_bank_name" lay-filter="jiesuan_bank_name" lay-search>
+										<option value="">请选择分支行</option>
+									</select>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>银行账号：</label>
+								<div class="layui-input-inline" style="width:200px">
+									<input type="text" name="info[jiesuan_account_number]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.jiesuan_account_number}">
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">结算费率：</label>
+								<div class="layui-form-mid" style="margin-left:10px;">{$feepercent}</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">结算时间：</label>
+								<div class="layui-form-mid" style="margin-left:10px;">次日结算D1</div>
+							</div>
+							
+							<!-- 补充材料<hr/>
+							<div class="layui-form-item">
+								<label class="layui-form-label">补充说明：</label>
+								<div class="layui-input-inline" style="width:200px">
+									<input type="text" name="info[business_addition_msg]" lay-verType="tips" class="layui-input" value="{$info.business_addition_msg}">
+								</div>
+								<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">可填写需要额外说明的文字</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">补充材料：</label>
+								<input type="hidden" name="info[business_addition_pics2]" value="{$info['business_addition_pics2']}" id="business_addition_pics2">
+								<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this,true)" maxwidth="1200" maxheight="1200" upload-input="business_addition_pics2" upload-preview="business_addition_pics2List" >上传</button>
+								<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">可上传补充材料证明，最多可上传5张照片</div>
+								<div id="business_addition_pics2List" class="picsList-class-padding">
+									{if $info['business_addition_pics2']}{php}$pics = explode(',',$info['business_addition_pics2']);{/php}{foreach $pics as $pic}
+									<div class="layui-imgbox">
+										<a class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().remove();getpicsval('business_addition_pics2','business_addition_pics2List')" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+										<span class="layui-imgbox-img"><img src="{$pic}"></span>
+									</div>
+									{/foreach}{/if}
+								</div>
+							</div> -->
+
+
+							<div class="layui-form-item">
+								<label class="layui-form-label"></label>
+								<div class="layui-input-block">
+									<button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">{if $info['id'] && ($info['taskStatus']==1 || $info['taskStatus']==5)}提交修改{else}提交审核{/if}</button>
+								</div>
+							</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	address3('store_province','store_city','store_area',"{$info['store_province']}","{$info['store_city']}","{$info['store_area']}");
+	address3('jiesuan_bank_province','jiesuan_bank_city','jiesuan_bank_area',"{$info['jiesuan_bank_province']}","{$info['jiesuan_bank_city']}","{$info['jiesuan_bank_area']}");
+	
+	var subject_type = "{$info['subject_type'] ? $info['subject_type'] : 'SUBJECT_TYPE_INDIVIDUAL'}";
+	layui.form.verify({
+		required1: function(value, item){
+			//console.log(subject_type)
+			if(subject_type=='SUBJECT_TYPE_MICRO' && value==''){
+				return '此填项不能为空';
+			}
+		},
+		required2: function(value, item){
+			//console.log(subject_type)
+			if(subject_type!='SUBJECT_TYPE_MICRO' && value==''){
+				//console.log(item)
+				return '此填项不能为空';
+			}
+		}
+	});
+
+	layui.form.on('radio(subject_type)',function(data){
+		//console.log(data)
+		subject_type = data.value
+		console.log(data.value)
+		if(data.value=="SUBJECT_TYPE_MICRO"){
+			$('#qyform').hide();
+		}else{
+			$('#qyform').show();
+		}
+		if(data.value=='SUBJECT_TYPE_INDIVIDUAL' || data.value=='SUBJECT_TYPE_ENTERPRISE'){
+			$('#license_form').show()
+		}else{
+			$('#license_form').hide()
+		}
+		if(data.value=='SUBJECT_TYPE_MICRO'){
+			$('#BANK_ACCOUNT_TYPE_CORPORATE').attr('disabled',true);
+			$('#BANK_ACCOUNT_TYPE_CORPORATE').prop('checked',false);
+			$('#BANK_ACCOUNT_TYPE_PERSONAL').prop('checked',true);
+			$('#account_license_pic_div').hide();
+			$('#bank_card_pic_div').show();
+		}else{
+			$('#BANK_ACCOUNT_TYPE_CORPORATE').attr('disabled',false);
+		}
+		layui.form.render('radio');
+	})
+	layui.laydate.render({ 
+		elem: '#id_card_valid_time1',
+		type: 'date'
+	});
+	layui.laydate.render({ 
+		elem: '#id_card_valid_time2',
+		type: 'date'
+	});
+	layui.laydate.render({ 
+		elem: '#identity_id_card_valid_time1',
+		type: 'date'
+	});
+	layui.laydate.render({ 
+		elem: '#identity_id_card_valid_time2',
+		type: 'date'
+	});
+	layui.form.on('checkbox(id_card_valid_time_cq)',function(data){
+		if(data.elem.checked){
+			$('#id_card_valid_time2').hide();
+		}else{
+			$('#id_card_valid_time2').show();
+		}
+	})
+	layui.form.on('checkbox(identity_id_card_valid_time_cq)',function(data){
+		if(data.elem.checked){
+			$('#identity_id_card_valid_time2').hide();
+		}else{
+			$('#identity_id_card_valid_time2').show();
+		}
+	})
+	layui.form.on('radio(jiesuan_bank_account_type)',function(data){
+		if(data.value=='BANK_ACCOUNT_TYPE_CORPORATE'){
+			$('#account_license_pic_div').show();
+			$('#bank_card_pic_div').hide();
+		}else{
+			$('#account_license_pic_div').hide();
+			$('#bank_card_pic_div').show();
+		}
+	})
+	layui.form.on('select(jiesuan_account_bank)',function(data){
+		getjiesuanbanklist();
+	});
+	function getjiesuanbanklist(){
+		var formdata = layui.form.val('form');
+		console.log(formdata);
+		$.post("{:url('getjiesuanbanklist')}",{account_bank:formdata['info[jiesuan_account_bank]'],bank_province:formdata['info[jiesuan_bank_province]'],bank_city:formdata['info[jiesuan_bank_city]']},function(res){
+			var html = '';
+			html += '<option value="">请选择分支行</option>';
+			var banklist = res.data
+			for(var i in banklist){
+				html += '<option value="'+banklist[i].bank_no+'-'+banklist[i].bank_name+'" '+('{$info.jiesuan_bank_name}'==(banklist[i].bank_no+'-'+banklist[i].bank_name) ? 'selected' : '')+'>'+banklist[i].bank_name+'</option>';
+			}
+			$('#jiesuan_bank_name').html(html);
+			layui.form.render('select');
+		});
+	}
+	var loadingdialog;
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		var index = layer.load();
+		$.post("{$Request.url}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.closeAll();
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	});
+  </script>
+</body>
+</html>

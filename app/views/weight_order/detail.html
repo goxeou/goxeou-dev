@@ -1,0 +1,250 @@
+<!DOCTYPE html><!--custom_file(product_weight)-->
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>订单详情</title>
+	<meta name="renderer" content="webkit">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	{include file="public/css"/}
+	<style>
+		.flextd{display: flex;align-items: center}
+		.flextd .tips{padding-left: 6px;color: #bbb}
+		.layui-table td input{width: 140px}
+		.layui-flex-item{display: flex;padding: 5px 0;}
+		.form-flex-label{width: 150px;flex-shrink: 0;padding-right: 6px;text-align: right;font-weight: bold}
+		.box-title{line-height: 40px;font-size: 14px}
+		.input-remark{display: flex;align-items: center;flex-direction: column}
+		.td-remark .layui-btn-sm{padding: 0 5px;height: 26px;line-height: 26px;}
+		.layui-quote-nm,.layui-card-body,.layui-btn,.layui-colla-content,.layui-table,.layui-table td, .layui-table th,.layui-collapse,.layui-form-checkbox i.layui-icon{
+			border-color: #bbb !important;
+		}
+		.layui-card .layui-card-header{border-bottom:1px solid #bbb !important;}
+	</style>
+</head>
+<body>
+<div class="layui-fluid">
+	<div class="layui-row layui-col-space15">
+		<div class="layui-card layui-col-md12">
+			<div class="layui-card-header">
+				<i class="fa fa-reorder"></i> 订单详情
+				<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+			</div>
+			<div class="layui-card-body" pad15>
+				<div class="layui-form">
+					<div class="layui-collapse">
+						{volist name="orderList" id="order"}
+						<div class="layui-colla-item">
+							<h2 class="layui-colla-title">{$order.customer.name}</h2>
+							<div class="layui-colla-content layui-show">
+								<div class="box-title"><i class="fa fa-file-text-o"></i> 基本信息</div>
+								<blockquote class="layui-elem-quote layui-quote-nm">
+									<div class="layui-flex-item">
+										<lable class="form-flex-label">订单编号：</lable>
+										<div class="form-flex-info">
+											{$order.ordernum}
+										</div>
+									</div>
+									{if $order.customer_id>0}
+									<div class="layui-flex-item">
+										<lable class="form-flex-label">客户信息：</lable>
+										<div class="form-flex-info">
+											{$order.customer.name}
+										</div>
+									</div>
+									{/if}
+									{if $order.mid>0}
+									<div class="layui-flex-item">
+										<lable class="form-flex-label">会员信息：</lable>
+										<div class="form-flex-info">
+											<img src="{$order.headimg}" style="border-radius: 3px" height="40" width="40">
+											{$order.nickname}
+										</div>
+									</div>
+									{/if}
+									<div class="layui-flex-item">
+										<lable class="form-flex-label">下单时间：</lable>
+										<div class="form-flex-info">
+											{$order.createtime|date='Y-m-d H:i:s'}
+										</div>
+									</div>
+									<div class="layui-flex-item">
+										<lable class="form-flex-label">联系人：</lable>
+										<div class="form-flex-info">
+											{$order.linkman} {$order.tel}
+										</div>
+									</div>
+									<div class="layui-flex-item">
+										<lable class="form-flex-label">地址：</lable>
+										<div class="form-flex-info">
+											{$order.area} {$order.address}
+										</div>
+									</div>
+									<div class="layui-flex-item">
+										<lable class="form-flex-label">订单状态：</lable>
+										<div class="form-flex-info">
+											{$order.status_txt}
+										</div>
+									</div>
+									{if getcustom('customer_peisonguser')}
+									<div class="layui-flex-item">
+										<lable class="form-flex-label">配送员：</lable>
+										<div class="form-flex-info">
+											{$order.customer.peisong.realname}  {$order.customer.peisong.tel}
+										</div>
+									</div>
+									{/if}
+								</blockquote>
+								<div class="box-title"><i class="fa fa-file-text-o"></i> 商品信息 </div>
+								<table class="layui-table" style="width: 100%">
+									<thead>
+									<tr>
+										<th width="30%">商品</th>
+										<th width="10%">单价(元/斤)</th>
+										<th width="10%">重量(斤)</th>
+										<th width="10%">总价(元)</th>
+										<th width="10%">数量</th>
+										<th width="20%">备注</th>
+									</tr>
+									</thead>
+									<tbody>
+									{volist name="order.goodslist" id="item"}
+									<tr>
+										<td>
+											<input type="hidden" name="info[{$order.id}][{$item.id}][goodsid]" value="{$item.id}">
+											{$item.name} {$item.ggname}
+										</td>
+										<td style="font-weight: bold">{if $item.sell_price!=$item.real_sell_price}{$item.real_sell_price}<span style="color: #ecbb7c;font-weight: normal">(<em style="text-decoration: line-through;">{$item.sell_price}</em>)</span>{else/}{$item.sell_price}{/if}</td>
+										<td style="font-weight: bold">{if $item.total_weight!=$item.real_total_weight}{$item.real_total_weight}<span style="color: #ecbb7c;font-weight: normal">(<em style="text-decoration: line-through;">{$item.total_weight}</em>)</span>{else/}{$item.total_weight}{/if}</td>
+										<td style="font-weight: bold">{if $item.totalprice!=$item.real_totalprice}{$item.real_totalprice}<span style="color: #ecbb7c;font-weight: normal">(<em style="text-decoration: line-through;">{$item.totalprice}</em>)</span>{else/}{$item.totalprice}{/if}</td>
+										<td>{$item.num}</td>
+										<td class="td-remark">
+											<div class="input-remark" style="display: none;">
+												<textarea class="layui-textarea" style="min-height: auto;">{$item.remark}</textarea>
+												<button class="layui-btn layui-btn-primary layui-btn-sm" style="margin-top: 5px" onclick="saveRemark('{$item.orderid}','{$item.id}',this)">保存</button>
+											</div>
+											<div class="show-remark">
+												{if $item.remark_ext}
+													<p style="color: #ff0000">{$item.remark_ext}</p>
+												{/if}
+												<p>
+													<span class="remark">{$item.remark}</span>
+													<button class="layui-btn layui-btn-primary layui-btn-sm" onclick="changeRemark(this,'{$item.id}')">改备注</button>
+												</p>
+											</div>
+										</td>
+									</tr>
+									{/volist}
+									</tbody>
+									<tfoot>
+									{if $order.freight_price>0}
+									<tr>
+										<td class="3" colspan="3">运费</td>
+										<td>￥{$order.freight_price}</td>
+										<td colspan="2"></td>
+									</tr>
+									{/if}
+									{if $order.invoice_money>0}
+									<tr>
+										<td colspan="3">发票费</td>
+										<td>￥{$order.invoice_money}</td>
+										<td colspan="2"></td>
+									</tr>
+									{/if}
+									{if $order.scoredk_money>0}
+									<tr>
+										<td  colspan="3">{:t('积分')}抵扣</td>
+										<td>-￥{$order.scoredk_money}</td>
+										<td  colspan="2"></td>
+									</tr>
+									{/if}
+									{if $order.leveldk_money>0}
+									<tr>
+										<td colspan="3">{:t('会员')}折扣</td>
+										<td>-￥{$order.leveldk_money}</td>
+										<td colspan="2"></td>
+									</tr>
+									{/if}
+									{if $order.coupon_money>0}
+									<tr>
+										<td colspan="3">{:t('优惠券')}</td>
+										<td>-￥{$order.coupon_money}</td>
+										<td colspan="2"></td>
+									</tr>
+									{/if}
+									{if $order.manjian_money>0}
+									<tr>
+										<td colspan="3">满减</td>
+										<td>-￥{$order.manjian_money}</td>
+										<td colspan="2"></td>
+									</tr>
+									{/if}
+									<tr class="cttr">
+										<td colspan="6" style="text-align: center;font-weight: bold">
+											订单合计：￥<span class="item-totalprice">{$order.totalprice}</span>
+										</td>
+									</tr>
+									</tfoot>
+								</table>
+							</div>
+						</div>
+						{/volist}
+						<div class="layui-form-item" style="margin-top: 10px">
+							<div class="layui-input-block" style="margin-left: 0;text-align: center">
+								{if $order.status>1}
+								<button class="layui-btn layui-btn-warm" onclick="wifiprint('{$orderid}',1)">打印小票</button>
+								<button class="layui-btn" onclick="openmax('{:url('WeightOrder/plshd')}/isopen/1/ids/{$orderid}')">打印发货单</button>
+									{if getcustom('restaurant_wifiprint_yingmeiyun')}
+									<button class="layui-btn" onclick="wifiprint('{$orderid}',0)">映美云打印</button>
+									{/if}
+								{else/}
+								<button class="layui-btn" onclick="openmax('{:url('WeightOrder/fahuo')}/isopen/1/id/{$orderid}')">去发货</button>
+								{/if}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{include file="public/js"/}
+<script>
+	//打印小票
+	function wifiprint(id,machineType=1){
+		layer.confirm('确定要打印吗?',{icon: 7, title:'操作确认'}, function(index){
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('WeightOrder/wifiprint')}",{id:id,machineType:machineType},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+			})
+		})
+	}
+	function changeRemark(obj,ggid){
+		$(obj).closest('td').find('.input-remark').show();
+		$(obj).closest('td').find('.show-remark').hide();
+		console.log(ggid)
+	}
+	function saveRemark(orderid,ggid,obj){
+		var remark = $(obj).closest('.input-remark').find('textarea').val()
+		console.log(orderid)
+		console.log(ggid)
+		console.log(remark)
+		var index = layer.load();
+		$.post("{:url('WeightOrder/saveOrderGoodsRemark')}",{orderid:orderid,id:ggid,remark:remark},function(data){
+			layer.close(index);
+			if(data.status==1){
+				$(obj).closest('td').find('.input-remark').hide();
+				$(obj).closest('td').find('.show-remark').find('.remark').text(remark);
+				$(obj).closest('td').find('.show-remark').show();
+			}else{
+				layer.msg(data.msg)
+			}
+		})
+		console.log(orderid,ggid)
+	}
+</script>
+{include file="public/copyright"/}
+</body>
+</html>

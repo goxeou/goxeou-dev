@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>系统设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+		<div class="layui-card-header"><i class="fa fa-cog"></i> 系统设置</div>
+		<div class="layui-card-body" pad15>
+			<div class="layui-form form-label-w8" lay-filter="">
+				点餐设置<hr/>
+				<div class="layui-form-item">
+					<label class="layui-form-label">商品评价：</label>
+					<div class="layui-input-inline">
+						<input type="radio" name="info[shop_comment]" value="1" {if $info['shop_comment']==1}checked{/if} title="开启" lay-filter="shop_comment"/>
+						<input type="radio" name="info[shop_comment]" value="0" {if $info['shop_comment']==0}checked{/if} title="关闭" lay-filter="shop_comment"/>
+					</div>
+				</div>
+				<div class="layui-form-item" id="shop_commentset" {if $info['shop_comment']==0}style="display:none"{/if}>
+					<label class="layui-form-label">评价审核：</label>
+					<div class="layui-input-inline">
+						<input type="radio" name="info[shop_comment_check]" value="1" {if $info['shop_comment_check']==1}checked{/if} title="开启"/>
+						<input type="radio" name="info[shop_comment_check]" value="0" {if $info['shop_comment_check']==0}checked{/if} title="关闭"/>
+					</div>
+					<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">关闭后用户的评价将直接显示,不需要后台审核</div>
+				</div>
+				<div class="layui-form-item">
+					<label class="layui-form-label">是否显示{:t('佣金')}：</label>
+					<div class="layui-input-inline">
+						<input type="radio" name="info[shop_showcommission]" value="1" {if $info['shop_showcommission']==1}checked{/if} title="显示"/>
+						<input type="radio" name="info[shop_showcommission]" value="0" {if $info['shop_showcommission']==0}checked{/if} title="不显示"/>
+					</div>
+					<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">开启后商品详情页显示分销{:t('佣金')}</div>
+				</div>
+				{if getcustom('restaurant_shop_jingmo_auth')}
+				<div class="layui-form-item">
+					<label class="layui-form-label">是否静默授权：</label>
+					<div class="layui-input-inline">
+						<input type="radio" name="info[shop_is_jingmo]" value="1" {if $info['shop_is_jingmo']==1}checked{/if} title="是"/>
+						<input type="radio" name="info[shop_is_jingmo]" value="0" {if $info['shop_is_jingmo']==0}checked{/if} title="否"/>
+					</div>
+					<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">开启后，扫码点餐使用静默授权</div>
+				</div>
+				{/if}
+			
+				外卖设置<hr/>
+				<div class="layui-form-item">
+					<label class="layui-form-label">自动关闭订单：</label>
+					<div class="layui-input-inline">
+						<input type="text" name="info[takeaway_autoclose]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.takeaway_autoclose}">
+					</div>
+					<div class="layui-form-mid">分钟</div>
+					<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">下单后多久不支付自动关闭订单，释放占用的库存</div>
+				</div>
+				
+				<div class="layui-form-item">
+					<label class="layui-form-label">商品评价：</label>
+					<div class="layui-input-inline">
+						<input type="radio" name="info[takeaway_comment]" value="1" {if $info['takeaway_comment']==1}checked{/if} title="开启" lay-filter="takeaway_comment"/>
+						<input type="radio" name="info[takeaway_comment]" value="0" {if $info['takeaway_comment']==0}checked{/if} title="关闭" lay-filter="takeaway_comment"/>
+					</div>
+				</div>
+				<div class="layui-form-item" id="takeaway_commentset" {if $info['takeaway_comment']==0}style="display:none"{/if}>
+					<label class="layui-form-label">评价审核：</label>
+					<div class="layui-input-inline">
+						<input type="radio" name="info[takeaway_comment_check]" value="1" {if $info['takeaway_comment_check']==1}checked{/if} title="开启" lay-filter="takeaway_comment_check"/>
+						<input type="radio" name="info[takeaway_comment_check]" value="0" {if $info['takeaway_comment_check']==0}checked{/if} title="关闭" lay-filter="takeaway_comment_check"/>
+					</div>
+					<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">关闭后用户的评价将直接显示,不需要后台审核</div>
+				</div>
+				<div class="layui-form-item">
+					<label class="layui-form-label">是否显示{:t('佣金')}：</label>
+					<div class="layui-input-inline">
+						<input type="radio" name="info[takeaway_showcommission]" value="1" {if $info['takeaway_showcommission']==1}checked{/if} title="显示"/>
+						<input type="radio" name="info[takeaway_showcommission]" value="0" {if $info['takeaway_showcommission']==0}checked{/if} title="不显示"/>
+					</div>
+					<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">开启后商品详情页显示分销{:t('佣金')}</div>
+				</div>
+				排队设置<hr/>
+				<div class="layui-form-item">
+					<label class="layui-form-label">腾讯云APPID：</label>
+					<div class="layui-input-inline">
+						<input type="text" name="info[queue_appid]" lay-verType="tips" class="layui-input" value="{$info.queue_appid}">
+					</div>
+					<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">腾讯云开通语音合成功能，用于排队叫号{if getcustom('restaurant_take_food')}、取餐{/if}，在账号信息中查找</div>
+				</div>
+				<div class="layui-form-item">
+					<label class="layui-form-label">腾讯云SecretID：</label>
+					<div class="layui-input-inline" style="width:350px">
+						<input type="text" name="info[queue_secretid]" lay-verType="tips" class="layui-input" value="{$info.queue_secretid}">
+					</div>
+					<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">在访问控制-访问密钥中查找</div>
+				</div>
+				<div class="layui-form-item">
+					<label class="layui-form-label">腾讯云SecretKEY：</label>
+					<div class="layui-input-inline" style="width:350px">
+						<input type="text" name="info[queue_secretkey]" lay-verType="tips" class="layui-input" value="{$info.queue_secretkey}">
+					</div>
+					<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">在访问控制-访问密钥中查找</div>
+				</div>
+				<div class="layui-form-item">
+					<label class="layui-form-label">声音类型：</label>
+					<div class="layui-input-inline">
+						<input type="text" name="info[queue_voicetype]" lay-verType="tips" class="layui-input" value="{$info.queue_voicetype}">
+					</div>
+					<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">VoiceType <a href="https://cloud.tencent.com/document/product/1073/34093" target="_blank">查看支持的声音类型</a></div>
+				</div>
+		  	{if getcustom('restaurant_shop_cashdesk')}
+		  	{if $info['business_auth']}
+		  		收银台设置<hr/>
+				<div class="layui-form-item">
+				  <label class="layui-form-label">多商户微信收款：</label>
+				  <div class="layui-input-inline" style="width: 400px">
+					  <input type="radio"  {if $info['duli_disabled']}disabled{/if} name="info[business_cashdesk_wxpay_type]" value="1" {if $info['business_cashdesk_wxpay_type']==1}checked{/if} title="服务商"/>
+					  <input type="radio" name="info[business_cashdesk_wxpay_type]" value="2" {if $info['business_cashdesk_wxpay_type']==2}checked{/if} title="平台收款"/>
+					  <input type="radio" {if $info['duli_disabled']}disabled{/if} name="info[business_cashdesk_wxpay_type]" value="3" {if $info['business_cashdesk_wxpay_type']==3}checked{/if} title="独立收款"/>
+					  <input type="radio" name="info[business_cashdesk_wxpay_type]" value="0" {if $info['business_cashdesk_wxpay_type']==0}checked{/if} title="关闭"/>
+				  </div>
+				  <div class="layui-form-mid layui-word-aux" style="margin-left:10px;">1、开启平台收款前，请先在[餐饮]-[收银台]-[收银台设置]中配置微信支付。2、开启独立收款后平台不抽成，佣金不发放。3、切换类型影响订单退款</div>
+				</div>
+		  		{if getcustom('cashdesk_sxpay')}
+				<div class="layui-form-item">
+				  <label class="layui-form-label">多商户随行付收款：</label>
+				  <div class="layui-input-inline" style="width: 400px">
+					  <input type="radio" name="info[business_cashdesk_sxpay_type]" value="1" {if $info['business_cashdesk_sxpay_type']==1}checked{/if} title="服务商"/>
+					  <input type="radio" name="info[business_cashdesk_sxpay_type]" value="2" {if $info['business_cashdesk_sxpay_type']==2}checked{/if} title="平台收款"/>
+					  <input type="radio" name="info[business_cashdesk_sxpay_type]" value="3" {if $info['business_cashdesk_sxpay_type']==3}checked{/if} title="独立收款"/>
+					  <input type="radio" name="info[business_cashdesk_sxpay_type]" value="0" {if $info['business_cashdesk_sxpay_type']==0}checked{/if} title="关闭"/>
+				  </div>
+					<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">1、开启平台收款前，请先在[餐饮]-[收银台]-[收银台设置]中配置微信支付。2、开启独立收款后平台不抽成，佣金不发放。3、切换类型影响订单退款</div>
+				</div>
+		  		{/if}
+		  		{if getcustom('cashdesk_alipay')}
+				<div class="layui-form-item">
+				  <label class="layui-form-label">多商户支付宝收款：</label>
+				  <div class="layui-input-inline" style="width: 400px">
+					  <input type="radio" name="info[business_cashdesk_alipay_type]" value="2" {if $info['business_cashdesk_alipay_type']==2}checked{/if} title="平台收款"/>
+					  <input type="radio" name="info[business_cashdesk_alipay_type]" value="3" {if $info['business_cashdesk_alipay_type']==3}checked{/if} title="独立收款"/>
+					  <input type="radio" name="info[business_cashdesk_alipay_type]" value="0" {if $info['business_cashdesk_alipay_type']==0}checked{/if} title="关闭"/>
+				  </div>
+					<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">1、开启平台收款前，请先在[餐饮]-[收银台]-[收银台设置]中配置微信支付。2、开启独立收款后平台不抽成，佣金不发放。3、切换类型影响订单退款</div>
+				</div>
+		  		{/if}
+		  
+				<div class="layui-form-item">
+				  <label class="layui-form-label">多商户{:t('余额')}收款：</label>
+				  <div class="layui-input-inline" style="width: 400px">
+					  <input type="radio" name="info[business_cashdesk_yue]" value="1" {if $info['business_cashdesk_yue']==1}checked{/if} title="开启"/>
+					  <input type="radio" name="info[business_cashdesk_yue]" value="0" {if $info['business_cashdesk_yue']==0}checked{/if} title="关闭"/>
+				  </div>
+					<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">开启后商家可使用该方式收款</div>
+				 </div>
+		  	
+				<div class="layui-form-item">
+				  <label class="layui-form-label">多商户{:t('现金')}收款：</label>
+				  <div class="layui-input-inline" style="width: 400px">
+					  <input type="radio" name="info[business_cashdesk_cashpay]" value="1" {if $info['business_cashdesk_cashpay']==1}checked{/if} title="开启"/>
+					  <input type="radio" name="info[business_cashdesk_cashpay]" value="0" {if $info['business_cashdesk_cashpay']==0}checked{/if} title="关闭"/>
+				  </div>
+				  <div class="layui-form-mid layui-word-aux" style="margin-left:10px;">开启后商家可使用该方式收款</div>
+				</div>
+		 		{if getcustom('restaurant_douyin_qrcode_hexiao')}
+				<div class="layui-form-item">
+				  <label class="layui-form-label">多商户抖音团购券：</label>
+				  <div class="layui-input-inline" style="width: 400px">
+					  <input type="radio" name="info[business_cashdesk_douyinhx]" value="1" {if $info['business_cashdesk_douyinhx']==1}checked{/if} title="开启"/>
+					  <input type="radio" name="info[business_cashdesk_douyinhx]" value="0" {if $info['business_cashdesk_douyinhx']==0}checked{/if} title="关闭"/>
+				  </div>
+				  <div class="layui-form-mid layui-word-aux" style="margin-left:10px;">开启后商家可使用抖音团购券进行支付</div>
+				</div>
+		  		{/if}
+				{if getcustom('pay_huifu')}
+				<div class="layui-form-item">
+				  <label class="layui-form-label">多商户汇付支付：</label>
+				  <div class="layui-input-inline" style="width: 400px">
+					  <input type="radio" name="info[business_cashdesk_huifupay]" value="1" {if $info['business_cashdesk_huifupay']==1}checked{/if} title="开启"/>
+					  <input type="radio" name="info[business_cashdesk_huifupay]" value="0" {if $info['business_cashdesk_huifupay']==0}checked{/if} title="关闭"/>
+				  </div>
+				  <div class="layui-form-mid layui-word-aux" style="margin-left:10px;">开启后商家可使用该方式收款</div>
+				</div>
+				{/if}
+				{if getcustom('member_overdraft_money') && $overdraft_moneypay}
+				<div class="layui-form-item">
+				  <label class="layui-form-label">挂账收款：</label>
+				  <div class="layui-input-inline" style="width: 400px">
+					  <input type="radio" name="info[business_cashdesk_guazhang]" value="1" {if $info['business_cashdesk_guazhang']==1}checked{/if} title="开启"/>
+					  <input type="radio" name="info[business_cashdesk_guazhang]" value="0" {if $info['business_cashdesk_guazhang']==0}checked{/if} title="关闭"/>
+				  </div>
+				  <div class="layui-form-mid layui-word-aux" style="margin-left:10px;">开启后商家可使用信用额度挂账收款</div>
+				</div>
+				{/if}
+		  	{/if}
+		    {/if}
+		 
+		  {if getcustom('restaurant_is_apply_refund')}
+		  其他设置<hr/>
+		  <div class="layui-form-item">
+			  <label class="layui-form-label">{:t('会员')}自助申请退款：</label>
+			  <div class="layui-input-inline">
+				  <input type="radio" name="info[is_apply_refund]" value="1" {if $info['is_apply_refund']==1}checked{/if} title="开启"/>
+				  <input type="radio" name="info[is_apply_refund]" value="0" {if $info['is_apply_refund']==0}checked{/if} title="关闭"/>
+			  </div>
+			  <div class="layui-form-mid layui-word-aux" style="margin-left:10px;">开启后{:t('会员')}可自助申请退款</div>
+		  </div>
+		  {/if}
+				<div class="layui-form-item">
+					<label class="layui-form-label"></label>
+					<div class="layui-input-block">
+						<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+					</div>
+				</div>
+			</div>
+		</div>
+      </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	//时间范围
+	layui.use('laydate', function() {
+		var laydate = layui.laydate;
+		lay('.time-select').each(function(){
+			laydate.render({
+				elem: this
+				,type: 'time'
+				,range: true
+			});
+		});
+	});
+
+	layui.form.on('radio(shop_comment)', function(data){
+		if(data.value == '1'){
+			$('#shop_commentset').show();
+		}else{
+			$('#shop_commentset').hide();
+		}
+	})
+	layui.form.on('radio(takeaway_comment)', function(data){
+		if(data.value == '1'){
+			$('#takeaway_commentset').show();
+		}else{
+			$('#takeaway_commentset').hide();
+		}
+	})
+	layui.form.on('radio(wxpaytype)', function(data){
+		if(data.value == '0'){
+			$('#wxpaytype1set').hide();
+			$('#wxpaytype0set').show();
+		}else{
+			$('#wxpaytype1set').show();
+			$('#wxpaytype0set').hide();
+		}
+	})
+	layui.form.on('radio(alipayset)', function(data){
+		if(data.value == '0'){
+			$('#alipayset').hide();
+		}else{
+			$('#alipayset').show();
+		}
+	})
+	layui.form.on('radio(withdraw)', function(data){
+		if(data.value == '1'){
+			$('#withdrawotherset').show();
+		}else{
+			$('#withdrawotherset').hide();
+		}
+	})
+	layui.form.on('radio(comwithdraw)', function(data){
+		if(data.value == '1'){
+			$('#comwithdrawotherset').show();
+		}else{
+			$('#comwithdrawotherset').hide();
+		}
+	})
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+
+		//哪个选项卡 用于刷新后保持
+		var tabindex = 0;
+		$('.layui-tab-title>li').each(function(i,v){
+			if($(this).hasClass('layui-this')){
+				tabindex = i;
+				console.log(i)
+				return false;
+			}
+		})
+		field.tabindex = tabindex;
+		$.post('',field,function(data){
+			dialog(data.msg,data.status,data.url);
+		})
+	})
+  </script>
+
+	
+	{include file="public/copyright"/}
+</body>
+</html>

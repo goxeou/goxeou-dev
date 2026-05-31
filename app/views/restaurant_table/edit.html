@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>餐桌</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+		.timeset .layui-input{ display:inline;height:30px}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加餐桌{else}<i class="fa fa-pencil"></i> 编辑餐桌{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w6" lay-filter="">
+						<input type="hidden" name="info[id]" value="{$info.id}">
+						<div class="layui-form-item">
+							<label class="layui-form-label">餐桌名称：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[name]" value="{$info.name}" lay-verify="required" lay-verType="tips" autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">分类：</label>
+							<div class="layui-input-inline">
+								<select name="info[cid]"  lay-verify="required">
+									<option value="">--选择分类--</option>
+									{foreach $tableCategory as $cate}
+									<option value="{$cate['id']}" {if $cate['id']==$info['cid']}selected{/if}>{$cate.name}</option>
+									{/foreach}
+								</select>
+							</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">图片：</label>
+							<input type="hidden" name="info[pic]" id="pic" lay-verType="tips" class="layui-input" value="{$info['pic']}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="pic" upload-preview="picPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：640×640像素</div>
+							<div id="picPreview" style="float:left;padding-top:10px;padding-left:130px;clear: both;">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info['pic']}"/></div></div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">座位数：</label>
+							<div class="layui-input-inline">
+								<input type="number" min="1" max="200" name="info[seat]" value="{$info.seat}" lay-verify="required" lay-verType="tips" autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">排序：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[sort]" value="{$info.sort|default=0}" class="layui-input">
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">越大越靠前</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">预定：</label>
+							<div class="">
+								<input type="radio" name="info[canbook]" value="0" title="关闭" {if $info['canbook']==0}checked{/if}>
+								<input type="radio" name="info[canbook]" value="1" title="开启" {if $info['canbook']==1}checked{/if}>
+							</div>
+						</div>
+						{if getcustom('restaurant_table_after_pay_clean')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">自动清台：</label>
+							<div class="">
+								<input type="radio" name="info[auto_clean]" value="0" title="关闭" {if $info['auto_clean']==0}checked{/if}>
+								<input type="radio" name="info[auto_clean]" value="1" title="开启" {if $info['auto_clean']==1}checked{/if}>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">开启时，付款完成后自动清理桌台</div>
+						</div>
+						{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label">状态：</label>
+							<div class="">
+								<!--状态：-1禁用,0空，1预定，2入座-->
+								<input type="radio" name="info[status]" value="0" title="空闲" {if $info['status']==0 || !$info['id']}checked{/if}>
+								<input type="radio" name="info[status]" value="1" title="预定" {if $info['id'] && $info['status']==1}checked{/if}>
+								<input type="radio" name="info[status]" value="2" title="入座" {if $info['id'] && $info['status']==2}checked{/if}>
+								<input type="radio" name="info[status]" value="3" title="清台" {if $info['id'] && $info['status']==3}checked{/if}>
+								<input type="radio" name="info[status]" value="-1" title="禁用" {if $info['id'] && $info['status']==-1}checked{/if}>
+							</div>
+						</div>
+						{if getcustom('restaurant_shop_pindan')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">餐后付款模式：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[pindan_status]" title="开启" value="1" {if $info['pindan_status']==1}checked{/if} lay-filter="pindan_status"/>
+								<input type="radio" name="info[pindan_status]" title="关闭" value="0" {if $info['pindan_status']==0}checked{/if} lay-filter="pindan_status"/>
+							</div>
+							<div class="layui-form-mid">开启后，此桌强制餐后付款；关闭后，此桌强制餐前付款。特别强调，本处设定仅针对当前桌子生效。</div>
+						</div>
+						{/if}
+						{if getcustom('restaurant_shop_pinzhuo')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">拼桌模式：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[pinzhuo_status]" title="开启" value="1" {if $info['pinzhuo_status']==1}checked{/if} />
+								<input type="radio" name="info[pinzhuo_status]" title="关闭" value="0" {if $info['pinzhuo_status']==0}checked{/if} />
+							</div>
+							<div class="layui-form-mid">开启后，此桌台不同会员可同时下单，无需清台</div>
+						</div>
+						{/if}
+						{if getcustom('restaurant_table_timing')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">计时收费：</label>
+							<div class="layui-input-inline" style="width: 400px">
+								<input type="radio" name="info[timing_fee_type]" title="不计时收费" value="0" {if $info['timing_fee_type']==0}checked{/if} lay-filter="timing_fee_type"/>
+								<input type="radio" name="info[timing_fee_type]" title="阶梯计费" value="1" {if $info['timing_fee_type']==1}checked{/if} lay-filter="timing_fee_type"/>
+								<input type="radio" name="info[timing_fee_type]" title="时段计费" value="2" {if $info['timing_fee_type']==2}checked{/if} lay-filter="timing_fee_type"/>
+							</div>
+							<div class="layui-form-mid"></div>
+						</div>
+
+
+						<div class="layui-form-item" id="jieti_set" {if $info['timing_fee_type'] !=1}style="display:none"{/if}>
+							<label class="layui-form-label">阶梯计费：</label>
+							<div class="layui-input-inline" style="width:600px">
+								<table   class="layui-table" style="width:600px">
+									<thead>
+									<tr>
+										<th>阶梯价格设置</th>
+										<th>操作</th>
+									</tr>
+									</thead>
+									<tbody id="jieti_discountdiv" class="timeset" >
+									{php} $jietidata = json_decode($info['timing_data1']);{/php}
+									{foreach $jietidata as $k=>$jt}
+									<tr>
+										<td width="550">
+											<div>
+												<input type="number" class="layui-input" name="jt[start][]" value="{$jt->start}" placeholder="起" min="1" style="width:90px"> ~
+												<input type="number" class="layui-input" name="jt[end][]" value="{$jt->end}" style="width:90px" placeholder="止" min="1"/>
+												<input type="number" class="layui-input" name="jt[money][]" value="{$jt->money}" style="width:90px" min="0" placeholder="单价"/>元 <input type="number" class="layui-input" name="jt[minute][]" value="{$jt->minute}" style="width:90px" min="1" placeholder="分钟数"/>分钟
+											</div>
+										</td>
+
+										<td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="$(this).parent().parent().remove()">删除</button></td>
+
+									</tr>
+									{/foreach}
+									
+									</tbody>
+									<tr><td colspan="2" style="text-align:center;"><button type="button" class="layui-btn  " onclick="addjl()">添加</button></td></tr>
+								</table>
+							</div>
+						</div>
+						<script>
+							function addjl(){
+								var num	= $('#jieti_discountdiv').find('tr').length;
+								if(num >= 4){
+									layer.alert('最多添加4个');
+									return;
+								}
+								var gghtml = '<tr>';
+								gghtml +='<td ><div><input type="number" class="layui-input" name="jt[start][]" value="" placeholder="起" style="width:90px" min="1"> ~ ' +
+								'<input type="number" class="layui-input" name="jt[end][]" value="" style="width:90px" placeholder="止" min="1"/>' +
+								'	<input type="number" class="layui-input" name="jt[money][]" value="" style="width:90px" placeholder="单价"/> 元<input type="number" class="layui-input" name="jt[minute][]" value="" style="width:90px" min="1" placeholder="分钟数"/>分钟' +
+								'</div></td>';
+								gghtml += '<td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="$(this).parent().parent().remove()">删除</button></td>';
+								gghtml += '</tr>';
+								
+								$('#jieti_discountdiv').append(gghtml);
+							}
+						</script>
+						<div class="layui-form-item" id="time_set" {if $info['timing_fee_type'] !=2}style="display:none"{/if}>
+							<label class="layui-form-label">时段计费：</label>
+							<div class="layui-input-inline" style="width:600px">
+								<table  class="layui-table" style="width:600px">
+									<thead>
+									<tr>
+										<th>时间段价格设置</th>
+										<th>操作</th>
+									</tr>
+									</thead>
+									<tbody class="timeset" id="time_discountdiv" >
+									{php} $timedata = json_decode($info['timing_data2']);{/php}
+									{foreach $timedata as $k=>$time}
+									<tr>
+										<td width="550">
+											<div>
+												<input type="text" class="layui-input timedata" name="time[start][]" value="{$time->start}" placeholder="起"  style="width:90px"> ~
+												<input type="text" class="layui-input timedata" name="time[end][]" value="{$time->end}" style="width:90px" placeholder="止"/>
+												<input type="number" class="layui-input" name="time[money][]" value="{$time->money}" style="width:90px" min="0" placeholder="单价"/>元<input type="number" class="layui-input" name="time[minute][]" value="{$time->minute}" style="width:90px" min="1" placeholder="分钟数"/>分钟
+											</div>
+										</td>
+							
+										<td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="$(this).parent().parent().remove()">删除</button></td>
+							
+									</tr>
+									{/foreach}
+							
+									</tbody>
+									<tr><td colspan="2" style="text-align:center;"><button type="button" class="layui-btn  " onclick="addtime()">添加</button></td></tr>
+								</table>
+							</div>
+						</div>
+						<script>
+						function addtime(){
+							var num	= $('#time_discountdiv').find('tr').length;
+							if(num >= 10){
+								layer.alert('最多添加10个');
+								return;
+							}
+						var gghtml = '<tr>';
+								gghtml +='<td ><div><input type="text" class="layui-input timedata" name="time[start][]" value="" placeholder="起" style="width:90px" > ~' ;
+								gghtml +='	<input type="text" class="layui-input timedata" name="time[end][]" value="" style="width:90px" placeholder="止" />' ;
+								gghtml +='	<input type="number" class="layui-input " name="time[money][]" value="" style="width:90px" placeholder="单价"/> 元<input type="number" class="layui-input" name="time[minute][]" value="" style="width:90px" min="1" placeholder="分钟数"/>分钟' ;
+								gghtml +='</div></td>';
+								gghtml += '<td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="$(this).parent().parent().remove()">删除</button></td>';
+						gghtml += '</tr>';
+						$('#time_discountdiv').append(gghtml);
+							$('.timedata').each(function() {
+								layui.laydate.render({elem:this,type: 'time',trigger: 'click',format:'HH:mm' });
+							});
+						}
+						</script>
+					{/if}
+		  			{if getcustom('restaurant_table_minprice')}
+						<div class="layui-form-item">
+						  <label class="layui-form-label">最低消费：</label>
+						  <div class="layui-input-inline">
+							  <input type="number" min="0"  name="info[minprice]" value="{$info.minprice}" lay-verify="required" lay-verType="tips" autocomplete="off" class="layui-input">
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">当前桌台的最低消费，如果收款金额低于当前设置，则使用当前设置的金额</div>
+						</div>
+						<div class="layui-form-item">
+						  <label class="layui-form-label">服务费类型：</label>
+						  <div class="layui-input-inline" style="width: 215px">
+							  <input type="radio" name="info[service_fee_type]" title="固定金额" value="0" {if $info['service_fee_type']==0}checked{/if} lay-filter="service_fee_type"/>
+							  <input type="radio" name="info[service_fee_type]" title="百分比" value="1" {if $info['service_fee_type']==1}checked{/if} lay-filter="service_fee_type"/>
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">实际支付金额的百分比</div>
+						</div>
+						  <div class="layui-form-item">
+							  <label class="layui-form-label" id="service_fee_title">服务费{if $info['service_fee_type'] ==1}比例{/if}：</label>
+							  <div class="layui-input-inline">
+								  <input type="number" min="0"  name="info[service_fee]" value="{$info.service_fee}" lay-verify="required" lay-verType="tips" autocomplete="off" class="layui-input">
+							  </div>
+							  <div class="layui-form-mid" id="unit">{if $info['service_fee_type'] ==0}元{else}%{/if}</div>
+							  <div class="layui-form-mid layui-word-aux">如果实际金额低于当前设置，则使用当前设置的金额或比例</div>
+						  </div>
+					{/if}
+		  
+		  				{if getcustom('restaurant_table_default_product')}
+						<div class="layui-form-item">
+						  <label class="layui-form-label">开启默认餐品：</label>
+						  <div class="layui-input-inline" style="width: 215px">
+							  <input type="radio" name="info[default_product_status]" title="关闭" value="0" {if $info['default_product_status']==0}checked{/if} lay-filter="default_product_status"/>
+							  <input type="radio" name="info[default_product_status]" title="开启" value="1" {if $info['default_product_status']==1}checked{/if} lay-filter="default_product_status"/>
+						  </div>
+						  <div class="layui-form-mid layui-word-aux">开启后，收银台下单时选择的餐品自动加入待结算列表</div>
+						</div>
+		  				<!--添加产品最外层-->
+		  				<div id="default_product" {if !$info['id'] ||  $info['default_product_status'] ==0}style="display:none"{/if}>
+							<!--套餐内容-->
+							<div id="packpagelist">
+								<div class="layui-form-item " >
+									<label class="layui-form-label" >必选菜品：</label>
+									<table   class="layui-table" style="width:650px">
+										<thead>
+										<tr>
+											<th>菜品ID</th>
+											<th>菜品名称</th>
+											<th>规格名称</th>
+											<th>价格</th>
+											<th>份数</th>
+											<th>操作</th>
+										</tr>
+										</thead>
+										<tbody class="product_tablebx">
+										{if $info['default_product_bxdata']}
+	
+										{foreach $info['default_product_bxdata'] as $pk=>$pro}
+										<tr class="productlisttr">
+											<td><input type="hidden" name="bxproduct[proid][]" value="{$pro.proid}"/>{$pro.proid}</td>
+											<td><input type="hidden" name="bxproduct[proname][]" value="{$pro.proname}"/>{$pro.proname}</td>
+											<td><input type="hidden" name="bxproduct[ggid][]" value="{$pro.ggid}"/><input type="hidden" name="bxproduct[guigename][]" value="{$pro.ggname}"/>{$pro.ggname}</td>
+											<td><input type="hidden" name="bxproduct[sell_price][]"  value="{$pro.sell_price}" >{$pro.sell_price}</td>
+	
+											<td><input type="number" class="layui-input" name="bxproduct[num][]"  value="{$pro.num}" style="width: 80px" min="1" ></td>
+											<td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="$(this).parent().parent().remove()">删除</button></td></tr>
+										{/foreach}
+										{/if}
+										</tbody>
+										<td colspan="7" style="text-align:center;"><button type="button" class="layui-btn" onclick="showChooseProduct3('bx')">添加</button></td>
+									</table>
+								
+								</div>
+								<div class="layui-form-item packagelist" >
+									<label class="layui-form-label" >可选菜品：</label>
+									<table   class="layui-table" style="width:650px">
+										<thead>
+										<tr>
+											<th>菜品ID</th>
+											<th>菜品名称</th>
+											<th>规格名称</th>
+											<th>价格</th>
+											<th>份数</th>
+											<th>操作</th>
+										</tr>
+										</thead>
+										<tbody class="product_tablekx">
+										{if $info['default_product_kxdata']}
+
+										{foreach $info['default_product_kxdata'] as $pk=>$pro}
+										<tr class="productlisttr">
+											<td><input type="hidden" name="kxproduct[proid][]" value="{$pro.proid}"/>{$pro.proid}</td>
+											<td><input type="hidden" name="kxproduct[proname][]" value="{$pro.proname}"/>{$pro.proname}</td>
+											<td><input type="hidden" name="kxproduct[ggid][]" value="{$pro.ggid}"/><input type="hidden" name="kxproduct[guigename][]" value="{$pro.ggname}"/>{$pro.ggname}</td>
+											<td><input type="hidden" name="kxproduct[sell_price][]"  value="{$pro.sell_price}" >{$pro.sell_price}</td>
+
+											<td><input type="number" class="layui-input" name="kxproduct[num][]"  value="{$pro.num}" style="width: 80px" min="1" ></td>
+											<td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="$(this).parent().parent().remove()">删除</button></td></tr>
+										{/foreach}
+										{/if}
+										</tbody>
+										<td colspan="7" style="text-align:center;"><button type="button" class="layui-btn" onclick="showChooseProduct3('kx')">添加</button></td>
+									</table>
+								
+								</div>
+							</div>
+		  					<!--套餐内容-->
+						</div>
+						<!--添加产品最外层-->
+		  				{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label">绑定打印机：</label>
+							<div class="layui-input-inline" style="width:500px">
+								{php} $storeids = explode(',',$info['print_ids']);{/php}
+								{foreach $printArr as $k=>$v}
+								<input type="checkbox" name="info[print_ids][]" value="{$k}" title="{$v}" lay-skin="primary" {if in_array($k,$storeids)}checked{/if}>
+								{/foreach}
+							</div>
+							<div class="layui-form-mid layui-word-aux">普通场景在菜品中绑定打印区域即可，此处绑定打印机适合包间对应多个吧台出单的场景</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+					
+				</div>
+			</div>
+		</div>
+  </div>
+	{include file="public/js"/}
+	<script>
+		$(function(){
+			$('.timedata').each(function() {
+				layui.laydate.render({elem:this,type: 'time',trigger: 'click',format:'HH:mm' });
+			});
+		})
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.closeAll();
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+	layui.form.on('radio(timing_fee_type)',function(data){
+		if(data.value=="0"){
+			$('#jieti_set').hide();
+			$('#time_set').hide();
+		}
+		if(data.value=="1"){
+			$('#jieti_set').show();
+			$('#time_set').hide();
+		}
+		if(data.value=="2"){
+			$('#jieti_set').hide();
+			$('#time_set').show();
+		}
+	});
+	layui.form.on('radio(service_fee_type)',function(data){
+		if(data.value=="0"){
+			$('#unit').html('元');
+			$('#service_fee_title').html('服务费')
+		}
+		if(data.value=="1"){
+			$('#unit').html('%');
+			$('#service_fee_title').html('服务费比例')
+		}
+
+	});
+	{if getcustom('restaurant_table_default_product')}
+		layui.form.on('radio(default_product_status)',function(data){
+			if(data.value=="0"){
+				$('#default_product').hide();
+			}
+			if(data.value=="1"){
+				$('#default_product').show();
+			}
+		});
+		var chooseProductLayer;
+		var packagekey = '';
+		var ggLayer;
+		function showChooseProduct(){
+			chooseProductLayer = layer.open({type:2,title:'选择菜品',content:"{:url('RestaurantProduct/chooseproduct')}/hidebid/1/type/1",area:['1000px','600px'],shadeClose:true});
+		}
+		function choosepro(data) {
+			showgg(data.product,data.guigedata,data.gglist);
+		}
+		function showChooseProduct3(packagekey1){
+			packagekey = packagekey1;
+			layer.open({type:2,title:'选择菜品',content:"{:url('RestaurantProduct/chooseproduct')}/hidebid/1",area:['1000px','600px'],shadeClose:true});
+		}
+		function chooseguige(proid,proname,sell_price,ggname,ggid) {
+				if(packagekey !== ''){
+					var html = '';
+					html +='<tr class="productlisttr">' +
+							'<td><input type="hidden" name="'+packagekey+'product[proid][]" value="'+proid+'">'+proid+'</td>' +
+							'<td><input type="hidden" name="'+packagekey+'product[proname][]" value="'+proname+'">'+proname+'</td>' +
+							'<td><input type="hidden" name="'+packagekey+'product[ggid][]" value="'+ggid+'"><input type="hidden" name="'+packagekey+'product[guigename][]" value="'+ggname+'">'+ggname+'</td>' +
+							'<td><input type="hidden" name="'+packagekey+'product[sell_price][]" value="'+sell_price+'">'+sell_price+'</td>' +
+							'<td><input type="number" class="layui-input" name="'+packagekey+'product[num][]" min="1" value="1" style="width: 80px"></td>'+
+							'<td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="$(this).parent().parent().remove()">删除</button></td></tr>';
+					$(".product_table"+packagekey).append(html);
+				}else{
+	
+				}
+	
+			}
+		
+		function showgg(product,specs,gglist){
+			var len = specs.length;
+			var newlen = 1;
+			var h = new Array(len);
+			var rowspans = new Array(len);
+			var mid = $("input[name='mid']").val();
+
+			var html = '<div style="margin:10px"><table id="ggvaldiv" class="layui-table"><thead><tr>';
+			for(var i=0;i<len;i++){
+				html+="<th>" + specs[i].title + "</th>";
+				var itemlen = specs[i].items.length;
+				if(itemlen<=0) { itemlen = 1 };
+				newlen*=itemlen;
+				h[i] = new Array(newlen);
+				for(var j=0;j<newlen;j++){
+					h[i][j] = new Array();
+				}
+				var l = specs[i].items.length;
+				rowspans[i] = 1;
+				for(j=i+1;j<len;j++){
+					rowspans[i]*= specs[j].items.length;
+				}
+			}
+			html += '<th>库存</th>';
+			html += '<th>市场价</th>';
+			html += '<th>销售价</th>';
+			html += '<th>操作</th>';
+			html += '</tr></thead>';
+
+			for(var m=0;m<len;m++){
+				var k = 0,kid = 0,n=0;
+				for(var j=0;j<newlen;j++){
+					var rowspan = rowspans[m];
+					if( j % rowspan==0){
+						h[m][j]={ k:specs[m].items[kid].k,title: specs[m].items[kid].title, html: "<td rowspan='" +rowspan + "'>"+ specs[m].items[kid].title+"</td>\r  ",id: specs[m].items[kid].id};
+					}else{
+						h[m][j]={ k:specs[m].items[kid].k,title:specs[m].items[kid].title, html: "",id: specs[m].items[kid].id};
+					}
+					n++;
+					if(n==rowspan){
+						kid++; if(kid>specs[m].items.length-1) { kid=0; }
+						n=0;
+					}
+				}
+			}
+			var hh = "";
+			for(var i=0;i<newlen;i++){
+				hh+="<tr>";
+				var ks = [];
+				var titles = [];
+				for(var j=0;j<len;j++){
+					hh+=h[j][i].html;
+					ks.push( h[j][i].k);
+					titles.push( h[j][i].title);
+				}
+				ks =ks.join(',');
+				titles =titles.join(',');
+				if(typeof(gglist[ks])!='undefined'){
+					var val = gglist[ks];
+				}else{
+					var val = { procode:'',market_price:'',cost_price:'',sell_price:'',weight:'',stock:'1000',pic:''};
+				}
+				hh += '<td>'+val.stock+'</td>';
+				hh += '<td>'+val.market_price+'</td>';
+				hh += '<td>'+val.sell_price+'</td>';
+				hh += '<td>';
+				// hh += ' <input name="buynum" ggid="'+val['id']+'" sellprice="'+val['sell_price']+'" ggname="'+val['name']+'" type="num" style="width:80px" value="0" class="layui-input"/>';
+				hh +='<button class="table-btn"  onclick="chooseguige(\''+product['id']+'\',\''+product['name']+'\',\''+val['sell_price']+'\',\''+val['name']+'\',\''+val['id']+'\')">选择</button>';
+				hh += '</td>';
+				hh += "</tr>";
+			}
+			html+=hh;
+			html+='</table></div>';
+			ggLayer = layer.open({type:1,title:product.name,content:html,area:['900px','600px'],shadeClose:true,btn:['返回','确定'],
+				yes:function(index){
+					layer.close(chooseProductLayer);
+					layer.close(ggLayer);
+					layer.open({type:2,title:'选择菜品',content:"{:url('RestaurantProduct/chooseproduct')}/hidebid/1",area:['1000px','600px'],shadeClose:true});
+				}
+			});
+		}
+	{/if}
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

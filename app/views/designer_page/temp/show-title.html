@@ -1,0 +1,12 @@
+<div class="dsn-mod dsn-title" ng-class="{'dsn-mod-select':Item.id == focus}" ng-style="{'text-align':Item.params.align,'color':Item.params.color,'background-color':Item.params.bgcolor,'margin':Item.params.margin_y+'px '+Item.params.margin_x+'px 0','padding':Item.params.padding_y+'px '+Item.params.padding_x+'px'}">
+	<div class="dsn-title-s1">
+		<div class="dsn-title-s1-line" ng-style="{'border-color':Item.params.linecolor}"></div>
+		<div class="dsn-title-s1-text">
+			<div class="dsn-title-s1-text1" ng-style="{'font-size':Item.params.fontsize+'px','color':Item.params.color}">
+				<img ng-src="{{Item.params.imgurl}}" ng-show="Item.params.showicon==1" style="width:{{Item.params.iconsize}}px"/>
+				<span class="dsn-title-s1-title1" ng-show="Item.params.title!=''">{{Item.params.title}}</span>
+			</div>
+		</div>
+		<div class="dsn-title-s1-line" ng-style="{'border-color':Item.params.linecolor}"></div>
+	</div>
+</div>

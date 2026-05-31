@@ -1,0 +1,371 @@
+<!DOCTYPE html><!--custom_file(product_weight)-->
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>订单发货</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	.flextd{display: flex;align-items: center;}
+	.flextd .tips{padding-left: 6px;color: #bbb}
+	.flextd-btn{display: flex;flex-wrap: wrap;min-width: 80px;}
+	.flextd-btn a{margin: 2px 0;padding: 0 5px;}
+	.flextd-input{min-width: 60px}
+	.layui-table td input{max-width: 80px}
+	.layui-table td{padding: 9px 5px}
+	.refreshbtn{margin-left: 5px;}
+	.layui-textarea{min-height: auto}
+	.layui-input, .layui-select, .layui-textarea{border-color: #ccc;}
+	.layui-input:hover, .layui-textarea:hover,.layui-table,.layui-table td, .layui-table th,.layui-collapse,.layui-form-checkbox i.layui-icon,.layui-colla-content, .layui-colla-item, .layui-collapse, .layui-form-pane .layui-form-item[pane], .layui-form-pane .layui-form-label, .layui-input{
+		border-color: #bbb !important;
+	}
+	input::placeholder{color: #888;}
+	.xm-select-parent dd > .xm-cz-group .xm-cz{color: #666;}
+	.layui-table .layui-btn{margin-left: 3px;}
+	.sumTotalpriceDiv{font-weight: bold}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					<i class="fa fa-paper-plane"></i> 订单发货
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body">
+					<div class="layui-form">
+						<input type="hidden" name="ispending" value="{$ispending}">
+						<div class="layui-collapse">
+							{volist name="orderList" id="order"}
+							<div class="layui-colla-item" id="collitem{$order.id}">
+								<h2 class="layui-colla-title">{if $order.customer_id>0}{$order.customer.name}{/if}{if $order.mid>0} {$order.nickname}{/if}{if $order.bname}<span style="color: #0da0ff"> ({$order.bname})</span>{/if}</h2>
+								<div class="layui-colla-content layui-show" style="padding: 10px">
+									<table class="layui-table" style="width: 100%">
+										<thead>
+										<tr>
+											<th style="width: 210px">商品</th>
+											<th style="width: 90px">单价(元/斤)</th>
+											<th style="width: 130px">重量(斤)</th>
+											<th style="width: 150px">备注</th>
+											<th style="width: 50px">数量</th>
+											<th style="width: 70px">总价(元)</th>
+										</tr>
+										</thead>
+										<tbody>
+										{volist name="order.goodslist" id="item"}
+										<tr>
+											<td>
+												{if $ispending==0}
+												<input type="checkbox" lay-skin="primary" value="{$item.id}" name="ids[]" class="itemId">
+												{else/}
+												<i class="fa fa-trash-o" onclick="delGoodsItem(this,{$order.id})"></i>
+												{/if}
+												<input type="hidden" name="info[{$order.id}][{$item.id}][goodsid]" value="{$item.id}">
+												{$item.name} {$item.ggname}
+											</td>
+											<td><input class="layui-input price" type="text" name="info[{$order.id}][{$item.id}][price]" value="{$item.real_sell_price}" onchange="calPrice()"></td>
+											<td>
+												<div style="display: none" class="sumTotalpriceDiv">累计：<span class="sumTotalprice">0</span></div>
+												<div class="flextd">
+													<div class="flextd-input">
+														<input type="hidden" class="originWeight" value="{$item.real_total_weight}">
+														<input  class="layui-input weight" type="text" onfocus="refreshWeight(this)" name="info[{$order.id}][{$item.id}][weight]" value="{$item.real_total_weight}" onchange="calPrice()">
+													</div>
+													{if getcustom('scale_shouheng')}
+													<div class="flextd-btn">
+														<a href="javascript:void(0)" onclick="liangCheng(this)" class="refreshbtn layui-btn layui-btn-primary" >累加</a>
+														<a href="javascript:void(0)" onclick="liangChengJiesuan(this)" class="refreshbtn layui-btn  layui-btn-primary">确认</a>
+														<a href="javascript:void(0)" onclick="refreshWeight(this)" class="refreshbtn layui-btn  layui-btn-primary" >刷新</a>
+														<a href="javascript:void(0)" onclick="fucheng(this)" class="refreshbtn layui-btn  layui-btn-primary" >重置</a>
+													</div>
+													{/if}
+												</div>
+												<div style="color: #ff0000;background: #eeeeee;text-align: center;margin-top: 3px;font-size: 12px">原重量：{$item.real_total_weight}</div>
+											</td>
+											<td>
+												<textarea class="layui-textarea remark" name="info[{$order.id}][{$item.id}][remark]" style="width: 100%;height: 50px">{$item.remark}</textarea>
+												{if $item.remark_ext}
+												<p style="color: #ff0000;font-size: 11px;">* {$item.remark_ext}</p>
+												{/if}
+											</td>
+											<td><input style="width: 50px" class="layui-input number" type="number" name="info[{$order.id}][{$item.id}][num]" value="{$item.num}"></td>
+											<td>￥<span class="totalprice">{$item.totalprice}</span></td>
+										</tr>
+										{/volist}
+										</tbody>
+										<tfoot>
+										{if $order.freight_price>0}
+										<tr>
+											<td>运费</td>
+											<td colspan="4"></td>
+											<td>
+												<input type="hidden" name="order[{$order.id}]['freight_price']" class="freight_price" value="{$order.freight_price|default=0}">
+												￥{$order.freight_price}
+											</td>
+										</tr>
+										{/if}
+										{if $order.invoice_money>0}
+										<tr>
+											<td>发票费</td>
+											<td colspan="4"></td>
+											<td>
+												<input type="hidden" name="order[{$order.id}]['invoice_money']" class="invoice_money" value="{$order.invoice_money|default=0}">
+												￥{$order.invoice_money}
+											</td>
+										</tr>
+										{/if}
+										{if $order.scoredk_money>0}
+										<tr>
+											<td>{:t('积分')}抵扣</td>
+											<td colspan="4"></td>
+											<td>
+												<input type="hidden" name="order[{$order.id}]['scoredk_money']" class="scoredk_money" value="{$order.scoredk_money|default=0}">
+												-￥{$order.scoredk_money}
+											</td>
+										</tr>
+										{/if}
+										{if $order.leveldk_money>0}
+										<tr>
+											<td>{:t('会员')}折扣</td>
+											<td colspan="4"></td>
+											<td>
+												<input type="hidden" name="order[{$order.id}]['leveldk_money']" class="leveldk_money" value="{$order.leveldk_money|default=0}">
+												-￥{$order.leveldk_money}
+											</td>
+										</tr>
+										{/if}
+										{if $order.coupon_money>0}
+										<tr>
+											<td>{:t('优惠券')}</td>
+											<td colspan="4"></td>
+											<td>
+												<input type="hidden" name="order[{$order.id}]['coupon_money']" class="coupon_money" value="{$order.coupon_money|default=0}">
+												-￥{$order.coupon_money}
+											</td>
+										</tr>
+										{/if}
+										{if $order.manjian_money>0}
+										<tr>
+											<td>满减</td>
+											<td colspan="4"></td>
+											<td>
+												<input type="hidden" name="order[{$order.id}]['manjian_money']" class="manjian_money" value="{$order.manjian_money|default=0}">
+												-￥{$order.manjian_money}
+											</td>
+										</tr>
+										{/if}
+										<tr class="cttr">
+											<td colspan="6" style="text-align: center;font-weight: bold">
+												订单合计：￥<span class="item-totalprice">{$order.totalprice}</span>
+											</td>
+										</tr>
+										</tfoot>
+									</table>
+								</div>
+							</div>
+							{/volist}
+							<div class="layui-form-item">
+								<div class="layui-input-block" style="margin-left: 20px;color: #f99f2c;">
+									* 发货重量为实际结算重量
+									<br>* 如果是用户购买下单，会根据发货单价和重量，重新计算订单价格，计算差额会原路退还用户
+									<br>* 购买数量仅用于标记，不影响称重商品的价格
+								</div>
+							</div>
+						</div>
+						<div class="layui-form-item" style="margin-top: 10px">
+							<div class="layui-input-block" style="width: 100%;text-align: center">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">发货</button>
+								{if $ispending==0}<button class="layui-btn layui-btn-warm" onclick="hangupOrder()">挂单</button>{/if}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+  </div>
+  {include file="public/js"/}
+	<script>
+		var online = true;
+	function refreshWeight(obj) {
+		// var weight = 0;
+		{if getcustom('scale_shouheng')}
+		if(!online){
+			return;
+		}
+		$.ajax({
+			url: 'http://localhost:33582/api/Weight',
+			type: "get",
+			dataType: "json",
+			// async:false,//同步请求
+			success: function (data) {
+				if (data.Code == 1) {
+					var weight = data.Weight * 2;
+					$(obj).closest('td').find('.weight').val(weight);
+					return calPrice();
+				} else {
+					layer.msg('称重未同步');
+				}
+			},
+			error: function (XMLHttpRequest, textStatus, errorThrown) {
+				online = false;
+				layer.confirm('称重设备未连接');
+			}
+		})
+		{/if}
+	}
+	function gonext(layid){
+		$(window).scrollTop(0);
+		layui.element.tabChange('mytab', layid);
+	}
+	function delTr(obj){
+		var len = $(obj).closest('tbody').find('tr').length;
+		if(len==1){
+			layer.msg('至少保留一行');
+			return false;
+		}
+		$(obj).closest('tr').remove();
+	}
+	//价格计算
+	function calPrice(){
+		$('.layui-colla-item').each(function (k,obj){
+			var itemtotalprice = 0;
+			var tfoot = $(obj).find('tfoot')
+			var freight_price = 0,invoice_money=0,leveldk_money=0,scoredk_money=0,coupon_money=0,manjian_money=0;
+			if($(tfoot).find('.freight_price').length>0 && isNaN($(tfoot).find('.freight_price').val())===false){
+				freight_price = parseFloat($(tfoot).find('.freight_price').val());
+			}
+			if($(tfoot).find('.invoice_money').length>0 && isNaN($(tfoot).find('.invoice_money').val())===false){
+				invoice_money = parseFloat($(tfoot).find('.invoice_money').val());
+			}
+			if($(tfoot).find('.leveldk_money').length>0 && isNaN($(tfoot).find('.leveldk_money').val())===false){
+				leveldk_money = parseFloat($(tfoot).find('.leveldk_money').val());
+			}
+			if($(tfoot).find('.scoredk_money').length>0 && isNaN($(tfoot).find('.scoredk_money').val())===false){
+				scoredk_money = parseFloat($(tfoot).find('.scoredk_money').val());
+			}
+			if($(tfoot).find('.coupon_money').length>0 && isNaN($(tfoot).find('.coupon_money').val())===false){
+				coupon_money = parseFloat($(tfoot).find('.coupon_money').val());
+			}
+			if($(tfoot).find('.manjian_money').length>0 && isNaN($(tfoot).find('.manjian_money').val())===false){
+				manjian_money = parseFloat($(tfoot).find('.manjian_money').val());
+			}
+
+			$(obj).find("tbody>tr").each(function (i,trobj){
+				var price = $(trobj).find('.price').val();
+				var weight = $(trobj).find('.weight').val();
+				var totalprice = (parseFloat(price) * parseFloat(weight)).toFixed(2);
+				itemtotalprice = parseFloat(totalprice) + parseFloat(itemtotalprice);
+				if(itemtotalprice<0){
+					itemtotalprice = 0;
+				}
+				$(trobj).find('.totalprice').text(totalprice)
+			});
+			itemtotalprice = (itemtotalprice + freight_price + invoice_money - leveldk_money - scoredk_money - coupon_money - manjian_money).toFixed(2);
+			$(obj).find('.item-totalprice').text(itemtotalprice);
+		})
+	}
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		var index = layer.load();
+		$.post("{:url('fahuoSave')}",field,function(data){
+			layer.close(index);
+			console.log(data)
+			if(data.status == 1){
+				layer.open({
+					content: data.msg
+					,btn: ['打印发货单', '关闭']
+					,yes: function(index, layero){
+						//按钮【按钮一】的回调
+						openmax("{:url('WeightOrder/plshd')}/isopen/1/ids/"+data.orderids);
+					}
+					,btn2: function(index, layero){
+						closeself()
+						parent.tableIns.reload()
+					}
+					,cancel: function(){
+						closeself()
+						parent.tableIns.reload()
+					}
+				});
+			}
+		})
+	})
+
+	function wifiprint(id){
+		var index = layer.load();
+		$.post("{:url('WeightOrder/wifiprint')}",{id:id},function(data1){
+			layer.close(index);
+			dialog(data1.msg,data1.status);
+			parent.tableIns.reload()
+		})
+	}
+
+	function hangupOrder(){
+		var ids = [];
+		$('.layui-form').find('.itemId').each(function (i,e){
+			if($(e).prop('checked')==true) {
+				ids.push($(e).val())
+			}
+		})
+		if(ids.length==0){
+			layer.msg('请选择挂单数据');
+		}
+		var index = layer.load();
+		$.post("{:url('WeightOrder/pendingOrder')}",{ids:ids},function(res){
+			layer.close(index);
+			if(res.status==1){
+				layer.msg(res.msg)
+				window.location.reload();
+			}else{
+				layer.msg(res.msg);
+			}
+		})
+	}
+
+	function delGoodsItem(obj,orderid){
+		$(obj).closest('tr').remove();
+		var trlen = $(obj).closest('tbody').find('tr').length;
+		console.log(orderid)
+		if(trlen==0){
+			$('#collitem'+orderid).remove();
+		}
+		calPrice();
+	}
+
+		function liangCheng(obj){
+			var td = $(obj).closest('td');
+			var weight = $(td).find('input.weight').val();
+			var preweight = $(td).find('.sumTotalprice').text();
+			if(isNaN(weight)){
+				return;
+			}
+			if(isNaN(preweight)){
+				 preweight = 0;
+			}
+			console.log(preweight);
+			console.log(weight);
+			var sumTotalweight = parseFloat(preweight) + parseFloat(weight);
+			$(td).find('.sumTotalprice').text(sumTotalweight);
+			$(td).find('.sumTotalpriceDiv').show();
+		}
+		function liangChengJiesuan(obj){
+			var td = $(obj).closest('td');
+			var sumTotal = $(td).find('.sumTotalprice').text();
+			$(td).find('input.weight').val(sumTotal).attr('readonly','readonly');
+			calPrice();
+		}
+		function fucheng(obj){
+			var td = $(obj).closest('td');
+			var originWeight = $(td).find('.originWeight').val();
+			console.log(originWeight)
+			$(td).find('input.weight').attr('readonly','').val(originWeight);
+			$(td).find('.sumTotalprice').text(0);
+			$(td).find('.sumTotalpriceDiv').hide();
+		}
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

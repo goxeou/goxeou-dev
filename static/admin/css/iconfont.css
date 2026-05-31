@@ -1,0 +1,144 @@
+@font-face {
+  font-family: "iconfont"; /* Project id  */
+  src: url('iconfont.ttf?t=1710143105169') format('truetype');
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-vuesax-linear-activity:before {
+  content: "\e614";
+}
+
+.icon-vuesax-linear-airdrop:before {
+  content: "\e615";
+}
+
+.icon-vuesax-linear-3d-cube-scan:before {
+  content: "\e616";
+}
+
+.icon-vuesax-linear-3dcube:before {
+  content: "\e617";
+}
+
+.icon-vuesax-linear-3d-square:before {
+  content: "\e618";
+}
+
+.icon-vuesax-linear-arrow-square:before {
+  content: "\e619";
+}
+
+.icon-vuesax-linear-gallery-edit:before {
+  content: "\e627";
+}
+
+.icon-vuesax-linear-link-2:before {
+  content: "\e634";
+}
+
+.icon-vuesax-linear-link-square:before {
+  content: "\e635";
+}
+
+.icon-vuesax-linear-maximize:before {
+  content: "\e637";
+}
+
+.icon-vuesax-linear-maximize-6:before {
+  content: "\e638";
+}
+
+.icon-vuesax-linear-mobile:before {
+  content: "\e639";
+}
+
+.icon-vuesax-linear-messages-4:before {
+  content: "\e63a";
+}
+
+.icon-vuesax-linear-monitor-mobbile:before {
+  content: "\e63c";
+}
+
+.icon-vuesax-linear-nem:before {
+  content: "\e63d";
+}
+
+.icon-vuesax-linear-nodejs:before {
+  content: "\e63e";
+}
+
+.icon-vuesax-linear-nexo:before {
+  content: "\e63f";
+}
+
+.icon-vuesax-linear-personalcard:before {
+  content: "\e640";
+}
+
+.icon-vuesax-linear-radar-2:before {
+  content: "\e642";
+}
+
+.icon-vuesax-linear-receipt-3:before {
+  content: "\e643";
+}
+
+.icon-vuesax-linear-shield-security:before {
+  content: "\e647";
+}
+
+.icon-vuesax-linear-shop:before {
+  content: "\e648";
+}
+
+.icon-vuesax-linear-setting:before {
+  content: "\e649";
+}
+
+.icon-vuesax-linear-repeate-one:before {
+  content: "\e646";
+}
+
+.icon-vuesax-linear-slider:before {
+  content: "\e64a";
+}
+
+.icon-vuesax-linear-story:before {
+  content: "\e64b";
+}
+
+.icon-vuesax-linear-sound:before {
+  content: "\e64c";
+}
+
+.icon-vuesax-linear-theta:before {
+  content: "\e64d";
+}
+
+.icon-vuesax-linear-translate:before {
+  content: "\e64e";
+}
+
+.icon-vuesax-linear-spotify:before {
+  content: "\e64f";
+}
+
+.icon-vuesax-linear-timer-pause:before {
+  content: "\e650";
+}
+
+.icon-vuesax-linear-trash:before {
+  content: "\e651";
+}
+
+.icon-vuesax-linear-voice-cricle:before {
+  content: "\e652";
+}

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>绑定公众号</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					绑定公众号
+					{if input('param.isopen')==1}<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>{/if}
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w10" lay-filter="" style="margin-top:20px">
+						<!-- <div class="layui-form-item">
+							<div style="padding-left:20px;color:#f00">注意：选择该方式上传，如果您的小程序已授权，请先在[设置]-[第三方设置]中取消授权</div>
+						</div> -->
+						<div class="layui-form-item">
+							<div style="padding-left:20px;font-weight:bold">一、填写公众号信息</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">AppID：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[appid]" value="{$info.appid}" class="layui-input">
+							</div>
+							<div class="layui-form-mid layui-word-aux">登录微信公众平台(mp.weixin.qq.com)[开发]-[基本配置]中查找</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">AppSecret：</label>
+							<div class="layui-input-inline" style="width:280px">
+								<input type="text" name="info[appsecret]" value="{$info.appsecret}" class="layui-input">
+							</div>
+							<div class="layui-form-mid layui-word-aux">登录微信公众平台(mp.weixin.qq.com)[开发]-[基本配置]中查找</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">公众号名称：</label>
+							<div class="layui-input-inline" style="width:280px">
+								<input type="text" name="info[nickname]" value="{$info.nickname}" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">公众号类型：</label>
+							<div class="layui-input-inline" style="width:280px">
+								<input type="radio" name="info[level]" value="4" title="认证服务号" {if $info['level']==4}checked{/if}/>
+								<input type="radio" name="info[level]" value="3" title="认证订阅号" {if $info['level']==3}checked{/if}/>
+								<input type="radio" name="info[level]" value="2" title="普通服务号" {if $info['level']==2}checked{/if}/>
+								<input type="radio" name="info[level]" value="1" title="普通订阅号" {if $info['level']==1}checked{/if}/>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">公众号头像：</label>
+							<input type="hidden" name="info[headimg]" id="headimg" lay-verType="tips" class="layui-input" value="{$info.headimg}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="headimg" upload-preview="headimgPreview" onclick="uploader(this)">上传图片</button>
+							<div id="headimgPreview" class="picsList-class-padding">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.headimg}"/></div></div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">公众号二维码：</label>
+							<input type="hidden" name="info[qrcode]" id="qrcode" lay-verType="tips" class="layui-input" value="{$info.qrcode}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="qrcode" upload-preview="qrcodePreview" onclick="uploader(this)">上传图片</button>
+							<div id="qrcodePreview" class="picsList-class-padding">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.qrcode}"/></div></div>
+							</div>
+						</div>
+						<!-- <div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-inline">
+								<button class="layui-btn layui-btn-primary" lay-submit lay-filter="submit_reg">确 定</button>
+							</div>
+						</div> -->
+						<div class="layui-form-item">
+							<div style="padding-left:20px;font-weight:bold">二、设置IP白名单及域名</div>
+						</div>
+						<div class="layui-form-item" style="margin-bottom:5px">
+							<label class="layui-form-label">IP白名单：</label>
+							<div class="layui-form-mid" style="width:200px;font-weight:bold">{:gethostbyname($_SERVER['HTTP_HOST'])}</div>
+							<div class="layui-form-mid layui-word-aux">[设置与开发]-[基本配置]-[IP白名单]中设置</div>
+						</div>
+						<div class="layui-form-item" style="margin-bottom:5px">
+							<label class="layui-form-label">业务域名：</label>
+							<div class="layui-form-mid" style="width:200px;font-weight:bold">{:str_replace('https://','',PRE_URL2)}</div>
+							<div class="layui-form-mid layui-word-aux">[设置与开发]-[公众号设置]-[功能设置]中设置</div>
+						</div>
+						<div class="layui-form-item" style="margin-bottom:5px">
+							<label class="layui-form-label">JS接口安全域名：</label>
+							<div class="layui-form-mid" style="width:200px;font-weight:bold">{:str_replace('https://','',PRE_URL2)}</div>
+							<div class="layui-form-mid layui-word-aux">[设置与开发]-[公众号设置]-[功能设置]中设置</div>
+						</div>
+						<div class="layui-form-item" style="margin-bottom:5px">
+							<label class="layui-form-label">网页授权域名：</label>
+							<div class="layui-form-mid" style="width:200px;font-weight:bold">{:str_replace('https://','',PRE_URL2)}</div>
+							<div class="layui-form-mid layui-word-aux">[设置与开发]-[公众号设置]-[功能设置]中设置</div>
+						</div>
+						<div class="layui-form-item">
+							<div style="padding-left:20px;font-weight:bold">三、配置服务器域名</div>
+						</div>
+						<div class="layui-form-item" style="margin-bottom:0">
+							<div class="layui-form-mid" style="margin-left:40px;">登录微信公众平台(mp.weixin.qq.com)在[设置与开发]-[基本配置]-[服务器配置]，配置以下信息：</div>
+						</div>
+						<div class="layui-form-item" style="margin-bottom:5px">
+							<div class="layui-form-mid" style="margin-left:40px;color:red">注意：填写完成以下信息后需先点击下方保存按钮，再在公众平台点击提交按钮，否则会校验失败</div>
+						</div>
+						<div class="layui-form-item" style="margin-bottom:5px">
+							<label class="layui-form-label">URL(服务器地址)：</label>
+							<div class="layui-form-mid" style="width:700px;font-weight:bold" id="fwqurl">{$Think.const.PRE_URL2}/?s=/ApiWechat/index/appid/{$info.appid}</div>
+							<div class="layui-form-mid layui-word-aux"></div>
+						</div>
+						<div class="layui-form-item" style="margin-bottom:5px">
+							<label class="layui-form-label">Token(令牌)：</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[token]" value="{$info.token}" class="layui-input">
+							</div>
+							<div class="layui-form-mid layui-word-aux"></div>
+						</div>
+						<div class="layui-form-item" style="margin-bottom:5px">
+							<label class="layui-form-label">EncodingAESKey(消息加密密钥)：</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[key]" value="{$info.key}" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item" style="margin-bottom:5px">
+							<label class="layui-form-label">消息加解密方式：</label>
+							<div class="layui-form-mid" style="width:200px;font-weight:bold">安全模式</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-inline" style="width:500px">
+								<button class="layui-btn layui-btn-normal" lay-submit lay-filter="submit_reg">保 存</button>
+								<button class="layui-btn layui-btn-primary" type="button" id="uploadjstxt">上传公众号接口校验文件</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	
+	$(".layui-form input[name='info[appid]']").bind("input change propertychange",function(event){
+		var appid = $(this).val();
+		$('#fwqurl').text('{$Think.const.PRE_URL2}/?s=/ApiWechat/index/appid/'+appid);
+	})
+	function downloadop(){
+		var index = layer.load();
+		$.get('',{op:'download'},function(data){
+			layer.close(index);
+			dialog(data.msg,data.status,data.url);
+		})
+	}
+	layui.form.on('submit(submit_reg)', function(obj){
+		var field = obj.field
+		field.op = 'setappid';
+		$.post('',field,function(data){
+			dialog(data.msg,data.status,'{:url('index')}');
+		})
+	})
+	layui.upload.render({
+    elem: '#uploadjstxt', //绑定元素
+    url: "{:url('uploadjstxt')}", //上传接口
+		exts:'txt',
+    done: function(res){
+      //上传完毕回调
+			console.log(res)
+			dialog(res)
+    },
+    error: function(){
+      //请求异常回调
+    }
+  });
+	//function uploadjstxt(){
+	//	layer.open({type:2,content:"{:url('uploadjstxt')}",title:'上传公众号接口校验文件',area:[500,300]})
+	//}
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

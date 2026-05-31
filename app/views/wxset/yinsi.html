@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>用户隐私保护指引设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+		.form-label-w10 .layui-form-item .layui-form-label {width: 200px}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header"><i class="fa fa-cog"></i> 用户隐私保护指引设置<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i></div>
+				<div class="layui-card-body" pad15>
+					<blockquote class="layui-elem-quote" style="color:#333">
+						1.配置后，需重新提交代码审核，审核通过且需要重新发布上线后才会在小程序端生效。<br>
+						2.如果是驳回了可以查看小程序审核驳回原因进行调整。
+					</blockquote>
+					<div class="layui-form form-label-w10" lay-filter="">
+						收集信息用途说明<hr/>
+						{foreach $privacyArr as $k=>$item}
+						<div class="layui-form-item">
+							<label class="layui-form-label">{$item.desc}：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="setting_list[{$k}]" value="{$item['text']}" class="layui-input"
+									   {if in_array($k,['UserInfo','Address','PhoneNumber','MessageFile','Location','Album','AlbumWriteOnly','ChooseLocation','Clipboard'])} lay-verify="required"{/if} lay-verType="tips"/>
+							</div>
+							{if $k == 'UserInfo'}
+							<div class="layui-form-mid layui-word-aux">例如 辨别用户身份</div>
+							{elseif $k == 'Address'}
+							<div class="layui-form-mid layui-word-aux">例如 地址导航</div>
+							{elseif $k == 'PhoneNumber'}
+							<div class="layui-form-mid layui-word-aux">例如 发送短信通知</div>
+							{elseif $k == 'MessageFile'}
+							<div class="layui-form-mid layui-word-aux">例如 上传评价图片等</div>
+							{elseif $k == 'Location'}
+							<div class="layui-form-mid layui-word-aux">例如 推荐最近的自提点</div>
+							{elseif $k == 'Album'}
+							<div class="layui-form-mid layui-word-aux">例如 评价晒单</div>
+							{elseif $k == 'AlbumWriteOnly'}
+							<div class="layui-form-mid layui-word-aux">例如 保存商品图片和海报</div>
+							{elseif $k == 'ChooseLocation'}
+							<div class="layui-form-mid layui-word-aux">例如 选择位置作为收货地址</div>
+							{elseif $k == 'Clipboard'}
+							<div class="layui-form-mid layui-word-aux">例如 复制订单号</div>
+							{else}
+							<div class="layui-form-mid layui-word-aux">选填</div>
+							{/if}
+						</div>
+						{/foreach}
+						信息收集方联系方式<hr/>
+						<div class="layui-form-item">
+							<label class="layui-form-label">邮箱：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="owner_setting[contact_email]" value="{$owner_setting['contact_email']}" class="layui-input"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">邮箱、手机号、QQ、微信号 4种联系方式至少要填一种</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">手机号：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="owner_setting[contact_phone]" value="{$owner_setting['contact_phone']}" class="layui-input"/>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">QQ：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="owner_setting[contact_qq]" value="{$owner_setting['contact_qq']}" class="layui-input"/>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">微信号：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="owner_setting[contact_weixin]" value="{$owner_setting['contact_weixin']}" class="layui-input"/>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">通知方式：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="owner_setting[notice_method]" value="{$owner_setting['notice_method']}" class="layui-input" lay-verify="required" lay-verType="tips"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">例如 弹窗、公告或其他方式</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+      </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.form.on('radio(wxpay_type)', function(data){
+		if(data.value == '0'){
+			$('#wxpay_type1set').hide();
+			$('#wxpay_type0set').show();
+		}else{
+			$('#wxpay_type1set').show();
+			$('#wxpay_type0set').hide();
+		}
+	})
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		$.post('',field,function(data){
+			dialog(data.msg,data.status,data.url);
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

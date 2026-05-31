@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>直播管理</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header">直播管理</div>
+          <div class="layui-card-body" pad15>
+						<blockquote class="layui-elem-quote">
+							<p>直播功能只支持小程序端，公众号/H5页面不支持，<a href="https://developers.weixin.qq.com/miniprogram/product/live/access-requirement.html" target="_blank">微信小程序直播功能准入要求</a>
+							<p>1、请前往微信公众平台（mp.weixin.qq.com），登录小程序账号，在[功能]中找到[直播]申请开通
+							<p>2、直播功能开通后，需要重新<a href="{:url('Binding/index')}">上传代码提交审核</a>
+							<!-- <p>3、在公众平台[功能]-[直播]中，进行创建直播间，添加商品等操作 -->
+							<p>3、在本平台可填写跳转链接的地方(如页面设计、底部导航等)填写链接：<b>plugin-private://wx2b03c6e691cd7370/pages/live-player-plugin?room_id=[房间号]</b>，“[房间号]”替换成要直播的房间的房间号<br>或在[设计]-[页面设计]中调用,可以新建页面然后选择直播组件进行调用
+							<!-- <p><a href="javascript:void(0)" onclick="showfj()">点击查看直播房间</a> -->
+						</blockquote>
+						<div class="layui-col-md4" style="padding-bottom:10px">
+							<a class="layui-btn layuiadmin-btn-list" href="javascript:void(0)" onclick="openmax('{:url('edit')}')">创建直播间</a>
+							<button class="layui-btn layui-btn-primary" onclick="tongbu()"><i class="fa fa-refresh"></i>从小程序中同步</button>
+							<!-- <button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="datadel(0)">删除</button> -->
+							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="setst(0,1)">开启</button>
+							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="setst(0,0)">关闭</button>
+							<button class="layui-btn layui-btn-primary" onclick="openmax('{:url('goodslist')}/st/2')">商品库</button>
+							<!-- <button class="layui-btn layuiadmin-btn-list" onclick="location.href='?op=excel'+urlEncode(datawhere)">导出</button> -->
+						</div>
+						<!-- <div class="layui-form layui-col-md8 layui-form-search">
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">房间名称</label>
+								<div class="layui-input-inline">
+									<input type="text" name="name" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label"">状态</label>
+								<div class="layui-input-inline">
+									<select name="status">
+										<option value="">全部</option>
+										<option value="1">已开启</option>
+										<option value="0">已关闭</option>
+									</select>
+								</div>
+							</div>
+							<div class="layui-inline">
+								<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+									<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+								</button>
+							</div>
+						</div> -->
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	var nowtime = {:time()};
+  var table = layui.table;
+	var datawhere = {};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{$Request.url}" //数据接口
+    ,page: true //开启分页
+    ,cols: [[ //表头
+			{type:"checkbox"},
+      {field: 'id', title: 'ID',  sort: true,width:80},
+      {field: 'roomId', title: '房间号',width:100},
+      {field: 'name', title: '直播间信息',templet:function(d){
+				html = '';
+				html+='		<img src="'+d.shareImg+'" style="max-width:100px;float:left"/>';
+				html+='			<div style="float: left;width:200px;margin-left: 10px;white-space:normal;line-height:20px;">';
+				html+='				<div style="width:100%;color:#333;font-size:16px">';
+				html+= 					d.name;
+				html+= '			</div>';
+				html+='				<div style="color:green;padding-top:5px;">开播：'+date('Y-m-d H:i:s',d.startTime)+'</div>';
+				html+='				<div style="color:#999">结束：'+date('Y-m-d H:i:s',d.endTime)+'</div>';
+				html+='				<div style="color:#666">主播：'+d.anchorName+'</div>';
+				html+='			</div>';
+				return html;
+      },width:380},
+      {field: 'goodsdata', title: '直播间商品',width:240},
+      {field: 'live_status', title: '直播状态',templet:function(d){
+				html = '';
+				/*
+				if(d.live_status==101){
+					html+='<span style="color:green">直播中</span>';
+				}else if(d.live_status==102){
+					html+='<span style="color:#333">未开始</span>';
+				}else if(d.live_status==103){
+					html+='<span style="color:#aaa">已结束</span>';
+				}else if(d.live_status==104){
+					html+='<span style="color:red">禁播</span>';
+				}else if(d.live_status==105){
+					html+='<span style="color:red">暂停中</span>';
+				}else if(d.live_status==106){
+					html+='<span style="color:red">异常</span>';
+				}else if(d.live_status==107){
+					html+='<span style="color:#aaa">已过期</span>';
+				}
+				return html;
+				*/
+				if(d.startTime > nowtime ) return '<span style="color:#333">未开始</span>';
+				if(d.startTime < nowtime && d.endTime >= nowtime){
+					return '<span style="color:green">进行中</span>';
+				}
+				if(d.endTime < nowtime) return '<span style="color:#aaa">已结束</span>';
+				return '';
+			}},
+      {field: 'status', title: '列表显示',templet:function(d){
+				if(d.status==0){
+					return '<span style="color:red">未开启</span>';
+				}else if(d.status==1){
+					return '<span style="color:green">已开启</span>';
+				}
+      }},
+      {field: 'operation', title: '操作',templet: function(d){
+				var html = '';
+				html += '<button class="table-btn" onclick="copyText(\'plugin-private://wx2b03c6e691cd7370/pages/live-player-plugin?room_id='+d.roomId+'\')">复制链接</button>';
+				//html += '<button class="table-btn" onclick="datadel('+d.id+')">删除</button>';
+				html += '<button class="table-btn" onclick="showpusherqrcode(\'__STATIC__/admin/img/liveqr.jpg\')">直播码</button>';
+				html += '<button class="table-btn" onclick="choosegoods('+d.roomId+')">选择商品</button>';
+				return html;
+			}}
+    ]]
+		,done: function(res, curr, count){
+			nowtime = res.nowtime
+		}
+  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	//选择商品
+	var chooseProductLayer;
+	function choosegoods(roomid){
+		chooseProductLayer = layer.open({type:2,title:'选择商品',content:"{:url('choosegoods')}/roomId/"+roomid,area:['900px','600px'],shadeClose:true});
+	}
+	//删除
+	function datadel(id){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id);
+		}
+		layer.confirm('确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('del')}",{ids:ids},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	//上下架
+	function setst(id,st){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id);
+		}
+		layer.confirm('确定要'+(st==0?'关闭':'开启')+'吗?',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('setst')}",{ids:ids,st:st},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	//查看主播端小程序码
+	function showpusherqrcode(qrcode){
+		var html = '';
+		html+='<div style="margin:20px">';
+		html+='	<div style="width:100%;margin:10px auto;text-align:center"><img src="'+qrcode+'" style="width:300px;height:300px"/></div>';
+		html+='	<div style="height:50px;line-height:25px;text-align:center">主播扫码进行直播</div>';
+		html+='</div>'
+		layer.open({type:1,'title':'主播端小程序码',area:['360px','450px'],shadeClose:true,'content':html})
+	}
+	//查看主播端小程序码
+	function showplayerqrcode(id,code){
+		var index = layer.load();
+		$.post("{:url('getplayerqr')}",{id:id},function(res){
+			layer.close(index);
+			var html = '';
+			html+='<div style="margin:20px">';
+			if(res.status==1){
+				html+='	<div style="width:100%;margin:10px auto;text-align:center"><img src="'+res.url+'" style="width:300px;height:300px"/></div>';
+			}else{
+				html+='	<div style="width:100%;margin:10px auto;text-align:center"><span style="color:red">'+res.msg+'</span></div>';
+			}
+			html+='	<div style="height:50px;line-height:25px;text-align:center">/pages/live/player?code='+code+'</div>';
+			html+='</div>'
+			layer.open({type:1,'title':'直播端小程序码',area:['360px','450px'],shadeClose:true,'content':html})
+		});
+	}
+	//从小程序同步
+	function tongbu(){
+		var index = layer.load();
+		$.post("{:url('tongbu')}",{},function(res){
+			layer.close(index);
+			dialog(res.msg,res.status);
+			tableIns.reload()
+		})
+	}
+	//查看官方直播房间信息
+	function showfj(){
+		var index = layer.load();
+		$.post("{:url('getwxlivelist')}",{},function(res){
+			layer.close(index);
+			if(res.status!=1){
+				dialog(res.msg)
+			}else{
+				var data = res.data
+				var html = '<div style="padding:0 10px">';
+				html+='<table class="layui-table">';
+				html+='<colgroup>';
+				html+='	<col width="100">';
+				html+='	<col width="350">';
+				html+='	<col>';
+				html+='</colgroup>';
+				html+='<thead>';
+				html+='	<tr>';
+				html+='		<th>房间号</th>';
+				html+='		<th>直播间信息</th>';
+				html+='		<th>直播状态</th>';
+				html+='		<th>操作</th>';
+				html+='	</tr> ';
+				html+='</thead>';
+				html+='<tbody>';
+				for(var i in data){
+				var d = data[i]
+				html+='	<tr>';
+				html+='		<td>'+d.roomid+'</td>';
+				html+='		<td>';
+				html+='			<img src="'+d.cover_img+'" style="max-width:100px;float:left"/>';
+				html+='			<div style="float: left;width:200px;margin-left: 10px;white-space:normal;line-height:20px;">';
+				html+='				<div style="width:100%;color:#333;font-size:16px">';
+				html+= 					d.name;
+				html+= '			</div>';
+				html+='				<div style="color:#999;padding-top:5px;">开播：'+date('Y-m-d H:i:s',d.start_time)+'</div>';
+				html+='				<div style="color:#999">结束：'+date('Y-m-d H:i:s',d.end_time)+'</div>';
+				html+='				<div style="color:#999">主播：'+d.anchor_name+'</div>';
+				html+='			</div>';
+				html+='		</td>';
+				html+='		<td>';
+				if(d.live_status==101){
+					html+='直播中';
+				}else if(d.live_status==102){
+					html+='未开始';
+				}else if(d.live_status==103){
+					html+='已结束';
+				}else if(d.live_status==104){
+					html+='禁播';
+				}else if(d.live_status==105){
+					html+='暂停中';
+				}else if(d.live_status==106){
+					html+='异常';
+				}else if(d.live_status==107){
+					html+='已过期';
+				}
+				html+='		</td>';
+				html+='		<td><a href="javascript:void(0)" onclick="copyText(\'plugin-private://wx2b03c6e691cd7370/pages/live-player-plugin?room_id='+d.roomid+'\')">复制链接</a></td>';
+				html+='	</tr>';
+				}
+				html+='</tbody>';
+				html+='</table>';
+				html+='</div>';
+				layer.open({type:1,'title':'房间列表',area:['800px','600px'],shadeClose:true,'content':html})
+			}
+		})
+	}
+	function copyText(text) {
+			var textarea = document.createElement("textarea"); //创建input对象
+			var currentFocus = document.activeElement; //当前获得焦点的元素
+			var toolBoxwrap = document.getElementById('NewsToolBox'); //将文本框插入到NewsToolBox这个之后
+			toolBoxwrap.appendChild(textarea); //添加元素
+			textarea.value = text;
+			textarea.focus();
+			if (textarea.setSelectionRange) {
+					textarea.setSelectionRange(0, textarea.value.length); //获取光标起始位置到结束位置
+			} else {
+					textarea.select();
+			}
+			try {
+					var flag = document.execCommand("copy"); //执行复制
+			} catch (eo) {
+					var flag = false;
+			}
+			toolBoxwrap.removeChild(textarea); //删除元素
+			currentFocus.focus();
+			if(flag) layer.msg('复制成功');
+			return flag;
+	}
+	</script>
+<div id="NewsToolBox"></div>
+	{include file="public/copyright"/}
+</body>
+</html>

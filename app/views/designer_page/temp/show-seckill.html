@@ -1,0 +1,173 @@
+<div class="dsn-mod dp-collage" ng-class="{'dsn-mod-select':Item.id == focus}" ng-style="{'background-color':Item.params.bgcolor,'margin':Item.params.margin_y+'px '+Item.params.margin_x+'px 0','padding':Item.params.padding_y+'px '+Item.params.padding_x+'px'}">
+	<div style="line-height: 170px; text-align: center; color: #999; font-size: 16px;width:100%" ng-show="Item.data == ''">一个商品都没有...</div>
+	<!--123排-->
+	{if getcustom('design_seckill')}
+	<div ng-show="Item.params.shopstyle=='2'" style="width: 100%;">
+		<div ng-show="Item.params.showtitle=='1'" style="width: 100%;">
+			<div ng-show="Item.params.titlestyle=='1'" class="dp-time">
+				<img src="{$Think.const.PRE_URL}/static/imgsrc/decoration_crush.png" alt="" class="dp-time-back"/>
+				<div class="dp-time-content">
+					<div class="dp-time-title">限时秒杀</div>
+					<div class="dp-time-text">
+						距离结束<div class="dp-time-time">09</div>:<div class="dp-time-time">09</div>:<div class="dp-time-time">09</div>
+					</div>
+				</div>
+			</div>
+			<div ng-show="Item.params.titlestyle=='2'" class="dp-bTime">
+				<img src="{$Think.const.PRE_URL}/static/imgsrc/decoration_crush.png" alt="" class="dp-bTime-back"/>
+				<div class="dp-bTime-content">
+					<div class="dp-bTime-title">限时秒杀</div>
+					<div class="dp-bTime-text">
+						距离结束<div class="dp-bTime-time">09</div>:<div class="dp-bTime-time">09</div>:<div class="dp-bTime-time">09</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	{/if}
+	
+	<div ng-show="Item.params.shopstyle=='1' || !Item.params.shopstyle" style="width: 100%;">
+		<div class="dp-collage-item" ng-show="Item.params.style=='1' || Item.params.style=='2' || Item.params.style=='3'">
+			<div class="item" ng-repeat="item in Item.data" ng-init="index = $index" style="{{Item.params.style==2 ? 'width:49%;margin-right:'+(index%2==0?'2%':0) : (Item.params.style==3 ? 'width:32%;margin-right:'+(index%3!=2?'2%':0) :'width:100%')}}">
+				<div class="product-pic">
+					<img class="image" ng-src="{{item.pic}}"/>
+					<img class="saleimg" ng-src="{{Item.params.saleimg}}" ng-if="Item.params.saleimg!=''"/>
+				</div>
+				<div class="product-info">
+					<div class="p1" ng-if="Item.params.showname == 1">{{item.name}}</div>
+					<div class="p2">
+						<div class="p2-1" ng-if="Item.params.showprice != '0'">
+							<span class="t1" style="color:{:t('color1')}"><span style="font-size:12px">￥</span>{{item.sell_price}}</span>
+							<span class="t2" ng-if="Item.params.showprice == '1' && item.market_price*1 > item.sell_price*1">￥{{item.market_price}}</span>
+						</div>
+					</div>
+					<div class="p4" ng-if="Item.params.showtime == 1 && Item.params.style!='3'">
+						<div ng-if="item.seckill_status == 2">活动已结束</div>
+						<div ng-if="item.seckill_status == 1" class="flex-row"><div class="h24">还剩余</div><div class="flex1"></div><div><span>{{item.hour}}</span>:<span>{{item.minute}}</span>:<span>{{item.second}}</span></div></div>
+						<div ng-if="item.seckill_status == 0" class="flex-row"><div class="h24">距开抢</div><div class="flex1"></div><div><span>{{item.hour}}</span>:<span>{{item.minute}}</span>:<span>{{item.second}}</span></div></div>
+					</div>
+					<div class="p3">
+						<div class="p3-1" style="background:rgba({:t('color1rgb')},0.12);color:{:t('color1')}">秒杀</div>
+						<div class="p3-2" ng-if="Item.params.showsales=='1' && item.sales>0"><span style="overflow:hidden">已抢{{item.sales}}件</span></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="dp-collage-itemlist" ng-show="Item.params.style=='list'">
+			<div class="item" ng-repeat="item in Item.data">
+				<div class="product-pic">
+					<img class="image" ng-src="{{item.pic}}" mode="widthFix"/>
+					<img class="saleimg" ng-src="{{Item.params.saleimg}}" ng-if="Item.params.saleimg!=''"/>
+				</div>
+				<div class="product-info">
+					<div class="p1" ng-if="Item.params.showname == 1">{{item.name}}</div>
+					<div class="p2" ng-if="Item.params.showprice != '0'">
+						<span class="t1" style="color:{:t('color1')}"><span style="font-size:12px;padding-right:1px">￥</span>{{item.sell_price}}</span>
+						<span class="t2" ng-if="Item.params.showprice == '1' && item.market_price*1 > item.sell_price*1">￥{{item.market_price}}</span>
+					</div>
+					<div class="p4" ng-if="Item.params.showtime == 1">
+						<div ng-if="item.seckill_status == 2">活动已结束</div>
+						<div ng-if="item.seckill_status == 1" class="flex-row"><div class="h24">距活动结束</div><div class="flex1"></div>
+							<div ng-if="item.day > 0"><span>{{item.day}}</span>天<span>{{item.day_hour}}</span>:<span>{{item.minute}}</span>:<span>{{item.second}}</span></div>
+							<div ng-else><span>{{item.hour}}</span>:<span>{{item.minute}}</span>:<span>{{item.second}}</span></div>
+						</div>
+						<div ng-if="item.seckill_status == 0" class="flex-row"><div class="h24">距活动开始</div><div class="flex1"></div>
+							<div ng-if="item.day > 0"><span>{{item.day}}</span>天<span>{{item.day_hour}}</span>:<span>{{item.minute}}</span>:<span>{{item.second}}</span></div>
+							<div ng-else><span>{{item.hour}}</span>:<span>{{item.minute}}</span>:<span>{{item.second}}</span></div>
+						</div>
+					</div>
+					<div class="p3">
+						<div class="p3-1" style="background:rgba({:t('color1rgb')},0.12);color:{:t('color1')}">秒杀</div>
+						<div class="p3-2" ng-if="Item.params.showsales=='1' && item.sales>0"><span style="overflow:hidden">已抢{{item.sales}}件</span></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="dp-collage-itemline" ng-show="Item.params.style=='line'">
+			<div class="item" ng-repeat="item in Item.data">
+				<div class="product-pic">
+					<img class="image" ng-src="{{item.pic}}"/>
+					<img class="saleimg" ng-src="{{Item.params.saleimg}}" ng-if="Item.params.saleimg!=''"/>
+				</div>
+				<div class="product-info">
+					<div class="p1" ng-if="Item.params.showname == 1">{{item.name}}</div>
+					<div class="p2">
+						<div class="p2-1" ng-if="Item.params.showprice != '0'">
+							<span class="t1" style="color:{:t('color1')}"><span style="font-size:12px">￥</span>{{item.sell_price}}</span>
+							<span class="t2" ng-if="Item.params.showprice == '1' && item.market_price*1 > item.sell_price*1">￥{{item.market_price}}</span>
+						</div>
+					</div>
+					<div class="p3">
+						<div class="p3-1" style="background:rgba({:t('color1rgb')},0.12);color:{:t('color1')}">秒杀</div>
+						<div class="p3-2" ng-if="Item.params.showsales=='1' && item.sales>0"><span style="overflow:hidden">已抢{{item.sales}}件</span></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 
+		shopstyle商品风格 风格一(1) 风格二(2)
+		showtitle标题倒计时 显示(1) 不显示(2)
+		titlestyle标题风格 风格一(1) 风格二(2)
+	-->
+	{if getcustom('design_seckill')}
+	<div ng-show="Item.params.shopstyle=='2'" style="width: 100%;">
+		<div class="dp-collage-item" ng-show="Item.params.style=='2'">
+			<div class="item" ng-repeat="item in Item.data" ng-init="index = $index" style="{{Item.params.style==2 ? 'width:49%;margin-right:'+(index%2==0?'2%':0) : (Item.params.style==3 ? 'width:32%;margin-right:'+(index%3!=2?'2%':0) :'width:100%')}}">
+				<div class="product-pic">
+					<img class="image" ng-src="{{item.pic}}"/>
+					<img class="saleimg" ng-src="{{Item.params.saleimg}}" ng-if="Item.params.saleimg!=''"/>
+				</div>
+				<div class="product-info">
+					<div class="p1" ng-if="Item.params.showname == 1">{{item.name}}</div>
+					<div class="rate" ng-if="Item.params.style=='2'">
+						<img src="{$Think.const.PRE_URL}/static/imgsrc/decoration_rate.png"/>
+						<span class="text">仅剩1件</span>
+					</div>
+					<div class="p5">原价:<span class="text">￥{{item.market_price}}</span></div>
+					<div class="price" style="color:{:t('color1')}">
+						<span class="price_text">￥{{item.sell_price}}</span>
+						<div class="price_add" style="background:{:t('color1')}">+</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="dp-collage-itemlist" ng-show="Item.params.style=='list'">
+			<div class="item" ng-repeat="item in Item.data">
+				<div class="product-pic product-pic1">
+					<img class="image" ng-src="{{item.pic}}" mode="widthFix"/>
+					<img class="saleimg" ng-src="{{Item.params.saleimg}}" ng-if="Item.params.saleimg!=''"/>
+				</div>
+				<div class="product-info">
+					<div class="p5" ng-if="Item.params.showname == 1">{{item.name}}</div>
+					<!-- <div class="p6">平价实用</div> -->
+					<div class="rate"><img width="100" src="{$Think.const.PRE_URL}/static/imgsrc/decoration_rate.png"/><span>仅剩1件</span></div>
+					<div ng-if="Item.params.showprice != '0'">
+						<div class="p7">原价:<span>{{item.market_price}}</span></div>
+						<div ng-if="Item.params.showprice == '1' && item.market_price*1 > item.sell_price*1" style="color:{:t('color1')}" class="p8">￥{{item.sell_price}}</div>
+					</div>
+					<div style="background:{:t('color1')}" class="btn">马上抢</div>
+				</div>
+			</div>
+		</div>
+		<div class="dp-collage-itemline1" ng-show="Item.params.style=='line'">
+			<div class="item" ng-repeat="item in Item.data">
+				<div class="product-pic">
+					<img class="image" ng-src="{{item.pic}}"/>
+					<img class="saleimg" ng-src="{{Item.params.saleimg}}" ng-if="Item.params.saleimg!=''"/>
+					<div class="tag" style="background:{:t('color1')}">秒杀</div>
+				</div>
+				<div class="product-info">
+					<div class="p1" ng-if="Item.params.showname == 1">{{item.name}}</div>
+					<div style="background:rgba({:t('color1rgb')},0.12);color:{:t('color1')}" class="surplus">剩余1件</div>
+					<div class="price" style="color:{:t('color1')}">
+						<span class="price_text">￥{{item.sell_price}}</span>
+						<div class="price_add" style="background:{:t('color1')}">+</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	{/if}
+</div>

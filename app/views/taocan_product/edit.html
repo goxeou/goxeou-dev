@@ -1,0 +1,496 @@
+<!--custom_file(taocan_product)-->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>套餐商品管理</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	#ggnamediv .layui-input,#ggvaldiv .layui-input{ display:inline;height:30px}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加商品{else}<i class="fa fa-pencil"></i> 编辑商品{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					{if $info['ischecked']==2}<blockquote class="layui-elem-quote" style="color:red">商品未审核通过，驳回原因：{$info.check_reason}</blockquote>{/if}
+					<div class="layui-form form-label-w6">
+						<div class="layui-tab" lay-filter="mytab">
+							<ul class="layui-tab-title">
+								<li class="layui-this" lay-id="1">商品基本信息</li>
+								<li lay-id="2">商品详情</li>
+							</ul>
+							<div class="layui-tab-content">
+								<div class="layui-tab-item layui-show">
+									<input type="hidden" name="id" value="{$info['id']}"/>
+									<div class="layui-form-item">
+										<label class="layui-form-label"><span class="redstar">*</span>商品名称：</label>
+										<div class="layui-input-inline" style="width:300px">
+											<input type="text" name="info[name]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info['name']}">
+										</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label">商品主图：</label>
+										<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="pic" upload-preview="picPreview" onclick="uploader(this)">上传图片</button>
+										<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：640×640像素</div>
+										<div id="picPreview" class="picsList-class-padding">
+											<div class="layui-imgbox imgbox-required">
+												<div class="layui-imgbox-img"><img src="{$info['pic']}"/></div>
+												<input type="text" name="info[pic]" id="pic" class="layui-input" value="{$info['pic']}">
+											</div>
+										</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label">商品图片：</label>
+										<input type="hidden" name="info[pics]" value="{$info['pics']}" id="pics">
+										<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this,true)" upload-input="pics" upload-preview="picList" >批量上传</button>
+										<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：640×640像素</div>
+										<div id="picList" class="picsList-class-padding">
+											{if $info['pics']}
+											{php}$pics = explode(',',$info['pics']);{/php}
+											{foreach $pics as $pic}
+											<div class="layui-imgbox">
+												<a class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().remove();getpicsval('pics','picList')" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+												<span class="layui-imgbox-img"><img src="{$pic}"></span>
+											</div>
+											{/foreach}{/if}
+										</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label">商品卖点：</label>
+										<div class="layui-input-inline" style="width:400px">
+											<input type="text" name="info[sellpoint]" class="layui-input" value="{$info['sellpoint']}">
+										</div>
+										<div class="layui-form-mid layui-word-aux">在商品详情页标题下面展示卖点信息，建议60字以内</div>
+									</div>
+									<div class="layui-form-item" style="clear:both;">
+										<label class="layui-form-label">套餐商品：</label>
+										<div class="layui-input-inline">
+											<table id="setproductdiv"  class="layui-table choose-product" style="width:700px">
+												<thead>
+												<tr>
+													<th>商品ID</th>
+													<th>商品名称</th>
+													<th>商品规格</th>
+													<th>最大购买数量</th>
+													<th>操作</th>
+												</tr>
+												</thead>
+												{if $productdata}
+												{foreach $productdata as $k=>$ff}
+												<tr class="choose-tr-list">
+													<td>{$ff.id}</td>
+													<td><input type="hidden" name="product_ids[]" value="{$ff.id}">{$ff.name}</td>
+													<td>
+														<select name="product_guige[{$ff.id}]" >
+															{foreach $ff['gglist'] as $gname}
+															<option {if $taocan_guige[$ff['id']]==$gname['id']}selected{/if} value="{$gname['id']}">{$gname['name']}</option>
+															{/foreach}
+														</select>
+													</td>
+													<td><input type="text" class="layui-input" name="product_nums[{$ff.id}]" value="{$product_nums[$ff['id']]}"></td>
+													<td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delProduct(this,{$ff.id})">删除</button></td>
+												</tr>
+												{/foreach}
+												{/if}
+												<tr class="choose-tr-add">
+													<td colspan="5" align="center"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="showChooseProduct()">添加</button></td>
+												</tr>
+											</table>
+											<input type="hidden" name="info[productids]" value="{$info.productids}"/>
+										</div>
+									</div>
+									<script>
+										var chooseProductLayer;
+										function showChooseProduct(){
+											var url = "{:url('ShopProduct/chooseproduct')}/type/2";
+											chooseProductLayer = layer.open({type:2,title:'选择商品',content:url,area:['1000px','600px'],shadeClose:true});
+										}
+										function choosepro2(res){
+											var product = res.product;
+											var gglist = res.gglist;
+											console.log(gglist);
+											var chooseClassName = '.choose-product';
+											console.log(product);
+											layer.close(chooseProductLayer);
+											var productids = [];
+											var isadd = 0;
+											$(chooseClassName).find('.choose-tr-list').each(function(){
+												var thisfid = $(this).find('td:eq(0)').html();
+												if(thisfid == product.id){
+													isadd = 1
+													dialog('该商品已添加过了');
+												}
+												productids.push(thisfid)
+											})
+											if(isadd == 0){
+												productids.push(product.id)
+												var html = '<tr class="choose-tr-list">' +
+														'<td>'+product.id+'</td>' +
+														'<td><input type="hidden" name="product_ids[]" value="'+product.id+'">'+product.name+'</td>';
+												html +='	<td><div class="layui-input-inline"><select name="product_guige['+product.id+']" >';
+												$.each(gglist,function(index,value){
+													html +='			<option value="'+value.id+'">'+value.name+'</option>';
+												})
+												html +='		</select></div></td>';
+												html +='<td><input type="text" class="layui-input" name="product_nums['+product.id+']" value=""></td>';
+												html +=	'<td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delProduct(this,'+product.id+')">删除</button></td>' +
+														'</tr>'
+												$(chooseClassName).find('.choose-tr-add').before(html);
+												layui.form.render('select');
+											}
+											console.log(productids)
+										}
+										function delProduct(obj,fid){
+											$(obj).parent().parent().remove();
+											var productids = [];
+											$('.choose-tr-list').each(function(){
+												productids.push($(this).find('td:eq(0)').html())
+											})
+											$("input[name='info[productids]']").val(productids.join(','));
+										}
+									</script>
+									<div class="layui-form-item">
+										<label class="layui-form-label"><span class="redstar">*</span>礼包数量：</label>
+										<div class="layui-input-inline">
+											<input type="text" name="info[perlimit]" lay-verify="required" lay-verType="tips" value="{$info['id']?$info['perlimit']:'0'}" class="layui-input">
+										</div>
+										<div class="layui-form-mid layui-word-aux">选择产品的数量达到礼包数量才可以购买</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label">配送模板：</label>
+										<div class="layui-input-inline" style="width:500px">
+											<input type="radio" name="info[freighttype]" value="1" title="全部模板" {if !$info['id'] || $info['freighttype']==1}checked{/if} lay-filter="freighttypeset"/>
+											<input type="radio" name="info[freighttype]" value="0" title="选择模板" {if $info['id'] && $info['freighttype']==0}checked{/if} lay-filter="freighttypeset"/>
+											<input type="radio" name="info[freighttype]" value="3" title="自动发货" {if $info['id'] && $info['freighttype']==3}checked{/if} lay-filter="freighttypeset"/>
+<!--											<input type="radio" name="info[freighttype]" value="4" title="在线卡密" {if $info['id'] && $info['freighttype']==4}checked{/if} lay-filter="freighttypeset"/>-->
+										</div>
+										
+										<div id="freighttype3" style="{if $info['freighttype']!=3}display:none{/if}">
+											<div class="layui-form-item">
+												<label class="layui-form-label"></label>
+												<div class="layui-input-inline" style="width:500px">
+													<textarea type="text" name="info[freightcontent]" placeholder="请输入发货信息" class="layui-textarea">{$info.freightcontent}</textarea>
+												</div>
+											</div>
+										</div>
+										<div id="freighttype4" style="{if $info['freighttype']!=4}display:none{/if}">
+											<div class="layui-form-item">
+												<label class="layui-form-label"></label>
+												<div class="layui-form-mid">请保存商品信息后在商品列表中上传卡密信息；用户购买几件将发送几个卡密信息</div>
+											</div>
+										</div>
+
+										<div id="setfreight" style="clear:both;{if !$info['id'] || $info['freighttype']!=0}display:none{/if}">
+											<label class="layui-form-label"></label>
+											<div class="layui-input-inline" style="width:auto">
+												<table id="setfreightdiv"  class="layui-table" style="width:500px">
+													<thead>
+													<tr>
+														<th>模板ID</th>
+														<th>模板名称</th>
+														<th>操作</th>
+													</tr>
+													</thead>
+													
+													{if $freightdata}
+													{foreach $freightdata as $k=>$ff}
+													<tr class="freightlisttr"><td>{$ff.id}</td><td>{$ff.name}</td><td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delfreight(this,{$ff.id})">删除</button></td></tr>
+													{/foreach}
+													{/if}
+													<tr id="freightaddtr">
+														<td colspan="3"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="showChooseFreight()">添加</button></td>
+													</tr>
+												</table>
+												<input type="hidden" name="info[freightdata]" value="{$info.freightdata}"/>
+											</div>
+										</div>
+									</div>
+									<script>
+									var chooseFreightLayer;
+									function showChooseFreight(){
+										chooseFreightLayer = layer.open({type:2,title:'选择配送模板',content:"{:url('Freight/choosefreight')}",area:['1000px','600px'],shadeClose:true});
+									}
+									function chooseFreight(fid,fname){
+										layer.close(chooseFreightLayer);
+										var freightlistids = [];
+										var isadd = 0;
+										$('.freightlisttr').each(function(){
+											var thisfid = $(this).find('td:eq(0)').html();
+											if(thisfid == fid){
+												isadd = 1
+												dialog('该配送模板已添加过了');
+											}
+											freightlistids.push(thisfid)
+										})
+										if(isadd == 0){
+											freightlistids.push(fid)
+											$("input[name='info[freightdata]']").val(freightlistids.join(','));
+											$('#freightaddtr').before('<tr class="freightlisttr"><td>'+fid+'</td><td>'+fname+'</td><td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delfreight(this,'+fid+')">删除</button></td></tr>');
+										}
+										console.log(freightlistids)
+									}
+									function delfreight(obj,fid){
+										$(obj).parent().parent().remove();
+										var freightlistids = [];
+										$('.freightlisttr').each(function(){
+											freightlistids.push($(this).find('td:eq(0)').html())
+										})
+										$("input[name='info[freightdata]']").val(freightlistids.join(','));
+									}
+									</script>
+									
+									
+									<div class="layui-form-item">
+										<label class="layui-form-label">市场价：</label>
+										<div class="layui-input-inline">
+											<input type="text" name="info[market_price]" value="{$info.market_price}" class="layui-input">
+										</div>
+										<div class="layui-form-mid">元</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label">成本价：</label>
+										<div class="layui-input-inline">
+											<input type="text" name="info[cost_price]" value="{$info.cost_price}"  class="layui-input">
+										</div>
+										<div class="layui-form-mid">元</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label">销售价格：</label>
+										<div class="layui-input-inline">
+											<input type="text" name="info[sell_price]" value="{$info.sell_price}" oninput="getusd(this)" class="layui-input">
+										</div>
+										<div class="layui-form-mid">元</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label">会员价：</label>
+										<?php $level_price_arr = json_decode($info['level_price'],true); ?>
+										{foreach $levellist as $level}
+										<div class="layui-input-inline layui-module-itemL">
+											<div>{$level['name']}(元)</div>
+											<input type="text" name="level_price[{$level['id']}]" class="layui-input" value="{$level_price_arr[$level['id']]}" placeholder="">
+										</div>
+										{/foreach}
+										<div class="layui-form-mid layui-word-aux layui-clear">不设置或设置0时购买按正常销售价格，设置了会员价等级分销中的等级折扣失效</div>
+									</div>
+
+
+									<div class="layui-form-item">
+										<label class="layui-form-label">重量：</label>
+										<div class="layui-input-inline">
+											<input type="text" name="info[weight]" value="{$info['id']?$info['weight']:'100'}" class="layui-input">
+										</div>
+										<div class="layui-form-mid">克</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label">库存：</label>
+										<div class="layui-input-inline">
+											<input type="text" name="info[stock]" value="{$info['id']?$info['stock']:'1000'}" class="layui-input">
+										</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label">销量：</label>
+										<div class="layui-input-inline">
+											<input type="text" name="info[sales]" value="{$info['id']?$info['sales']:'0'}" class="layui-input">
+											<input type="hidden" name="info[oldsales]" value="{$info['id']?$info['sales']:'0'}" class="layui-input">
+										</div>
+									</div>
+
+
+									<div class="layui-form-item">
+										<label class="layui-form-label">序号：</label>
+										<div class="layui-input-inline">
+											<input type="text" name="info[sort]" value="{$info['id']?$info['sort']:'0'}" class="layui-input">
+										</div>
+										<div class="layui-form-mid layui-word-aux">用于排序,越大越靠前</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label">每人限购：</label>
+										<div class="layui-input-inline">
+											<input type="text" name="info[buy_limit]" value="{$info['id']?$info['buy_limit']:'0'}" class="layui-input">
+										</div>
+										<div class="layui-form-mid layui-word-aux">每人最多可购买多少件，0表示不限购</div>
+									</div>
+
+									{if $bid==0 || $bset['product_showset']==1}
+									<div class="layui-form-item">
+										<label class="layui-form-label">显示条件：</label>
+										<div class="layui-input-inline" style="width:800px">
+											<input type="checkbox" name="info[showtj][]" value="-1" title="所有人" lay-skin="primary" {if !$info['id'] || in_array('-1',$info['showtj'])}checked{/if}/>
+											<input type="checkbox" name="info[showtj][]" value="0" title="关注用户" lay-skin="primary" {if in_array('0',$info['showtj'])}checked{/if}/>
+											{foreach $levellist as $v}
+											<input type="checkbox" name="info[showtj][]" value="{$v.id}" title="{$v.name}" lay-skin="primary" {if in_array($v['id'],$info['showtj'])}checked{/if}/>
+											{/foreach}
+										</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label">购买条件：</label>
+										<div class="layui-input-inline" style="width:800px">
+											<input type="checkbox" name="info[gettj][]" value="-1" title="所有人" lay-skin="primary" {if !$info['id'] || in_array('-1',$info['gettj'])}checked{/if} lay-filter="gettjset"/>
+											<input type="checkbox" name="info[gettj][]" value="0" title="关注用户" lay-skin="primary" {if in_array('0',$info['gettj'])}checked{/if}/>
+											{foreach $levellist as $v}
+											<input type="checkbox" name="info[gettj][]" value="{$v.id}" title="{$v.name}" lay-skin="primary" {if in_array($v['id'],$info['gettj'])}checked{/if}/>
+											{/foreach}
+										</div>
+									</div>
+									{/if}
+
+									<div class="layui-form-item">
+										<label class="layui-form-label">状态：</label>
+										<div class="layui-input-inline">
+											<input type="radio" name="info[status]" value="1" title="已上架" {if !$info['id'] || $info['status']==1}checked{/if}/>
+											<input type="radio" name="info[status]" value="0" title="未上架" {if $info['id'] && $info['status']==0}checked{/if}/>
+										</div>
+									</div>
+									
+									<div class="layui-form-item">
+										<label class="layui-form-label"></label>
+										<div class="layui-input-block">
+											<button class="layui-btn layui-btn-normal" onclick="gonext(2)">下一步:编辑商品详情</button>
+											<button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+										</div>
+									</div>
+
+								</div>
+								<div class="layui-tab-item">
+									<?php
+									$pagetitle='商品详情';
+									$pagedata= $info['detail'] && json_decode($info['detail']) ? $info['detail'] : '[{"id":"M0000000000000","temp":"richtext","params":{bgcolor:"#FFFFFF",margin_x:"0",margin_y:"0",padding_x:"10",padding_y:"10","quanxian":{"all":true},"platform":{"all":true}},"data":"","other":"","content":""}]';
+									?>
+									{include file="designer_page/designer_editor" /}
+
+									<div class="layui-form-item">
+										<label class="layui-form-label"></label>
+										<div class="layui-input-block">
+											<button class="layui-btn layui-btn-normal" onclick="gonext(1)">上一步:编辑商品参数</button>
+											<button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+      </div>
+    </div>
+  </div>
+	<script>
+		layui.form.on('radio(group_status)',function(data){
+	        if(data.value == 1){
+	            $('.group_status1').show();
+	        }else{
+	            $('.group_status1').hide();
+	        }
+	    })
+		//日期时间选择器
+		layui.laydate.render({ 
+			elem: '#starttime',
+			type: 'datetime',
+			trigger: 'click'
+		});
+		layui.laydate.render({ 
+			elem: '#endtime',
+			type: 'datetime',
+			trigger: 'click'
+		});
+		//var ueditor = UE.getEditor('content');
+		layui.form.on('radio(freighttypeset)', function(data){
+			if(data.value == '1'){
+				$('#setfreight').hide();
+				$('#freighttype3').hide();
+				$('#freighttype4').hide();
+			}else if(data.value == '3'){
+				$('#setfreight').hide();
+				$('#freighttype3').show();
+				$('#freighttype4').hide();
+			}else if(data.value == '4'){
+				$('#setfreight').hide();
+				$('#freighttype3').hide();
+				$('#freighttype4').show();
+			}else{
+				$('#setfreight').show();
+				$('#freighttype3').hide();
+				$('#freighttype4').hide();
+			}
+		})
+		layui.form.on('radio(commissionset)', function(data){
+			if(data.value == '1'){
+				$('#commissionset1').show();
+				$('#commissionset2').hide();
+				$('#commissionset3').hide();
+			}else if(data.value == '2'){
+				$('#commissionset1').hide();
+				$('#commissionset2').show();
+				$('#commissionset3').hide();
+			}else if(data.value == '3'){
+				$('#commissionset1').hide();
+				$('#commissionset2').hide();
+				$('#commissionset3').show();
+			}else{
+				$('#commissionset1').hide();
+				$('#commissionset2').hide();
+				$('#commissionset3').hide();
+			}
+		});
+		layui.form.on('radio(scoredkmaxset)', function(data){
+			if(data.value == '1'){
+				$('#scoredkmaxset1').show();
+				$('#scoredkmaxunit').html('%');
+			}else if(data.value == '2'){
+				$('#scoredkmaxset1').show();
+				$('#scoredkmaxunit').html('元');
+			}else{
+				$('#scoredkmaxset1').hide();
+			}
+		})
+		function getusd(obj){
+			var price = obj.value;
+			var usdrate = '{$usdrate}';
+			var usdprice = (price/usdrate).toFixed(2);
+			$("#usd_sellprice").val(usdprice);	
+		}
+		function getusd2(obj,key){
+			var price = obj.value;
+			var usdrate = '{$usdrate}';
+			var usdprice = (price/usdrate).toFixed(2);
+			$("#usd_money"+key).val(usdprice);	
+		}
+
+
+		function gonext(layid){
+			$(window).scrollTop(0);
+			layui.element.tabChange('mytab', layid);
+		}
+
+		</script>
+
+	<script>
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		//field['info[detail]'] = ueditor.getContent();
+		field['info[detail]'] = geteditordata();
+		//console.log(field);return;
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status==1){
+				setTimeout(function(){
+					parent.layer.closeAll();
+					parent.tableIns.reload();
+				},1000)
+			}
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

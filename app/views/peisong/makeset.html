@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{:t('码科跑腿')}设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header"><i class="fa fa-cog"></i> {:t('码科跑腿')}设置</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w6" lay-filter="">
+						<blockquote class="layui-elem-quote">用于对接{:t('码科跑腿')}，不需要对接{:t('码科跑腿')}不用配置，开启后则使用{:t('码科跑腿')}进行配送，不再使用本系统自带的同城配送模块<br>如果使用{:t('码科跑腿')}大客户模块，主商城的店铺id填写-1 多商户的店铺id填写商户id</blockquote>
+						<div class="layui-form-item">
+							<label class="layui-form-label">状态：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[make_status]" value="1" {if $info['make_status']==1}checked{/if} title="开启"/>
+								<input type="radio" name="info[make_status]" value="0" {if $info['make_status']==0}checked{/if} title="关闭"/>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">{:t('码科')}模块域名：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[make_domain]" class="layui-input" value="{$info.make_domain}">
+							</div>
+							<div class="layui-form-mid">只填写域名</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">小程序AppId：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[make_appid]" class="layui-input" value="{$info.make_appid}">
+							</div>
+							<div class="layui-form-mid">{:t('码科')}后台获取</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">Token：</label>
+							<div class="layui-input-inline" style="width:350px">
+								<input type="text" name="info[make_token]" class="layui-input" value="{$info.make_token}">
+							</div>
+							<div class="layui-form-mid">{:t('码科')}后台获取</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">扣商家配送费：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[make_shopkoufei]" value="1" {if $info['make_shopkoufei']==1}checked{/if} title="开启"/>
+								<input type="radio" name="info[make_shopkoufei]" value="0" {if $info['make_shopkoufei']==0}checked{/if} title="关闭"/>
+							</div>
+							<div class="layui-form-mid">开启后商家选择{:t('码科')}配送时需要扣配送费</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		$.post("{:url('save2')}",field,function(data){
+			dialog(data.msg,data.status,data.url);
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

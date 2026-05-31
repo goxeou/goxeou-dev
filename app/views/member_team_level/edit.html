@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{:t('团队等级')}设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加{:t('团队等级')}{else}<i class="fa fa-pencil"></i> 编辑{:t('团队等级')}{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form" lay-filter="">
+						<input type="hidden" name="info[id]" value="{$info.id}">
+						<div class="layui-form-item">
+							<label class="layui-form-label" style="width:100px">排序</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[sort]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.sort}">
+							</div>
+							<div class="layui-form-mid layui-word-aux">用于升级顺序判断，数字越大等级越高</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label" style="width:100px">等级名称：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[name]" value="{$info.name}" lay-verify="required" lay-verType="tips" autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label" style="width:100px">等级图标：</label>
+							<input type="hidden" name="info[icon]" id="icon" lay-verType="tips" class="layui-input" value="{$info.icon}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this)" upload-input="icon" upload-preview="iconPreview">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：50×50像素</div>
+							<div id="iconPreview" style="float:left;padding-top:10px;padding-left:130px;clear: both;">
+								<div class="layui-imgbox" style="width:50px;height:50px"><div class="layui-imgbox-img"><img src="{$info.icon}"/></div></div>
+							</div>
+						</div>
+						<div class="layui-form-item" style="margin-bottom:5px">
+							<label class="layui-form-label" style="width:100px">升级条件1：</label>
+							<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">自身会员等级</div>
+					     	<div class="layui-input-inline" style="width:120px">
+								<input style="border-radius:0 2px 2px 0" type="text" name="info[up_self_levelid]" class="layui-input" value="{$info.up_self_levelid}">
+							</div>
+							<div class="layui-form-mid">或</div>
+							<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">自身团队等级</div>
+							<div class="layui-input-inline" style="width:120px">
+								<input style="border-radius:0 2px 2px 0" type="text" name="info[up_self_teamid]" class="layui-input" value="{$info.up_self_teamid}">
+							</div>
+							<div class="layui-form-mid">等级ID：0表示不限制等级</div>
+						</div>
+						<div class="layui-form-item" style="margin-bottom:5px">
+							<label class="layui-form-label" style="width:100px">升级条件2：</label>
+							<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">下级总人数满</div>
+							<div class="layui-input-inline" style="width: 120px;">
+								<input style="border-radius:0 2px 2px 0" type="text" name="info[up_fxdowncount]" class="layui-input" value="{$info.up_fxdowncount}">
+							</div>
+							<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">级数</div>
+							<div class="layui-input-inline" style="width:70px">
+								<input style="border-radius:0 2px 2px 0" type="text" name="info[up_fxdownlevelnum]" class="layui-input" value="{$info.up_fxdownlevelnum}">
+							</div>
+							<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">会员等级ID</div>
+							<div class="layui-input-inline" style="width:120px">
+								<input style="border-radius:0 2px 2px 0" type="text" name="info[up_fxdownlevelid]" class="layui-input" value="{$info.up_fxdownlevelid}">
+							</div>
+							<div class="layui-form-mid">且</div>
+							<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">下级总人数满</div>
+							<div class="layui-input-inline" style="width: 120px;">
+								<input style="border-radius:0 2px 2px 0" type="text" name="info[up_fxdowncount2]" class="layui-input" value="{$info.up_fxdowncount2}">
+							</div>
+							<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">级数</div>
+							<div class="layui-input-inline" style="width:70px">
+								<input style="border-radius:0 2px 2px 0" type="text" name="info[up_fxdownlevelnum2]" class="layui-input" value="{$info.up_fxdownlevelnum2}">
+							</div>
+							<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">团队等级ID</div>
+							<div class="layui-input-inline" style="width:120px">
+								<input style="border-radius:0 2px 2px 0" type="text" name="info[up_fxdownlevelid2]" class="layui-input" value="{$info.up_fxdownlevelid2}">
+							</div>
+						</div>
+						
+				    	<div class="layui-form-item" >
+							<label class="layui-form-label" style="width:100px">升级条件3：</label>
+							<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">下级总订单金额满</div>
+							<div class="layui-input-inline" style="width: 120px;">
+								<input style="border-radius:0 2px 2px 0" type="text" name="info[up_fxordermoney]" class="layui-input" value="{$info.up_fxordermoney}">
+							</div>
+							<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">级数</div>
+							<div class="layui-input-inline" style="width:70px">
+								<input style="border-radius:0 2px 2px 0" type="text" name="info[up_fxorderlevelnum]" class="layui-input" value="{$info.up_fxorderlevelnum}">
+							</div>
+							<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">会员等级ID</div>
+							<div class="layui-input-inline" style="width:120px">
+								<input style="border-radius:0 2px 2px 0" type="text" name="info[up_fxorderlevelid]" class="layui-input" value="{$info.up_fxorderlevelid}">
+							</div>
+						</div>	
+						<!--<div class="layui-form-item" >-->
+						<!--	<label class="layui-form-label" style="width:100px">升级条件3：</label>-->
+						<!--	<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">报单满</div>-->
+						<!--	<div class="layui-input-inline" style="width:100px">-->
+						<!--		<input style="border-radius:0 2px 2px 0" type="text" name="info[pronum]" class="layui-input" value="{$info.pronum}">-->
+						<!--	</div>-->
+						<!--	<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">单</div>-->
+						<!--	<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">商品(商品ID)</div>-->
+						<!--	<div class="layui-input-inline" style="width: 100px;">-->
+						<!--		<input style="border-radius:0 2px 2px 0" type="text" name="info[up_proid]" class="layui-input" value="{$info.up_proid}">-->
+						<!--	</div>-->
+							
+						<!--</div>-->
+					
+						<!--<div class="layui-form-item">-->
+						<!--	<label class="layui-form-label" style="width:100px">每单奖励：</label>-->
+						<!--	<div class="layui-input-inline">-->
+						<!--		<input type="text" name="info[rate1]" value="{$info.rate1}" class="layui-input">-->
+						<!--	</div>-->
+						<!--	<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">元</div>-->
+						<!--</div>-->
+						<!--<div class="layui-form-item" >-->
+						<!--	<label class="layui-form-label" style="width:100px">升级条件3：</label>-->
+						<!--	<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">报单满</div>-->
+						<!--	<div class="layui-input-inline" style="width:100px">-->
+						<!--		<input style="border-radius:0 2px 2px 0" type="text" name="info[pronum]" class="layui-input" value="{$info.pronum}">-->
+						<!--	</div>-->
+						<!--	<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">单</div>-->
+						<!--	<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">商品(商品ID)</div>-->
+						<!--	<div class="layui-input-inline" style="width: 100px;">-->
+						<!--		<input style="border-radius:0 2px 2px 0" type="text" name="info[up_proid]" class="layui-input" value="{$info.up_proid}">-->
+						<!--	</div>-->
+							
+						<!--</div>-->
+						
+						<!--<div class="layui-form-item">-->
+						<!--	<label class="layui-form-label" style="width:100px">平一级：</label>-->
+						<!--	<div class="layui-input-inline">-->
+						<!--		<input type="text" name="info[rate2]" value="{$info.rate2}" class="layui-input">-->
+						<!--	</div>-->
+						<!--	<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">%</div>-->
+						<!--</div>-->
+				  <!--       <div class="layui-form-item">-->
+						<!--	<label class="layui-form-label" style="width:100px">加权分红：</label>-->
+						<!--	<div class="layui-input-inline">-->
+						<!--		<input type="text" name="info[rate3]" value="{$info.rate3}" class="layui-input">-->
+						<!--	</div>-->
+						<!--	<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">%</div>-->
+						<!--</div>-->
+						<div class="layui-form-item">
+							<label class="layui-form-label" style="width:100px">团队分红：</label>
+							<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">分红级数</div>
+							<div class="layui-input-inline" style="width: 100px;">
+								<input style="border-radius:0 2px 2px 0" type="text" name="info[teamfenhonglv]" class="layui-input" value="{$info.teamfenhonglv|default=0}">
+							</div>
+							<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">分红比例(%)</div>
+							<div class="layui-input-inline" style="width: 100px;">
+								<input style="border-radius:0 2px 2px 0" type="text" name="info[teamfenhongbl]" class="layui-input" value="{$info.teamfenhongbl|default=0}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label" style="width:100px">团队分红平级奖：</label>
+							<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">分红级数</div>
+							<div class="layui-input-inline" style="width: 100px;">
+								<input style="border-radius:0 2px 2px 0" type="text" name="info[teamfenhong_pingji_lv]" class="layui-input" value="{$info.teamfenhong_pingji_lv|default=0}">
+							</div>
+							<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">奖励比例(%)</div>
+							<div class="layui-input-inline" style="width: 100px;">
+								<input style="border-radius:0 2px 2px 0" type="text" name="info[teamfenhong_pingji_bl]" class="layui-input" value="{$info.teamfenhong_pingji_bl|default=0}">
+							</div>
+						</div>
+					
+						<!--<div class="layui-form-item">-->
+						<!--	<label class="layui-form-label" style="width:100px">复消次数</label>-->
+						<!--	<div class="layui-input-inline" style="width: 100px;">-->
+						<!--		<input style="border-radius:0 2px 2px 0" type="text" name="info[fgnum]" class="layui-input" value="{$info.fgnum|default=0}">-->
+						<!--	</div>-->
+						<!--</div>-->
+						
+						<!--<div class="layui-form-item">-->
+						<!--	<label class="layui-form-label"  style="width:100px">区域代理</label>-->
+						<!--	<div class="layui-input-inline" style="width:350px;">-->
+						<!--		<input type="checkbox" name="info[areafenhong][]" value="0" title="关闭" {if in_array('0',explode(',',$info['areafenhong']))}checked{/if} lay-skin="primary">-->
+						<!--		<input type="checkbox" name="info[areafenhong][]" value="1" title="省级" {if in_array('1',explode(',',$info['areafenhong']))}checked{/if} lay-skin="primary">-->
+						<!--		<input type="checkbox" name="info[areafenhong][]" value="2" title="市级" {if in_array('2',explode(',',$info['areafenhong']))}checked{/if} lay-skin="primary">-->
+						<!--		<input type="checkbox" name="info[areafenhong][]" value="3" title="区县" {if in_array('3',explode(',',$info['areafenhong']))}checked{/if} lay-skin="primary">-->
+						<!--	</div>-->
+						<!--</div>-->
+						
+						<div class="layui-form-item">
+							<div class="layui-input-block" style="margin-left:130px;">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.form.on('radio(rate1)', function(data){
+		if(data.value == '1'){
+		    $('#can_applyset').show();
+			$('#can_applyset2').hide();
+		}else{
+		    $('#can_applyset2').show();
+			$('#can_applyset').hide();
+		}
+	})
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.closeAll();
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

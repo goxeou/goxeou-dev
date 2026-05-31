@@ -1,0 +1,16 @@
+<div class="dsn-mod dsn-channelslive" ng-class="{'dsn-mod-select':Item.id == focus}" ng-style="{'background-color':Item.params.bgcolor,'margin':Item.params.margin_y+'px '+Item.params.margin_x+'px 0','padding':Item.params.padding_y+'px '+Item.params.padding_x+'px'}">
+	<div style="background-color: black">
+		<div style="width:50%;margin: 0 auto;" ng-style="{'width':Item.params.live_height +'%'}">
+			<div style="position: relative; display: inline-block;">
+				<div style="overflow: hidden; position: relative;">
+					<img ng-src="/static/img/logo.jpg" style="width:100%;height:auto;display: block; filter: blur(10px);object-fit: fill;">
+				</div>
+				<div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.3);">
+					<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 14px;">
+						⦿ 直播未开始
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

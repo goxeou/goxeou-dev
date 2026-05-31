@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>短视频管理</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-body" pad15>
+						<div class="layui-form layui-col-md12 layui-form-search">
+							{if input('param.hidebid')==1}
+							{else}
+							<div class="layui-inline">
+								<label class="layui-form-label">商户</label>
+								<div class="layui-input-inline">
+									<select name="bid">
+										<option value="">自营</option>
+										{foreach $blist as $b}<option value="{$b['id']}">{$b['name']}</option>{/foreach}
+									</select>
+								</div>
+							</div>
+							{/if}
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">名称</label>
+								<div class="layui-input-inline">
+									<input type="text" name="name" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label">分类</label>
+								<div class="layui-input-inline" style="width:180px;">
+									<select name="cid">
+										<option value="">请选择</option>
+										{foreach $clist as $v}
+										<option value="{$v['id']}">{$v['name']}</option>
+										{/foreach}
+									</select>
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label">状态</label>
+								<div class="layui-input-inline">
+									<select name="status">
+										<option value="">全部</option>
+										<option value="1">开启</option>
+										<option value="0">关闭</option>
+									</select>
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label">创建时间</label>
+								<div class="layui-input-inline">
+									<input type="text" name="createtime" id="createtime" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+									<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+								</button>
+							</div>
+						</div>
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+  var table = layui.table;
+	var datawhere = {};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{:url('index')}" //数据接口
+    ,page: true //开启分页
+    ,cols: [[ //表头
+			//{type:"checkbox"},
+      {field: 'id', title: 'ID',  sort: true,width:80},
+      {field: 'cname', title: '分类',width:120},
+      {field: 'name', title: '名称'},
+			{field: 'coverimg', title: '封面图',templet:function(d){ return '<img style="height:60px" src="'+d.coverimg+'" onclick="preview(this)">'}},
+      //{field: 'createtime', title: '创建时间',sort: true,templet:function(d){ return date('Y-m-d H:i',d.createtime)}},
+      
+      {field: 'view_num', title: '播放数',sort: true,width:90},
+      {field: 'zan_num', title: '点赞数',sort: true,width:90},
+      {field: 'comment_num', title: '评论数',width:90},
+      {field: 'status', title: '状态',width:90,templet:function(d){ return d.status==1?'<span style="color:green">已开启</span>':'<span style="color:red">已关闭</span>'}},
+      {field: 'operation', title: '操作',templet: '<div><button class="table-btn" onclick="choosepro(\'{{d.id}}\')">选择</button></div>',align:'center'}
+    ]]
+  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	function choosepro(id){
+		var index = layer.load();
+		$.post("{:url('getvideo')}",{proid:id},function(res){
+			layer.close(index);
+			if('{$Request.param.type}'=='2'){
+				window.parent.chooseshortvideo2(res,"{$Request.param.args}");
+			}else{
+				window.parent.chooseshortvideo(res,"{$Request.param.args}");
+			}
+			var index = parent.layer.getFrameIndex(window.name);
+			parent.layer.close(index);
+		});
+	}
+	</script>
+</body>
+</html>

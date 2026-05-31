@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>快递设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+  <style type="text/css">
+    .layui-transfer{display: flex;justify-content: space-between;}
+    .layui-transfer>div{border: 1px solid #f1f1f1;padding: 10px;}
+    .layui-transfer>.layui-transfer-box{overflow-y: scroll;}
+    .layui-transfer>.layui-transfer-active{display: flex;justify-content: space-between;align-items: center;}
+    .layui-transfer-header{padding-bottom: 10px;border-bottom: 1px solid #f1f1f1;margin-bottom: 10px;}
+    .layui-transfer-search{display: flex;justify-content: space-between;align-items: center;}
+    .layuiTransformBtns{float: right;width: 20px;margin-top: 200px;margin-left: 10px;}
+    .layui-transfer-search>.layui-icon-search{display: none;}
+  </style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+        <div class="layui-card-header"><i class="fa fa-cog"></i> 快递自定义</div>
+        <div class="layui-card-body" pad15>
+          <div class="layui-form form-label-w8" lay-filter="">
+            <input type="hidden" name="info[id]" value="{$info['id']}">
+            <div class="layui-form-item">
+              <label class="layui-form-label">快递自定义：</label>
+              <div class="layui-input-inline" style="width:550px">
+                  <input type="hidden" id='express_datas' name="info[express_data]" value='{$info["express_data"]}'>
+                  <div class="layuiTransformBtns" style="">
+                      <button type="button" data-direction="up" class="layui-btn layui-btn-sm videoMoveBtn" style="margin-bottom: 15px;"><i class="layui-icon layui-icon-up"></i></button><br>
+                      <button type="button" data-direction="down" id="moveDown" class="layui-btn layui-btn-sm videoMoveBtn"><i class="layui-icon layui-icon-down"></i></button>
+                  </div>
+                  <div id="express_data"></div>
+              </div>
+            </div>
+            <div class="layui-form-item">
+              <label class="layui-form-label"></label>
+              <div class="layui-input-block">
+                <button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {include file="public/js"/}
+
+  <script>
+    var express_ldata = {$express_ldata?$express_ldata:"''"};
+    var express_rdata = {$express_rdata?$express_rdata:"''"};
+    layui.use(['transfer'], function(){
+      var transfer = layui.transfer
+      //显示搜索框
+      transfer.render({
+        elem: "#express_data",
+        id:"express_right",
+        data:  express_ldata,
+        value: express_rdata,
+        title: ['系统快递', '自定义快递'],
+        height:500,
+        showSearch: true,
+        onchange: function(obj, index){
+          var getData = transfer.getData('express_right'); //获取右侧数据
+          var len = getData.length;
+          if(getData && len>0){
+            var data = {};
+            for(var i=0;i<len;i++){
+              data[getData[i].title] = getData[i].value;
+            }
+            $('#express_datas').val(JSON.stringify(data));
+          }else{
+            $('#express_datas').val('');
+          }
+        }
+      })
+    });
+    // 调用
+    $('.videoMoveBtn').click(function () {
+        transfornMove({
+            elem: '#express_data',
+            direction: $(this).data('direction')
+        })
+    });
+    function transfornMove(option) {
+        var rightTransforn   = $($(option.elem + " ul")[1])
+        var checkItem        = rightTransforn.find('.layui-form-checked').parent()
+        var rightTransBottom = rightTransforn.children()
+        var checkOneIndex    = rightTransBottom.index(option.direction == 'down' ? checkItem[checkItem.length - 1] : checkItem[0])
+        var rightDataLength  = rightTransBottom.length
+        if (!checkItem.length) {
+            layer.msg("请选择数据后再操作");
+            return;
+        }
+        if (checkOneIndex == (option.direction == 'down' ? rightDataLength - 1 : 0)) {
+            layer.msg("已是首位");
+            return;
+        }
+        if (option.direction == 'down') {
+            for (var i = checkItem.length; i >= 0; i--) {
+                checkItem.eq(i).next().after(checkItem.eq(i));
+            }
+        } else {
+            for (var i = 0; i < checkItem.length; i++) {
+                checkItem.eq(i).prev().before(checkItem.eq(i));
+            }
+        }
+        var getData = layui.transfer.getData('express_right'); //获取右侧数据
+        var len = getData.length;
+        if(getData && len>0){
+          var data = {};
+          for(var i=0;i<len;i++){
+            data[getData[i].title] = getData[i].value;
+          }
+          $('#express_datas').val(JSON.stringify(data));
+        }else{
+          $('#express_datas').val('');
+        }
+    }
+    layui.form.on('submit(formsubmit)', function(obj){
+      var field = obj.field
+      var index = layer.load();
+      $.post("{:url('save')}",field,function(data){
+        layer.close(index);
+        dialog(data.msg,data.status,data.url);
+      })
+    })
+  </script>
+</body>
+</html>

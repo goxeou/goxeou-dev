@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>促销设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加商品促销{else}<i class="fa fa-pencil"></i> 编辑商品促销{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w6" lay-filter="">
+						<input type="hidden" name="info[id]" value="{$info['id']}">
+						<div class="layui-form-item">
+							<label class="layui-form-label">促销类型：</label>
+							<div class="layui-input-inline" style="width:800px">
+								<input type="radio" name="info[type]" value="1" title="满额立减" {if !$info['id'] || $info['type']==1}checked{/if} lay-filter="cuxiao_type">
+								<input type="radio" name="info[type]" value="2" title="满额赠送" {if $info['type'] && $info['type']==2}checked{/if} lay-filter="cuxiao_type">
+								<input type="radio" name="info[type]" value="3" title="加价换购" {if $info['type'] && $info['type']==3}checked{/if} lay-filter="cuxiao_type">
+								<input type="radio" name="info[type]" value="4" title="满额打折" {if $info['type'] && $info['type']==4}checked{/if} lay-filter="cuxiao_type">
+								<input type="radio" name="info[type]" value="6" title="满件立减" {if $info['type'] && $info['type']==6}checked{/if} lay-filter="cuxiao_type">
+								<input type="radio" name="info[type]" value="5" title="满件打折" {if $info['type'] && $info['type']==5}checked{/if} lay-filter="cuxiao_type">
+								<input type="radio" name="info[type]" value="0" title="无" {if $info['type'] && $info['type']==0}checked{/if} lay-filter="cuxiao_type">
+							</div>
+							<div class="layui-word-aux layui-clear">选择"无"时仅用于显示活动名称到商品详情</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">活动标识：</label>
+							<div class="layui-input-inline" style="width:100px">
+								<input type="text" name="info[tip]" value="{$info.tip}" lay-verify="required" lay-verType="tips" autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">活动名称：</label>
+							<div class="layui-input-inline" style="width:300px">
+								<input type="text" name="info[name]" value="{$info.name}" lay-verify="required" lay-verType="tips" autocomplete="off" class="layui-input">
+							</div>
+							<div class="layui-word-aux layui-clear">如：购物满100元减20元，购物满100元赠送玫瑰花一束，购物满100元加10元换购玫瑰花一束等</div>
+						</div>
+						<div class="layui-form-item" {if $info['type']==0 || $info['type']==5}style="display:none"{/if} id="minpricediv">
+							<label class="layui-form-label">最低消费金额：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[minprice]" value="{$info.minprice}" autocomplete="off" class="layui-input">
+							</div>
+							<div class="layui-form-mid">元</div>
+							<div class="layui-form-mid layui-word-aux"> 注：购物金额（不含运费）达到最低消费金额才可参与</div>
+						</div>
+						
+						<div class="layui-form-item" {if $info['type']!=5 && $info['type']!=6}style="display:none"{/if} id="minnumdiv">
+							<label class="layui-form-label">最低购买件数：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[minnum]" value="{$info.minnum}" autocomplete="off" class="layui-input">
+							</div>
+							<div class="layui-form-mid">件</div>
+							<div class="layui-form-mid layui-word-aux"> 注：购买商品数量达到最低购买件数才可参与</div>
+						</div>
+
+						<div class="layui-form-item" {if $info['type']!=1 && $info['type']!=3 && $info['type']!=6}style="display:none"{/if} id="moneydiv">
+							<label class="layui-form-label">{if $info['type']==1 || $info['type']==6}立减金额{elseif $info['type']==3}加价金额{/if}：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[money]" value="{$info.money}" autocomplete="off" class="layui-input">
+							</div>
+							<div class="layui-form-mid">元</div>
+						</div>
+						
+
+						<div class="layui-form-item" {if $info['type']!=4 && $info['type']!=5}style="display:none"{/if} id="zhekoudiv">
+							<label class="layui-form-label">折扣：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[zhekou]" value="{$info.zhekou}" autocomplete="off" class="layui-input">
+							</div>
+							<div class="layui-form-mid">折</div>
+							<div class="layui-form-mid layui-word-aux">输入0.01~9.99的数字</div>
+						</div>
+						
+						<div class="layui-form-item" {if $info['type']!=2 && $info['type']!=3}style="display:none"{/if} id="proiddiv">
+							<label class="layui-form-label">{if $info['type']==2}赠送商品{elseif $info['type']==3}换购商品{/if}：</label>
+							<input type="hidden" name="info[proid]" value="{$info.proid}" class="layui-input">
+							<input type="hidden" name="info[ggid]" value="{$info.ggid}" class="layui-input">
+							<button class="layui-btn layui-btn-primary" style="float:left" onclick="showChooseProduct2()">选择商品</button>
+							<div class="layui-form-mid" style="margin-left:8px"><span id="proid_name">{$proinfo.name}</span> - <span id="ggid_name">{$gginfo.name}</span></div>
+						</div>
+						<script>
+						var chooseProductLayer2;
+						function showChooseProduct2(){
+							chooseProductLayer2 = layer.open({type:2,title:'选择商品',content:"{:url('ShopProduct/chooseproduct')}/type/2/hidebid/1",area:['1000px','600px'],shadeClose:true});
+						}
+						var productinfo;
+						function choosepro2(data){
+							layer.close(chooseProductLayer2);
+							productinfo = data.product
+							showgg(data.guigedata,data.gglist);
+							//var product = res.product
+							//layer.close(chooseProductLayer2);
+							//$("input[name='info[proid]']").val(product.id);
+							//$("#proid_name").html(product.name);
+						}
+						var showggLayer;
+						function showgg(specs,gglist){
+							if(gglist.length <=1){
+								$("input[name='info[proid]']").val(productinfo.id);
+								$("input[name='info[ggid]']").val(gglist[0].id);
+								$("#proid_name").html(productinfo.name);
+								$("#ggid_name").html(gglist[0].name);
+								return ;
+							}
+							var len = specs.length;
+							var newlen = 1; 
+							var h = new Array(len); 
+							var rowspans = new Array(len); 
+							var html = '<div style="margin:10px"><table id="ggvaldiv" class="layui-table"><thead><tr>';
+							for(var i=0;i<len;i++){
+								html+="<th>" + specs[i].title + "</th>";
+								var itemlen = specs[i].items.length;
+								if(itemlen<=0) { itemlen = 1 };
+								newlen*=itemlen;
+								h[i] = new Array(newlen);
+								for(var j=0;j<newlen;j++){
+									h[i][j] = new Array();
+								}
+								var l = specs[i].items.length;
+								rowspans[i] = 1;
+								for(j=i+1;j<len;j++){
+									rowspans[i]*= specs[j].items.length;
+								}
+							}
+							html += '<th>库存</th>';
+							html += '<th>市场价</th>';
+							html += '<th>销售价</th>';
+							html += '<th>操作</th>';
+							html += '</tr></thead>';
+							
+							for(var m=0;m<len;m++){
+								var k = 0,kid = 0,n=0;
+								for(var j=0;j<newlen;j++){
+									var rowspan = rowspans[m]; 
+									if( j % rowspan==0){
+										h[m][j]={ k:specs[m].items[kid].k,title: specs[m].items[kid].title, html: "<td rowspan='" +rowspan + "'>"+ specs[m].items[kid].title+"</td>\r\n",id: specs[m].items[kid].id};
+									}else{
+										h[m][j]={ k:specs[m].items[kid].k,title:specs[m].items[kid].title, html: "",id: specs[m].items[kid].id};	
+									}
+									n++;
+									if(n==rowspan){
+										kid++; if(kid>specs[m].items.length-1) { kid=0; }
+										n=0;
+									}
+								}
+							}
+							var hh = "";
+							for(var i=0;i<newlen;i++){
+								hh+="<tr>";
+								var ks = [];
+								var titles = [];
+								for(var j=0;j<len;j++){
+									hh+=h[j][i].html; 
+									ks.push( h[j][i].k);
+									titles.push( h[j][i].title);
+								}
+								ks =ks.join(',');
+								titles =titles.join(',');
+								if(typeof(gglist[ks])!='undefined'){
+									var val = gglist[ks];
+								}else{
+									var val = { procode:'',market_price:'',cost_price:'',sell_price:'',weight:'',stock:'1000',pic:''};
+								}
+								hh += '<td>'+val.stock+'</td>';
+								hh += '<td>'+val.market_price+'</td>';
+								hh += '<td>'+val.sell_price+'</td>';
+								hh += '<td>';
+								hh += ' <button class="table-btn" onclick="selectgg('+val.id+',\''+val.name+'\')">选择</button>';
+								hh += '</td>';
+								hh += "</tr>";
+							}
+							html+=hh;
+							html+='</table></div>';
+							showggLayer = layer.open({type:1,title:productinfo.name,content:html,area:['900px','600px'],shadeClose:true})
+						}
+						function selectgg(ggid,ggname){
+							layer.close(showggLayer);
+							$("input[name='info[proid]']").val(productinfo.id);
+							$("input[name='info[ggid]']").val(ggid);
+							$("#proid_name").html(productinfo.name);
+							$("#ggid_name").html(ggname);
+						}
+						</script>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">适用范围：</label>
+							<div class="layui-input-inline" style="width:500px">
+								<input type="radio" name="info[fwtype]" value="0" {if $info['fwtype']==0}checked{/if} title="所有商品" lay-filter="fwtype"/>
+								<input type="radio" name="info[fwtype]" value="1" {if $info['fwtype']==1}checked{/if} title="指定类目" lay-filter="fwtype"/>
+								<input type="radio" name="info[fwtype]" value="2" {if $info['fwtype']==2}checked{/if} title="指定商品" lay-filter="fwtype"/>
+							</div>
+							<div class="fwtype1" style="clear:both;{if $info['fwtype']!=1}display:none{/if}">
+								<label class="layui-form-label"></label>
+								<div class="layui-input-inline" style="width:auto">
+									<table id="setcategorydiv"  class="layui-table" style="width:500px">
+										<thead>
+										<tr>
+											<th>分类ID</th>
+											<th>分类名称</th>
+											<th>操作</th>
+										</tr>
+										</thead>
+										{if $categorydata}
+										{foreach $categorydata as $k=>$ff}
+										<tr class="categorylisttr"><td>{$ff.id}</td><td>{$ff.name}</td><td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delCategory(this,{$ff.id})">删除</button></td></tr>
+										{/foreach}
+										{/if}
+										<tr id="categoryaddtr">
+											<td colspan="3"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="showChooseCategory()">添加</button></td>
+										</tr>
+									</table>
+									<input type="hidden" name="info[categoryids]" value="{$info.categoryids}"/>
+								</div>
+							</div>
+							<script>
+							var chooseCategoryLayer;
+							function showChooseCategory(){
+								chooseCategoryLayer = layer.open({type:2,title:'选择商品分类',content:"{:url('ShopCategory/choosecategory')}",area:['1000px','600px'],shadeClose:true});
+							}
+							function chooseCategory(fid,fname){
+								layer.close(chooseCategoryLayer);
+								var categoryids = [];
+								var isadd = 0;
+								$('.categorylisttr').each(function(){
+									var thisfid = $(this).find('td:eq(0)').html();
+									if(thisfid == fid){
+										isadd = 1
+										dialog('该分类已添加过了');
+									}
+									categoryids.push(thisfid)
+								})
+								if(isadd == 0){
+									categoryids.push(fid)
+									$("input[name='info[categoryids]']").val(categoryids.join(','));
+									$('#categoryaddtr').before('<tr class="categorylisttr"><td>'+fid+'</td><td>'+fname+'</td><td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delCategory(this,'+fid+')">删除</button></td></tr>');
+								}
+								console.log(categoryids)
+							}
+							function delCategory(obj,fid){
+								$(obj).parent().parent().remove();
+								var categoryids = [];
+								$('.categorylisttr').each(function(){
+									categoryids.push($(this).find('td:eq(0)').html())
+								})
+								$("input[name='info[categoryids]']").val(categoryids.join(','));
+							}
+							</script>
+							<div class="fwtype2" style="clear:both;{if $info['fwtype']!=2}display:none{/if}">
+								<label class="layui-form-label"></label>
+								<div class="layui-input-inline" style="width:auto">
+									<table id="setproductdiv"  class="layui-table" style="width:700px">
+										<thead>
+										<tr>
+											<th>商品ID</th>
+											<th>商品名称</th>
+											<th style="{if $info['type']!=4 && $info['type']!=5}display:none{/if}" class="prozk">单独折扣</th>
+											<th style="{if $info['type']!=6 && $info['type']!=5}display:none{/if}" class="pronum">单独最低件数</th>
+											<th>操作</th>
+										</tr>
+										</thead>
+										{if $productdata}
+										{foreach $productdata as $k=>$ff}
+										<tr class="productlisttr">
+											<td>{$ff.id}</td>
+											<td>{$ff.name}</td>
+											<td style="{if $info['type']!=4 && $info['type']!=5}display:none{/if}" class="prozk">
+												<input type="text" name="info[prozk][]" class="layui-input" placeholder="0.01~9.99" value="{$info['prozk'][$k]}"/>
+											</td>
+											<td style="{if $info['type']!=6 && $info['type']!=5}display:none{/if}" class="pronum">
+												<input type="text" name="info[pronum][]" class="layui-input" placeholder="设置后如未达到不打折" value="{$info['pronum'][$k]}"/>
+											</td>
+											<td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delProduct(this,{$ff.id})">删除</button></td>
+										</tr>
+										{/foreach}
+										{/if}
+										<tr id="productaddtr">
+											<td colspan="3"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="showChooseProduct()">添加</button></td>
+											<td colspan="2" style="{if $info['type']!=4 && $info['type']!=5 && $info['type']!=6}display:none{/if}" class="prozk"></td>
+										</tr>
+									</table>
+									<input type="hidden" name="info[productids]" value="{$info.productids}"/>
+									<div class="layui-word-aux prozk" style="{if $info['type']!=4 && $info['type']!=5}display:none{/if}">注：不单独设置商品折扣则按照统一的折扣计算</div>
+								</div>
+							</div>
+							<script>
+							var cxtype = '{$info.type}';
+							var chooseProductLayer;
+							function showChooseProduct(){
+								chooseProductLayer = layer.open({type:2,title:'选择商品',content:"{:url('ShopProduct/chooseproduct')}/hidebid/1",area:['1000px','600px'],shadeClose:true});
+							}
+							function choosepro(res){
+								var product = res.product
+								layer.close(chooseProductLayer);
+								var productids = [];
+								var isadd = 0;
+								$('.productlisttr').each(function(){
+									var thisfid = $(this).find('td:eq(0)').html();
+									if(thisfid == product.id){
+										isadd = 1
+										dialog('该商品已添加过了');
+									}
+									productids.push(thisfid)
+								})
+								if(isadd == 0){
+									productids.push(product.id)
+									$("input[name='info[productids]']").val(productids.join(','));
+									$('#productaddtr').before('<tr class="productlisttr"><td>'+product.id+'</td><td>'+product.name+'</td><td class="prozk" style="width:100px;'+(cxtype==4||cxtype==5?'':'display:none')+'"><input type="text" name="info[prozk][]" value="" class="layui-input" placeholder="0.01~9.99"/></td><td class="pronum" style="width:100px;'+(cxtype==6||cxtype==5?'':'display:none')+'"><input type="text" name="info[pronum][]" value="" class="layui-input" placeholder="设置后如未达到不打折"/></td><td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delProduct(this,'+product.id+')">删除</button></td></tr>');
+								}
+								console.log(productids)
+							}
+							function delProduct(obj,fid){
+								$(obj).parent().parent().remove();
+								var productids = [];
+								$('.productlisttr').each(function(){
+									productids.push($(this).find('td:eq(0)').html())
+								})
+								$("input[name='info[productids]']").val(productids.join(','));
+							}
+							</script>
+						</div>
+						{if getcustom('plug_tengrui')}
+              <div class="layui-form-item">
+                  <label class="layui-form-label">认证{:t('会员')}：</label>
+                  <div class="layui-input-inline">
+                      <input type="radio" name="info[is_rzh]" value="0" {if !$info['id'] || $info['is_rzh']==0}checked{/if} title="否"/>
+                      <input type="radio" name="info[is_rzh]" value="1" {if $info['id'] && $info['is_rzh']==1}checked{/if} title="是"/>
+                  </div>
+              </div>
+              <div class="layui-form-item">
+                  <label class="layui-form-label">{:t('会员')}关系：</label>
+                  <div class="layui-input-inline" style="width:500px">
+                  <input type="radio" name="info[relation_type]" value="-1" {if !$info['id'] || $info['relation_type']==-1}checked{/if} title="所有"/>
+                      <input type="radio" name="info[relation_type]" value="0" {if $info['id'] && $info['relation_type']==0}checked{/if} title="业主"/>
+                      <input type="radio" name="info[relation_type]" value="1" {if $info['id'] && $info['relation_type']==1}checked{/if} title="家属"/>
+                      <input type="radio" name="info[relation_type]" value="2" {if $info['id'] && $info['relation_type']==2}checked{/if} title="租户"/>
+                      <input type="radio" name="info[relation_type]" value="3" {if $info['id'] && $info['relation_type']==3}checked{/if} title="买断"/>
+                      <input type="radio" name="info[relation_type]" value="4" {if $info['id'] && $info['relation_type']==4}checked{/if} title="租用"/>
+                  </div>
+              </div>
+              <div class="layui-form-item">
+                  <label class="layui-form-label">一户仅限一次：</label>
+                  <div class="layui-input-inline">
+                      <input type="radio" name="info[house_status]" value="0" {if $info['id'] && $info['house_status']==0}checked{/if} title="否"/>
+                      <input type="radio" name="info[house_status]" value="1" {if !$info['id'] || $info['house_status']==1}checked{/if} title="是"/>
+                  </div>
+                  <div class="layui-form-mid layui-word-aux" style="margin-left:10px;">需是认证用户，且同一个小区的同一户只限一人购买，即一户仅限一次</div>
+              </div>
+              <div class="layui-form-item">
+							<label class="layui-form-label">授权小区：</label>
+							<div class="layui-input-inline" style="width:500px">
+								<input type="radio" name="info[group_status]" value="0" {if $info['group_status']==0}checked{/if} title="关闭" lay-filter="group_status"/>
+								<input type="radio" name="info[group_status]" value="1" {if $info['group_status']==1}checked{/if} title="开启" lay-filter="group_status"/>
+							</div>
+							<div class="group_status1 fwtypeExtend" style="clear:both;{if $info['group_status']!=1}display:none{/if}">
+								<label class="layui-form-label"></label>
+								<div class="layui-input-inline" style="width:auto">
+									<table id="setgroupdiv"  class="layui-table" style="width:500px">
+										<thead>
+										<tr>
+											<th>小区ID</th>
+											<th>小区名称</th>
+											<th>操作</th>
+										</tr>
+										</thead>
+										{if $groupdata}
+										{foreach $groupdata as $gk=>$gv}
+										<tr class="grouplisttr"><td>{$gv.id}</td><td>{$gv.fullName}</td><td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delGroup(this,{$gv.id})">删除</button></td></tr>
+										{/foreach}
+										{/if}
+										<tr id="groupaddtr">
+											<td colspan="3"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="showChooseGroup()">添加</button></td>
+										</tr>
+									</table>
+									<input type="hidden" name="info[group_ids]" value="{$info.group_ids}"/>
+								</div>
+							</div>
+							<script>
+							var chooseGroupLayer;
+							function showChooseGroup(){
+								chooseGroupLayer = layer.open({type:2,title:'选择分组',content:"{:url('MemberTrGroup/choosegroup')}",area:['1000px','600px'],shadeClose:true});
+							}
+							function chooseGroup(fid,fname){
+								layer.close(chooseGroupLayer);
+								var group_ids = [];
+								var isadd = 0;
+								$('.grouplisttr').each(function(){
+									var thisfid = $(this).find('td:eq(0)').html();
+									if(thisfid == fid){
+										isadd = 1
+										dialog('该分组已添加过了');
+									}
+									group_ids.push(thisfid)
+								})
+								if(isadd == 0){
+									group_ids.push(fid)
+									$("input[name='info[group_ids]']").val(group_ids.join(','));
+									$('#groupaddtr').before('<tr class="grouplisttr"><td>'+fid+'</td><td>'+fname+'</td><td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delGroup(this,'+fid+')">删除</button></td></tr>');
+								}
+								console.log(group_ids)
+							}
+							function delGroup(obj,fid){
+								$(obj).parent().parent().remove();
+								var group_ids = [];
+								$('.grouplisttr').each(function(){
+									group_ids.push($(this).find('td:eq(0)').html())
+								})
+								$("input[name='info[group_ids]']").val(group_ids.join(','));
+							}
+							</script>
+						</div>
+            {/if}
+            {if getcustom('yx_moneypay')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">余额支付：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[moneypay]" value="1" title="开启" {if !$info['id'] || $info['moneypay']==1}checked{/if}/>
+								<input type="radio" name="info[moneypay]" value="0" title="关闭" {if $info['id'] && $info['moneypay']==0}checked{/if}/>
+							</div>
+						</div>
+						{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label">参与条件：</label>
+							<div class="layui-input-inline" style="width:600px">
+								<input type="checkbox" name="info[gettj][]" value="-1" title="所有人" {if in_array('-1',$info['gettj'])}checked{/if}/>
+								<!-- <input type="checkbox" name="info[gettj][]" value="0" title="关注用户" {if in_array('0',$info['gettj'])}checked{/if}/> -->
+								{foreach $memberlevel as $v}
+								<input type="checkbox" name="info[gettj][]" value="{$v.id}" title="{$v.name}" {if in_array($v['id'],$info['gettj'])}checked{/if}/>
+								{/foreach}
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">开始时间：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[starttime]" autocomplete="off" value="{$info.starttime}" lay-verify="required" lay-verType="tips" class="layui-input" id="starttime">
+							</div>
+							<div class="layui-form-mid layui-word-aux">活动开始时间</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">结束时间：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[endtime]" autocomplete="off" value="{$info.endtime}" lay-verify="required" lay-verType="tips" class="layui-input" id="endtime">
+							</div>
+							<div class="layui-form-mid layui-word-aux">活动结束时间</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">序号：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[sort]" value="{$info.sort}" class="layui-input">
+							</div>
+							<div class="layui-form-mid layui-word-aux">用于排序,越大越靠前</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.form.on('radio(group_status)',function(data){
+		if(data.value == 1){
+			$('.group_status1').show();
+		}else{
+			$('.group_status1').hide();
+		}
+		
+	})
+	layui.form.on('radio(cuxiao_type)',function(data){
+		cxtype = data.value;
+		$('.prozk').hide();
+		if(data.value==1){
+			$("input[name='info[tip]']").val('满减');
+			$("#minpricediv").show();
+			$("#moneydiv").show();
+			$("#proiddiv").hide();
+			$("#minnumdiv").hide();
+			$("#zhekoudiv").hide();
+			$("#moneydiv").find('.layui-form-label').text('立减金额：');
+		}
+		if(data.value == 2){
+			$("input[name='info[tip]']").val('满赠');
+			$("#minpricediv").show();
+			$("#moneydiv").hide();
+			$("#proiddiv").show();
+			$("#minnumdiv").hide();
+			$("#zhekoudiv").hide();
+			$("#proiddiv").find('.layui-form-label').text('赠送商品：');
+		}
+		if(data.value == 3){
+			$("input[name='info[tip]']").val('换购');
+			$("#minpricediv").show();
+			$("#moneydiv").show();
+			$("#proiddiv").show();
+			$("#minnumdiv").hide();
+			$("#zhekoudiv").hide();
+			$("#moneydiv").find('.layui-form-label').text('加价金额：');
+			$("#proiddiv").find('.layui-form-label').text('换购商品：');
+		}
+		if(data.value == 4){
+			$("input[name='info[tip]']").val('打折');
+			$("#minpricediv").show();
+			$("#moneydiv").hide();
+			$("#proiddiv").hide();
+			$("#minnumdiv").hide();
+			$("#zhekoudiv").show();
+			$('.prozk').show();
+			$('.pronum').hide();
+		}
+		if(data.value == 5){
+			$("input[name='info[tip]']").val('打折');
+			$("#minpricediv").hide();
+			$("#moneydiv").hide();
+			$("#proiddiv").hide();
+			$("#minnumdiv").show();
+			$("#zhekoudiv").show();
+			$("#moneydiv").find('.layui-form-label').text('立减金额：');
+			$('.prozk').show();
+			$('.pronum').show();
+		}
+		if(data.value == 6){
+			$("input[name='info[tip]']").val('立减');
+			$("#minpricediv").hide();
+			$("#moneydiv").show();
+			$("#proiddiv").hide();
+			$("#minnumdiv").show();
+			$("#zhekoudiv").hide();
+			$("#moneydiv").find('.layui-form-label').text('立减金额：');
+			$('.prozk').hide();
+			$('.pronum').show();
+		}
+		if(data.value == 0){
+			$("input[name='info[tip]']").val('特价');
+			$("#minpricediv").hide();
+			$("#moneydiv").hide();
+			$("#proiddiv").hide();
+			$("#minnumdiv").hide();
+			$("#zhekoudiv").hide();
+		}
+	});
+	layui.form.on('radio(yxqtype)',function(data){
+		if(data.value==1){
+			$('#yxqtimeitem').show();
+			$('#yxqdateitem').hide();
+		}else{
+			$('#yxqtimeitem').hide();
+			$('#yxqdateitem').show();
+		}
+	})
+	layui.form.on('radio(paygive)',function(data){
+		if(data.value==1){
+			$('#paygiveset').show();
+		}else{
+			$('#paygiveset').hide();
+		}
+	})
+	layui.form.on('radio(fwtype)',function(data){
+		if(data.value==1){
+			$('.fwtype1').show();
+			$('.fwtype2').hide();
+		}else if(data.value==2){
+			$('.fwtype1').hide();
+			$('.fwtype2').show();
+		}else{
+			$('.fwtype1').hide();
+			$('.fwtype2').hide();
+		}
+	})
+	layui.laydate.render({ 
+		elem: '#starttime'
+		,type: 'datetime'
+		,range: false,
+		trigger: 'click'
+	});
+	layui.laydate.render({ 
+		elem: '#endtime'
+		,type: 'datetime'
+		,range: false,
+		trigger: 'click'
+	});
+
+	layui.form.on('submit(formsubmit)', function(obj){
+		console.log(obj)
+		var field = obj.field
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.closeAll();
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

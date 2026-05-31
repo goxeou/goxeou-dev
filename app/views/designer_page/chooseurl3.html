@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>选择链接</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	#urlqr img{margin:0 auto}
+	.fe-tab-link::-webkit-scrollbar {width: 2px;height: 0px;}
+	.fe-tab-link::-webkit-scrollbar-thumb {border-radius: 1px;-webkit-box-shadow: inset 0 0 1px rgba(0,0,0,0.5);background: rgba(0,0,0,0.5);}
+	.fe-tab-link::-webkit-scrollbar-track {-webkit-box-shadow: inset 0 0 0px rgba(0,0,0,0.2);border-radius: 0;background: rgba(0,0,0,0);}
+	.layui-tab-title li{padding:0 8px}
+	.layui-tab-content .layui-tab-item .layui-btn{margin-top:10px}
+	</style>
+</head>
+<body style="margin:0;">
+<div class="layui-fluid">
+<div class="layui-row layui-col-space15">
+	<div class="layui-card layui-col-md12">			
+	<div class="layui-tab">
+		<ul class="layui-tab-title">
+				<li id="fe-tab-link-nav-1" style="padding:0 8px" class="layui-this">基础功能</li>
+				{if $auth_data=='all' || in_array('ShopCategory/*',$auth_data)}<li id="fe-tab-link-nav-2" style="padding:0 8px">商品分类</li>{/if}
+				{if $auth_data=='all' || in_array('ShopGroup/*',$auth_data)}<li id="fe-tab-link-nav-3" style="padding:0 8px">商品分组</li>{/if}
+		</ul>
+		<div class="layui-tab-content" style="padding:0">
+				<div class="layui-tab-item layui-show fe-tab-link" id="fe-tab-link-1">
+						<div class="page-header" style="margin:20px 0 0 0;padding-bottom:0">
+								<h4><i class="fa fa-folder-open-o"></i> 基础页面</h4>
+						</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" style="margin-left:10px;" onclick="chooseLink(1,'/pagesExt/business/index?id=[bid]','店铺首页')">店铺首页</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pages/my/usercenter?bid=[bid]','{:t('会员')}中心')">{:t('会员')}中心</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pages/shop/classify?bid=[bid]','分类商品')">分类商品</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pages/shop/prolist?bid=[bid]','商品列表')">商品列表</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pages/shop/cart?bid=[bid]','购物车')">购物车</div>
+						{if $auth_data=='all' || in_array('ShopProduct/*',$auth_data)}
+						<div class="page-header" style="margin:10px 0 0 0;padding-bottom:0">
+								<h4><i class="fa fa-folder-open-o"></i> 商城页面</h4>
+						</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" style="margin-left:10px;" onclick="chooseLink(1,'/pages/shop/category1?bid=[bid]','一级分类')">一级分类</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pages/shop/category2?bid=[bid]','二级分类')">二级分类</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pages/shop/category4?bid=[bid]','二级分类2')">二级分类2</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pages/shop/category3?bid=[bid]','三级分类')">三级分类</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pages/shop/classify?bid=[bid]','分类商品')">分类商品</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pages/shop/classify2?bid=[bid]','分类商品2')">分类商品2</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pages/shop/prolist?bid=[bid]','商品列表')">商品列表</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pages/shop/fastbuy?bid=[bid]','快速购买')">快速购买</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pages/shop/fastbuy2?bid=[bid]','快速购买2')">快速购买2</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pages/shop/cart?bid=[bid]','购物车')">购物车</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pages/shop/search'?bid=[bid],'商品搜索')">商品搜索</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pagesExt/order/orderlist?bid=[bid]','订单列表')">订单列表</div>
+						{/if}
+						<div class="page-header" style="margin:10px 0 0 0;padding-bottom:0">
+								<h4><i class="fa fa-folder-open-o"></i> 活动页面</h4>
+						</div>
+						{if $auth_data=='all' || in_array('SeckillProduct/*',$auth_data)}
+						<div class="layui-btn layui-btn-primary layui-btn-sm" style="margin-left:10px;" onclick="chooseLink(1,'/activity/seckill/index?bid=[bid]','秒杀列表')">秒杀列表</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/activity/seckill/orderlist?bid=[bid]','砍价订单')">秒杀订单</div>
+						{/if}
+						{if $auth_data=='all' || in_array('KanjiaProduct/*',$auth_data)}
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/activity/kanjia/index?bid=[bid]','砍价列表')">砍价首页</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/activity/kanjia/orderlist?bid=[bid]','砍价订单')">砍价订单</div>
+						{/if}
+						{if $auth_data=='all' || in_array('CollageProduct/*',$auth_data)}
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/activity/collage/index?bid=[bid]','拼团列表')">拼团首页</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/activity/collage/orderlist?bid=[bid]','拼团订单')">拼团订单</div>
+						{/if}
+						
+						{if $auth_data=='all' || in_array('LuckyCollageProduct/*',$auth_data)}
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/activity/luckycollage/classify?bid={$bid}','幸运拼团分类')">幸运拼团分类</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/activity/luckycollage/prolist?bid={$bid}','幸运拼团分类')">幸运拼团列表</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/activity/luckycollage/orderlist','幸运拼团订单')">幸运拼团订单</div>
+						{/if}
+						{if $auth_data=='all' || in_array('TuangouProduct/*',$auth_data)}
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/activity/tuangou/prolist?bid=[bid]','团购商品')">团购商品</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/activity/tuangou/orderlist','团购订单')">团购订单</div>
+						{/if}
+
+						{if $auth_data=='all' || in_array('Coupon/*',$auth_data)}
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pagesExt/coupon/couponlist?bid=[bid]','领券中心')">领券中心</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pagesExt/coupon/mycoupon?bid=[bid]','我的{:t('优惠券')}')">我的{:t('优惠券')}</div>
+						{/if}
+						{if $auth_data=='all' || in_array('Restaurant/*',$auth_data)}
+						<div class="page-header" style="margin:10px 0 0 0;padding-bottom:0">
+								<h4><i class="fa fa-folder-open-o"></i> 餐饮页面</h4>
+						</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" style="margin-left:10px;" onclick="chooseLink(1,'/restaurant/takeaway/index?bid=[bid]','外卖')">外卖</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/restaurant/takeaway/orderlist?bid=[bid]','外卖订单')">外卖订单</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/restaurant/shop/index?bid=[bid]','点餐')">点餐</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/restaurant/shop/orderlist?bid=[bid]','点餐订单')">点餐订单</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/restaurant/booking/add?bid=[bid]','预定')">预定</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/restaurant/booking/orderlist?bid=[bid]','预定记录')">预定记录</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/restaurant/queue/index?bid=[bid]','排队')">排队</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/restaurant/queue/record?bid=[bid]','排队记录')">排队记录</div>
+					<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/restaurant/deposit/orderdetail?bid=[bid]','寄存')">寄存</div>
+						{/if}
+						
+						<div class="page-header" style="margin:10px 0 0 0;padding-bottom:0">
+								<h4><i class="fa fa-folder-open-o"></i> 其他页面</h4>
+						</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" style="margin-left:10px;" onclick="chooseLink(1,'/pages/maidan/pay?bid=[bid]','买单收款')">买单收款</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pages/maidan/maidanlog?bid=[bid]','买单记录')">买单记录</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pagesA/form/formlog?bid=[bid]','提交记录')">表单提交记录</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pagesExt/article/artlist?bid=[bid]','文章列表')">文章列表</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pagesExt/business/commentlist?bid=[bid]','商家评价')">商家评价</div>
+						{if $auth_data=='all' || in_array('Yuyue/*',$auth_data)}
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/activity/yuyue/prolist?bid={$bid}','预约服务')">预约服务</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/activity/yuyue/orderlist?bid={$bid}','预约订单')">预约订单</div>
+						{/if}
+						{if $auth_data=='all' || in_array('KechengList/*',$auth_data)}
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/activity/kecheng/list?bid={$bid}','课程列表')">课程列表</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/activity/kecheng/orderlist?bid={$bid}','我的课程')">我的课程</div>
+						{/if}
+						{if $auth_data=='all' || in_array('Shortvideo/*',$auth_data)}
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/activity/shortvideo/index?bid={$bid}','短视频')">短视频</div>
+						{/if}
+						<div class="page-header" style="margin:10px 0 0 0;padding-bottom:0">
+							
+						</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" style="margin-left:10px;" onclick="chooseLink(1,'/admin/index/index?bid=[bid]','手机端后台')">手机端后台</div>
+						<div class="layui-btn layui-btn-primary layui-btn-sm" onclick="chooseLink(1,'/pages/kefu/index?bid=[bid]','在线咨询')">在线咨询</div>
+						
+				</div>
+				{if $auth_data=='all' || in_array('ShopCategory/*',$auth_data)}
+				<div class="layui-tab-item fe-tab-link" id="fe-tab-link-2">
+					{foreach $clist as $c}
+					<div>
+						<div class="fe-tab-link-line" style='height:60px;line-height:60px;float:left;width:100%;'>
+							<div class="fe-tab-link-sub"><a href="javascript:void(0);" onclick="chooseLink(2,'/pages/shop/prolist?bid=[bid]&cid={$c.id}','{$c.name}')">选择</a></div>
+							<div style="float:left;">
+							{if $c['pic']}<img src="{$c.pic}" style='width:50px;height:50px;padding:1px;border:1px solid #ccc'/>{/if}
+						</div>
+						<div class="fe-tab-link-text" style="float:left">
+							{$c.name}</div>
+						</div>
+					</div>
+					{foreach $c['child'] as $v}
+					<div style="width:95%;float:right">
+						<div class="fe-tab-link-line" style='height:60px;line-height:60px;float:left;width:100%;'>
+							<div class="fe-tab-link-sub"><a href="javascript:void(0);" onclick="chooseLink(2,'/pages/shop/prolist?bid=[bid]&cid={$v.id}','{$v.name}')">选择</a></div>
+							<div style="float:left;">
+							{if $v['pic']}<img src="{$v.pic}" style='width:50px;height:50px;padding:1px;border:1px solid #ccc'/>{/if}
+						</div>
+						<div class="fe-tab-link-text" style="float:left">
+							{$v.name}</div>
+						</div>
+					</div>
+					{foreach $v['child'] as $v2}
+					<div style="width:90%;float:right">
+						<div class="fe-tab-link-line" style='height:60px;line-height:60px;float:left;width:100%;'>
+							<div class="fe-tab-link-sub"><a href="javascript:void(0);" onclick="chooseLink(2,'/pages/shop/prolist?bid=[bid]&cid={$v2.id}','{$v2.name}')">选择</a></div>
+							<div style="float:left;">
+							{if $v2['pic']}<img src="{$v2.pic}" style='width:50px;height:50px;padding:1px;border:1px solid #ccc'/>{/if}
+						</div>
+						<div class="fe-tab-link-text" style="float:left">
+							{$v2.name}</div>
+						</div>
+					</div>
+					{/foreach}
+					{/foreach}
+					{/foreach}
+				</div>
+				{/if}
+				{if $auth_data=='all' || in_array('ShopGroup/*',$auth_data)}
+				<div class="layui-tab-item fe-tab-link" id="fe-tab-link-3">
+					{foreach $glist as $g}
+					<div>
+						<div class="fe-tab-link-line" style='height:60px;line-height:60px;float:left;width:100%;'>
+							<div class="fe-tab-link-sub"><a href="javascript:void(0);" onclick="chooseLink(3,'/pages/shop/prolist?bid=[bid]&gid={$g.id}','{$g.name}')">选择</a></div>
+							<div style="float:left;">
+							{if $g['pic']}<img src="{$g.pic}" style='width:50px;height:50px;padding:1px;border:1px solid #ccc'/>{/if}
+						</div>
+						<div class="fe-tab-link-text" style="float:left">
+							{$g.name}</div>
+						</div>
+					</div>
+					{/foreach}
+				</div>
+				{/if}
+		</div>
+	</div>
+	</div>
+</div>
+</div>
+{include file="public/js"/}
+<script>
+	
+	function chooseLink(type,hrefurl,hrefname){
+		{if $Request.param.type=='geturl'}
+			var pagepath = hrefurl.substr(1);
+			url = '{$Think.const.PRE_URL2}/h5/{$aid}.html#/'+pagepath;
+			var html = '';
+			html+='<div style="margin:20px">';
+			html+='	<div style="width:100%;margin:10px 0" id="urlqr"></div>';
+			{if in_array('wx',$platform)}
+			html+='	<div style="width:100%;text-align:center"><button class="layui-btn layui-btn-sm layui-btn-primary" onclick="showwxqrcode(\''+pagepath+'\')">查看小程序码</button></div>';
+			{/if}
+			html+='	<div style="margin-top:30px;height:50px;line-height:25px;">链接地址：<button class="layui-btn layui-btn-xs layui-btn-primary" onclick="copyText(\''+url+'\')">复制</button><br>'+url+'</div>';
+			html+='	<div style="height:50px;line-height:25px;">页面路径：<button class="layui-btn layui-btn-xs layui-btn-primary" onclick="copyText(\'/'+pagepath+'\')">复制</button><br>/'+pagepath+'</div>';
+			html+='</div>'
+			layer.open({type:1,'title':'链接地址',area:['600px','480px'],shadeClose:true,'content':html})
+			var qrcode = new QRCode('urlqr', {
+				text: 'your content',
+				width: 200,
+				height: 200,
+				colorDark : '#000000',
+				colorLight : '#ffffff',
+				correctLevel : QRCode.CorrectLevel.L
+			});
+			qrcode.clear();
+			qrcode.makeCode(url);
+		{else}
+			var urlname = $('#fe-tab-link-nav-' + type).text() + '>' + hrefname
+			{if input('param.callback')}
+			window.parent.{$Request.param.callback}(urlname,hrefurl,"{$Request.param.args}");
+			{else}
+			window.parent.chooseLink(urlname,hrefurl,"{$Request.param.args}");
+			{/if}
+			closeself();
+		{/if}
+	}
+	function showwxqrcode(pagepath){
+		var index = layer.load();
+		$.post("{:url('getwxqrcode')}",{path:pagepath},function(res){
+			layer.close(index);
+			if(res.status==0){
+				//dialog(res.msg);
+				layer.open({type:1,area:['300px','350px'],content:'<div style="margin:auto auto;text-align:center"><div style="color:red;width:280px;height:180px;margin-top:100px">'+res.msg+'</div><div style="height:25px;line-height:25px;">'+pagepath+'</div></div>',title:false,shadeClose:true})
+			}else{
+				layer.open({type:1,area:['300px','350px'],content:'<div style="margin:auto auto;text-align:center"><img src="'+res.url+'" style="margin-top:20px;max-width:280px;max-height:280px"/><div style="height:25px;line-height:25px;">'+pagepath+'</div></div>',title:false,shadeClose:true})
+			}
+		})
+	}
+	function copyText(text) {
+			var textarea = document.createElement("textarea"); //创建input对象
+			var currentFocus = document.activeElement; //当前获得焦点的元素
+			var toolBoxwrap = document.getElementById('NewsToolBox'); //将文本框插入到NewsToolBox这个之后
+			toolBoxwrap.appendChild(textarea); //添加元素
+			textarea.value = text;
+			textarea.focus();
+			if (textarea.setSelectionRange) {
+					textarea.setSelectionRange(0, textarea.value.length); //获取光标起始位置到结束位置
+			} else {
+					textarea.select();
+			}
+			try {
+					var flag = document.execCommand("copy"); //执行复制
+			} catch (eo) {
+					var flag = false;
+			}
+			toolBoxwrap.removeChild(textarea); //删除元素
+			currentFocus.focus();
+			if(flag) layer.msg('复制成功');
+			return flag;
+	}
+</script>
+<div id="NewsToolBox"></div>
+<!-- <script src="__STATIC__/admin/js/clipboard.min.js"></script> -->
+</body>
+</html>

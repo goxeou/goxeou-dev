@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>文章管理</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header"><i class="fa fa-list"></i> 文章管理</div>
+          <div class="layui-card-body" pad15>
+						<div class="layui-form layui-col-md12 layui-form-search" style="justify-content: flex-start;padding-bottom: 10px;">
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">标题</label>
+								<div class="layui-input-inline">
+									<input type="text" name="name" autocomplete="off" class="layui-input" value="">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label">分类</label>
+								<div class="layui-input-inline">
+									<select name="cid">
+										<option value="">全部</option>
+										{foreach $clist as $cv}
+											<option value="{$cv['id']}">{$cv['name']}</option>
+											{foreach $cv['child'] as $v}
+											<option value="{$v['id']}">&nbsp;&nbsp;&nbsp;{$v['name']}</option>
+											{/foreach}
+										{/foreach}
+									</select>
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label">状态</label>
+								<div class="layui-input-inline">
+									<select name="status">
+										<option value="">全部</option>
+										<option value="1">开启</option>
+										<option value="0">关闭</option>
+									</select>
+								</div>
+							</div>
+							<div class="layui-inline">
+								<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+									<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+								</button>
+							</div>
+						</div>
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script type="text/html" id="nameTpl">
+		<img src="{{d.pic}}" style="max-width:70px;float:left"/>
+		<div style="float: left;width:200px;margin-left: 10px;white-space:normal;line-height:20px;">
+			<div style="width:100%;padding-top:5px">{{# if(d.cid>0){ }}<span style="color:red">[{{d.cname}}] </span>{{# } }}{{d.name}}</div>
+			<div style="padding-top:5px;font-size:12px">{{d.subname}}</div></div>
+		</div>
+	</script>
+	<script>
+  var table = layui.table;
+	var datawhere = {};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{:url('index')}" //数据接口
+    ,page: true //开启分页
+    ,cols: [[ //表头
+			{type:"checkbox"},
+      //{field: 'id', title: 'ID',  sort: true,width:80},
+      {field: 'name', title: '文章信息',templet: '#nameTpl',width:320},
+      {field: 'readcount', title: '阅读量',sort: true,width:80},
+      {field: 'sort', title: '序号',width:80,sort: true},
+      {field: 'createtime', title: '创建时间',sort: true,templet:function(d){ return date('Y-m-d H:i',d.createtime)},width:150},
+      //{field: 'sendtime', title: '发布时间',sort: true,templet:function(d){ return date('Y-m-d H:i',d.sendtime)},width:150},
+      {field: 'status', title: '状态',templet:function(d){ return d.status==1?'<button class="layui-btn layui-btn-sm layui-btn-normal">开启</button>':'<button class="layui-btn layui-btn-sm layui-btn-danger">关闭</button>'},width:60},
+      {field: 'operation', title: '操作',templet: '<div><button class="table-btn" onclick="chooseart(\'{{d.id}}\')">选择</button></div>',align:'center'}
+    ]]
+  });
+	function chooseart(id){
+		var index = layer.load();
+		$.post("",{id:id},function(res){
+			layer.close(index);
+			window.parent.chooseArticle(res.data,"{$Request.param.args}");
+			var index = parent.layer.getFrameIndex(window.name);
+			parent.layer.close(index);
+		})
+	}
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	</script>
+</body>
+</html>

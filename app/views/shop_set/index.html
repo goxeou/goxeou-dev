@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>商城设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<script src="__STATIC__/admin/js/address3.js"></script>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header"><i class="fa fa-cog"></i> 商城设置</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w8" lay-filter="">
+						<!-- <div class="layui-form-item">
+							<label class="layui-form-label">商城标题：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[name]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info['name']}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">商城LOGO：</label>
+							<input type="hidden" name="info[logo]" id="logo" class="layui-input" value="{$info['logo']}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="logo" upload-preview="logoPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：400×400像素</div>
+							<div id="logoPreview" style="float:left;padding-top:10px;margin-left:130px;clear: both;">
+								<div class="layui-imgbox" style="width:130px;"><div class="layui-imgbox-img"><img src="{$info['logo']}"/></div></div>
+							</div>
+						</div> -->
+						{if getcustom('product_collect_time')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">可确认收货时间：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[ordercollect_time]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.ordercollect_time}">
+							</div>
+							<div class="layui-form-mid">天</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">多少天后，用户可以点击确认收货</div>
+						</div>
+						{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label">自动收货天数：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[autoshdays]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.autoshdays}">
+							</div>
+							<div class="layui-form-mid">天</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">发货后多少天用户未确认收货自动完成收货</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">自动关闭订单：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[autoclose]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.autoclose}">
+							</div>
+							<div class="layui-form-mid">分钟</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">下单后多久不支付自动关闭订单，释放占用的库存</div>
+						</div>
+						
+						<!-- <div class="layui-form-item">
+							<label class="layui-form-label">{:t('积分')}规则：</label>
+							<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">消费每满</div>
+							<div class="layui-input-inline" style="width: 100px;">
+								<input type="text" name="info[scorein_money]" class="layui-input" value="{$info.scorein_money}">
+							</div>
+							<div class="layui-form-mid">元</div>
+							<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">赠送</div>
+							<div class="layui-input-inline" style="width: 100px;">
+								<input type="text" name="info[scorein_score]" class="layui-input" value="{$info.scorein_score}">
+							</div>
+							<div class="layui-form-mid">{:t('积分')}</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">每{:t('积分')}抵扣</div>
+							<div class="layui-input-inline" style="width: 100px;">
+								<input type="text" name="info[score2money]" class="layui-input" value="{$info.score2money}">
+							</div>
+							<div class="layui-form-mid">元</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">一个{:t('积分')}可抵扣多少元</div>
+						</div> -->
+						
+						<!-- <div class="layui-form-item">
+							<label class="layui-form-label">满额包邮：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[freightfree]" value="1" {if $info['freightfree']==1}checked{/if} title="开启" lay-filter="freightfree"/>
+								<input type="radio" name="info[freightfree]" value="0" {if $info['freightfree']==0}checked{/if} title="关闭" lay-filter="freightfree"/>
+							</div>
+						</div>
+						<div class="layui-form-item" id="freightfreemoneyset" {if $info['freightfree']==0}style="display:none"{/if}>
+							<label class="layui-form-label"></label>
+							<div class="layui-form-mid" style="margin-right:0;background:#e6e6e6;padding: 9px 9px !important">单笔满</div>
+							<div class="layui-input-inline" style="width: 100px;">
+								<input type="text" name="info[freightfreemoney]" class="layui-input" value="{$info['freightfreemoney']}">
+							</div>
+							<div class="layui-form-mid">元包邮</div>
+						</div> -->
+						
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">货到付款：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[cancod]" value="1" {if $info['cancod']==1}checked{/if} title="开启" lay-filter="cancodset"/>
+								<input type="radio" name="info[cancod]" value="0" {if $info['cancod']==0}checked{/if} title="关闭" lay-filter="cancodset"/>
+							</div>
+							<div style="float:left;{if !$info['id'] || $info['cancod']==0}display:none{/if}" class="cancodset">
+								<div class="layui-form-mid">自定义文字</div>
+								<div class="layui-input-inline" style="width:100px"><input type="text" name="info[codtxt]" value="{$info.codtxt}" class="layui-input"></div>
+							</div>
+							{if getcustom('shop_cod_frontpercent')}
+							<div style="float:left;margin-left:20px;{if !$info['id'] || $info['cancod']==0}display:none{/if}" class="cancodset">
+								<div class="layui-form-mid">预付定金</div>
+								<div class="layui-input-inline" style="width:70px"><input type="text" name="info[cod_frontpercent]" value="{$info.cod_frontpercent}" class="layui-input"></div>
+								<div class="layui-form-mid">%</div>
+							</div>
+							{/if}
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">开启后支付时可以选择货到付款</div>
+						</div>
+						{if getcustom('pay_month')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">月结账户：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[pay_month]" value="1" {if $info['pay_month']==1}checked{/if} title="开启" lay-filter="pay_monthset"/>
+								<input type="radio" name="info[pay_month]" value="0" {if $info['pay_month']==0}checked{/if} title="关闭" lay-filter="pay_monthset"/>
+							</div>
+							<div style="float:left;{if !$info['id'] || $info['pay_month']==0}display:none{/if}" id="pay_monthset_show">
+								<div class="layui-form-mid">自定义文字</div>
+								<div class="layui-input-inline" style="width:100px"><input type="text" name="info[pay_month_txt]" value="{$info.pay_month_txt}" class="layui-input"></div>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">开启后支付时可以选择月结账户</div>
+						</div>
+						{/if}
+						{if getcustom('show_price_unlogin')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">未登录查看价格：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[is_show_price_unlogin]" value="1" {if $info['is_show_price_unlogin']==1}checked{/if} title="开启" lay-filter="is_show_price_unloginset"/>
+								<input type="radio" name="info[is_show_price_unlogin]" value="0" {if $info['is_show_price_unlogin']==0}checked{/if} title="关闭" lay-filter="is_show_price_unloginset"/>
+							</div>
+							<div style="float:left; {if !$info['id'] || $info['is_show_price_unlogin']==1}display:none{/if}"" id="is_show_price_unloginset_show">
+								<div class="layui-form-mid">提示文字</div>
+								<div class="layui-input-inline" style="width:100px"><input type="text" name="info[show_price_unlogin_txt]" value="{$info.show_price_unlogin_txt}" class="layui-input"></div>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">开启后未登录可以查看价格</div>
+						</div>
+						{/if}
+						{if getcustom('show_price_uncheck')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">未审核查看价格：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[is_show_price_uncheck]" value="1" {if $info['is_show_price_uncheck']==1}checked{/if} title="开启" lay-filter="is_show_price_uncheckset"/>
+								<input type="radio" name="info[is_show_price_uncheck]" value="0" {if $info['is_show_price_uncheck']==0}checked{/if} title="关闭" lay-filter="is_show_price_uncheckset"/>
+							</div>
+							<div style="float:left;{if !$info['id'] || $info['is_show_price_uncheck']==1}display:none{/if}"" id="is_show_price_uncheckset_show">
+								<div class="layui-form-mid">提示文字</div>
+								<div class="layui-input-inline" style="width:100px"><input type="text" name="info[show_price_uncheck_txt]" value="{$info.show_price_uncheck_txt}" class="layui-input"></div>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">开启后未审核可以查看价格</div>
+						</div>
+						{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label">购物车推荐：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[gwctj]" value="1" {if $info['gwctj']==1}checked{/if} title="开启"/>
+								<input type="radio" name="info[gwctj]" value="0" {if $info['gwctj']==0}checked{/if} title="关闭"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">开启后购物车显示为您推荐</div>
+						</div>
+						{if getcustom('shop_stock_warning_notice')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">库存预警值：</label>
+							<div class="layui-input-inline">
+								<input type="number" class="layui-input" name="info[shop_stock_warning_num]" value="{$info.shop_stock_warning_num}" />
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">库存低于此数量发送通知</div>
+						</div>
+						{/if}
+						{if getcustom('price_dollar')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">美元汇率：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[usdrate]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.usdrate}">
+							</div>
+							<div class="layui-form-mid"></div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">美元兑人民币汇率</div>
+						</div>
+	
+						{/if}
+						{if getcustom('price_show_type')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">价格显示方式：</label>
+							<div class="layui-input-inline" style="width: 500px">
+								<div>
+									<input type="radio" name="info[price_show_type]" value="0" {if $info['price_show_type']==0}checked{/if} title="当前等级价格（默认）"/>
+								</div>
+								<div>
+									<input type="radio" name="info[price_show_type]" value="1" {if $info['price_show_type']==1}checked{/if} title="会员价+默认售价（会员价会员）/默认售价（普通会员）"/>
+								</div>
+								<div>
+									<input type="radio" name="info[price_show_type]" value="2" {if $info['price_show_type']==2}checked{/if} title="会员价+默认售价（会员价会员）/默认售价+会员价（普通会员）"/>
+								</div>
+
+							</div>
+
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">切换后前端价格显示不同样式</div>
+						</div>
+						{/if}
+
+						  {if getcustom('shopshd_shuixitie')}
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">送货单样式：</label>
+							  <div class="layui-input-inline">
+								  <input type="radio" name="info[shd_style]" value="0" {if $info['shd_style']==0}checked{/if} title="默认" lay-filter="shd_styleset"/>
+								  <input type="radio" name="info[shd_style]" value="1" {if $info['shd_style']==1}checked{/if} title="水洗贴" lay-filter="shd_styleset"/>
+							  </div>
+							  <div style="float:left;{if !$info['id'] || $info['shd_style']==0}display:none{/if}" id="shd_styleset_show">
+								  <div class="layui-form-mid">当前编号</div>
+								  <div class="layui-input-inline" style="width:100px"><input type="text" name="info[shd_style1_no]" value="{$info.shd_style1_no}" class="layui-input"></div>
+							  </div>
+							  <div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+						  </div>
+						  {/if}
+
+						  {if getcustom('maidan_fenhong_new')}
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">成本比例：</label>
+							  <div class="layui-input-inline" style="width:200px">
+								  <input type="text" name="info[cost_bili]" class="layui-input" value="{$info.cost_bili}">
+							  </div>
+							  <div class="layui-form-mid" style="margin-left:10px;">%，发布产品时如果不填写成本价，成本价自动按该比例*销售价进行计算</div>
+						  </div>
+						  {/if}
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">快速购买顶部图：</label>
+							  <input type="hidden" name="info[fastbuy_toppic]" id="fastbuy_toppic" lay-verType="tips" class="layui-input" value="{$info.fastbuy_toppic}">
+							  <button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="fastbuy_toppic" upload-preview="fastbuypicPreview" onclick="uploader(this)">上传图片</button>
+							  <div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：600*340像素</div>
+							  <div id="fastbuypicPreview" style="float:left;padding-top:10px;padding-left:160px;clear: both;">
+								  <div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.fastbuy_toppic}"/></div></div>
+							  </div>
+						  </div>
+						  {if getcustom('probgcolor')}
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">订单详情顶部图：</label>
+							  <input type="hidden" name="info[order_detail_toppic]" id="order_detail_toppic" lay-verType="tips" class="layui-input" value="{$info.order_detail_toppic}">
+							  <button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="order_detail_toppic" upload-preview="orderdetailpicPreview" onclick="uploader(this)">上传图片</button>
+							  <div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：750*220像素</div>
+							  <div id="orderdetailpicPreview" style="float:left;padding-top:10px;padding-left:160px;clear: both;">
+								  <div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.order_detail_toppic}"/></div></div>
+							  </div>
+						  </div>
+						  {/if}
+						  {if getcustom('to86yk')}
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">予卡对接账号：</label>
+							  <div class="layui-input-inline">
+								  <input type="text" name="info[to86yk_user]" class="layui-input" value="{$info['to86yk_user']}">
+							  </div>
+						  </div>
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">予卡对接密码：</label>
+							  <div class="layui-input-inline">
+								  <input type="text" name="info[to86yk_pwd]" class="layui-input" value="{$info['to86yk_pwd']}">
+							  </div>
+						  </div>
+						  {/if}
+						  {if getcustom('coupon_peruselimit')}
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">单笔订单最多可用：</label>
+							  <div class="layui-input-inline">
+								  <input type="text" name="info[coupon_peruselimit]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.coupon_peruselimit}">
+							  </div>
+							  <div class="layui-form-mid">张{:t('优惠券')}</div>
+							  <div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+						  </div>
+						  {/if}
+						  {if getcustom('product_service_fee') && ($auth_data=='all' || in_array('service_fee_switch',$auth_data))}
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">送货单备注：</label>
+							  <div class="layui-input-inline">
+								  <input type="radio" name="info[show_shd_remark]" value="1" {if $info['show_shd_remark']==1}checked{/if} title="显示"/>
+								  <input type="radio" name="info[show_shd_remark]" value="0" {if $info['show_shd_remark']==0}checked{/if} title="不显示"/>
+							  </div>
+							  <div class="layui-form-mid layui-word-aux" style="margin-left:10px;">送货单备注显示在订单详情商品列表</div>
+						  </div>
+						  {/if}
+						  {if getcustom('product_list_nocart')}
+						  <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+							  <legend>平台差异</legend>
+						  </fieldset>
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">列表隐藏购物车：</label>
+							  <div class="layui-input-inline" style="width:60%">
+								  <input class="checkbox" type="checkbox" lay-skin="primary" title="所有平台" name="info[list_nocart_platform][]" {if in_array('all',$list_nocart_platform)}checked{/if} value="all"/>
+								  {foreach $platform as $pl}
+								  <input class="checkbox" type="checkbox" lay-skin="primary" title="{:getplatformname($pl)}" {if in_array($pl,$list_nocart_platform)}checked{/if} name="info[list_nocart_platform][]" value="{$pl}"/>
+								  {/foreach}
+							  </div>
+						  </div>
+						  {/if}
+		  					{if getcustom('classify_page_show_stock')}
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">分类商品页库存：</label>
+							  <div class="layui-input-inline">
+								  <input type="radio" name="info[classify_show_stock]" value="1" {if $info['classify_show_stock']==1}checked{/if} title="开启"/>
+								  <input type="radio" name="info[classify_show_stock]" value="0" {if $info['classify_show_stock']==0}checked{/if} title="关闭"/>
+							  </div>
+							  <div class="layui-form-mid layui-word-aux" style="margin-left:10px;">pages/shop/classify页面是否显示库存</div>
+						  </div>
+		  					{/if}
+		  				  {if getcustom('pay_share') && ($auth_data=='all' || in_array('share_payment_switch',$auth_data))}
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">付款前分享：</label>
+							  <div class="layui-input-inline">
+								  <input type="radio" name="info[share_payment]" value="1" {if $info['share_payment']==1}checked{/if} title="开启"/>
+								  <input type="radio" name="info[share_payment]" value="0" {if $info['share_payment']==0}checked{/if} title="关闭"/>
+							  </div>
+							  <div class="layui-form-mid layui-word-aux" style="margin-left:10px;">开启后只有分享后才能付款（支持公众号、小程序）</div>
+						  </div>
+		  				 {/if}
+						  {if getcustom('shop_purchase_order')}
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">商品列表显示内容：</label>
+							  <div class="layui-input-inline">
+								  <input type="checkbox" name="info[list_sort_show][]" value="sales"  {if in_array('sales',explode(',',$info['list_sort_show'])) || empty($info['list_sort_show'])}checked{/if} title="销量"/>
+								  <input type="checkbox" name="info[list_sort_show][]" value="stock"  {if in_array('stock',explode(',',$info['list_sort_show']))}checked{/if} title="库存"/>
+							  </div>
+							  <div class="layui-form-mid layui-word-aux" style="margin-left:10px;">商品搜索页、图搜结果页显示销量和库存的排序</div>
+						  </div>
+						  {/if}
+						  <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+							  <legend>退货设置</legend>
+						  </fieldset>
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">退款退货：</label>
+							  <div class="layui-input-inline">
+								  <input type="radio" name="info[canrefund]" value="1" {if $info['canrefund']==1}checked{/if} title="开启"/>
+								  <input type="radio" name="info[canrefund]" value="0" {if $info['canrefund']==0}checked{/if} title="关闭"/>
+							  </div>
+							  <div class="layui-form-mid layui-word-aux" style="margin-left:10px;">关闭后用户无法申请退款退货</div>
+						  </div>
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">退款图片：</label>
+							  <div class="layui-input-inline">
+								  <input type="radio" name="info[refundpic]" value="1" {if $info['refundpic']==1}checked{/if} title="必填"/>
+								  <input type="radio" name="info[refundpic]" value="0" {if $info['refundpic']==0}checked{/if} title="选填"/>
+							  </div>
+							  <div class="layui-form-mid layui-word-aux" style="margin-left:10px;">选择必填后退款时，无需退货选项图片必须上传，退货退款选项图片选填</div>
+						  </div>
+						{if getcustom('return_component')}
+							<div class="layui-form-item">
+								<label class="layui-form-label">微信退货组件：</label>
+								<div class="layui-input-inline">
+									<input type="radio" name="info[return_component_open]" value="1" {if $info['return_component_open']==1}checked{/if} title="开启">
+									<input type="radio" name="info[return_component_open]" value="0" {if !$info['return_component_open'] || $info['return_component_open']==0}checked{/if} title="关闭">
+								</div>
+							</div>
+						{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label">联系人：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[return_name]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.return_name}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">联系电话：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[return_tel]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.return_tel}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">退货地址：</label>
+							<div class="layui-input-inline" style="width:700px">
+								<div class="layui-input-inline return_province_div">
+									<select name="info[return_province]" id="return_province" lay-filter="return_province"></select>
+								</div>
+								<div class="layui-input-inline return_city_div">
+									<select name="info[return_city]" id="return_city" lay-filter="return_city"></select>
+								</div>
+								<div class="layui-input-inline return_area_div">
+									<select name="info[return_area]" id="return_area"></select>
+								</div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">详细地址：</label>
+							<div class="layui-input-inline" style="width:700px">
+								<input type="text" name="info[return_address]" class="layui-input" value="{$info.return_address}">
+							</div>
+						</div>
+
+						{if getcustom('product_bonus_pool')}
+		  				{if $bonus_pool_set_show}	
+						  <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+							  <legend>奖金池</legend>
+						  </fieldset>
+<!--						<div class="layui-form-item">-->
+<!--							<label class="layui-form-label">奖金池上限：</label>-->
+<!--							<div class="layui-input-inline">-->
+<!--								<input type="number" min="0" name="info[bonus_pool_money_max]" lay-verify="required" lay-verType="tips" class="layui-input"  value="{$info.bonus_pool_money_max}">-->
+<!--							</div>-->
+<!--							<div class="layui-form-mid"></div>-->
+<!--							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">奖金池，用户可获得的金额上限</div>-->
+<!--						</div>-->
+						<div class="layui-form-item">
+							<label class="layui-form-label">奖金池推荐人数：</label>
+							<div class="layui-input-inline">
+								<input type="number" min="0" name="info[bonus_pool_tuijian_num]" lay-verify="required" lay-verType="tips" class="layui-input"  value="{$info.bonus_pool_tuijian_num}">
+							</div>
+							<div class="layui-form-mid">人</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">推荐n人，获得一个贡献值</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">奖金池持续释放：</label>
+							<div class="layui-input-inline" >
+								<input type="number" min="0" name="info[bonus_pool_cx_days]" lay-verify="required" lay-verType="tips" class="layui-input"  value="{$info.bonus_pool_cx_days}">
+							</div>
+							<div class="layui-form-mid">天</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">持续n天释放</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">奖金池不释放：</label>
+							<div class="layui-input-inline" style="width:800px">
+								<input type="checkbox" name="info[bonus_pool_noreleasetj][]" value="-1" title="所有人" lay-skin="primary" {if !$info['id'] || in_array('-1',$info['bonus_pool_noreleasetj'])}checked{/if} />
+								{foreach $levellist as $v}
+								<input type="checkbox" name="info[bonus_pool_noreleasetj][]" value="{$v.id}" title="{$v.name}" lay-skin="primary" {if in_array($v['id'],$info['bonus_pool_noreleasetj'])}checked{/if}/>
+								{/foreach}
+							</div>
+						</div>
+				  <div class="layui-form-item">
+					  <label class="layui-form-label">分红会员总数量：</label>
+					  <div class="layui-input-inline" style="width:200px">
+						  <div class="layui-input-inline layui-module-itemL">
+							  <div>数量:</div>
+							  <input type="text" name="info[bonus_pool_total_mcount]" class="layui-input" value="{$info.bonus_pool_total_mcount}">
+						  </div>
+					  </div>
+					  <div class="layui-form-mid layui-word-aux" style="margin-left:10px;">所有获得分红的会员数量限制，设置该项后等级设置将失效，大于0生效</div>
+				  </div>
+					  <div class="layui-form-item">
+						  <label class="layui-form-label">可拿分红会员数量：</label>
+						  <div class="layui-input-inline" style="width:800px">
+							  {foreach $levellist as $bp}
+							  <div class="layui-input-inline layui-module-itemL">
+								  <div>{$bp['name']}:</div>
+								  <input type="hidden" name="bp[levelid][]" class="layui-input" value="{$bp.id}">
+								  <input type="text" name="bp[count][]" class="layui-input" value="{$bp.count}">
+							  </div>
+							  {/foreach}
+						  </div>
+						  <div class="layui-form-mid layui-word-aux" style="margin-left:10px;">系统第1单，会员等级会员数量人数限制为n+1，另奖金池份数要足够多，否则限制无效</div>
+					  </div>
+		  				{/if}	
+						{/if}
+					<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+						<legend>{:t('优惠券')}</legend>
+					</fieldset>
+						<div class="layui-form-item">
+							<label class="layui-form-label">退款时退回已使用{:t('优惠券')}：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[return_coupon]" value="1" {if $info['return_coupon']==1}checked{/if} title="开启" />
+								<input type="radio" name="info[return_coupon]" value="0" {if $info['return_coupon']==0}checked{/if} title="关闭" />
+							</div>
+<!--							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">(默认开启)</div>-->
+						</div>
+						{if getcustom('coupon_not_used_discount')}
+							
+						<div class="layui-form-item">
+							<label class="layui-form-label">优惠不同享：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[coupon_not_used_discount]" value="1" {if $info['coupon_not_used_discount']==1}checked{/if} title="开启" />
+								<input type="radio" name="info[coupon_not_used_discount]" value="0" {if $info['coupon_not_used_discount']==0}checked{/if} title="关闭" />
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">选择使用{:t('优惠券')}不计算折扣价，不使用{:t('优惠券')}计算折扣价</div>
+						</div>
+						{/if}
+
+					<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+						<legend>商品评价</legend>
+					</fieldset>
+						<div class="layui-form-item">
+							<label class="layui-form-label">商品评价：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[comment]" value="1" {if $info['comment']==1}checked{/if} title="开启" lay-filter="comment"/>
+								<input type="radio" name="info[comment]" value="0" {if $info['comment']==0}checked{/if} title="关闭" lay-filter="comment"/>
+							</div>
+						</div>
+						<div class="layui-form-item" id="commentset" {if $info['comment']==0}style="display:none"{/if}>
+							<label class="layui-form-label">评价审核：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[comment_check]" value="1" {if $info['comment_check']==1}checked{/if} title="开启" lay-filter="comment_check"/>
+								<input type="radio" name="info[comment_check]" value="0" {if $info['comment_check']==0}checked{/if} title="关闭" lay-filter="comment_check"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">关闭后用户的评价将直接显示,不需要后台审核</div>
+						</div>
+					{if getcustom('product_comment')}
+					<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+						<legend>商品未购买评价</legend>
+					</fieldset>
+					<div class="layui-form-item">
+						<label class="layui-form-label">未购买评价：</label>
+						<div class="layui-input-inline">
+							<input type="radio" name="info[product_comment]" value="1" {if $info['product_comment']==1}checked{/if} title="开启" lay-filter="product_comment"/>
+							<input type="radio" name="info[product_comment]" value="0" {if $info['product_comment']==0}checked{/if} title="关闭" lay-filter="product_comment"/>
+						</div>
+					</div>
+					<div class="layui-form-item" id="commentset1">
+						<label class="layui-form-label">未购买评价审核：</label>
+						<div class="layui-input-inline">
+							<input type="radio" name="info[product_comment_check]" value="1" {if $info['product_comment_check']==1}checked{/if} title="开启" lay-filter="product_comment_check"/>
+							<input type="radio" name="info[product_comment_check]" value="0" {if $info['product_comment_check']==0}checked{/if} title="关闭" lay-filter="product_comment_check"/>
+						</div>
+						<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">关闭后用户的评价将直接显示,不需要后台审核</div>
+					</div>
+					{/if}
+					<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+						<legend>详情页显示</legend>
+					</fieldset>
+						<div class="layui-form-item">
+							<label class="layui-form-label">显示店铺信息：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[showjd]" value="1" {if $info['showjd']==1}checked{/if} title="显示"/>
+								<input type="radio" name="info[showjd]" value="0" {if $info['showjd']==0}checked{/if} title="不显示"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">开启后商品详情页显示店铺信息</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">显示{:t('佣金')}：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[showcommission]" value="1" {if $info['showcommission']==1}checked{/if} title="显示" lay-filter="commissiondesc"/>
+								<input type="radio" name="info[showcommission]" value="0" {if $info['showcommission']==0}checked{/if} title="不显示" lay-filter="commissiondesc"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">开启后商品详情页显示分销{:t('佣金')}</div>
+						</div>
+						{if getcustom('product_commission_desc')}
+						<div id="commissiondescdiv" {if !$info.showcommission}style="display:none;"{/if}>
+							<div class="layui-form-item">
+								<label class="layui-form-label">佣金描述：</label>
+								<div class="layui-input-inline">
+									<input type="text" name="info[commission_desc]" class="layui-input" value="{$info.commission_desc}" placeholder="请输佣金描述" style="width:500px;"></input>
+								</div>
+							</div>
+						</div>
+						{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label">显示销量：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[hide_sales]" value="0" {if $info['hide_sales']==0}checked{/if} title="显示"/>
+								<input type="radio" name="info[hide_sales]" value="1" {if $info['hide_sales']==1}checked{/if} title="不显示"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">关闭后商品列表及详情不显示销量</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">显示库存：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[hide_stock]" value="0" {if $info['hide_stock']==0}checked{/if} title="显示"/>
+								<input type="radio" name="info[hide_stock]" value="1" {if $info['hide_stock']==1}checked{/if} title="不显示"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">关闭后商品列表及详情不显示库存</div>
+						</div>
+						{if getcustom('product_sellprice_show')}
+						<hr>
+							<div class="layui-form-item">
+								<label class="layui-form-label">显示销售价：</label>
+								<div class="layui-input-inline">
+									<input type="radio" name="info[hide_sellprice]" value="0" {if $info['hide_sellprice']==0}checked{/if} title="显示" lay-filter="sellprice-filter" />
+									<input type="radio" name="info[hide_sellprice]" value="1" {if $info['hide_sellprice']==1}checked{/if} title="不显示" lay-filter="sellprice-filter" />
+								</div>
+								<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">关闭后商品详情不显示销售价</div>
+							</div>
+							{if !getcustom('shop_gwc_name')}
+							<div id="sellprice_show" {if $info.hide_sellprice==1}style="display:none;"{/if}>
+								<div class="layui-form-item">
+									<label class="layui-form-label">销售价名称：</label>
+									<div class="layui-input-inline">
+										<input type="text" class="layui-input" name="info[sellprice_name]" value="{$info.sellprice_name}" />
+									</div>
+									<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">销售价：￥</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label">销售价字体颜色：</label>
+									<div class="layui-input-inline">
+										<input type="text" name="info[sellprice_color]" value="{$info['sellprice_color']}" class="layui-input">
+									</div>
+									<div class="_colorpicker" style="float:left"></div>
+									<div class="layui-form-mid layui-word-aux">如：#FD4A46</div>
+								</div>
+							</div>
+							{/if}
+						{/if}
+						{if getcustom('product_cost_show')}
+						<hr>
+						<div class="layui-form-item">
+							<label class="layui-form-label">显示成本：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[hide_cost]" value="0" {if $info['hide_cost']==0}checked{/if} title="显示" lay-filter="cost-filter" />
+								<input type="radio" name="info[hide_cost]" value="1" {if $info['hide_cost']==1}checked{/if} title="不显示" lay-filter="cost-filter" />
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">关闭后商品详情不显示成本</div>
+						</div>
+						<div id="cost_show" {if $info.hide_cost==1}style="display:none;"{/if}>
+							<div class="layui-form-item">
+								<label class="layui-form-label">成本名称：</label>
+								<div class="layui-input-inline">
+									<input type="text" class="layui-input" name="info[cost_name]" value="{$info.cost_name}" />
+								</div>
+								<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">成本价：￥</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">成本字体颜色：</label>
+								<div class="layui-input-inline">
+									<input type="text" name="info[cost_color]" value="{$info['cost_color']}" class="layui-input">
+								</div>
+								<div class="_colorpicker" style="float:left"></div>
+								<div class="layui-form-mid layui-word-aux">如：#FD4A46</div>
+							</div>
+						</div>
+						<hr>
+						{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label">显示升级优惠：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[show_lvupsavemoney]" value="1" {if $info['show_lvupsavemoney']==1}checked{/if} title="显示"/>
+								<input type="radio" name="info[show_lvupsavemoney]" value="0" {if $info['show_lvupsavemoney']==0}checked{/if} title="不显示"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">商品详情页是否显示升级到下一级可节省多少元</div>
+						</div>
+
+						{if getcustom('product_guige_showtype')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">规格名称：</label>
+							<div class="layui-input-inline">
+								<input type="text" class="layui-input" name="info[guige_name]" value="{$info.guige_name}" />
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">自定义规格名称</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">规格显示方式：</label>
+							<div class="layui-input-inline" style="width:300px">
+								<input type="radio" name="info[show_guigetype]" value="1" {if !$info['show_guigetype'] || $info['show_guigetype']===1}checked{/if} title="点击显示"/>
+								<input type="radio" name="info[show_guigetype]" value="2" {if $info['show_guigetype']==2}checked{/if} title="直接显示"/>
+							
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">直接显示为商品详情页直接显示规格选项，点击则弹出选择规格</div>
+						</div>
+						{/if}						
+						{if getcustom('shop_gwc_name')}
+						<!-- <div class="layui-form-item">
+								<label class="layui-form-label">购物车：</label>
+								<div class="layui-input-inline" style="width:250px">
+									<input type="radio" name="info[gwc_showst]" value="1" {if $info['gwc_showst']==1}checked{/if} title="显示" lay-filter="gwc_showst"/>
+									<input type="radio" name="info[gwc_showst]" value="2" {if $info['gwc_showst']==2}checked{/if} title="不显示" lay-filter="gwc_showst"/>
+								</div>
+								<div id="gwc_value_div" {if $info['gwc_showst']!=1}style="display:none"{/if}>
+									<div class="layui-form-mid" id="gwc_value_name">自定义名称：</div>
+									<div class="layui-input-inline">
+										<input type="text" name="info[gwc_name]" class="layui-input" value="{$info.gwc_name}" id="gwc_value_name">
+									</div>
+								</div>
+								
+							</div> -->
+						{/if}
+						{if getcustom('product_detail_special')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">商品名称行：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[show_product_name]" value="1" {if !$info['show_product_name'] || $info['show_product_name']==1}checked{/if} title="显示"/>
+								<input type="radio" name="info[show_product_name]" value="0" {if $info['show_product_name']===0}checked{/if} title="不显示"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">商品详情页，商品名称，价格，分享等头部区块是否显示</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">显示顶部图片：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[show_header_pic]" value="1" {if !$info['show_header_pic'] || $info['show_header_pic']==1}checked{/if} title="显示"/>
+								<input type="radio" name="info[show_header_pic]" value="0" {if $info['show_header_pic']===0}checked{/if} title="不显示"/>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">显示规格行：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[show_guige]" value="1" {if !$info['show_guige'] || $info['show_guige']==1}checked{/if} title="显示"/>
+								<input type="radio" name="info[show_guige]" value="0" {if $info['show_guige']===0}checked{/if} title="不显示"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">商品详情页不显示规格选择整行内容</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">显示购买操作：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[show_option_group]" value="1" {if !$info['show_option_group'] || $info['show_option_group']==1}checked{/if} title="显示"/>
+								<input type="radio" name="info[show_option_group]" value="0" {if $info['show_option_group']===0}checked{/if} title="不显示"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">商品详情页 是否显示购买，收藏等整行操作</div>
+						</div>
+						{/if}
+						<!-- <div class="layui-form-item">
+							<label class="layui-form-label">收货地址强制定位：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[needzb]" value="1" {if $info['needzb']==1}checked{/if} title="开启"/>
+								<input type="radio" name="info[needzb]" value="0" {if $info['needzb']==0}checked{/if} title="关闭"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">配送方式如果有同城配送请开启</div>
+						</div> -->
+						
+						{if getcustom('ngmm')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">广告图1：</label>
+							<input type="hidden" name="info[detail_guangao1]" id="detail_guangao1" lay-verType="tips" class="layui-input" value="{$info.detail_guangao1}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="detail_guangao1" upload-preview="detail_guangao1Preview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：800*200像素</div>
+							<div id="detail_guangao1Preview" style="float:left;padding-top:10px;padding-left:160px;clear: both;">
+								<div class="layui-imgbox" style="width:200px;height:50px;"><div class="layui-imgbox-img"><img src="{$info.detail_guangao1}"/></div></div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">广告图1弹窗：</label>
+							<input type="hidden" name="info[detail_guangao1_t]" id="detail_guangao1_t" lay-verType="tips" class="layui-input" value="{$info.detail_guangao1_t}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="detail_guangao1_t" upload-preview="detail_guangao1_tPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：600*600像素</div>
+							<div id="detail_guangao1_tPreview" style="float:left;padding-top:10px;padding-left:160px;clear: both;">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.detail_guangao1_t}"/></div></div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">广告图2：</label>
+							<input type="hidden" name="info[detail_guangao2]" id="detail_guangao2" lay-verType="tips" class="layui-input" value="{$info.detail_guangao2}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="detail_guangao2" upload-preview="detail_guangao2Preview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：800*200像素</div>
+							<div id="detail_guangao2Preview" style="float:left;padding-top:10px;padding-left:160px;clear: both;">
+								<div class="layui-imgbox" style="width:200px;height:50px;"><div class="layui-imgbox-img"><img src="{$info.detail_guangao2}"/></div></div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">广告图2弹窗：</label>
+							<input type="hidden" name="info[detail_guangao2_t]" id="detail_guangao2_t" lay-verType="tips" class="layui-input" value="{$info.detail_guangao2_t}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="detail_guangao2_t" upload-preview="detail_guangao2_tPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：600*600像素</div>
+							<div id="detail_guangao2_tPreview" style="float:left;padding-top:10px;padding-left:160px;clear: both;">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.detail_guangao2_t}"/></div></div>
+							</div>
+						</div>
+						{/if}
+						{if getcustom('shop_prodetailtitle')}
+							<div class="layui-form-item">
+								<label class="layui-form-label">商品详情标题：</label>
+								<div class="layui-input-inline" style="width:350px">
+									<input type="radio" name="info[prodetailtitle_type]" value="0" {if $info['prodetailtitle_type']==0}checked{/if} title="默认" lay-filter="prodetailtitle_type"/>
+									<input type="radio" name="info[prodetailtitle_type]" value="1" {if $info['prodetailtitle_type']==1}checked{/if} title="文本" lay-filter="prodetailtitle_type"/>
+									{if !getcustom('shop_gwc_name')}
+									<input type="radio" name="info[prodetailtitle_type]" value="2" {if $info['prodetailtitle_type']==2}checked{/if} title="图片" lay-filter="prodetailtitle_type"/>
+									{/if}
+									<input type="radio" name="info[prodetailtitle_type]" value="3" {if $info['prodetailtitle_type']==3}checked{/if} title="不显示" lay-filter="prodetailtitle_type"/>
+								</div>
+								<div id="prodetailtitle_value_div" {if $info['prodetailtitle_type']!=1}style="display:none"{/if}>
+									<div class="layui-form-mid" id="prodetailtitle_value_name">{if $info['prodetailtitle_type']==0}文本内容{else}图片链接{/if}：</div>
+									<div class="layui-input-inline">
+										<input type="text" name="info[prodetailtitle_value]" class="layui-input" value="{$info.prodetailtitle_value}" id="prodetailtitle_value">
+									</div>
+								</div>
+								<div id="prodetailtitle_value_upload" {if $info['prodetailtitle_type']!=2}style="display:none"{/if}>
+									<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="prodetailtitle_value" upload-preview="prodetailtitlePreview" onclick="uploader(this)">上传图片</button>
+									<div id="prodetailtitlePreview" style="float:left;"><img src="{$info.prodetailtitle_value}" style="height:36px;width:auto;margin-left:10px"/></div>
+								</div>
+							</div>
+						{/if}
+  						{if getcustom('shop_purchase_order') && ($auth_data=='all' || in_array('shopPurchaseOrder',$auth_data))}
+						  <div class="layui-form-item">
+							  <label class="layui-form-label">采购单：</label>
+							  <div class="layui-input-inline">
+								  <input type="radio" name="info[show_purchase_order]" value="1" {if !$info['show_purchase_order'] || $info['show_purchase_order']==1}checked{/if} title="显示"/>
+								  <input type="radio" name="info[show_purchase_order]" value="0" {if $info['show_purchase_order']===0}checked{/if} title="不显示"/>
+							  </div>
+							  <div class="layui-form-mid layui-word-aux" style="margin-left:10px;">商品详情页悬浮显示采购单按钮 点击添加到采购单列表</div>
+						  </div>
+  						{/if}
+						{if getcustom('product_handwork')}
+							 {if $auth_data=='all' || in_array('ProductHand',$auth_data)}
+							 	<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+									<legend>手工活</legend>
+								</fieldset>
+								<div class="layui-form-item">
+									<label class="layui-form-label">回寄时间：</label>
+									<div class="layui-input-inline">
+										<input type="text" name="info[autoreturn_hwtime]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.autoreturn_hwtime}">
+									</div>
+									<div class="layui-form-mid">天</div>
+									<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">用户收货后计算时间，超过时效不能回寄</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label">自动返款天数：</label>
+									<div class="layui-input-inline">
+										<input type="text" name="info[autoreturn_hwmoney]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.autoreturn_hwmoney}">
+									</div>
+									<div class="layui-form-mid">天</div>
+									<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">回寄订单验货完成后多少天给用户返款余额</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label">手工费百分比到{:t('积分')}：</label>
+									<div class="layui-input-inline">
+										<input type="number" name="info[hand_fee_to_score]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.hand_fee_to_score}">
+									</div>
+									<div class="layui-form-mid">%</div>
+									<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">验货的返款金额百分比到{:t('积分')}</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label">协议名称：</label>
+									<div class="layui-input-inline">
+										<input type="text" name="info[hwname]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.hwname}">
+									</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label">协议内容：</label>
+									<div class="layui-input-inline" style="width:500px">
+										<script id="hwcontent" name="info[hwcontent]" type="text/plain" style="width:100%;height:400px">{$info.hwcontent}</script>
+									</div>
+								</div>
+								{/if}
+						{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+  <script>
+  	address3('return_province','return_city','return_area',"{$info.return_province}","{$info.return_city}","{$info.return_area}");
+  </script>
+	<script>
+	{if getcustom('product_handwork')}
+		{if $auth_data=='all' || in_array('ProductHand',$auth_data)}
+			var ueditor = UE.getEditor('hwcontent',{imageScaleEnabled:true});
+		{/if}
+	{/if}
+	layui.form.on('radio(cancodset)', function(data){
+		if(data.value == '1'){
+			$('.cancodset').show();
+		}else{
+			$('.cancodset').hide();
+		}
+	})
+	layui.form.on('radio(pay_monthset)', function(data){
+		if(data.value == '1'){
+			$('#pay_monthset_show').show();
+		}else{
+			$('#pay_monthset_show').hide();
+		}
+	})
+	layui.form.on('radio(is_show_price_unloginset)', function(data){
+		if(data.value == '0'){
+			$('#is_show_price_unloginset_show').show();
+		}else{
+			$('#is_show_price_unloginset_show').hide();
+		}
+	})
+	layui.form.on('radio(is_show_price_uncheckset)', function(data){
+		if(data.value == '0'){
+			$('#is_show_price_uncheckset_show').show();
+		}else{
+			$('#is_show_price_uncheckset_show').hide();
+		}
+	})
+	layui.form.on('radio(freightfree)', function(data){
+		if(data.value == '1'){
+			$('#freightfreemoneyset').show();
+		}else{
+			$('#freightfreemoneyset').hide();
+		}
+	})
+
+	layui.form.on('radio(shd_styleset)', function(data){
+		if(data.value == '1'){
+			$('#shd_styleset_show').show();
+		}else{
+			$('#shd_styleset_show').hide();
+		}
+	});
+	
+
+	layui.form.on('radio(gwc_showst)', function(data){
+		$('#gwc_value_div').hide();
+		if(data.value == '1'){
+			$('#gwc_value_div').show();
+			$('#gwc_value_name').text('文本内容');
+		}
+	})
+
+	
+	layui.form.on('radio(commissiondesc)', function(data){
+		$('#commissiondescdiv').hide();
+		if(data.value == '1'){
+			$('#commissiondescdiv').show();
+		}
+	})
+
+	layui.form.on('radio(prodetailtitle_type)', function(data){
+		$('#prodetailtitle_value_div').hide();
+		$('#prodetailtitle_value_upload').hide();
+		if(data.value == '1'){
+			$('#prodetailtitle_value_div').show();
+			$('#prodetailtitle_value_name').text('文本内容');
+		}else if(data.value == '2'){
+			//$('#prodetailtitle_value_div').show();
+			$('#prodetailtitle_value_upload').show();
+			//$('#prodetailtitle_value_name').text('图片链接');
+		}
+	})
+	layui.form.on('radio(cancodset)', function(data){
+		if(data.value == '1'){
+			$('.cancodset').show();
+		}else{
+			$('.cancodset').hide();
+		}
+	})
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		if(field['info[logo]'] == ''){
+			dialog('请上传商家LOGO',0);return;
+		}
+		{if getcustom('product_handwork')}
+			{if $auth_data=='all' || in_array('ProductHand',$auth_data)}
+				field['info[hwcontent]'] = ueditor.getContent();
+			{/if}
+		{/if}
+		$.post("{:url('save')}",field,function(data){
+			dialog(data.msg,data.status,data.url);
+		})
+	})
+
+	layui.form.on('radio(cost-filter)',function(data){
+		if(data.value==1){
+			$('#cost_show').hide();
+		}else{
+			$('#cost_show').show();
+		}
+	})
+	layui.form.on('radio(sellprice-filter)',function(data){
+		if(data.value==1){
+			$('#sellprice_show').hide();
+		}else{
+			$('#sellprice_show').show();
+		}
+	})
+
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

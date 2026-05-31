@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>系统设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header"><i class="fa fa-cog"></i> 系统设置</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w6" lay-filter="">
+						<!-- <div class="layui-form-item">
+							<label class="layui-form-label">商城标题：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[name]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info['name']}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">商城LOGO：</label>
+							<input type="hidden" name="info[logo]" id="logo" class="layui-input" value="{$info['logo']}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="logo" upload-preview="logoPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：400×400像素</div>
+							<div id="logoPreview" style="float:left;padding-top:10px;margin-left:130px;clear: both;">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info['logo']}"/></div></div>
+							</div>
+						</div> -->
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">自动收货天数：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[autoshdays]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.autoshdays}">
+							</div>
+							<div class="layui-form-mid">天</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">发货后多少天用户未确认收货自动完成收货</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">商品评价：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[comment]" value="1" {if $info['comment']==1}checked{/if} title="开启" lay-filter="comment"/>
+								<input type="radio" name="info[comment]" value="0" {if $info['comment']==0}checked{/if} title="关闭" lay-filter="comment"/>
+							</div>
+						</div>
+						<div class="layui-form-item" id="commentset" {if $info['comment']==0}style="display:none"{/if}>
+							<label class="layui-form-label">评价审核：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[comment_check]" value="1" {if $info['comment_check']==1}checked{/if} title="开启" lay-filter="comment_check"/>
+								<input type="radio" name="info[comment_check]" value="0" {if $info['comment_check']==0}checked{/if} title="关闭" lay-filter="comment_check"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">关闭后用户的评价将直接显示,不需要后台审核</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+      </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.form.on('radio(comment)', function(data){
+		if(data.value == '1'){
+			$('#commentset').show();
+		}else{
+			$('#commentset').hide();
+		}
+	})
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		$.post("{:url('save')}",field,function(data){
+			dialog(data.msg,data.status,data.url);
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

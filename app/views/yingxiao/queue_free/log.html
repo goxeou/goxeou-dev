@@ -1,0 +1,162 @@
+<!DOCTYPE html><!--custom_file(yx_queue_free)-->
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>返款记录</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header"><i class="fa fa-list"></i> 返款记录
+			  <div class="layui-col-md12"> <blockquote class="layui-elem-quote">注意：其他返款方式失败时都会使用余额方式替换</blockquote></div>
+						{if input('param.isopen')==1}<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>{/if}</div>
+          <div class="layui-card-body" pad15>
+						<div class="layui-col-md6" style="padding-bottom:10px">
+<!--							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="datadel(0)">删除</button>-->
+<!--							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="location.href='{:url('moneylogexcel')}'+urlEncode(datawhere)">导出EXCEL</button>-->
+						</div>
+						<div class="layui-form layui-col-md12 layui-form-search">
+							<div class="layui-inline">
+								<label class="layui-form-label">时间</label>
+								<div class="layui-input-inline" style="width:180px">
+									<input type="text" name="ctime" id="ctime" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+									<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+								</button>
+							</div>
+						</div>
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.laydate.render({ 
+		elem: '#ctime',
+		trigger: 'click',
+		range: '~' //或 range: '~' 来自定义分割字符
+	});
+  var table = layui.table;
+	var datawhere = {};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{$Request.url}" //数据接口
+    ,page: true //开启分页
+    ,cols: [[ //表头
+			// {type:"checkbox"},
+      {field: 'id', title: 'ID',sort:true,width:80},
+
+	  {field: 'money_give', title: '金额',sort:true,width:120},
+      {field: 'from_mid', title: '来自{:t('会员')}ID',width:80},
+      {field: 'nickname', title: '{:t('会员')}信息',templet:'<div>{{# if(d.nickname){ }}<img src="{{d.headimg}}" style="width:50px"> {{d.nickname}}{{# } }}</div>'},
+		{/*  {field: 'tel', title: '手机号',width:120&cc;,*/}
+		  {field: 'bname', title: '商户名称',width:120},
+		  {field: 'payorder', title: '来自订单',sort:false,templet:function(d){
+			if(d.payorder.ordernum){
+				return d.payorder.ordernum;
+			}else{
+				return '';
+			}		  
+		  }},
+		  {field: 'type', title: '类型',templet:function(d){
+				  if(d.type=='shop'){
+					return '商城';
+				  }else if(d.type=='maidan'){
+					  return '买单';
+				  }else{
+					return '';
+				  }
+			},width:80},
+		  {if $mode_show}  
+		  {field: 'mode', title: '模式',templet:function(d){
+				  var html='';
+				  {if getcustom('yx_queue_free_other_mode')}
+				  if(d.mode==0) html+='<span >固定分配</span>';
+				  if(d.mode==1) html+='<span >平均分配</span>';
+				  if(d.mode==2) html+='<span >金额分配</span>';
+				  if(d.mode==3) html+='<span >平均+金额分配</span>';
+				  if(d.mode==4) html+='<span >平均+固定分配</span>';
+				  {/if}
+				  {if getcustom('yx_queue_free_today_average')}
+				  if(d.mode==5) html+='<span >固定+今日平均+非今日平均分配</span>';
+				  {/if}
+				  return  html;
+			  }},
+		  {/if}
+		  {field: 'remark', title: '备注'},
+		 
+		  {field: 'receive_accountName', title: '返现账户',sort:false,width:80},
+{if getcustom('yx_queue_free_fenzhang_wxpay')}
+{if $auth_data=='all' || in_array('QueueFreeSetFenzhangWxpay',$auth_data)}
+{field: 'isfenzhang', title: '微信分账状态',templet:function(d){
+	if(d.receive_account != 'fenzhang_wxpay') return '';
+	var html = '';
+		if(d.isfenzhang=='0') html += '<div>待分账</div>';
+		if(d.isfenzhang=='1') html += '<div style="color:green">已分账</div>';
+		if(d.isfenzhang=='2') {
+			html += '<div style="color:red">失败</div>';
+			html += '<div>'+d.fz_errmsg+'</div>';
+		};
+		return html;
+	},sort:false},
+{/if}
+{/if}
+{if getcustom('yx_queue_free_quit_wxhb')}
+{if $auth_data=='all' || in_array('QueueFreeSetQuitWxhb',$auth_data)}
+{field: 'wxpay_status', title: '微信零钱状态',templet:function(d){
+	  if(d.receive_account != 'wxpay') return '';
+	  var html = '';
+	  if(d.wxpay_status=='0') html += '<div>待打款</div>';
+	  if(d.wxpay_status=='1') html += '<div style="color:green">已打款</div>';
+	  if(d.wxpay_status=='2') {
+		  html += '<div style="color:red">失败</div>';
+		  if(d.wxpay_errmsg) html += '<div>'+d.wxpay_errmsg+'</div>';
+	  };
+	  return html;
+  },sort:false},
+{/if}
+{/if}
+
+{field: 'createtime', title: '时间',sort:true,templet:function(d){ return date('Y-m-d H:i',d.createtime)}}
+
+    ]]
+  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+
+
+	</script>
+	{include file="public/copyright"/}
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>我的模板</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header">我的模板</div>
+          <div class="layui-card-body" pad15>
+						<div class="layui-col-md12">
+							<blockquote class="layui-elem-quote">当前所选行业：{$primary_industry.first_class}/{$primary_industry.second_class}{if $secondary_industry.first_class}，{$secondary_industry.first_class}/{$secondary_industry.second_class}{/if}</blockquote>
+						</div>
+						<div class="layui-col-md12">
+							<div class="layui-col-md3" style="padding-bottom:10px">
+								<!-- <button class="layui-btn layuiadmin-btn-list" onclick="openmax('{:url('tpllist')}/isopen/1')">添加</button> -->
+								<button class="layui-btn layui-btn-primary  layuiadmin-btn-list" onclick="datadel(0)">删除</button>
+							</div>
+							<div class="layui-form layui-col-md9" style="text-align:right;padding-bottom:10px">
+								<div class="layui-inline layuiadmin-input-useradmin">
+									<label class="layui-form-label" style="width:60px">模板编号</label>
+									<div class="layui-input-block" style="width:200px;margin-left:90px">
+										<input type="text" name="template_no" autocomplete="off" class="layui-input" value="">
+									</div>
+								</div>
+								<div class="layui-inline">
+									<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+										添加
+									</button>
+								</div>
+							</div>
+						</div>
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+  var table = layui.table;
+	var datawhere = {};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{$Request.url}" //数据接口
+    ,page: true //开启分页
+		,limit:25
+		,limits:[25]
+		,checkbox: true
+    ,cols: [[ //表头
+			{type:"checkbox"},
+      {field: 'template_id', title: '模板ID',width:400},
+      {field: 'title', title: '标题',width:200},
+      {field: 'content', title: '模板内容',templet:function(d){ return "<pre>"+d.content+'</pre>' }},
+      {field: 'example', title: '内容示例',templet:function(d){ return "<pre>"+d.example+'</pre>' }},
+      //{field: 'sendtimes', title: '已发送数',width:100},
+      //{field: 'successtimes', title: '发送成功数',width:100},
+      {field: 'operation', title: '操作',templet: '<div> <!-- <button class="table-btn" onclick="openmax(\'{:url('tplsend')}/isopen/1/template_id/{{d.template_id}}\')">推送</button> --><button class="table-btn" onclick="datadel(\'{{d.template_id}}\')">删除</button></div>',width:100}
+    ]]
+  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//日期范围选择
+	layui.laydate.render({ 
+		elem: '#ctime',
+		trigger: 'click',
+		range: '~' //或 range: '~' 来自定义分割字符
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		console.log(field)
+		if(!field.template_no){
+			dialog('请输入模板编号');return;
+		}
+		var index = layer.load();
+		$.post("{:url('gettmplid')}",{template_no:field.template_no},function(res){
+			layer.close(index)
+			dialog(res.msg,res.status)
+			if(res.status==1){
+				$('input[name=template_no]').val('');
+				tableIns.reload();
+			}
+		})
+		return;
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	});
+	//删除
+	function datadel(template_id){
+		var template_ids = [];
+		if(template_id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			var template_ids = [];
+			for(var i=0;i<checkData.length;i++){
+				template_ids.push(checkData[i]['template_id']);
+			}
+		}else{
+			template_ids.push(template_id)
+		}
+		layer.confirm('确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('mytpldel')}",{template_ids:template_ids},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	</script>
+	{include file="public/copyright"/}
+</body>
+</html>

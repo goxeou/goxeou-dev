@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>销售统计</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header">
+						<div class="layui-tab layui-tab-brief">
+							<ul class="layui-tab-title">
+								<li {if input('param.type')==''}class="layui-this"{/if} onclick="location.href='{:url('tongji')}'">按商品统计</li>
+								<li {if input('param.type')=='2'}class="layui-this"{/if} onclick="location.href='{:url('tongji')}/type/2'">按规格统计</li>
+								
+							</ul>
+						</div>   
+          </div>
+          <div class="layui-card-body" pad15>
+						<div class="layui-col-md12">
+							<div style="float:left;padding-bottom:10px">
+								<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="location.href='{:url('tongji')}/excel/1/type/{$Request.param.type}'+urlEncode(datawhere)">导出</button>
+							</div>
+							<div class="layui-form layui-form-search">
+								
+								<div class="layui-inline">
+									<label class="layui-form-label">年份</label>
+									<div class="layui-input-inline" style="width:100px">
+										<select name="year">
+											<option value="{:date('Y')}">{:date('Y')}</option>
+											<option value="{:intval(date('Y')-1)}">{:intval(date('Y')-1)}</option>
+											<option value="{:intval(date('Y')-2)}">{:intval(date('Y')-2)}</option>
+											<option value="{:intval(date('Y')-3)}">{:intval(date('Y')-3)}</option>
+											<option value="{:intval(date('Y')-4)}">{:intval(date('Y')-4)}</option>
+											<option value="{:intval(date('Y')-5)}">{:intval(date('Y')-5)}</option>
+											<option value="{:intval(date('Y')-6)}">{:intval(date('Y')-6)}</option>
+											<option value="{:intval(date('Y')-7)}">{:intval(date('Y')-7)}</option>
+											<option value="{:intval(date('Y')-8)}">{:intval(date('Y')-8)}</option>
+											<option value="{:intval(date('Y')-9)}">{:intval(date('Y')-9)}</option>
+											<option value="{:intval(date('Y')-10)}">{:intval(date('Y')-10)}</option>
+										</select>
+									</div>
+								</div>
+								<div class="layui-inline">
+									<label class="layui-form-label">月份</label>
+									<div class="layui-input-inline" style="width:100px">
+										<select name="month">
+											<option value="">全部</option>
+											<option value="1">1月</option>
+											<option value="2">2月</option>
+											<option value="3">3月</option>
+											<option value="4">4月</option>
+											<option value="5">5月</option>
+											<option value="6">6月</option>
+											<option value="7">7月</option>
+											<option value="8">8月</option>
+											<option value="9">9月</option>
+											<option value="10">10月</option>
+											<option value="11">11月</option>
+											<option value="12">12月</option>
+										</select>
+									</div>
+								</div>
+
+								<div class="layui-inline">
+									<label class="layui-form-label">日期</label>
+									<div class="layui-input-inline" style="width:100px">
+										<select name="day">
+											<option value="">全部</option>
+											{for start="1" end="31"}
+											<option value="{$i}">{$i}日</option>
+											{/for}
+										</select>
+									</div>
+								</div>
+								<div class="layui-inline">
+									<label class="layui-form-label">类型</label>
+									<div class="layui-input-inline" style="width:100px">
+										<select name="tjtype">
+											<option value="1">成交额</option>
+											<option value="2">成交量</option>
+										</select>
+									</div>
+								</div>
+								<div class="layui-inline">
+									<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+										<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+									</button>
+								</div>
+							</div>
+						</div>
+						<div class="layui-col-md12" id="tongji_e">总交易额：<span id="tongji_e_num1">0.00</span>，最高交易额：<span id="tongji_e_num2">0.00</span></div>
+						<div class="layui-col-md12" id="tongji_l" style="display:none">总交易量：<span id="tongji_l_num1">0</span>，最高交易量：<span id="tongji_l_num2">0</span></div>
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+  var table = layui.table;
+	var datawhere = {};
+	{if input('?param.status') && input('param.status')!==''}
+	datawhere['status'] = "{$Request.param.status}";
+	{/if}
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{$Request.url}" //数据接口
+    ,page: false //开启分页
+		,autoSort:false
+		//,size:'sm'
+    ,cols: [[ //表头
+			//{type:"checkbox"},
+      {field: 'date', title: '月份',width:200},
+			{field: 'val', title: '成交额',width:370},
+			{field: 'percent',title: '所占比例',templet: function(d){
+				var html = '';
+				html += '<div>';
+				html += '	<div style="float:left">'+d.percent+'%</div>';
+				html += '	<div style="padding-left:80px;padding-top:5px"><div class="layui-progress"><div class="layui-progress-bar layui-bg-red" lay-percent="'+d.percent+'%"></div></div></div>';
+				html +=' </div>';
+				return html;
+			}},
+    ]],
+		done:function(res, curr, count){
+			if(res.tjtype == 1){
+				$('#tongji_e').show();
+				$('#tongji_l').hide();
+				$('#tongji_e_num1').text(res.totalval);
+				$('#tongji_e_num2').text(res.maxval + (res.maxdate ? '('+res.maxdate+')' : ''));
+			}else{
+				$('#tongji_e').hide();
+				$('#tongji_l').show();
+				$('#tongji_l_num1').text(res.totalval);
+				$('#tongji_l_num2').text(res.maxval + (res.maxdate ? '('+res.maxdate+')' : ''));
+			}
+			$('#totalcommission').html(res.totalcommission);
+			layui.element.render('progress');//tableIns.reload();
+
+		}
+  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//日期范围选择
+	layui.laydate.render({ 
+		elem: '#ctime',
+		trigger: 'click',
+		range: '~' //或 range: '~' 来自定义分割字符
+	});
+	//日期范围选择
+	layui.laydate.render({ 
+		elem: '#paytime',
+		trigger: 'click',
+		range: '~' //或 range: '~' 来自定义分割字符
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere
+		});
+		console.log(field);
+		if(field.month != ''){
+			$('.laytable-cell-1-0-0').text('日期');
+		}else{
+			$('.laytable-cell-1-0-0').text('月份');
+		}
+		if(field.tjtype=='2'){
+			$('.laytable-cell-1-0-1').text('成交量');
+		}else{
+			$('.laytable-cell-1-0-1').text('成交额');
+		}
+	})
+	</script>
+	{include file="public/copyright"/}
+</body>
+</html>

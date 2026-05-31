@@ -1,0 +1,82 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>模板市场</title>
+	<meta name="renderer" content="webkit">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	{include file="public/css"/}
+
+</head>
+<body>
+<div class="layui-fluid">
+	<div class="layui-row layui-col-space15">
+		<div class="layui-card layui-col-md12">
+			<div class="layui-card-header"><i class="fa fa-list"></i> 模板市场</div>
+			<div class="layui-card-body" pad15>
+
+				<ul class="market-category">
+					<li class="{:input('cate')?'':'on'}"><a href="{:url('')}">全部</a></li>
+					{foreach $types as $type}
+					<li class="{$type==input('cate')?'on':''}"><a href="{:url('')}/cate/{$type}">{$type}</a></li>
+					{/foreach}
+				</ul>
+
+
+				<div class="template-list">
+
+					{foreach $list as $template}
+
+					<div class="item">
+						<h3>{$template.name} <span class="use" data-id="{$template.id}" data-title="{$template.name}">使用</span></h3>
+						<iframe src="{:url('DesignerPage/preview')}/id/{$template['id']}" class="iframe"></iframe>
+					</div>
+
+					{/foreach}
+				</div>
+
+				<div id="pager">
+					{$page}
+				</div>
+
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<script type="text/javascript" src="/static/admin/layui/layui.all.js?v=20210226"></script>
+<script type="text/javascript" src="/static/admin/js/jquery-ui.min.js?v=20200228"></script>
+<script>
+	$(document).on('click','.use',function () {
+		var id=$(this).data('id'),title=$(this).data('title');
+
+        layer.prompt({
+		  formType: 3,
+		  value: title,
+		  title: '请输入复制后的模板名称',
+		}, function(value, index, elem){
+            console.log(id,title,value);
+
+            if(!value){
+                return layer.msg('请输入名称');
+            }
+            $.post('{:url("copy")}',{id:id,title:value},function (res) {
+	            layer.msg(res.msg);
+
+                if(res.status){
+                    layer.close(index);
+                    setTimeout(function () {
+	                    window.location.href="{:url('DesignerPage/index')}";
+                    },1500)
+                }
+            })
+
+		});
+
+    })
+</script>
+</body>
+</html>

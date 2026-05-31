@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>添加活动</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if $info.id}编辑活动{else}添加活动{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<!-- <blockquote class="layui-elem-quote"></blockquote> -->
+					<div class="flex">
+						<div class="layui-form flex1 form-label-w6" lay-filter="" style="padding-bottom:20px">
+							<input type="hidden" name="info[id]" value="{$info.id}"/>
+							
+							红包设置<hr/>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>活动名称：</label>
+								<div class="layui-input-inline" style="width:300px">
+									<input type="text" class="layui-input" name="info[name]" value="{$info.name}" lay-verify="required" lay-verType="tips"/>
+								</div>
+							</div>
+							<!-- <div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>活动简介：</label>
+								<div class="layui-input-inline" style="width:300px">
+									<input type="text" class="layui-input" name="info[desc]" value="{$info.desc}" lay-verify="required" lay-verType="tips"/>
+								</div>
+							</div> -->
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>商户名称：</label>
+								<div class="layui-input-inline" style="width:300px">
+									<input type="text" class="layui-input" name="info[sendname]" value="{$info.sendname}" lay-verify="required" lay-verType="tips"/>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>使用场景：</label>
+								<div class="layui-input-inline" style="width:300px">
+									<select name="info[scene_id]">
+										<option value="">默认</option>
+										<option value="PRODUCT_1" {if $info['scene_id'] == 'PRODUCT_1'}selected{/if}>商品促销</option>
+										<option value="PRODUCT_2" {if $info['scene_id'] == 'PRODUCT_2'}selected{/if}>抽奖</option>
+										<option value="PRODUCT_3" {if $info['scene_id'] == 'PRODUCT_3'}selected{/if}>虚拟物品兑奖</option>
+										<option value="PRODUCT_4" {if $info['scene_id'] == 'PRODUCT_4'}selected{/if}>企业内部福利</option>
+										<option value="PRODUCT_5" {if $info['scene_id'] == 'PRODUCT_5'}selected{/if}>渠道分润</option>
+										<option value="PRODUCT_6" {if $info['scene_id'] == 'PRODUCT_6'}selected{/if}>保险回馈</option>
+										<option value="PRODUCT_7" {if $info['scene_id'] == 'PRODUCT_7'}selected{/if}>彩票派奖</option>
+										<option value="PRODUCT_8" {if $info['scene_id'] == 'PRODUCT_8'}selected{/if}>税务刮奖</option>
+									</select>
+								</div>
+								<div class="layui-form-mid layui-word-aux">红包金额大于200或者小于1元时选择，选择场景时请确保商户平台[现金红包设置]内已申请相应的场景配额</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>红包金额：</label>
+								<div class="layui-input-inline" style="width:85px">
+									<input type="text" name="info[minmoney]" value="{$info['minmoney']}" class="layui-input">
+								</div>
+								<div class="layui-form-mid"> - </div>
+								<div class="layui-input-inline" style="width:85px">
+									<input type="text" name="info[maxmoney]" value="{$info['maxmoney']}" class="layui-input">
+								</div>
+								<div class="layui-form-mid">元</div>
+								<div class="layui-form-mid layui-word-aux">1~200之间；例如：1.5 - 2.0元 即随机发放一个1.5~2.0元的红包</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>总发放红包金额：</label>
+								<div class="layui-input-inline" style="width:300px">
+									<input type="text" class="layui-input" name="info[totalmoney]" value="{$info.totalmoney}" lay-verify="required" lay-verType="tips"/>
+								</div>
+								<div class="layui-form-mid layui-word-aux">请确保微信支付商户平台的可用余额充足</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>每人抢红包次数：</label>
+								<div class="layui-input-inline" style="width:300px">
+									<input type="text" class="layui-input" name="info[pernum]" value="{$info.pernum}" lay-verify="required" lay-verType="tips"/>
+								</div>
+								<div class="layui-form-mid layui-word-aux">每人最多可用领取几次</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>开始时间：</label>
+								<div class="layui-input-inline">
+									<input type="text" id="starttime" name="info[starttime]" value="{:date('Y-m-d H:i:s',$info['starttime'])}" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span class="redstar">*</span>结束时间：</label>
+								<div class="layui-input-inline">
+									<input type="text" id="endtime" name="info[endtime]" value="{:date('Y-m-d H:i:s',$info['endtime'])}" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">领取条件：</label>
+								<div class="layui-input-inline" style="width:500px">
+									<input type="checkbox" name="info[gettj][]" value="-1" title="所有人" {if in_array('-1',$info['gettj'])}checked{/if}/>
+									<input type="checkbox" name="info[gettj][]" value="0" title="关注用户" {if in_array('0',$info['gettj'])}checked{/if}/>
+									{foreach $memberlevel as $v}
+									<input type="checkbox" name="info[gettj][]" value="{$v.id}" title="{$v.name}" {if in_array($v['id'],$info['gettj'])}checked{/if}/>
+									{/foreach}
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">抽奖码抽奖：</label>
+								<div class="layui-input-inline">
+									<input type="radio" name="info[needcode]" value="1" title="开启" {if $info['needcode']==1}checked{/if}/>
+									<input type="radio" name="info[needcode]" value="0" title="关闭" {if !$info['id'] || $info['needcode']==0}checked{/if}/>
+								</div>
+								<div class="layui-form-mid layui-word-aux">开启后需要输入抽奖码才能抽奖，请在活动列表生成抽奖码</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">状 态：</label>
+								<div class="layui-input-inline">
+									<input type="radio" name="info[status]" value="1" title="开启" {if !$info['id'] || $info['status']==1}checked{/if}/>
+									<input type="radio" name="info[status]" value="0" title="关闭" {if $info['id'] && $info['status']==0}checked{/if}/>
+								</div>
+							</div>
+							
+							分享设置<hr/>
+							<div class="layui-form-item">
+								<label class="layui-form-label">分享标题：</label>
+								<div class="layui-input-inline" style="width:300px">
+									<input type="text" class="layui-input" name="info[sharetitle]" value="{$info.sharetitle}"/>
+								</div>
+								<div class="layui-form-mid layui-word-aux">默认为活动名称</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">分享图标：</label>
+								<input type="hidden" name="info[sharepic]" id="sharepic" lay-verType="tips" class="layui-input" value="{$info.sharepic}">
+								<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="sharepic" upload-preview="sharepicPreview" onclick="uploader(this)">上传图片</button>
+								<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：400×400像素</div>
+								<div id="sharepicPreview" class="picsList-class-padding">
+									<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.sharepic}"/></div></div>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">分享描述：</label>
+								<div class="layui-input-inline" style="width:300px">
+									<input type="text" class="layui-input" name="info[sharedesc]" value="{$info.sharedesc}"/>
+								</div>
+								<div class="layui-form-mid layui-word-aux"></div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">分享链接：</label>
+								<div class="layui-input-inline" style="width:300px">
+									<input type="text" class="layui-input" name="info[sharelink]" value="{$info.sharelink}"/>
+								</div>
+								<div class="layui-form-mid layui-word-aux" style="margin-left:140px">默认为活动链接，设置后发送给朋友或分享到朋友圈，点击后会跳转到此链接地址</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label"></label>
+								<div class="layui-input-block">
+									<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+								</div>
+							</div>
+						</div>
+						<div>
+							<div class="dsn-phone">
+								<div class="dsn-phone-left"></div>
+								<div class="dsn-phone-center">
+									<div class="dsn-phone-top"></div>
+									<div class="dsn-phone-main">
+										<div id="editor">
+											<div class="dsn-mod dsn-topbar dsn-mod-nohover" style="color:#fff;background:#000;height:60px">
+												<div style="float:left;width:100%;font-size:12px">
+													<div style="float:left;width:30%">&nbsp;<i class="fa fa-signal"></i> wechat <i class="fa fa-wifi"></i></div>
+													<div style="float:left;text-align:center;width:40%">12:00</div>
+													<div style="float:left;text-align:right;width:30%">100% <i class="fa fa-battery-full"></i>&nbsp;</div>
+												</div>
+												<div style="float:left;width:98%;margin:2px 1% 0 1%;">
+													<div style="float:left;width:30%">&nbsp;</div>
+													<div style="float:left;text-align:center;width:40%;font-size:16px;height:27px;line-height:27px" id="name_preview">{$info.name}</div>
+												</div>
+											</div>
+											<div id="editor-content" style="overflow:hidden">
+												<img src="__STATIC__/img/hongbao/preview.png" style="width:100%">
+											</div>
+										</div>
+									</div>
+									<div class="dsn-phone-bottom"></div>
+								</div>
+								<div class="dsn-phone-right"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+      </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	$("input[name='info[name]']").bind("input change propertychange",function(event){
+		$('#name_preview').text($(this).val())
+	})
+	//日期时间选择器
+	layui.laydate.render({ 
+		elem: '#starttime',
+		type: 'datetime',
+		trigger: 'click'
+	});
+	layui.laydate.render({ 
+		elem: '#endtime',
+		type: 'datetime',
+		trigger: 'click'
+	});
+
+	layui.form.on('radio(to_type)',function(data){
+		$('#to_type_1').hide();
+		$('#to_type_2').hide();
+		if(data.value==1){
+			$('#to_type_1').show();
+		}
+		if(data.value==2){
+			$('#to_type_2').show();
+		}
+	})
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		//console.log(field);return;
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.closeAll();
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+	</script>
+	{include file="public/copyright"/}
+</body>
+</html>

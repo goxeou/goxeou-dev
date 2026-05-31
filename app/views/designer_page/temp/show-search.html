@@ -1,0 +1,12 @@
+<div class="dsn-mod dsn-search" ng-class="{'dsn-mod-select':Item.id == focus}" ng-style="{'background-color':Item.params.bgcolor,'margin':Item.params.margin_y+'px '+Item.params.margin_x+'px','padding':Item.params.padding_y+'px '+Item.params.padding_x+'px'}">
+	<div ng-show="!Item.params.openmore || Item.params.openmore<=0" class="dp-search-search"
+		ng-style="{'border-color':Item.params.bordercolor,'border-radius':Item.params.borderradius+'px'}" >
+		<div class="dp-search-search-f1"></div>
+		<div class="dp-search-search-f2">
+			<input class="dp-search-search-input" name="keyword" placeholder="{{Item.params.placeholder}}" ng-style="{color:Item.params.color}" />
+		</div>
+        
+        
+	</div>
+    
+</div>

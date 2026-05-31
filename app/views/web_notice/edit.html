@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>添加通知公告</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	.layui-form-select dl{z-index:999999!important}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加通知公告{else}<i class="fa fa-pencil"></i> 编辑通知公告{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form">
+						<input type="hidden" name="info[id]" value="{$info.id}"/>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">接收范围：</label>
+							<div class="layui-input-inline" style="width:900px">
+								<input type="radio" name="sendtype" value="1" title="所有账号(平台用户+入驻商家)" checked lay-filter="setsendtype">
+								<input type="radio" name="sendtype" value="2" title="平台主账号" lay-filter="setsendtype">
+								<input type="radio" name="sendtype" value="3" title="平台主账号+分账号" lay-filter="setsendtype">
+								<input type="radio" name="sendtype" value="4" title="商家主账号" lay-filter="setsendtype">
+								<input type="radio" name="sendtype" value="5" title="商家主账号+分账号" lay-filter="setsendtype">
+							</div>
+						</div>
+						<div class="layui-form-item" id="sendtype1">
+							<label class="layui-form-label">接收账号：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<select name="senduser1" lay-search>
+									<option value="0">全部账号</option>
+									{foreach $userlist as $user}
+									<option value="{$user.id}">{$user.un}</option>
+									{/foreach}
+								</select>
+							</div>
+						</div>
+						<div class="layui-form-item" id="sendtype2" style="display:none">
+							<label class="layui-form-label">接收账号：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<select name="senduser2" lay-search>
+									<option value="0">全部平台主账号</option>
+									{foreach $adminuserlist as $user}
+									<option value="{$user.id}">{$user.un}</option>
+									{/foreach}
+								</select>
+							</div>
+						</div>
+						<div class="layui-form-item" id="sendtype3" style="display:none">
+							<label class="layui-form-label">接收账号：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<select name="senduser3" lay-search>
+									<option value="0">全部平台主账号+分账号</option>
+									{foreach $adminuserlist2 as $user}
+									<option value="{$user.id}">{$user.un}</option>
+									{/foreach}
+								</select>
+							</div>
+						</div>
+						<div class="layui-form-item" id="sendtype4" style="display:none">
+							<label class="layui-form-label">接收账号：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<select name="senduser4" lay-search>
+									<option value="0">全部商家主账号</option>
+									{foreach $businessuserlist as $user}
+									<option value="{$user.id}">{$user.un}</option>
+									{/foreach}
+								</select>
+							</div>
+						</div>
+						<div class="layui-form-item" id="sendtype5" style="display:none">
+							<label class="layui-form-label">接收账号：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<select name="senduser5" lay-search>
+									<option value="0">全部商家主账号+分账号</option>
+									{foreach $businessuserlist2 as $user}
+									<option value="{$user.id}">{$user.un}</option>
+									{/foreach}
+								</select>
+							</div>
+						</div>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">标题：</label>
+							<div class="layui-input-inline" style="width:500px">
+								<input type="text" name="info[title]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.title}">
+							</div>
+						</div>
+						<!-- <div class="layui-form-item">
+							<label class="layui-form-label">作者：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[author]" class="layui-input" value="{$info.author}">
+							</div>
+						</div>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">发布时间：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[sendtime]" value="{:date('Y-m-d',$info['sendtime'])}" id="sendtime" class="layui-input">
+							</div>
+						</div> -->
+						<div class="layui-form-item">
+							<label class="layui-form-label">内容：</label>
+							<div class="layui-input-inline" style="width:900px">
+								<script id="content" name="info[content]" type="text/plain" style="width:100%;height:500px">{$info['content']}</script>
+							</div>
+						</div>
+
+						<div class="layui-form-item">
+							<div class="layui-input-block">
+								<button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	var ueditor = UE.getEditor('content');
+	//日期时间范围选择
+	layui.form.on('radio(setsendtype)', function(data){
+		console.log(data)
+		$('#sendtype1').hide();
+		$('#sendtype2').hide();
+		$('#sendtype3').hide();
+		$('#sendtype4').hide();
+		$('#sendtype5').hide();
+		$('#sendtype' + data.value).show();
+	})
+	</script>
+
+	<script>
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		field['info[content]'] = ueditor.getContent();
+		//field['info[content]'] = geteditordata();
+		//console.log(field);return;
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.close(parent.layer.getFrameIndex(window.name));
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+  </script>
+</body>
+</html>

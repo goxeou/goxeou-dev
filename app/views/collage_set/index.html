@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>系统设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header"><i class="fa fa-cog"></i> 系统设置</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w8" lay-filter="">
+						<!-- <div class="layui-form-item">
+							<label class="layui-form-label">商城标题：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[name]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info['name']}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">商城LOGO：</label>
+							<input type="hidden" name="info[logo]" id="logo" class="layui-input" value="{$info['logo']}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="logo" upload-preview="logoPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：400×400像素</div>
+							<div id="logoPreview" class="picsList-class-padding">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info['logo']}"/></div></div>
+							</div>
+						</div> -->
+						<div class="layui-form-item">
+							<label class="layui-form-label">轮播图：</label>
+							<input type="hidden" name="info[pics]" value="{$info.pics}" id="pics">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this,true)" upload-input="pics" upload-preview="picList" >批量上传</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：640×320像素</div>
+							<div id="picList" class="picsList-class-padding">
+								{if $info['pics']}
+								{php}$pics = explode(',',$info['pics']);{/php}
+								{foreach $pics as $pic}
+								<div class="layui-imgbox" style="width:100px;height:50px">
+									<a class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().remove();getpicsval('pics','picList')" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+									<span class="layui-imgbox-img"><img src="{$pic}"></span>
+								</div>
+								{/foreach}{/if}
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">自动收货天数：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[autoshdays]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.autoshdays}">
+							</div>
+							<div class="layui-form-mid">天</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">发货后多少天用户未确认收货自动完成收货</div>
+						</div>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">商品评价：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[comment]" value="1" {if $info['comment']==1}checked{/if} title="开启" lay-filter="comment"/>
+								<input type="radio" name="info[comment]" value="0" {if $info['comment']==0}checked{/if} title="关闭" lay-filter="comment"/>
+							</div>
+						</div>
+						<div class="layui-form-item" id="commentset" {if $info['comment']==0}style="display:none"{/if}>
+							<label class="layui-form-label">评价审核：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[comment_check]" value="1" {if $info['comment_check']==1}checked{/if} title="开启" lay-filter="comment_check"/>
+								<input type="radio" name="info[comment_check]" value="0" {if $info['comment_check']==0}checked{/if} title="关闭" lay-filter="comment_check"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">关闭后用户的评价将直接显示,不需要后台审核</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">进店及咨询：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[showjd]" value="1" {if $info['showjd']==1}checked{/if} title="是"/>
+								<input type="radio" name="info[showjd]" value="0" {if $info['showjd']==0}checked{/if} title="否"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">商品详情页是否显示进店及咨询</div>
+						</div>
+						
+						{if getcustom('ngmm')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">广告图1：</label>
+							<input type="hidden" name="info[detail_guangao1]" id="detail_guangao1" lay-verType="tips" class="layui-input" value="{$info.detail_guangao1}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="detail_guangao1" upload-preview="detail_guangao1Preview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：800*200像素</div>
+							<div id="detail_guangao1Preview" class="picsList-class-padding">
+								<div class="layui-imgbox" style="width:200px;height:50px;"><div class="layui-imgbox-img"><img src="{$info.detail_guangao1}"/></div></div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">广告图1弹窗：</label>
+							<input type="hidden" name="info[detail_guangao1_t]" id="detail_guangao1_t" lay-verType="tips" class="layui-input" value="{$info.detail_guangao1_t}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="detail_guangao1_t" upload-preview="detail_guangao1_tPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：600*600像素</div>
+							<div id="detail_guangao1_tPreview" class="picsList-class-padding">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.detail_guangao1_t}"/></div></div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">广告图2：</label>
+							<input type="hidden" name="info[detail_guangao2]" id="detail_guangao2" lay-verType="tips" class="layui-input" value="{$info.detail_guangao2}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="detail_guangao2" upload-preview="detail_guangao2Preview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：800*200像素</div>
+							<div id="detail_guangao2Preview" class="picsList-class-padding">
+								<div class="layui-imgbox" style="width:200px;height:50px;"><div class="layui-imgbox-img"><img src="{$info.detail_guangao2}"/></div></div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">广告图2弹窗：</label>
+							<input type="hidden" name="info[detail_guangao2_t]" id="detail_guangao2_t" lay-verType="tips" class="layui-input" value="{$info.detail_guangao2_t}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="detail_guangao2_t" upload-preview="detail_guangao2_tPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：600*600像素</div>
+							<div id="detail_guangao2_tPreview" class="picsList-class-padding">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.detail_guangao2_t}"/></div></div>
+							</div>
+						</div>
+						{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label">团长发起订单退款：</label>
+							<div class="layui-input-inline" style="width: 260px">
+								<input type="radio" name="info[team_refund]" value="0" {if !$info['team_refund'] || $info['team_refund']==0}checked{/if} title="不解散团" />
+								<input type="radio" name="info[team_refund]" value="1" {if $info['team_refund']==1}checked{/if} title="解散团" />
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">未拼团成功时，团长发起订单退款通过后，此团状态是保持不变，还是就此解散团</div>
+						</div>
+						{if getcustom('collage_teampay')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">参团{:t('余额')}支付：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[teampay]" value="0" title="关闭" {if $info['id'] && $info['teampay']==0}checked{/if}/>
+								<input type="radio" name="info[teampay]" value="1" title="开启" {if !$info['id'] || $info['teampay']==1}checked{/if}/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">关闭参团余额支付后，只有发起者可用{:t('余额')}支付，其他参团人员不能用</div>
+						</div>
+						{/if}
+						{if getcustom('collage_show_mingpian')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">展示参团人名片：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[show_mingpian]" value="1" {if $info['show_mingpian']==1}checked{/if} title="开启"/>
+								<input type="radio" name="info[show_mingpian]" value="0" {if $info['show_mingpian']==0}checked{/if} title="关闭"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">前台参团成员页是否显示成员名片</div>
+						</div>
+						{/if}
+						{if getcustom('yx_collage_teambuy_type')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">团长拼团模式：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[teambuy_type]" value="0" {if !$info['teambuy_type'] || $info['teambuy_type']==0}checked{/if} title="普通"/>
+								<input type="radio" name="info[teambuy_type]" value="1" {if $info['teambuy_type']==1}checked{/if} title="模式一"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">
+								选择模式一后：<br>
+								&nbsp;&nbsp;&nbsp;&nbsp;1、团长发起拼团不用支付、不占用人数，拼团成功后只给团长积分奖励，不给发货并且直接完成订单；<br>
+								&nbsp;&nbsp;&nbsp;&nbsp;2、在开启此模式时，那些成功发起的拼团订单不会因切换到其他模式而改变，会按照此模式的流程继续走下去，新订单会按其他模式流程走
+							</div>
+						</div>
+						{/if}
+						{if getcustom('yx_collage_team_in_team')}
+							{if $show_teaminteam}
+							<div class="layui-form-item">
+								<label class="layui-form-label">团中团裂变：</label>
+								<div class="layui-input-inline">
+									<input type="radio" name="info[team_in_team]" value="1" {if $info['team_in_team']==1}checked{/if} title="开启" lay-filter="teaminteam"/>
+									<input type="radio" name="info[team_in_team]" value="0" {if !$info['team_in_team'] || $info['team_in_team']==0}checked{/if} title="关闭" lay-filter="teaminteam"/>
+								</div>
+								<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">开启后，平台和商户的拼团商品编辑中可设置相关参数并且发放奖励</div>
+							</div>
+							<div id="setteaminteam" style="{if $info['team_in_team'] !=1}display: none;{/if}">
+								<div class="layui-form-item">
+									<label class="layui-form-label">详情页自定义文字：</label>
+									<div class="layui-input-inline" style="width:350px">
+										<input type="text" name="info[teaminteam_word]" value="{$info['id']?$info['teaminteam_word']:'0'}" class="layui-input">
+									</div>
+									<div class="layui-form-mid layui-word-aux">填写[佣金],将会自动按拼团商品规格中最高拼团价格，计算购买一件数量可获得的佣金总数额，来替换[佣金]所处位置</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label">文字颜色：</label>
+									<div class="layui-input-inline">
+										<input type="text" name="info[teaminteam_color]" value="{$info['teaminteam_color']}" class="layui-input">
+									</div>
+									<div class="_colorpicker" style="float:left"></div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label">文字背景色：</label>
+									<div class="layui-input-inline">
+										<input type="text" name="info[teaminteam_bgcolor]" value="{$info['teaminteam_bgcolor']}" class="layui-input">
+									</div>
+									<div class="_colorpicker" style="float:left"></div>
+								</div>
+							</div>
+							{/if}
+						{/if}
+						{if getcustom('yx_collage_orderrefund_wifiprint')}
+							<div class="layui-form-item">
+								<label class="layui-form-label">申请退款打印小票：</label>
+								<div class="layui-input-inline">
+									<input type="radio" name="info[refund_wifiprint]" value="1" {if $info['refund_wifiprint']==1}checked{/if} title="开启"/>
+									<input type="radio" name="info[refund_wifiprint]" value="0" {if !$info['refund_wifiprint'] || $info['refund_wifiprint']==0}checked{/if} title="关闭"/>
+								</div>
+								<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">开启后，拼团商品如果订单申请了退货自动打印小票</div>
+							</div>
+						{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+      </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.form.on('radio(freightfree)', function(data){
+		if(data.value == '1'){
+			$('#freightfreemoneyset').show();
+		}else{
+			$('#freightfreemoneyset').hide();
+		}
+	})
+	layui.form.on('radio(comment)', function(data){
+		if(data.value == '1'){
+			$('#commentset').show();
+		}else{
+			$('#commentset').hide();
+		}
+	})
+	{if getcustom('yx_collage_team_in_team')}
+		layui.form.on('radio(teaminteam)', function(data){
+			if(data.value == '1'){
+				$('#setteaminteam').show();
+			}else{
+				$('#setteaminteam').hide();
+			}
+		})
+		layui.form.on('radio(teaminteam_commissiontype)', function(data){
+			if(data.value == '1'){
+				$('.teaminteam_commissionunit').html('元');
+			}else{
+				$('.teaminteam_commissionunit').html('%');
+			}
+		})
+	{/if}
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		if(field['info[logo]'] == ''){
+			dialog('请上传商家LOGO',0);return;
+		}
+		$.post("{:url('save')}",field,function(data){
+			dialog(data.msg,data.status,data.url);
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

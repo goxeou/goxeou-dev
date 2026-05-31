@@ -1,0 +1,94 @@
+<div class="dsn-mod dp-article" ng-class="{'dsn-mod-select':Item.id == focus}" ng-style="{'background-color':Item.params.bgcolor,'margin':Item.params.margin_y+'px '+Item.params.margin_x+'px 0','padding':Item.params.padding_y+'px '+Item.params.padding_x+'px'}">
+	<div style="line-height: 170px; text-align: center; color: #999; font-size: 16px;" ng-show="Item.data == ''">一篇文章都没有...</div>
+	<!--单排-->
+	<div ng-show="Item.params.style=='1'" ng-repeat="item in Item.data" class="article-item1" style="{{Item.params.showline==1?'border-bottom: 1px solid '+Item.params.linecolor:''}};border-radius:{{Item.params.borderradius}}px">
+		<div class="article-pic" ng-if="Item.params.showpic==1">
+			<img class="image" ng-src="{{item.pic}}" style="{{Item.params.pic_width>0&&Item.params.pic_height>0?'width: '+Item.params.pic_width+'px;height: '+Item.params.pic_height+'px':''}}"/>
+		</div>
+		<div class="article-info" >
+			<div class="p1" style="{{Item.params.title_size>0?'font-size: '+Item.params.title_size+'px':''}}">{{item.name}}</div>
+			
+			<div class="p2">
+				<span style="overflow:hidden" class="flex1" ng-if="Item.params.showtime==1">{{item.createtime}}</span>
+				<span style="overflow:hidden" ng-if="Item.params.showreadcount==1">阅读 {{item.readcount}}</span>
+			</div>
+		</div>
+	</div>
+	<!--双排-->
+	<div ng-show="Item.params.style=='2' || Item.params.style=='6'" ng-repeat="item in Item.data" class="article-item2" ng-init="index = $index" style="margin-right:{{index%2==0?'2%':'0'}}">
+		<div class="article-pic" ng-if="Item.params.style=='6' || Item.params.showpic==1">
+			<img class="image" ng-src="{{item.pic}}" style="{{Item.params.pic_width>0&&Item.params.pic_height>0?'width: '+Item.params.pic_width+'px;height: '+Item.params.pic_height+'px':''}}"/>
+		</div>
+		<div class="article-info" >
+			<div class="p1" style="{{Item.params.title_size>0?'font-size: '+Item.params.title_size+'px':''}}">{{item.name}}</div>
+			
+			<div class="p2">
+				<span style="overflow:hidden" class="flex1" ng-if="Item.params.showtime==1">{{item.createtime}}</span>
+				<span style="overflow:hidden" ng-if="Item.params.showreadcount==1">阅读 {{item.readcount}}</span>
+			</div>
+		</div>
+	</div>
+	<!--左图-->
+	<div ng-show="Item.params.style=='4'" ng-repeat="item in Item.data" class="article-itemlist" style="{{Item.params.showline==1?'border-bottom: 1px solid '+Item.params.linecolor:''}};border-radius:{{Item.params.borderradius}}px">
+		<div class="article-pic" ng-if="Item.params.showpic==1">
+			<img class="image" ng-src="{{item.pic}}" style="{{Item.params.pic_width>0&&Item.params.pic_height>0?'width: '+Item.params.pic_width+'px;height: '+Item.params.pic_height+'px':''}}"/>
+		</div>
+		<div class="article-info" >
+			<div class="p1" style="{{Item.params.title_size>0?'font-size: '+Item.params.title_size+'px':''}}">{{item.name}}</div>
+			
+			<div class="p2">
+				<span style="overflow:hidden" class="flex1" ng-if="Item.params.showtime==1">{{item.createtime}}</span>
+				<span style="overflow:hidden" ng-if="Item.params.showreadcount==1">阅读 {{item.readcount}}</span>
+			</div>
+		</div>
+	</div>
+	<!--右图-->
+	<div ng-show="Item.params.style=='5'" ng-repeat="item in Item.data" class="article-itemlist" style="{{Item.params.showline==1?'border-bottom: 1px solid '+Item.params.linecolor:''}};border-radius:{{Item.params.borderradius}}px">
+		<div class="article-info" style="padding-left:5px;">
+			<div class="p1" style="{{Item.params.title_size>0?'font-size: '+Item.params.title_size+'px':''}}">{{item.name}}</div>
+			
+			<div class="p2">
+				<span style="overflow:hidden" class="flex1" ng-if="Item.params.showtime==1">{{item.createtime}}</span>
+				<span style="overflow:hidden" ng-if="Item.params.showreadcount==1">阅读 {{item.readcount}}</span>
+			</div>
+		</div>
+		<div class="article-pic" ng-if="Item.params.showpic==1">
+			<img class="image" ng-src="{{item.pic}}"/>
+		</div>
+	</div>
+	<!--三排-->
+	<div ng-show="Item.params.style=='7'" ng-repeat="item in Item.data" class="article-item2" ng-init="index = $index" style="margin-right:{{(index+1)%3==0?'0':'2%'}};width: 32%;">
+		<div class="article-info">
+    		<div class="p1" style="{{Item.params.title_size>0?'font-size: '+Item.params.title_size+'px':''}}">{{item.name}}</div>
+    	</div>
+    	
+		<div class="article-pic" ng-if="Item.params.showpic==1">
+			<img class="image" ng-src="{{item.pic}}" style="{{Item.params.pic_width>0&&Item.params.pic_height>0?'width: '+Item.params.pic_width+'px;height: '+Item.params.pic_height+'px':''}}"/>
+		</div>
+		<div class="article-info">
+			<div class="p2">
+				<span style="overflow:hidden" class="flex1" ng-if="Item.params.showtime==1">{{item.createtime}}</span>
+				<span style="overflow:hidden" ng-if="Item.params.showreadcount==1">阅读 {{item.readcount}}</span>
+			</div>
+		</div>
+	</div>
+	
+	<!--左右滑动-->
+	<div style="width: 100%;overflow-x: scroll;white-space: nowrap;">
+		<div ng-show="Item.params.style=='9'" ng-repeat="item in Item.data" class="article-item2" ng-init="index = $index" style="display: inline-block;margin-right: 10px;">
+			<div class="article-info">
+				<div class="p1" style="{{Item.params.title_size>0?'font-size: '+Item.params.title_size+'px':''}}">{{item.name}}</div>
+			</div>
+			
+			<div class="article-pic" ng-if="Item.params.showpic==1">
+				<img class="image" ng-src="{{item.pic}}" style="{{Item.params.pic_width>0&&Item.params.pic_height>0?'width: '+Item.params.pic_width+'px;height: '+Item.params.pic_height+'px':''}}"/>
+			</div>
+			<div class="article-info">
+				<div class="p2">
+					<span style="overflow:hidden" class="flex1" ng-if="Item.params.showtime==1">{{item.createtime}}</span>
+					<span style="overflow:hidden" ng-if="Item.params.showreadcount==1">阅读 {{item.readcount}}</span>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

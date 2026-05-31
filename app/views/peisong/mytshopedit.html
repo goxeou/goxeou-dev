@@ -1,0 +1,149 @@
+<!DOCTYPE html><!--custom_file(express_maiyatian)-->
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>麦芽田门店</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+  <script src="__STATIC__/admin/js/address4.js"></script>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+                <div class="layui-card-header">
+                    {if !$info['id']}<i class="fa fa-plus"></i> 添加{else}<i class="fa fa-pencil"></i> 编辑{/if}
+                    <i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+                </div>
+                <div class="layui-card-body" pad15>
+                    <div class="layui-form form-label-w6" lay-filter="">
+                        <input type="hidden" name="info[id]" id="id" value="{$info.id}">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">门店名称：</label>
+                            <div class="layui-input-inline" style="width: 300px">
+                                <input type="text" class="layui-input" name="info[name]" lay-verify="required" value="{$info['name']}"/>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">城市：</label>
+                            <div class="layui-input-inline">
+                                <select name="info[province]" id="province" lay-verify="required" lay-filter="province"></select>
+                            </div>
+                            <div class="layui-input-inline">
+                                <select name="info[city]" id="city" lay-filter="city"></select>
+                            </div>
+                            <input type="hidden" name="info[province_name]" id="province_name">
+                            <input type="hidden" name="info[city_name]"     id="city_name">
+                            <div style="line-height:40px;color: black;">
+                                已保存城市：{$info['province_name']?$info['province_name']:'无'}-{$info[city_name]?$info[city_name]:''}<span style="color: #666;">(若不对应请重新提交)</span>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">手机号码：</label>
+                            <div class="layui-input-inline" style="width: 300px">
+                                <input type="text" class="layui-input" name="info[phone]" lay-verify="required" value="{$info['phone']}"/>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">门店地址：</label>
+                            <div class="layui-input-inline" style="width: 300px">
+                                <input type="text" class="layui-input" name="info[address]" lay-verify="required" value="{$info['address']}"/>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">经纬度：</label>
+                            <div class="layui-input-inline" style="width:150px">
+                                <input type="text" name="info[longitude]" value="{$info['longitude']}" lay-verify="required" class="layui-input">
+                            </div>
+                            <div class="layui-form-mid">-</div>
+                            <div class="layui-input-inline" style="width:150px">
+                                <input type="text" name="info[latitude]" value="{$info['latitude']}" lay-verify="required" class="layui-input">
+                            </div>
+                            <button class="layui-btn layui-btn-primary" onclick="choosezuobiao()" style="float:left">选择坐标</button>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">物品类别：</label>
+                            <div class="layui-input-inline" >
+                                <select name="info[category]" lay-verify="required">
+                                    <option value="1" {if $info['category']==1}selected{/if}>食品</option>
+                                    <option value="2" {if $info['category']==2}selected{/if}>饮品</option>
+                                    <option value="3" {if $info['category']==3}selected{/if}>鲜花</option>
+                                    <option value="4" {if $info['category']==4}selected{/if}>票务</option>
+
+                                    <option value="5" {if $info['category']==5}selected{/if}>超市</option>
+                                    <option value="6" {if $info['category']==6}selected{/if}>水果</option>
+                                    <option value="7" {if $info['category']==7}selected{/if}>医药</option>
+                                    <option value="8" {if $info['category']==8}selected{/if}>蛋糕</option>
+                                    <option value="9" {if $info['category']==9}selected{/if}>酒品</option>
+
+                                    <option value="10" {if $info['category']==10}selected{/if}>服装</option>
+                                    <option value="11" {if $info['category']==11}selected{/if}>汽配</option>
+                                    <option value="12" {if $info['category']==12}selected{/if}>数码</option>
+
+                                    <option value="13" {if $info['category']==13}selected{/if}>夜宵烧烤</option>
+                                    <option value="14" {if $info['category']==14}selected{/if}>水产</option>
+                                    <option value="15" {if $info['category']==15}selected{/if}>百货</option>
+                                    <option value="99" {if $info['category']==99}selected{/if}>其他</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+													<label class="layui-form-label"></label>
+                            <div class="layui-input-block">
+                                <button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+  </div>
+    {include file="public/js"/}
+    <script>
+    function choosezuobiao(){
+        var address = $("input[name='info[address]']").val();
+        var longitude = $("input[name='info[longitude]']").val();
+        var latitude = $("input[name='info[latitude]']").val();
+        var choosezblayer = layer.open({type:2,shadeClose: true,area: ['800px', '560px'],'title': '选择坐标',content: "{:url('DesignerPage/choosezuobiao')}&address="+(address?address:"")+"&jd="+(longitude?longitude:"")+"&wd="+(latitude?latitude:""),btn:['确定','取消'],yes:function(index, layero){
+            var longitude = layero.find('iframe').contents().find('#mapjd').val();
+            var latitude = layero.find('iframe').contents().find('#mapwd').val();
+            $("input[name='info[longitude]']").val(longitude);
+            $("input[name='info[latitude]']").val(latitude);
+            layer.close(choosezblayer);
+        }});
+    }
+    layui.laydate.render({ 
+        elem: '#start_hours',
+        type: 'time',
+        format:'HH:mm',
+        trigger: 'click'
+    });
+    layui.laydate.render({ 
+        elem: '#end_hours',
+        type: 'time',
+        format:'HH:mm',
+        trigger: 'click'
+    });
+
+    address4('province','city',"{$info[province]}","{$info[city]}",'province_name','city_name');
+
+    layui.form.on('submit(formsubmit)', function(obj){
+        var field = obj.field;
+        var index = layer.load();
+        $.post("{:url('mytshopsave')}",field,function(data){
+            layer.close(index);
+            dialog(data.msg,data.status);
+            if(data.status == 1){
+                setTimeout(function(){
+                    parent.layer.closeAll();
+                    parent.tableIns.reload();
+                },1000)
+            }
+        })
+    })
+  </script>
+    {include file="public/copyright"/}
+</body>
+</html>

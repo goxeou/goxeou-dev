@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>收银台</title>
+	<meta name="renderer" content="webkit">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	{include file="public/css"/}
+	<style>
+		#ggnamediv .layui-input,#ggvaldiv .layui-input{ display:inline;height:30px}
+		.disabled{background: #eae9e9}
+		.paylist_cursor{cursor: no-drop}
+	</style>
+</head>
+<body>
+<div class="layui-fluid">
+	<div class="layui-row layui-col-space15">
+		<div class="layui-card layui-col-md12">
+			<div class="layui-card-header">
+				<i class="fa fa-pencil"></i> 收银台
+<!--				<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>-->
+			</div>
+			<div class="layui-card-body" pad15>
+				<blockquote class="layui-elem-quote">收银台需先保存设置后使用，搭配扫码枪进行收款和扫商品条码，商品条码需在“商城-商品管理-编辑”进行编辑”，使用登录地址进行手动登录可获取准确交班数据。</blockquote>
+				<div class="layui-form form-label-w6">
+					<div class="layui-form-item">
+						<label class="layui-form-label"><span class="redstar">*</span>收银台地址：</label>
+						<div class="layui-input-inline" style="width:420px;line-height: 40px">
+							<a style="color: #1E9FFF" href="{$cashier_url}" target="_blank">{$cashier_url}</a>
+						</div>
+						<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">*复制收银台地址，并在商户登录的浏览器环境下打开链接</div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label"><span class="redstar">*</span>登录地址：</label>
+						<div class="layui-input-inline" style="width:420px;line-height: 40px">
+							<a style="color: #1E9FFF" href="{$login_url}" target="_blank">{$login_url}</a>
+						</div>
+						<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">*复制收银台登录地址，在未登录后台的浏览器中打开链接，使用商户的账号和密码进行登录</div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label">主色调：</label>
+						<div class="layui-input-inline">
+							<input type="text" name="info[color1]" value="{$info['color1']}" class="layui-input">
+						</div>
+						<div class="_colorpicker" style="float:left"></div>
+						<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">收银台主色调，如：#2792FF</div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label">抹零位数：</label>
+						<div class="layui-input-inline" style="width:300px">
+							<input type="text" class="layui-input" name="info[remove_zero_length]" value="{$info.remove_zero_length|default=0}" />
+						</div>
+						<div class="layui-form-mid layui-word-aux">金额默认为2位小数，长度大于2时，将进行整数位抹零；小于100的金额不支持整数位抹零</div>
+					</div>
+					{if $bid ==0}
+					{if getcustom('cashdesk_member_recharge')}
+					{if $isadmin==1 || $isadmin ==2}
+					<div class="layui-form-item">
+						<label class="layui-form-label">会员充值：</label>
+						<div class="layui-input-inline" style="width:300px">
+							<input type="radio" name="info[member_recharge_status]" value="1" title="开启" {if $info['member_recharge_status']==1}checked{/if}/>
+							<input type="radio" name="info[member_recharge_status]" value="0" title="关闭" {if $info['member_recharge_status']==0}checked{/if}/>
+						</div>
+					</div>
+					{/if}
+					{/if}
+					<div class="layui-form-item">
+						<label class="layui-form-label" >收款方式：</label>
+						<div class="layui-input-inline" style="width:810px">
+							<input type="checkbox" name="info[wxpay]"  title="{$wxtitle}" value="1" {if $info['wxpay']==1}checked{/if}>
+							{if getcustom('cashdesk_sxpay')}	
+								<input type="checkbox" name="info[sxpay]" title="随行付" value="1" {if $info['sxpay']==1}checked{/if}/>
+							{/if}
+							<input type="checkbox" name="info[cashpay]" title="现金" value="1" {if $info['cashpay']==1}checked{/if}/>
+							<input type="checkbox" name="info[moneypay]" title="余额" value="1" {if $info['moneypay']==1}checked{/if}/>
+							
+							
+						</div>
+						<div class="layui-form-mid layui-word-aux" >开启微信收款时，请确定下方微信支付已配置完成，其他支付平台同理</div>
+					</div>
+					{/if}
+					{if $bid > 0}
+					<div class="layui-form-item">
+						<label class="layui-form-label" >收款方式：</label>
+						<div class="layui-input-inline" style="width:810px">
+							<div   {if $sysset['business_cashdesk_wxpay_type'] ==0 && $sysset['business_cashdesk_alipay_type'] ==0}style="display:none"{/if} class="layui-unselect layui-form-checkbox layui-form-checked paylist_cursor">
+							<span>{$bwxtitle}</span><i class="layui-icon layui-icon-ok"></i>
+							</div>
+							{if getcustom('cashdesk_sxpay')}
+							<div {if $sysset['business_cashdesk_sxpay_type'] ==0 }style="display:none"{/if} class="layui-unselect layui-form-checkbox layui-form-checked paylist_cursor">
+							<span>随行付收款</span><i class="layui-icon layui-icon-ok"></i>
+							</div>
+							{/if}
+							<div  {if $sysset['business_cashdesk_yue'] ==0}style="display:none"{/if} class="layui-unselect layui-form-checkbox layui-form-checked paylist_cursor">
+							<span>{:t('余额')}收款</span><i class="layui-icon layui-icon-ok"></i>
+							</div>
+							<div {if $sysset['business_cashdesk_cashpay'] ==0}style="display:none"{/if} class="layui-unselect layui-form-checkbox layui-form-checked paylist_cursor">
+							<span>{:t('现金')}收款</span><i class="layui-icon layui-icon-ok"></i>
+							</div>
+							
+							
+						</div>
+					</div>
+					{/if}
+					<div class="layui-form-item" id="print_zt_type_div">
+						<label class="layui-form-label">交班打印机：</label>
+						<div class="layui-input-inline" style="width:500px">
+							{php} $printids = explode(',',$info['jiaoban_print_ids']);{/php}
+							{foreach $printArr as $k=>$v}
+							<input type="checkbox" name="info[jiaoban_print_ids][]" value="{$k}" title="{$v}" lay-skin="primary" {if in_array($k,$printids)}checked{/if}>
+							{/foreach}
+						</div>
+						<div class="layui-form-mid layui-word-aux" >请在“系统-小票打印机”中增加小票打印机</div>
+					</div>
+					{if getcustom('cashier_member_paypwd')}
+					{if $info['bid'] ==0 && ($auth_data=='all' || in_array('Member/index',$auth_data) || in_array('Member/edit',$auth_data))}
+					<span style="color:#333">{:t('会员')}设置</span><hr/>
+					<div class="layui-form-item">
+						<label class="layui-form-label">默认支付密码：</label>
+						<div class="layui-input-inline">
+							<input type="text" class="layui-input" name="info[default_paypwd]" value="{$info.default_paypwd|default=123456}" />
+						</div>
+						<div class="layui-form-mid layui-word-aux">收银台创建{:t('会员')}时的默认支付密码</div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label">余额支付密码：</label>
+						<div class="layui-input-inline">
+							<input type="radio" name="info[paypwd_use_status]" title="不开启" value="0" {if $info['paypwd_use_status']==0}checked{/if} />
+							<input type="radio" name="info[paypwd_use_status]" title="开启" value="1" {if $info['paypwd_use_status']==1}checked{/if} />
+						</div>
+						<div class="layui-form-mid layui-word-aux">余额支付时，是否必须使用支付密码</div>
+					</div>
+					{/if}
+					{/if}
+					{if $bid ==0 || ( $bid > 0 && in_array($sysset['business_cashdesk_wxpay_type'],[1,3]))}
+					<span style="color:#333">微信支付设置</span><hr/>
+					<div class="layui-form-item" {if ($bid > 0 && $sysset['business_cashdesk_wxpay_type']==1)}style="display:none"{/if}>
+						<label class="layui-form-label" >微支付模式：</label>
+						<div class="layui-input-inline" style="width:300px">
+							<input type="radio" name="pinfo[wxpay_type]" title="普通模式" value="0" {if $pinfo['wxpay_type']==0}checked{/if} lay-filter="wxpay_type"/>
+							<input type="radio" name="pinfo[wxpay_type]" title="服务商模式" value="1" {if $pinfo['wxpay_type']==1}checked{/if} lay-filter="wxpay_type"/>
+						</div>
+					</div>
+					<div class="layui-form-item"  >
+						<label class="layui-form-label" >AppID：</label>
+						<div class="layui-input-inline">
+							<input type="text" name="pinfo[appid]" value="{$pinfo['appid']}" class="layui-input"/>
+						</div>
+						<div class="layui-form-mid layui-word-aux">登录微信公众平台(mp.weixin.qq.com)[开发]-[基本配置]中查找
+						</div>
+					</div>
+					<div class="layui-form-item" id="wxpay_type1set" {if  ($bid ==0 && $pinfo['wxpay_type']==0) ||($bid > 0 && $sysset['business_cashdesk_wxpay_type']==3 && $pinfo['wxpay_type']==0) }style="display:none"{/if}>
+						<label class="layui-form-label" >支付商户号：</label>
+						<div class="layui-input-inline">
+							<input type="text" name="pinfo[wxpay_sub_mchid]" value="{$pinfo['wxpay_sub_mchid']}" class="layui-input"/>
+						</div>
+						<div class="layui-form-mid layui-word-aux">服务商分配的商户号</div>
+					</div>
+				
+				<div id="wxpay_type0set" {if ($bid ==0  && $pinfo['wxpay_type']==1) ||  ($bid > 0 && $sysset['business_cashdesk_wxpay_type']==1) || ($bid > 0 && $sysset['business_cashdesk_wxpay_type']==3 && $pinfo['wxpay_type']==1)}style="display:none"{/if}>
+					<div class="layui-form-item">
+						<label class="layui-form-label" >支付商户号：</label>
+						<div class="layui-input-inline">
+							<input type="text" name="pinfo[wxpay_mchid]" value="{$pinfo['wxpay_mchid']}" class="layui-input"/>
+						</div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label" >支付密钥：</label>
+						<div class="layui-input-inline" style="width:280px">
+							<input type="text" name="pinfo[wxpay_mchkey]" value="{$pinfo['wxpay_mchkey']}" class="layui-input"/>
+							{if $pinfo['wxpay_mchkey']}<div style="position: absolute;left: 0;top: 0;right: 0;bottom: 0; background: #fff;padding: .35rem .7rem;border: 1px solid rgba(0, 0, 0, .15);border-radius: .15rem;color: #636c72;" onclick="$(this).hide()">已隐藏内容，点击查看或编辑</div>{/if}
+						</div>
+						<div class="layui-form-mid layui-word-aux">请在 <a href="https://pay.weixin.qq.com" target="_blank">微信支付商户平台</a> [账户中心]-[API安全]中设置[APIv2密钥]</div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label" >PEM证书：</label>
+						<div class="layui-input-inline" style="width:450px">
+							<input style="float:left;" readonly="readonly" class="layui-input" type="text" name="pinfo[wxpay_apiclient_cert]" value="{$pinfo['wxpay_apiclient_cert']}" id="wxpay_apiclient_cert"/>
+						</div>
+						<button style="float:left;" type="button" class="layui-btn layui-btn-primary uploadfile" upload-input="wxpay_apiclient_cert" upload-preview="certPreview">上传</button>
+						<div id="certPreview" class="layui-form-mid" style="margin-left:20px;">{if $pinfo['wxpay_apiclient_cert']}已上传{/if}</div>
+						<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">apiclient_cert.pem 请在 <a href="https://pay.weixin.qq.com" target="_blank">微信支付商户平台</a> [账户中心]-[API安全]中设置[API证书]，设置完成后上传</div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label" >证书密钥：</label>
+						<div class="layui-input-inline" style="width:450px">
+							<input style="float:left;" readonly="readonly" class="layui-input" type="text" name="pinfo[wxpay_apiclient_key]" value="{$pinfo['wxpay_apiclient_key']}" id="wxpay_apiclient_key"/>
+						</div>
+						<button style="float:left;" type="button" class="layui-btn layui-btn-primary uploadfile" upload-input="wxpay_apiclient_key" upload-preview="keyPreview">上传</button>
+						<div id="keyPreview" class="layui-form-mid" style="margin-left:20px;">{if $pinfo['wxpay_apiclient_key']}已上传{/if}</div>
+						<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">apiclient_key.pem 请在 <a href="https://pay.weixin.qq.com" target="_blank">微信支付商户平台</a> [账户中心]-[API安全]中设置[API证书]，设置完成后上传</div>
+					</div>
+				</div>
+				{/if}
+				{if getcustom('cashdesk_alipay')}
+				{if $bid ==0 || ( $bid > 0 && in_array($sysset['business_cashdesk_alipay_type'],[3]))}
+				<span style="color:#333">支付宝支付设置</span><hr/>
+				<div class="layui-form-item">
+					<label class="layui-form-label" >APPID：</label>
+					<div class="layui-input-inline">
+						<input type="text" name="pinfo[ali_appid]" value="{$pinfo['ali_appid']}" class="layui-input"/>
+					</div>
+					<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">支付宝分配给开发者的应用ID</div>
+				</div>
+				<div class="layui-form-item">
+					<label class="layui-form-label" >应用私钥：</label>
+					<div class="layui-input-inline" style="width:700px">
+						<input type="text" name="pinfo[ali_privatekey]" value="{$pinfo['ali_privatekey']}" class="layui-input"/>
+						{if $pinfo['ali_privatekey']}<div style="position: absolute;left: 0;top: 0;right: 0;bottom: 0; background: #fff;padding: .35rem .7rem;border: 1px solid rgba(0, 0, 0, .15);border-radius: .15rem;color: #636c72;" onclick="$(this).hide()">已隐藏内容，点击查看或编辑</div>{/if}
+					</div>
+					<div class="layui-form-mid layui-word-aux">请填写应用私钥去头去尾去回车，一行字符串</div>
+				</div>
+				<div class="layui-form-item">
+					<label class="layui-form-label" >支付宝公钥：</label>
+					<div class="layui-input-inline" style="width:500px">
+						<input type="text" name="pinfo[ali_publickey]" value="{$pinfo['ali_publickey']}" class="layui-input"/>
+						{if $pinfo['ali_publickey']}<div style="position: absolute;left: 0;top: 0;right: 0;bottom: 0; background: #fff;padding: .35rem .7rem;border: 1px solid rgba(0, 0, 0, .15);border-radius: .15rem;color: #636c72;" onclick="$(this).hide()">已隐藏内容，点击查看或编辑</div>{/if}
+					</div>
+					<div class="layui-form-mid layui-word-aux">请填写支付宝公钥，一行字符串</div>
+				</div>
+				{/if}	
+				{/if}
+				{if getcustom('cashdesk_sxpay')}
+				{if $bid ==0 || ( $bid > 0 && in_array($sysset['business_cashdesk_sxpay_type'],[1,3]))}
+				<span style="color:#333">随行付支付设置</span><hr/>
+				
+				<div {if $bid > 0 && $sysset['business_cashdesk_sxpay_type']==1}style="display:none"{/if}>
+					<div class="layui-form-item">
+						<label class="layui-form-label" >商户编号：</label>
+						<div class="layui-input-inline">
+							<input type="text" name="pinfo[sxpay_mno]" value="{$pinfo['sxpay_mno']}" class="layui-input"/>
+						</div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label" >支付密钥：</label>
+						<div class="layui-input-inline" style="width:500px">
+							<input type="text" name="pinfo[sxpay_mchkey]" value="{$pinfo['sxpay_mchkey']}" class="layui-input"/>
+							{if $pinfo['sxpay_mchkey']}<div style="position: absolute;left: 0;top: 0;right: 0;bottom: 0; background: #fff;padding: .35rem .7rem;border: 1px solid rgba(0, 0, 0, .15);border-radius: .15rem;color: #636c72;" onclick="$(this).hide()">已隐藏内容，点击查看或编辑</div>{/if}
+						</div>
+					</div>
+				</div>
+				<div {if $bid==0 ||  $sysset['business_cashdesk_sxpay_type']==3}style="display:none"{/if}>
+					<div class="layui-form-item">
+						<label class="layui-form-label" >商户编号：</label>
+						<div class="layui-input-inline">
+							<input type="text" name="pinfo[sxpay_sub_mno]" value="{$pinfo['sxpay_sub_mno']}" class="layui-input"/>
+						</div>
+						<div class="layui-form-mid layui-word-aux">服务商提供的商户编号</div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label" >支付密钥：</label>
+						<div class="layui-input-inline" style="width:500px">
+							<input type="text" name="pinfo[sxpay_sub_mchkey]" value="{$pinfo['sxpay_sub_mchkey']}" class="layui-input"/>
+							{if $pinfo['sxpay_mchkey']}<div style="position: absolute;left: 0;top: 0;right: 0;bottom: 0; background: #fff;padding: .35rem .7rem;border: 1px solid rgba(0, 0, 0, .15);border-radius: .15rem;color: #636c72;" onclick="$(this).hide()">已隐藏内容，点击查看或编辑</div>{/if}
+						</div>
+						<div class="layui-form-mid layui-word-aux">服务商提供的支付秘钥</div>
+					</div>
+				</div>
+				{/if}
+				{/if}
+		
+					<div class="layui-form-item">
+						<input type="hidden" name="info[id]" value="{$info.id}">
+						<label class="layui-form-label">&nbsp;</label>
+						<div class="layui-input-inline">
+							<button class="layui-btn" lay-submit lay-filter="formsubmit">保 存</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{include file="public/js"/}
+<script>
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		//console.log(field);return;
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					window.location.href="{:url('index')}"
+				},1000)
+			}
+		})
+	})
+	layui.form.on('radio(wxpay_type)', function(data){
+		if(data.value == '0'){
+			$('#wxpay_type1set').hide();
+			$('#wxpay_type0set').show();
+		}else{
+			$('#wxpay_type1set').show();
+			$('#wxpay_type0set').hide();
+		}
+	})
+</script>
+{include file="public/copyright"/}
+</body>
+</html>

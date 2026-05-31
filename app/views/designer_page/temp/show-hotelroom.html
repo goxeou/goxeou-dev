@@ -1,0 +1,41 @@
+
+<div class="dsn-mod dp-hotel" ng-class="{'dsn-mod-select':Item.id == focus}" ng-style="{'background-color':Item.params.bgcolor,'margin':Item.params.margin_y+'px '+Item.params.margin_x+'px 0','padding':Item.params.padding_y+'px '+Item.params.padding_x+'px'}">
+	<div style="line-height: 170px; text-align: center; color: #999; font-size: 14px;width:100%" ng-show="Item.data == ''">一个房型都没有...</div>
+
+	<div class="time-view">
+		<div class="time-options">
+			<div class="month-tetx">2024-08-14</div>
+			<div class="day-tetx">周三入住</div>
+		</div>
+		<div class="content-text">共1晚</div>
+		<div class="time-options">
+			<div class="month-tetx">2024-08-15</div>
+			<div class="day-tetx">周四离店</div>
+		</div>
+	</div>
+
+	<div class="db-hotels-list">
+		<div class="hotels-options" ng-repeat="item in Item.data">
+			<div class="hotel-img">
+				<img ng-src="{{item.pic}}"></img>
+			</div>
+			<div class="hotel-info">
+				<div class="hotel-title"  ng-if="Item.params.showname == 1">{{item.name}}</div>
+				<div class="hotel-characteristic" ng-if="Item.params.showtag == 1">
+					<div class="characteristic-options"  ng-repeat="tag in item.tag" style="background:rgba({:t('color1rgb')},0.05);color:{:t('color1')}" >{{tag}}</div>
+				</div>
+				<div class="hotel-but-view">
+					<div class="make-info" >
+						<div class="hotel-price" style="color:{:t('color1')}" ng-if="Item.params.showprice != '0'">
+							<div>￥</div>
+							<div class="hotel-price-num">{{item.sell_price}}</div>
+							<div>起</div>
+						</div>
+						<div class="hotel-text" ng-if="Item.params.showsales != '0'">{{item.sales}}人已预定 | 剩{{item.stock}}{{text['间']}}可订</div>
+					</div>
+					<div class="hotel-make" style="background:rgba({:t('color1rgb')},0.8);color:#FFF">预约</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

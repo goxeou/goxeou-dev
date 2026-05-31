@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>绑定抖音小程序</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					绑定抖音小程序
+					{if input('param.isopen')==1}<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>{/if}
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w8" lay-filter="" style="margin-top:20px">
+						<div class="layui-form-item">
+							<label class="layui-form-label">AppID：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[appid]" value="{$info.appid}" class="layui-input">
+							</div>
+							<div class="layui-form-mid layui-word-aux"></div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">AppSecret：</label>
+							<div class="layui-input-inline" style="width:340px">
+								<input type="text" name="info[appsecret]" value="{$info.appsecret}" class="layui-input">
+								{if $info['appsecret']}<div style="position: absolute;left: 0;top: 0;right: 0;bottom: 0; background: #fff;padding: .35rem .7rem;border: 1px solid rgba(0, 0, 0, .15);border-radius: .15rem;color: #636c72;" onclick="$(this).hide()">已隐藏内容，点击查看或编辑</div>{/if}
+							</div>
+							<div class="layui-form-mid layui-word-aux"></div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">小程序名称：</label>
+							<div class="layui-input-inline" style="width:280px">
+								<input type="text" name="info[nickname]" value="{$info.nickname}" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">小程序头像：</label>
+							<input type="hidden" name="info[headimg]" id="headimg" lay-verType="tips" class="layui-input" value="{$info.headimg}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="headimg" upload-preview="headimgPreview" onclick="uploader(this)">上传图片</button>
+							<div id="headimgPreview" class="picsList-class-padding">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.headimg}"/></div></div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">小程序码：</label>
+							<input type="hidden" name="info[qrcode]" id="qrcode" lay-verType="tips" class="layui-input" value="{$info.qrcode}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="qrcode" upload-preview="qrcodePreview" onclick="uploader(this)">上传图片</button>
+							<div id="qrcodePreview" class="picsList-class-padding">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.qrcode}"/></div></div>
+							</div>
+						</div>
+						<span style="color:#333">支付设置</span><hr/>
+						<div class="layui-form-item">
+							<label class="layui-form-label">支付状态：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[toutiaopay]" title="开启" value="1" {if $info['toutiaopay']==1}checked{/if}/>
+								<input type="radio" name="info[toutiaopay]" title="关闭" value="0" {if $info['toutiaopay']==0}checked{/if}/>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">Token(令牌)：</label>
+							<div class="layui-input-inline" style="width:280px">
+								<input type="text" name="info[pay_token]" value="{$info.pay_token}" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">商户号：</label>
+							<div class="layui-input-inline" style="width:280px">
+								<input type="text" name="info[pay_mchid]" value="{$info.pay_mchid}" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">SALT：</label>
+							<div class="layui-input-inline" style="width:350px">
+								<input type="text" name="info[pay_salt]" value="{$info.pay_salt}" class="layui-input">
+								{if $info['pay_salt']}<div style="position: absolute;left: 0;top: 0;right: 0;bottom: 0; background: #fff;padding: .35rem .7rem;border: 1px solid rgba(0, 0, 0, .15);border-radius: .15rem;color: #636c72;" onclick="$(this).hide()">已隐藏内容，点击查看或编辑</div>{/if}
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">服务器地址：</label>
+							<div class="layui-form-mid">{$Think.const.PRE_URL2}</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-inline" style="width:500px">
+								<button class="layui-btn layui-btn-normal" lay-submit lay-filter="submit_reg">保 存</button>
+								<button class="layui-btn layui-btn-primary" onclick="downloadxcx()">下载代码包</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	function downloadxcx(){
+		layer.confirm('下载代码包用开发者工具进行上传代码，确定要下载吗?',function(index){
+			layer.close(index);
+			var html = '<div style="margin:40px auto;">';
+			html+='<div class="layui-form" lay-filter="">';
+			html+='	<div class="layui-form-item">';
+			html+='		<label class="layui-form-label">顶部导航背景颜色</label>';
+			html+='		<div class="layui-input-inline" style="width:100px">';
+			html+='			<input type="text" name="navigationBarBackgroundColor" value="{:t('color1')}" autocomplete="off" class="layui-input">';
+			html+='		</div>';
+			html+='		<div class="_colorpicker"></div>';
+			html+='	</div>';
+			html+='	<div class="layui-form-item">';
+			html+='		<label class="layui-form-label">顶部导航标题颜色</label>';
+			html+='		<div class="layui-input-inline" style="width:170px">';
+			html+='			<label><input type="radio" name="navigationBarTextStyle" value="black" title="黑色"/></label>';
+			html+='			<label><input type="radio" name="navigationBarTextStyle" value="white" title="白色" checked/></label>';
+			html+='		</div>';
+			html+='	</div>';
+			html+='	<div class="layui-form-item" style="margin-top:30px">';
+			html+='		<label class="layui-form-label"></label>';
+			html+='		<div class="layui-input-inline">';
+			html+='			<button class="layui-btn layui-btn-normal" lay-submit lay-filter="submit_downloadxcx">打包下载</button>';
+			html+='		</div>';
+			html+='	</div>';
+			html+='</div>';
+			html+='</div>'
+			layer.open({type:1,area:['600px','460px'],content:html,title:'下载代码包',shadeClose:true});
+			layui.form.render();
+			initcolorpicker();
+			layui.form.on('submit(submit_downloadxcx)', function(obj){
+				var field = obj.field;
+				var index = layer.load();
+				$.post("{:url('downloadtoutiaoxcx')}",field,function(data){
+					layer.close(index);
+					dialog(data.msg,data.status,data.url)
+				});
+			})
+		})
+	}
+
+	function downloadop(){
+		var index = layer.load();
+		$.get('',{op:'downloadalipay'},function(data){
+			layer.close(index);
+			dialog(data.msg,data.status,data.url);
+		})
+	}
+	layui.form.on('submit(submit_reg)', function(obj){
+		var field = obj.field
+		field.op = 'setappid';
+		$.post('',field,function(data){
+			dialog(data.msg,data.status,'{:url('toutiao')}');
+		})
+	})
+	layui.upload.render({
+    elem: '#uploadjstxt', //绑定元素
+    url: "{:url('uploadjstxt')}", //上传接口
+		exts:'txt',
+    done: function(res){
+      //上传完毕回调
+			console.log(res)
+			dialog(res)
+    },
+    error: function(){
+      //请求异常回调
+    }
+  });
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

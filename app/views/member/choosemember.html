@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>选择会员</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header"><i class="fa fa-list"></i> 选择会员</div>
+          <div class="layui-card-body" pad15>
+						<div class="layui-form layui-col-md12 layui-form-search">
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">ID</label>
+								<div class="layui-input-inline">
+									<input type="text" name="mid" autocomplete="off" class="layui-input" value="">
+								</div>
+							</div>
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">昵称</label>
+								<div class="layui-input-inline">
+									<input type="text" name="nickname" autocomplete="off" class="layui-input" value="">
+								</div>
+							</div>
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">手机号</label>
+								<div class="layui-input-inline">
+									<input type="text" name="tel" autocomplete="off" class="layui-input" value="">
+								</div>
+							</div>
+
+							<div class="layui-inline">
+								<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+									<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+								</button>
+							</div>
+						</div>
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+  var table = layui.table;
+	var datawhere = {};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{:url('index')}/from/{$from}" //数据接口
+    ,page: true //开启分页
+    ,cols: [[ //表头
+			{type:"checkbox"},
+      {field: 'id', title: 'ID',  sort: true,width:80},
+      {field: 'heaimg', title: '头像',templet:function (d){
+      	if(d.headimg){
+      		return '<img src="'+d.headimg+'" height="30" width="30">'
+		}else{
+      		return '';
+		}}},
+		  {field: 'sex', title: '性别',templet:function (d){
+				  if(d.sex==1){
+					  return '男'
+				  }else if(d.sex==2){
+					  return '女'
+				  }else{
+					  return '未知';
+				  }}},
+      {field: 'nickname', title: '昵称'},
+      {field: 'realname', title: '真实姓名'},
+      {field: 'tel', title: '电话',sort: true,width:80},
+      {field: 'createtime', title: '注册时间',sort: true,templet:function(d){ return date('Y-m-d H:i',d.createtime)},width:150},
+      {field: 'operation', title: '操作',templet: '<div><button class="table-btn" onclick="choosemember(\'{{d.id}}\')">选择</button></div>',align:'center'}
+    ]]
+  });
+	function choosemember(id){
+		var index = layer.load();
+		$.post("",{id:id},function(res){
+			layer.close(index);
+			window.parent.choosemember(res.data,"{$Request.param.args}");
+			var index = parent.layer.getFrameIndex(window.name);
+			parent.layer.close(index);
+		})
+	}
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	</script>
+</body>
+</html>

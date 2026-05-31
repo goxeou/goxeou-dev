@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>投票管理</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+  <script type="text/javascript">
+		window._AMapSecurityConfig = {
+			securityJsCode:'{$sysset_webinfo["js_code_amap"]}',
+		}
+	</script>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加投票{else}<i class="fa fa-pencil"></i> 编辑投票{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w6">
+						<input type="hidden" name="id" value="{$info.id}"/>
+						<div class="layui-form-item">
+							<label class="layui-form-label">活动名称：</label>
+							<div class="layui-input-inline" style="width:300px">
+								<input type="text" name="info[name]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.name}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">活动分组：</label>
+							<div class="layui-input-inline">
+								<select class="layui-select" name="info[group_id]">
+									<option value="">请选择</option>
+									{volist name="grouplist" id="item"}
+									<option value="{$item.id}" {if $info.group_id==$item.id}selected{/if}>{$item.name}</option>
+									{/volist}
+								</select>
+							</div>
+						</div>
+						{if getcustom('toupiao_add_type')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">投票类型：</label>
+							<div class="layui-input-inline" style="width:500px">
+								<input type="radio" name="info[toupiao_type]" title="图片" value="0" {if $info['toupiao_type']==0}checked{/if}/>
+								<input type="radio" name="info[toupiao_type]" title="视频" value="1" {if $info['toupiao_type']==1}checked{/if}/>
+							</div>
+						</div>
+						{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label">顶部图片：</label>
+							<input type="hidden" name="info[banner]" id="banner" lay-verType="tips" class="layui-input" value="{$info.banner}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="banner" upload-preview="bannerPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：640×320像素，png格式</div>
+							<div id="bannerPreview" style="float:left;padding-top:10px;padding-left:130px;clear: both;">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.banner}"/></div></div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">背景颜色：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[color1]" value="{$info['color1']}" class="layui-input">
+							</div>
+							<div class="_colorpicker" style="float:left"></div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">页面背景颜色，如：#FD4A46</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">字体颜色：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[color2]" value="{$info['color2']}" class="layui-input">
+							</div>
+							<div class="_colorpicker" style="float:left"></div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">页面文本颜色，如：#1C83FF</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">选手列表：</label>
+							<div class="layui-input-inline" style="width:500px">
+								<input type="radio" name="info[listtype]" title="双排" value="0" {if $info['listtype']==0}checked{/if}/>
+								<input type="radio" name="info[listtype]" title="横排" value="1" {if $info['listtype']==1}checked{/if}/>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">投票文字：</label>
+							<div class="layui-input-inline" style="width:300px">
+								<input type="text" name="info[helptext]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.helptext}">
+							</div>
+							<div class="layui-form-mid layui-word-aux">如：投TA一票、给TA点赞</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">开始时间：</label>
+							<div class="layui-input-inline">
+								<input type="text" id="starttime" name="info[starttime]" value="{:date('Y-m-d H:i:s',$info['starttime'])}" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">结束时间：</label>
+							<div class="layui-input-inline">
+								<input type="text" id="endtime" name="info[endtime]" value="{:date('Y-m-d H:i:s',$info['endtime'])}" class="layui-input">
+							</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">用户报名：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[canapply]" title="开启" value="1" {if $info['canapply']==1}checked{/if} lay-filter="canapply"/>
+								<input type="radio" name="info[canapply]" title="关闭" value="0" {if $info['canapply']==0}checked{/if} lay-filter="canapply"/>
+							</div>
+						</div>
+						<div class="layui-form-item" style="{if $info['canapply']==0}display:none{/if}" id="canapply_div">
+							<label class="layui-form-label">报名审核：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[apply_check]" title="开启" value="1" {if $info['apply_check']==1}checked{/if}/>
+								<input type="radio" name="info[apply_check]" title="关闭" value="0" {if $info['apply_check']==0}checked{/if}/>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">报名参与条件：</label>
+							<div class="layui-input-inline" style="width:60%">
+								<input type="checkbox" name="info[gettj][]" value="-1" title="所有人" {if in_array('-1',$info['gettj'])}checked{/if}/>
+								<input type="checkbox" name="info[gettj][]" value="0" title="关注用户" {if in_array('0',$info['gettj'])}checked{/if}/>
+								{foreach $memberlevel as $v}
+								<input type="checkbox" name="info[gettj][]" value="{$v.id}" title="{$v.name}" {if in_array($v['id'],$info['gettj'])}checked{/if}/>
+								{/foreach}
+							</div>
+						</div>
+						{if getcustom('toupiao_pay_score')}
+							<div class="layui-form-item">
+								<label class="layui-form-label">电子围栏：</label>
+								<div class="layui-input-inline">
+									<input type="radio" name="info[fanwei]" value="1" title="开启" {if $info['fanwei']==1}checked{/if} lay-filter="fanweiset"/>
+									<input type="radio" name="info[fanwei]" value="0" title="关闭" {if !$info['id'] || $info['fanwei']==0}checked{/if} lay-filter="fanweiset"/>
+								</div>
+								<div class="layui-form-mid layui-word-aux">报名限制地理坐标和范围</div>
+							</div>
+							<div class="layui-form-item" id="fanweiset" {if !$info['id'] || $info['fanwei']==0}style="display:none"{/if}>
+								<label class="layui-form-label">设置范围：</label>
+								<input type="hidden" name="zoom" value="">
+								<div class="form-group" style="width:800px;height: 600px;margin:0 0 10px 130px;position: relative">
+									<link rel="stylesheet" href="https://cache.amap.com/lbs/static/main1119.css"/>
+									<script src="https://webapi.amap.com/maps?v=1.4.0&key={$sysset_webinfo.map_key_amap}&plugin=AMap.PolyEditor,AMap.CircleEditor"></script>
+									<script src="//webapi.amap.com/ui/1.0/main.js?v=1.0.11"></script>
+									<script type="text/javascript" src="https://cache.amap.com/lbs/static/addToolbar.js"></script>
+									<div id="container" class="map" > </div>
+									<div class="button-group" style="bottom: 0px;right: 15px;">
+										<input type="button" class="button" value="开始选取坐标范围" id="start_position" />
+										<input type="button" class="button" value="结束选取坐标范围" id="stop_position" />
+									</div>
+								</div>
+								<div style="margin:0 0 0px 130px;">
+									<div class="layui-form-mid">中心点坐标</div>
+									<div class="layui-input-inline" style="width: 100px;">
+										<input type="text" name="info[fanwei_lng]" class="layui-input" value="{$info.fanwei_lng}">
+									</div>
+									<div class="layui-form-mid">,</div>
+									<div class="layui-input-inline" >
+										<input type="text" name="info[fanwei_lat]" class="layui-input" value="{$info.fanwei_lat}">
+									</div>
+									<div class="layui-form-mid">范围半径</div>
+									<div class="layui-input-inline" style="width: 100px;">
+										<input type="text" name="info[fanwei_range]" class="layui-input" value="{$info.fanwei_range}">
+									</div>
+									<div class="layui-form-mid">米</div>
+								</div>
+							</div>
+					{/if}
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">每天可投：</label>
+								<div class="layui-input-inline">
+									<input type="text" name="info[per_daycount]" value="{$info.per_daycount}" class="layui-input">
+								</div>
+								<div class="layui-form-mid">票</div>
+								<div class="layui-form-mid layui-word-aux">每人每天可投票数</div>
+							</div>
+						{if getcustom('toupiao_day_free_times')}
+							<div class="layui-form-item">
+								<label class="layui-form-label">每天免费次数：</label>
+								<div class="layui-input-inline" style="width:500px">
+									<input type="text" name="info[day_free_times]" value="{$info.day_free_times}" class="layui-input">
+								</div>
+							</div>
+						{/if}
+						{if getcustom('toupiao_day_tomember_times')}
+							<div class="layui-form-item">
+								<label class="layui-form-label">每天给同一个选手投票次数：</label>
+								<div class="layui-input-inline" style="width:500px">
+									<input type="text" name="info[day_tomember_times]" value="{$info.day_tomember_times|default='1'}" class="layui-input">
+								</div>
+							</div>
+						{/if}
+							<div class="layui-form-item">
+								<label class="layui-form-label">总计可投：</label>
+								<div class="layui-input-inline">
+									<input type="text" name="info[per_allcount]" value="{$info.per_allcount}" class="layui-input">
+								</div>
+								<div class="layui-form-mid">票</div>
+								<div class="layui-form-mid layui-word-aux">每人最多可投票数，0表示不限制</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">投票成功后跳转链接：</label>
+								<div class="layui-input-inline" style="width:200px">
+									<input type="text" name="info[jump_url]" class="layui-input" value="{$info.jump_url}" id="tourl">
+								</div>
+								<div class="layui-btn layui-btn-primary" style="float:left" onclick="chooseUrl2('tourl')">选择链接</div>
+							</div>
+						{if getcustom('toupiao_pay_score')}
+							<div class="layui-form-item">
+								<label class="layui-form-label">投票消耗类型：</label>
+								<div class="layui-input-inline" style="width: 80%">
+									<input type="radio" name="info[pay_type]" value="1" title="{:t('积分')}" {if !$info['id'] || $info['pay_type']==1}checked{/if} lay-filter="set_use_type"/>
+									<input type="radio" name="info[pay_type]" value="2" title="{:t('余额')}" {if $info['id'] && $info['pay_type']==2}checked{/if} lay-filter="set_use_type"/>
+								</div>
+							</div>
+							<div class="layui-form-item" id="usescore" {if $info['id'] && $info['pay_type']!=1}style="display:none"{/if}>
+								<label class="layui-form-label">消耗{:t('积分')}：</label>
+								<div class="layui-input-inline">
+									<input type="text" class="layui-input" name="info[pay_score]" value="{$info.pay_score}" />
+								</div>
+								<div class="layui-form-mid layui-word-aux">每次投票需要消耗的{:t('积分')}，0为不消耗{:t('积分')}</div>
+							</div>
+							<div class="layui-form-item"  id="usemoney" {if $info['pay_type']!=2}style="display:none"{/if}>
+								<label class="layui-form-label">消耗{:t('余额')}：</label>
+								<div class="layui-input-inline">
+								<input type="text" class="layui-input" name="info[pay_money]" value="{$info.pay_money}" />
+								</div>
+								<div class="layui-form-mid layui-word-aux">每次抽奖需要多少{:t('余额')}，0为免费抽奖</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><span id="payTypeName">{:t('积分')}</span>不足：</label>
+								<div class="layui-input-inline" style="width: 80px">
+									<input type="text" placeholder="按钮提示" class="layui-input" name="info[pay_not_enough]" value="{$info.pay_not_enough}" />
+								</div>
+								<div class="layui-input-inline" style="width: 300px">
+									<input type="text" placeholder="跳转链接" class="layui-input" name="info[pay_not_enough_url]" value="{$info.pay_not_enough_url}" />
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">投票参与条件：</label>
+								<div class="layui-input-inline" style="width:60%">
+									<input type="checkbox" name="info[toupiaotj][]" value="-1" title="所有人" {if in_array('-1',explode(',',$info['toupiaotj']))}checked{/if}/>
+									<input type="checkbox" name="info[toupiaotj][]" value="0" title="关注用户" {if in_array('0',explode(',',$info['toupiaotj']))}checked{/if}/>
+									{foreach $memberlevel as $v}
+									<input type="checkbox" name="info[toupiaotj][]" value="{$v.id}" title="{$v.name}" {if in_array($v['id'],explode(',',$info['toupiaotj']))}checked{/if}/>
+									{/foreach}
+								</div>
+							</div>
+						{/if}
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">投票验证：</label>
+							<div class="layui-input-inline" style="width:500px">
+								<input type="radio" name="info[help_check]" title="不需要验证" value="0" {if $info['help_check']==0}checked{/if}/>
+								<input type="radio" name="info[help_check]" title="图片验证码" value="1" {if $info['help_check']==1}checked{/if}/>
+								<input type="radio" name="info[help_check]" title="短信验证码" value="2" {if $info['help_check']==2}checked{/if}/>
+							</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">序号：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[sort]" value="{$info.sort|default='0'}" class="layui-input">
+							</div>
+							<div class="layui-form-mid layui-word-aux">用于排序,越大越靠前</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">状态：</label>
+							<div class="layui-input-inline" style="width:500px">
+								<input type="radio" name="info[status]" title="开启" value="1" {if $info['status']==1}checked{/if}/>
+								<input type="radio" name="info[status]" title="关闭" value="0" {if $info['status']==0}checked{/if}/>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">活动规则</label>
+							<div class="layui-input-inline" style="width:500px">
+								<script id="guize" name="info[guize]" type="text/plain" style="width:100%;height:400px">{$info.guize}</script>
+							</div>
+						</div>
+						分享设置<hr/>
+						<div class="layui-form-item">
+							<label class="layui-form-label">分享标题：</label>
+							<div class="layui-input-inline" style="width:300px">
+								<input type="text" class="layui-input" name="info[sharetitle]" value="{$info.sharetitle}"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">默认为活动名称</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">分享图标：</label>
+							<input type="hidden" name="info[sharepic]" id="sharepic" lay-verType="tips" class="layui-input" value="{$info.sharepic}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="sharepic" upload-preview="sharepicPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：400*400像素</div>
+							<div id="sharepicPreview" style="float:left;padding-top:10px;padding-left:130px;clear: both;">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.sharepic}"/></div></div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">分享描述：</label>
+							<div class="layui-input-inline" style="width:300px">
+								<input type="text" class="layui-input" name="info[sharedesc]" value="{$info.sharedesc}"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux"></div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">分享链接：</label>
+							<div class="layui-input-inline" style="width:300px">
+								<input type="text" class="layui-input" name="info[sharelink]" value="{$info.sharelink}"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">默认为活动链接，设置后发送给朋友或分享到朋友圈，点击后会跳转到此链接地址</div>
+						</div>
+						<div class="layui-form-item">
+							<div class="layui-input-block" style="margin-left: 130px">
+								<button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	var guize = UE.getEditor('guize',{imageScaleEnabled:false});
+	layui.form.on('radio(canapply)', function(data){
+		if(data.value == '0'){
+			$('#canapply_div').hide();
+		}else if(data.value == '1'){
+			$('#canapply_div').show();
+		}
+	})
+	//日期时间选择器
+	layui.laydate.render({ 
+		elem: '#starttime',
+		type: 'datetime',
+		trigger: 'click'
+	});
+	layui.laydate.render({ 
+		elem: '#endtime',
+		type: 'datetime',
+		trigger: 'click'
+	});
+
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		field['info[guize]'] = guize.getContent();
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.closeAll();
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+
+	layui.form.on('radio(set_use_type)',function(data){
+		if(data.value=="1"){
+			$('#usescore').show();
+			$('#usemoney').hide();
+			$('#payTypeName').text("{:t('积分')}");
+		}
+		if(data.value=="2"){
+			$('#usescore').hide();
+			$('#usemoney').show();
+			$('#payTypeName').text("{:t('余额')}");
+		}
+
+	});
+	layui.form.on('radio(fanweiset)',function(data){
+		if(data.value == '0'){
+			$('#fanweiset').hide();
+		}else{
+			$('#fanweiset').show();
+		}
+	})
+
+	function sjgl(){
+		//获取所有奖项的数量总和
+		var sum_sl = 0;
+		$(".jsl").map(function(){
+			if($(this).val()){
+				sum_sl += parseInt($(this).val());
+			}
+		});
+		console.log(sum_sl)
+
+		//遍历奖项input标签中重写对应的概率input标签里的value
+		$(".jsl").map(function(){
+			var gl = parseInt((parseInt($(this).val())/sum_sl)*10000)/100;//保留两位小数
+			if ($(this).val()) {
+				$(this).parent().next().find("input").val(gl);
+			}
+
+		});
+	}
+	sjgl();
+	//奖品数量input标签blur时，计算所有奖项的概率
+	$(".jsl").bind('keyup blur',function(){
+		sjgl();
+	})
+	</script>
+	  <script>
+		  var lng=$("input[name='info[fanwei_lng]']").val();
+		  var lat=$("input[name='info[fanwei_lat]']").val();
+		  var range=$("input[name='info[fanwei_range]']").val();
+
+		  var lnglat='';//设置的坐标
+		  if(lng !="" && lat !=""){
+			  lnglat=[lng,lat];
+		  }
+		  if(range==0){
+			  range=2000;
+		  }
+
+		  var circleisopen=false;//是否已经打开圆形编辑
+		  //初始化地图参数
+		  var editor={};
+		  var  map = new AMap.Map("container", {
+			  resizeEnable: true,//是否监控地图容器尺寸变化，默认值为false
+			  dragEnable: true,//是否允许拖拽地图
+			  keyboardEnable: false,//是否允许键盘平移
+			  doubleClickZoom: false,//是否允许双击放大地图
+			  scrollWheel:true,//是否允许鼠标滚轮操作地图
+			  center:lnglat,
+			  zoom: 13 //地图显示的缩放级别
+		  });
+
+		  var marker = new AMap.Marker({
+			  map: map,
+			  position: lnglat
+		  });
+
+		  //在地图上绘制覆盖物
+		  editor._circle=(function(){
+			  var circle = new AMap.Circle({
+				  center: lnglat,// 圆心位置
+				  radius: range, //半径
+				  strokeColor: "#4e73f1", //线颜色
+				  strokeOpacity: 1, //线透明度
+				  strokeWeight: 3, //线粗细度
+				  fillColor: "#4e73f1", //填充颜色
+				  fillOpacity: 0.35,//填充透明度
+			  });
+			  circle.setMap(map);
+			  return circle;
+		  })();
+		  if(lng !="" && lat !=""){
+			  map.setFitView();//根据地图上添加的覆盖物分布情况，自动缩放地图到合适的视野级别
+		  }
+		  editor._circleEditor= new AMap.CircleEditor(map, editor._circle);
+
+		  //初始化地图选点
+		  AMapUI.loadUI(['misc/PositionPicker'], function(PositionPicker) {
+			  var positionPicker = new PositionPicker({
+				  mode: 'dragMarker',
+				  map: map
+			  });
+
+			  //开始选取坐标
+			  $('#start_position').click(function () {
+				  positionPicker.start(lnglat);
+				  //坐标点为空时不打开圆形编辑
+				  if(lnglat !=''){
+					  editor._circleEditor.open(lnglat);
+					  circleisopen=true;
+				  }
+				  //map.setStatus({dragEnable: true});//是否允许拖拽地图
+				  //map.setStatus({keyboardEnable: true});//是否允许键盘平移
+			  })
+
+			  //结束选取坐标
+			  $('#stop_position').click(function () {
+				  //map.setStatus({dragEnable: false});//是否允许拖拽地图
+				  //map.setStatus({keyboardEnable: false});//是否允许键盘平移
+				  //if(editor._circle.getRadius()<(parseInt($('#fixed_km').val()))*1000){
+				  //		tip.msgbox.err("配送半径不能小于"+parseInt($('#fixed_km').val())+"公里");
+				  //		return;
+				  //}
+
+				  map.panTo(lnglat);
+				  positionPicker.stop();
+				  editor._circleEditor.close();
+				  map.setFitView();//根据地图上添加的覆盖物分布情况，自动缩放地图到合适的视野级别
+
+				  $("input[name='info[fanwei_lng]']").val(lnglat.lng);
+				  $("input[name='info[fanwei_lat]']").val(lnglat.lat);
+				  $("input[name='info[fanwei_range]']").val(editor._circle.getRadius());
+				  //$("input[name='zoom']").val(map.getZoom());
+			  });
+			  positionPicker.on('success', function(positionResult) {
+				  lnglat=positionResult.position;
+				  marker.setPosition(lnglat); //更新点标记位置
+				  editor._circle.setCenter(lnglat);//更新中心点坐标
+
+				  //获取当前坐标后再打开圆形编辑
+				  if(circleisopen==false){
+					  editor._circleEditor.open(lnglat);
+				  }
+			  });
+		  });
+		  //设置地图圆的半径
+		  function setRadius(radius) {
+			  editor._circle.setRadius(radius*1000);
+			  map.setFitView();
+		  }
+		  function chooseUrl2(field){
+			  chooseUrlField = field;
+			  layer.open({type:2,shadeClose:true,area:['1200px', '650px'],'title':'选择链接',content:"{:url('DesignerPage/chooseurl')}&callback=chooseLink2"})
+		  }
+
+		  function chooseLink2(urlname,url){
+			  $("#"+chooseUrlField).val(url);
+		  }
+	  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

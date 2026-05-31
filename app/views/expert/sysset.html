@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>专家系统设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+  <style>
+		.layui-form-select{z-index: 9999}
+		.map-search-res:hover{
+			background-color: gray;
+		}
+		.layui-imgbox-close{width: 25px;height: 22px;right: -18px;top:-10px;}
+		#picList .layui-imgbox .layui-imgbox-img{height: auto;}
+		#picList .layui-imgbox{margin-right: 25px;height: auto}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header"><i class="fa fa-cog"></i>专家系统设置</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w12" lay-filter="">
+						<input type="hidden" name="info[status]" value="1" title="开启" {if $info['status']==1}checked{/if}/>
+						<div class="layui-form-item">
+							<label class="layui-form-label">专家回复费率：</label>
+							<div class="layui-input-inline" style="width:120px">
+								<input type="text" name="info[default_rate]" value="{$info['default_rate']}" class="layui-input"/>
+							</div>
+							<div class="layui-form-mid">%</div>
+							
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">认证费用：</label>
+							<div class="layui-input-inline" style="width:120px">
+								<input type="text" name="info[deposit]" value="{$info['deposit']}" class="layui-input"/>
+							</div>
+							<div class="layui-form-mid">元</div>
+							
+						</div>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">轮播照片：</label>
+							<input type="hidden" name="info[pics]" value="{$info['pics']}" id="pics">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this,true)" upload-input="pics" upload-preview="picList" >批量上传</button>
+								<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：640×640像素</div>
+							<div class="clear" style="height:0px;font-size:0;clear:both;height:10px"></div>
+							<div id="picList" class="picsList-class-padding"  style="margin-left:220px;">
+								{if $info['pics']}
+								{php}$pics = explode(',',$info['pics']);{/php}
+								{foreach $pics as $pic}
+								<div class="layui-imgbox">
+									<a class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().remove();getpicsval('pics','picList')" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+									<span class="layui-imgbox-img" style="height: auto;"><img src="{$pic}" onclick="previewImg('{$pic}')"></span>
+								</div>
+								{/foreach}{/if}
+							</div>
+						</div>
+					
+                		<div class="layui-form-item">
+                			<label class="layui-form-label">入驻协议：</label>
+                			<div class="layui-input-inline" style="width:500px">
+                				<input type="radio" name="info[xieyi_show]" value="0" title="关闭" {if !$info['id'] || $info['xieyi_show']==0}checked{/if}/>
+                				<input type="radio" name="info[xieyi_show]" value="1" title="开启" {if $info['xieyi_show']==1}checked{/if}/>
+                			</div>
+                		</div>
+                		<!-- 详情编辑器 -->
+                		<div class="layui-form-item">
+                			<label class="layui-form-label">入驻协议内容：</label>
+                			<div class="layui-input-inline" style="width:500px">
+                				<script id="xieyi" name="info[xieyi]" type="text/plain" style="width:100%;height:500px">{$info.xieyi}</script>
+                			</div>
+                		</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+      </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	var xieyi = UE.getEditor('xieyi');
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		if(!field['info[withdraw_weixin]'])  field['info[withdraw_weixin]'] = 0
+		if(!field['info[withdraw_bankcard]'])  field['info[withdraw_bankcard]'] = 0
+		if(!field['info[withdraw_aliaccount]'])  field['info[withdraw_aliaccount]'] = 0
+		field['info[xieyi]'] = xieyi.getContent();
+		$.post('',field,function(data){
+			dialog(data.msg,data.status,data.url);
+		})
+	})
+
+	layui.form.on('radio(wxfw_status)',function(data){
+		$('#wxfw_div').hide();
+		$('#wxfw2_div').hide();
+		if(data.value == '1'){
+			$('#wxfw_div').show();
+		}else if(data.value == '2'){
+			$('#wxfw2_div').show();
+		}
+	})
+	layui.form.on('radio(scoreWithdraw)',function(data){
+		if(data.value == '1'){
+			$('#business_withdraw1').show();
+		}else{
+			$('#business_withdraw1').hide();
+		}
+	})
+
+	layui.form.on('radio(business_selfscore)',function(data){
+		if(data.value == 1){
+			$('#business_selfscoreset').show();
+		}else{
+			$('#business_selfscoreset').hide();
+		}
+	})
+  </script>
+
+	
+	{include file="public/copyright"/}
+</body>
+</html>

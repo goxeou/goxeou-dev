@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>帖子编辑</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加帖子{else}<i class="fa fa-pencil"></i> 编辑帖子{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form" lay-filter="">
+						<input type="hidden" name="info[id]" value="{$info['id']}">
+						<div class="layui-form-item" style="{if $bid!=0}display:none{/if}">
+							<label class="layui-form-label">发帖人ID：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[mid]" class="layui-input" value="{$info.mid}" lay-verify="required" lay-verType="tips">
+							</div>
+							<div class="layui-form-mid layui-word-aux">{if $bid==0}<a href="javascript:vodi(0)" onclick="openmax('{:url('Member/index')}/isopen/1')">查找{:t('会员')}ID</a>{/if}</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">分类：</label>
+							<div class="layui-input-inline">
+								<select name="info[cid]">
+								<option value="0">--请选择--</option>
+								{foreach $clist as $cv}
+									<option value="{$cv['id']}" {if $cv['id']==$info['cid']}selected{/if}>{$cv.name}</option>
+									{foreach $cv['child'] as $v}
+									<option value="{$v['id']}" {if $v['id']==$info['cid']}selected{/if}>&nbsp;&nbsp;&nbsp;{$v.name}</option>
+									{/foreach}
+								{/foreach}
+								</select>
+							</div>
+						</div>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">文本内容：</label>
+							<div class="layui-input-inline" style="width:400px">
+								<textarea type="text" name="info[content]" class="layui-textarea">{$info.content}</textarea>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">图片内容：</label>
+							<input type="hidden" name="info[pics]" value="{$info['pics']}" id="pics">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this,true)" upload-input="pics" upload-preview="picList" >批量上传</button>
+							<div id="picList" class="picsList-class-110">
+								{if $info['pics']}{php}$pics = explode(',',$info['pics']);{/php}{foreach $pics as $pic}
+								<div class="layui-imgbox">
+									<a class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().remove();getpicsval('pics','picList')" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+									<span class="layui-imgbox-img"><img src="{$pic}"></span>
+								</div>
+								{/foreach}{/if}
+							</div>
+						</div>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">视频内容：</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[video]" id="video" lay-verType="tips" class="layui-input" value="{$info['video']}">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="video" onclick="uploader(this)">上传视频</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:110px;clear:both">填写视频链接或上传视频，视频链接必须为mp4格式的源链接，视频大小须在50MB以内</div>
+							<video src="{$info['video']}" controls="controls" class="video" style="width: 140px;float: left; padding-top: 10px;margin-left: 110px;clear: both;">
+							您的浏览器不支持 video 标签。
+							</video>
+						</div>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">阅读：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[readcount]" class="layui-input" value="{$info.readcount}">
+								<input type="hidden" name="oldreadcount" class="layui-input" value="{$info.readcount}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">点赞：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[zan]" class="layui-input" value="{$info.zan}">
+								<input type="hidden" name="oldzan" class="layui-input" value="{$info.readcount}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">状态：</label>
+							<div class="layui-input-inline" style="width: 40%">
+								<input type="radio" name="info[status]" value="0" title="待审核" {if $info['id'] && $info['status']==0}checked{/if}>
+								<input type="radio" name="info[status]" value="1" title="通过" {if !$info['id'] || $info['status']==1}checked{/if}>
+								<input type="radio" name="info[status]" value="2" title="驳回" {if $info['id'] && $info['status']==2}checked{/if}>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.closeAll();
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

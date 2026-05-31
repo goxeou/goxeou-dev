@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>人员设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+   <style>
+        .map-search-res:hover{
+            background-color: gray;
+        }
+    </style>
+    <script type="text/javascript">
+		window._AMapSecurityConfig = {
+			securityJsCode:'{$sysset_webinfo["js_code_amap"]}',
+		}
+	</script>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加人员{else}<i class="fa fa-pencil"></i> 编辑人员{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w6">
+						<input type="hidden" name="info[id]" value="{$info.id}"/>
+						<div class="layui-form-item">
+							<label class="layui-form-label">登录账号：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[un]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.un}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">登录密码：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[pwd]" class="layui-input" autocomplete="off" value="" {if $info['id']} placeholder="留空表示不修改密码"{else} lay-verify="required" lay-verType="tips"{/if}>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">{:t('会员')}ID：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[mid]" lay-verType="tips" class="layui-input" value="{$info.mid}">
+							</div>
+							<div class="layui-form-mid layui-word-aux"><a href="javascript:vodi(0)" onclick="openmax('{:url('member/index')}/isopen/1')">查找{:t('会员')}ID</a></div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">姓名：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[realname]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.realname}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">手机号：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[tel]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.tel}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">人员类型：</label>
+							<div class="layui-input-inline">
+								<select name="info[cid]">
+								<option value="">--请选择--</option>
+								{foreach $clist as $cv}
+									<option value="{$cv['id']}" {if $cv['id']==$info['cid']}selected{/if}>{$cv.name}</option>
+								{/foreach}
+								</select>
+							</div>
+							<!-- <div class="layui-form-mid layui-word-aux"><a href="{:url('ArticleCategory/edit')}">创建分类</a></div> -->
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">头像：</label>
+							<input type="hidden" name="info[headimg]" id="headimg" class="layui-input" value="{$info.headimg}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="headimg" upload-preview="headimgPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：150×150像素</div>
+							<div id="headimgPreview" style="float:left;padding-top:10px;margin-left:130px;clear: both;">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.headimg}"/></div></div>
+							</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">熟悉技能：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[jineng]" class="layui-input" value="{$info['jineng']}">
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">如：安装 | 维修 | 清洗</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">服务人员简介：</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[desc]" class="layui-input" value="{$info['desc']}">
+							</div>
+							<div class="layui-form-mid layui-word-aux">在详情页下面展示简介信息，建议60字以内</div>
+						</div>
+						{if getcustom('yuyue_apply') && !getcustom('yuyue_apply_refund')}		
+						<div class="layui-form-item">
+							<label class="layui-form-label" >服务类型：</label>
+							<div class="layui-input-inline" style="width:400px">
+								<select name="info[fwcids]" id="cid" xm-select="selectCid" xm-select-max="5" xm-select-search >
+								<option value="">--请选择--</option>
+								{foreach $fwclist as $cv}
+									<option value="{$cv['id']}" {if in_array($cv['id'],explode(',',$info['fwcids']))}selected{/if}>{$cv['name']}</option>
+									{foreach $cv['child'] as $k=>$v}
+									{if $k < count($cv['child'])-1}
+									<option value="{$v['id']}" {if in_array($v['id'],explode(',',$info['fwcids']))}selected{/if}>&nbsp;&nbsp;&nbsp;&nbsp;├ {$v['name']}</option>
+									{else}
+									<option value="{$v['id']}" {if in_array($v['id'],explode(',',$info['fwcids']))}selected{/if}>&nbsp;&nbsp;&nbsp;&nbsp;└ {$v['name']}</option>
+									{/if}
+									{/foreach} 
+								{/foreach}
+								</select>
+							</div>
+							<div class="layui-form-mid layui-word-aux">最多可选5个类型</div>
+						</div>
+			        	{/if}
+						{if getcustom('yuyue_apply') || getcustom('yuyue_apply_refund')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">性别</label>
+							<div class="layui-input-inline" style="width:700px">
+								<input type="radio" name="info[sex]" value="0" {if $info['sex']==0}checked{/if} title="未知"/>
+								<input type="radio" name="info[sex]" value="1"  {if $info['sex']==1}checked{/if} title="男"/>
+								<input type="radio" name="info[sex]" value="2"  {if $info['sex']==2}checked{/if} title="女"/>
+								
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">年龄：</label>
+							<div class="layui-input-inline" style="width:400px;height:40px; line-height:40px">
+									<input type="text" name="info[age]" class="layui-input" value="{$info['age']}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>服务城市：</label>
+                            <div style="display: flex;flex-direction: column;">
+                                <div class="areaDiv" style="margin-bottom: 8px">
+                                    <div class="layui-input-inline" style="width: 150px">
+                                        <select name="info[province]" id="province" lay-filter="province" {if !$info.id}lay-verify="required"{/if}></select>
+                                    </div>
+                                    <div class="layui-input-inline" style="width: 150px">
+                                        <select name="info[city]" id="city" lay-filter="city"></select>
+                                    </div>
+                                    <div class="layui-input-inline" style="width: 150px;">
+                                        <select name="info[district]" id="district"></select>
+                                    </div>
+                                </div>
+                                <div class="adressDiv">
+                                    <div class="layui-input-inline" style="width:500px">
+                                        <input type="text" id="address" name="info[address]" class="layui-input layui-input-search" value="{$info.address}">
+                                        <div style="position: absolute;width: 500px;z-index: 100;" class="search-keywords">
+
+                                        </div>
+                                    </div>
+                                    <button class="layui-btn layui-btn-primary" id="searchbtn">搜索</button>
+                                </div>
+                            </div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div id="l-map" style="width:800px;height:500px">地图加载中...</div>
+							<div style="margin-left: 160px;margin-top:10px;">
+								<div class="layui-input-inline" style="width:200px">
+									<input type="text" name="info[longitude]" id="mapjd" class="layui-input" value="{$info.longitude|default='116.39782905578613'}"/>
+								</div>
+								<div class="layui-input-inline" style="width:200px">
+									<input type="text" name="info[latitude]" id="mapwd" class="layui-input" value="{$info.latitude|default='39.90358020251377'}"/>
+								</div>
+							</div>
+						</div>
+						{if !getcustom('yuyue_apply_refund')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">服务公里数：</label>
+							<div class="layui-input-inline"  style="width:400px;height:40px; line-height:40px">
+								<!--<span>{$info.fuwu_juli}km</span>-->
+								<input type="text" name="info[fuwu_juli]" class="layui-input" value="{$info['fuwu_juli']}">
+							</div>
+						</div>
+						{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label">身份证正反面：</label>
+							<input type="hidden" name="info[codepic]" value="{$info['codepic']}" id="codepic">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this,true)" upload-input="codepic" upload-preview="codepicList" >批量上传</button>
+							<div id="codepicList" class="picsList-class-130">
+								{if $info['codepic']}{php}$pics = explode(',',$info['codepic']);{/php}{foreach $pics as $pic}
+								<div class="layui-imgbox">
+									<a class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().remove();getpicsval('codepic','codepicList')" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+									<span class="layui-imgbox-img"><img src="{$pic}"></span>
+								</div>
+								{/foreach}{/if}
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">身份证正反面：</label>
+							<input type="hidden" name="info[otherpic]" value="{$info['otherpic']}" id="otherpic">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this,true)" upload-input="otherpic" upload-preview="otherpicList" >批量上传</button>
+							<div id="otherpicList" class="picsList-class-130">
+								{if $info['otherpic']}{php}$pics = explode(',',$info['otherpic']);{/php}{foreach $pics as $pic}
+								<div class="layui-imgbox">
+									<a class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().remove();getpicsval('otherpic','otherpicList')" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+									<span class="layui-imgbox-img"><img src="{$pic}"></span>
+								</div>
+								{/foreach}{/if}
+							</div>
+						</div>
+						{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label">序号：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[sort]" value="{$info.sort|default=0}" class="layui-input">
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">用于排序,越大越靠前</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">接单状态：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[status]" value="1" title="开启" {if !$info['id'] || $info['status']==1}checked{/if}>
+								<input type="radio" name="info[status]" value="0" title="关闭" {if $info['id'] && $info['status']==0}checked{/if}>
+							</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+  </div>
+	{include file="public/js"/}
+	<script charset="utf-8" src="https://map.qq.com/api/js?v=2.exp&key={$sysset_webinfo.map_key_qq}"></script>
+	<script src="__STATIC__/admin/js/address3.js"></script>
+	 <script>
+		 address3('province','city','district',"{$info.province}","{$info.city}","{$info.district}");
+	 </script>
+	     <script src="__STATIC__/admin/js/searchaddress.js?v=2024720"></script>
+
+	<script>
+	//var ueditor = UE.getEditor('content');
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		//field['info[content]'] = ueditor.getContent();
+		//console.log(field);return;
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.close(parent.layer.getFrameIndex(window.name));
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

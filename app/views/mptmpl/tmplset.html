@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>模板消息设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">模板消息设置</div>
+				<div class="layui-card-body" pad15>
+					<blockquote class="layui-elem-quote" style="border-left-color: red;">微信规则变动，已添加过模板的可继续使用，未添加过模板的无法添加，请使用<a class="" href="javascript:void(0)" onclick="openmax('{:url('tmplsetNew')}/isopen/1')">【类目模板消息】</a>功能</blockquote>
+					<blockquote class="layui-elem-quote">已认证服务号才能开通模板消息功能，在公众平台(mp.weixin.qq.com) [功能]-[添加功能插件]-[模板消息]中申请开通<br>所在行业选择：IT科技/互联网|电子商务</blockquote>
+					<div class="layui-form form-label-w8" lay-filter="">
+						<div class="layui-form-item">
+							<label class="layui-form-label">订单提交成功通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_orderconfirm]" value="{$info.tmpl_orderconfirm}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'OPENTM200746866')">添加</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">模板编号：OPENTM200746866</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">订单支付成功通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_orderpay]" value="{$info.tmpl_orderpay}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'OPENTM207498902')">添加</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">模板编号：OPENTM207498902</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">订单发货通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_orderfahuo]" value="{$info.tmpl_orderfahuo}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'OPENTM202243318')">添加</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">模板编号：OPENTM202243318</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">订单收货通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_ordershouhuo]" value="{$info.tmpl_ordershouhuo}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'OPENTM411154202')">添加</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">模板编号：OPENTM411154202</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">退款申请通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_ordertui]" value="{$info.tmpl_ordertui}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'OPENTM407277862')">添加</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">模板编号：OPENTM407277862</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">退款成功通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_tuisuccess]" value="{$info.tmpl_tuisuccess}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'TM00430')">添加</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">模板编号：TM00430</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">退款申请驳回通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_tuierror]" value="{$info.tmpl_tuierror}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'TM00432')">添加</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">模板编号：TM00432</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">提现申请通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_withdraw]" value="{$info.tmpl_withdraw}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'OPENTM405485000')">添加</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">模板编号：OPENTM405485000</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">提现成功通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_tixiansuccess]" value="{$info.tmpl_tixiansuccess}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'TM00980')">添加</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">模板编号：TM00980</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">提现失败通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_tixianerror]" value="{$info.tmpl_tixianerror}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'TM00981')">添加</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">模板编号：TM00981</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">拼团成功通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_collagesuccess]" value="{$info.tmpl_collagesuccess}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'OPENTM400932513')">添加</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">模板编号：OPENTM400932513</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">表单提交通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_formsub]" value="{$info.tmpl_formsub}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'OPENTM405848758')">添加</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">模板编号：OPENTM405848758，用于有客户提交自定义表单时通知管理员</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">客户咨询通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_kehuzixun]" value="{$info.tmpl_kehuzixun}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'OPENTM412547082')">添加</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">模板编号：OPENTM412547082，用于有客户在线咨询时通知管理员</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">成员加入提醒</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_joinin]" value="{$info.tmpl_joinin}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'OPENTM207685059')">添加</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">模板编号：OPENTM207685059，用于推荐下级加入提醒</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">分销成功提醒</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_fenxiaosuccess]" value="{$info.tmpl_fenxiaosuccess}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'OPENTM402027183')">添加</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">模板编号：OPENTM402027183，用于分销{:t('佣金')}到账提醒</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">会员升级通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_uplv]" value="{$info.tmpl_uplv}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'OPENTM401075189')">添加</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">模板编号：OPENTM401075189</div>
+						</div>
+						<!-- <div class="layui-form-item">
+							<label class="layui-form-label">服务到期提醒</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_fuwudaoqi]" value="{$info.tmpl_fuwudaoqi}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'OPENTM408237933')">添加</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">模板编号：OPENTM408237933，用于服务型商品到期提醒</div>
+						</div> -->
+						<div class="layui-form-item">
+							<label class="layui-form-label">新配送订单通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_peisongorder]" value="{$info.tmpl_peisongorder}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'OPENTM417984500')">添加</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">模板编号：OPENTM417984500，用于通知配送员有新订单需要配送</div>
+						</div>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">余额变动提示</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_moneychange]" value="{$info.tmpl_moneychange}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'OPENTM401833445')">添加</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">模板编号：OPENTM401833445</div>
+						</div>
+						{if $restaurant}
+						<div class="layui-form-item">
+							<label class="layui-form-label">餐饮预定通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_restaurant_booking]" value="{$info.tmpl_restaurant_booking}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'OPENTM405628250')">添加</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">模板编号：OPENTM405628250</div>
+						</div>
+						{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label">审核结果通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_shenhe]" value="{$info.tmpl_shenhe}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'OPENTM408894858')">添加</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">模板编号：OPENTM408894858</div>
+						</div>
+						
+						
+						
+						{if getcustom('coupon_expire_notice')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">业务到期通知</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[tmpl_coupon_expire]" value="{$info.tmpl_coupon_expire}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="gettmplid(this,'OPENTM411793443')">添加</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">模板编号：OPENTM411793443</div>
+						</div>
+						{/if}
+
+						{if in_array('mp',$platform) && in_array('wx',$platform)}
+						<div class="layui-form-item">
+							<label class="layui-form-label">模板消息链接：</label>
+							<div class="layui-input-inline" style="width:50%">
+								<input type="radio" name="info[tmpl_message_link]" value="mp" {if $info['tmpl_message_link']=='mp'}checked{/if} title="打开公众号"/>
+								<input type="radio" name="info[tmpl_message_link]" value="wx" {if $info['tmpl_message_link']=='wx'}checked{/if} title="打开小程序"/>
+							</div>
+						</div>
+						{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="setmypass">保 存</button>
+							</div>
+						</div>
+					</div>
+        </div>
+      </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.form.on('submit(setmypass)', function(obj){
+		var field = obj.field
+		if(!field['uinfo[tmpl_orderconfirm]']) field['uinfo[tmpl_orderconfirm]'] = 0;
+		if(!field['uinfo[tmpl_orderpay]']) field['uinfo[tmpl_orderpay]'] = 0;
+		if(!field['uinfo[tmpl_ordershouhuo]']) field['uinfo[tmpl_ordershouhuo]'] = 0;
+		if(!field['uinfo[tmpl_ordertui]']) field['uinfo[tmpl_ordertui]'] = 0;
+		if(!field['uinfo[tmpl_recharge]']) field['uinfo[tmpl_recharge]'] = 0;
+		if(!field['uinfo[tmpl_withdraw]']) field['uinfo[tmpl_withdraw]'] = 0;
+		if(!field['uinfo[tmpl_formsub]']) field['uinfo[tmpl_formsub]'] = 0;
+		if(!field['uinfo[tmpl_kehuzixun]']) field['uinfo[tmpl_kehuzixun]'] = 0;
+		$.post('',field,function(data){
+			dialog(data.msg,data.status,data.url);
+		})
+	})
+	function gettmplid(obj,template_no){
+		if($(obj).parent().find('input').val() != ''){
+			layer.confirm('已填写模板ID，确定要重新添加吗？',function(index){
+				layer.close(index)
+				var index = layer.load();
+				$.post("{:url('gettmplid')}",{template_no:template_no},function(res){
+					layer.close(index)
+					if(res.status==0){
+						dialog(res.msg);
+					}else{
+						$(obj).parent().find('input').val(res.data);
+						layer.tips('已添加', $(obj).parent().find('input'));
+					}
+				});
+			});
+		}else{
+			var index = layer.load();
+			$.post("{:url('gettmplid')}",{template_no:template_no},function(res){
+				layer.close(index)
+				if(res.status==0){
+					dialog(res.msg);
+				}else{
+					$(obj).parent().find('input').val(res.data);
+				}
+			});
+		}
+	}
+	
+	function showbdqrcode(id){
+			var html = '<div style="margin:auto auto;text-align:center">';
+			html+='	<img src="{:url('user/getqrcode')}/id/'+id+'" style="margin-top:20px;max-width:280px;max-height:280px"/>';
+			//html+='	<div style="font-size:30px;color:#e94745"><span style="font-size:24px"></span></div>';
+			html+='	<div style="font-size:14px;text-align:left;margin:0 20px">用微信扫码关注绑定，用于接收消息通知</div>';
+			//if('{$isgl}'=='1'){
+			//	html+='	<div style="font-size:12px;color:#e55;text-align:left;margin:0 20px">授权已认证的服务号后可绑定授权后的服务号</div>';
+			//}
+			html+='</div>';
+			layer.open({type:1,area:['300px','350px'],content:html,title:false,shadeClose:true})
+	}
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

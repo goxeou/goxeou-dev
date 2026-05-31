@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>我的类目</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header"><i class="fa fa-list"></i> 我的类目</div>
+          <div class="layui-card-body" pad15>
+						<div class="layui-col-md4" style="padding-bottom:10px">
+							<a class="layui-btn layui-btn-primary layuiadmin-btn-list" href="javascript:void(0)" onclick="openmax('{:url('allcategory')}&isopen=1')">添加类目</a>
+							<a class="layui-btn layui-btn-primary layuiadmin-btn-list" href="javascript:void(0)" onclick="openmax('{:url('categoryapplylog')}&isopen=1')">申请记录</a>
+						</div>
+						<div class="layui-form layui-col-md8" style="text-align:right;padding-bottom:10px">
+							
+						</div>
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+  var table = layui.table;
+	var datawhere = {};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: '{$Request.url}' //数据接口
+    ,page: false //开启分页
+		,skin:'line'
+    ,cols: [[ //表头
+			//{type:"checkbox"},
+      {field: 'third_cat_id', title: '类目ID',  width:80},
+      {field: 'title', title: '类目名称',templet:function(d){ return d.first_cat_name + ' > ' + d.second_cat_name + ' > ' + d.third_cat_name;}},
+      //{field: 'operation', title: '操作',templet: '<div><button class="table-btn" onclick="datadel({{d.first}},{{d.second}})">删除</button></div>'}
+    ]]
+  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	//删除
+	function datadel(first,second){
+		layer.confirm('确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('del')}",{first:first,second:second},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	function addleimu(){
+		var index = layer.load();
+		$.post("{:url('getallcategory')}",{},function(data){
+			layer.close(index);
+			//dialog(data.msg,data.status);
+			//tableIns.reload()
+			var catelist = data.data
+			var ohtml = '<option value="">请选择类目</option>';
+			$.each(catelist,function(i,m){
+				//var m = catelist[i]
+				ohtml+='<option value="'+m.first+'_'+m.second+'">'+m.first_name+' &gt; '+m.second_name+'</option>';
+			})
+			var html = '<div style="margin:20px" class="layui-form">';
+			html+='<div class="layui-form-item">';
+			html+='		<label class="layui-form-label" style="width:200px">选择类目：</label>';
+			html+='		<div class="layui-input-inline" style="width:350px">';
+			html+='			<select name="leimu" lay-filter="leimuselect">'+ohtml+'</select>';
+			html+='		</div>';
+			html+='	</div>';
+			html+='	<div id="exter_div">';
+			html+='	</div>';
+			html+='	<div class="layui-form-item" style="margin-top:50px">';
+			html+='		<label class="layui-form-label" style="width:200px"></label>';
+			html+='		<div class="layui-input-inline">';
+			html+='			<button class="layui-btn layui-btn-normal" lay-submit lay-filter="submit_set_leimu">确 定</button>';
+			html+='		</div>';
+			html+='	</div>';
+			html+='	</div>';
+
+			layer.open({type:1,area:['800px','500px'],content:html,title:'添加类目',shadeClose:true});
+			
+			layui.form.render('select');
+			layui.form.on('select(leimuselect)',function(obj){
+				$('#exter_div').html('');
+				var thiscate = catelist[obj.value];
+				var exter_list = thiscate.exter_list
+				if(exter_list && exter_list.length > 0){
+					var ehtml = '';
+					$.each(exter_list,function(i,exter){
+						var etitle = [];
+						$.each(exter.inner_list,function(j,inner){
+							etitle.push(inner.name);
+						})
+						ehtml+='<input type="radio" name="exter_type" '+(i==0?'checked':'')+' value="'+i+'" title="'+etitle.join(' 及 ')+'" lay-filter="exter_type"/>';
+					})
+					var exterhtml = '';
+					exterhtml+='<div class="layui-form-item" '+(exter_list.length==1?'style="display:none"':'')+'>';
+					exterhtml+='	<label class="layui-form-label" style="width:200px">选择上传资质：</label>';
+					exterhtml+='	<div class="layui-input-inline" style="width:450px">';
+					exterhtml+=			ehtml;
+					exterhtml+='	</div>';
+					exterhtml+='</div>';
+					exterhtml+='<div id="exter_list">';
+					exterhtml+='</div>';
+					$('#exter_div').html(exterhtml);
+					layui.form.render('radio');
+					get_exter_list(exter_list,0);
+					layui.form.on('radio(exter_type)',function(obj){
+						get_exter_list(exter_list,obj.value);
+					})
+				}
+			});
+			layui.form.on('submit(submit_set_leimu)', function(obj){
+				var field = obj.field
+				var index = layer.load();
+				$.post("{:url('setleimu')}",field,function(data){
+					layer.close(index);
+					dialog(data.msg,data.status,data.url);
+				});
+			});
+		})
+	}
+	function get_exter_list(exter_list,key){
+		console.log(key);
+		var exter = exter_list[key]
+		var exhtml = '';
+		$.each(exter.inner_list,function(j,inner){
+			exhtml+='<div class="layui-form-item">';
+			exhtml+='	<label class="layui-form-label" style="width:200px">'+inner.name+'：</label>';
+			exhtml+='		<input type="hidden" name="exter_inner['+inner.name+']" id="exter_inner_'+j+'" class="layui-input" value="">';
+			exhtml+='		<button style="float:left;margin-right:10px" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this)" upload-input="exter_inner_'+j+'" upload-preview="pexter_inner_'+j+'">上传图片</button>';
+			exhtml+='		<div class="layui-word-aux" style="margin-left:10px;">上传原件或复印件，复印件务必加盖公司公章 文件格式为jpg、jpeg、bmp、gif或png，文件大小不超过5M</div>';
+			exhtml+='		<div id="pexter_inner_'+j+'" style="float:left;padding-top:5px;margin-left:230px;clear: both;">';
+			exhtml+='			<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src=""/></div></div>';
+			exhtml+='		</div>';
+			exhtml+='</div>';
+		})
+		$('#exter_list').html(exhtml);
+	}
+	</script>
+</body>
+</html>

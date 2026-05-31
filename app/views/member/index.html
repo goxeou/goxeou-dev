@@ -1,0 +1,2007 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{:t('会员')}列表</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	.orderdetail{background:#fff;width: 94%;box-sizing:border-box;margin:0 10px;display:flex;flex-direction:column;}
+	.orderdetail *{box-sizing:border-box;}
+	.orderinfo{ width:100%;margin-top:5px;padding: 5px;background: #FFF;}
+	.orderinfo .item{display:flex;width:100%;padding:5px 0;border-bottom:1px dashed #ededed;}
+	.orderinfo .item:last-child{ border-bottom: 0;}
+	.orderinfo .item .t1{width:100px;}
+	.orderinfo .item .t2{flex:1;text-align:right}
+	.orderinfo .item .red{color:red}
+	.layui-table-tool{background: #fff;border:none}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header">
+				{if input('param.fxmid')}
+				<div class="layui-tab layui-tab-brief">
+					<ul class="layui-tab-title">
+						<li {if input('param.deep')=='1'}class="layui-this"{/if} onclick="location.href='{:url('index')}&deep=1&isopen=1&fxmid={$Request.param.fxmid}'">一级</li>
+						<li {if input('param.deep')=='2'}class="layui-this"{/if} onclick="location.href='{:url('index')}&deep=2&isopen=1&fxmid={$Request.param.fxmid}'">二级</li>
+						<li {if input('param.deep')=='3'}class="layui-this"{/if} onclick="location.href='{:url('index')}&deep=3&isopen=1&fxmid={$Request.param.fxmid}'">三级</li>
+					</ul>
+				</div>
+				{else}
+				{:t('会员')}列表
+				{/if}
+				{if input('param.isopen')==1}<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>{/if}
+			</div>
+          <div class="layui-card-body" pad15>
+
+						<div class="layui-form layui-col-md12 layui-form-search">
+							<div class="layui-inline">
+								<label class="layui-form-label">ID</label>
+								<div class="layui-input-inline">
+									<input type="text" name="mid" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">关键字</label>
+								<div class="layui-input-inline" style="width:180px">
+									<input type="text" name="nickname" autocomplete="off" class="layui-input" placeholder="昵称/姓名/手机号/会员卡号">
+								</div>
+							</div>
+							
+							<div class="layui-inline">
+								<label class="layui-form-label">推荐人ID</label>
+								<div class="layui-input-inline">
+									<input type="text" name="pid" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							{if getcustom('up_change_pid')}
+							<div class="layui-inline">
+								<label class="layui-form-label">原推荐人ID</label>
+								<div class="layui-input-inline">
+									<input type="text" name="pid_origin" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							{/if}
+							<div class="layui-inline">
+								<label class="layui-form-label">等级</label>
+								<div class="layui-input-inline">
+									<select name="levelid" lay-search>
+										<option value="">全部</option>
+										{foreach $levelArr as $k=>$v}
+										<option value="{$k}">{$v}</option>
+										{/foreach}
+									</select>
+								</div>
+							</div>
+							{if getcustom('teamlevel')}
+							<div class="layui-inline">
+								<label class="layui-form-label" style="width:60px">{:t('团队等级')}</label>
+								<div class="layui-input-block" style="width:100px;margin-left:90px;text-align:left">
+									<select name="teamlevel" lay-search>
+										<option value="">全部</option>
+										{foreach $teamArr as $k=>$v}
+										<option value="{$k}">{$v}</option>
+										{/foreach}
+									</select>
+								</div>
+							</div>
+							{/if}
+							{if getcustom('storelevel')}
+    							<div class="layui-inline">
+    								<label class="layui-form-label" style="width:60px">{:t('推荐等级')}</label>
+    								<div class="layui-input-block" style="width:100px;margin-left:90px;text-align:left">
+    									<select name="storelevel" lay-search>
+    										<option value="">全部</option>
+    										{foreach $storeArr as $k=>$v}
+    										<option value="{$k}">{$v}</option>
+    										{/foreach}
+    									</select>
+    								</div>
+    							</div>
+                           	{/if}
+							<!--<div class="layui-inline">-->
+							<!--	<label class="layui-form-label">是否领卡</label>-->
+							<!--	<div class="layui-input-inline">-->
+							<!--		<select name="isgetcard">-->
+							<!--			<option value="">全部</option>-->
+							<!--			<option value="1">已领卡</option>-->
+							<!--			<option value="2">未领卡</option>-->
+							<!--		</select>-->
+							<!--	</div>-->
+							<!--</div>-->
+							
+							{if getcustom('plug_tengrui')}
+							<div class="layui-inline">
+								<label class="layui-form-label">是否认证</label>
+								<div class="layui-input-inline">
+									<select name="tr_is_rzh">
+										<option value="">全部</option>
+										<option value="0">未认证</option>
+										<option value="1">已认证</option>
+									</select>
+								</div>
+							</div>
+							{/if}
+							{if getcustom('xixie')}
+							<div class="layui-inline">
+								<label class="layui-form-label">门店</label>
+								<div class="layui-input-inline">
+									<select name="mdid">
+										<option value="">全部</option>
+										{foreach $mendian as $k=>$v}
+										<option value="{$v.id}">{$v.name}</option>
+										{/foreach}
+									</select>
+								</div>
+							</div>
+							{/if}
+							{if getcustom('member_business')}
+								{if $showbusiness && $blist}
+								<div class="layui-inline">
+									<label class="layui-form-label">商户</label>
+									<div class="layui-input-inline">
+										<select name="bid" lay-search>
+											<option value="">请选择商户</option>
+											<option value="0">平台</option>
+											{foreach $blist as $k=>$v}
+											<option value="{$v.id}">{$v.name}</option>
+											{/foreach}
+										</select>
+									</div>
+								</div>
+								{/if}
+							{/if}
+							<div class="layui-inline">
+								<label class="layui-form-label">加入时间</label>
+								<div class="layui-input-inline" style="width:180px">
+									<input type="text" name="ctime" id="ctime" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							{if getcustom('member_search_teamyejitime')}
+							<div class="layui-inline">
+								<label class="layui-form-label">团队业绩时间</label>
+								<div class="layui-input-inline" style="width:180px">
+									<input type="text" name="teamyeji_time" id="teamyeji_time" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							{/if}
+							{if getcustom('ganer_fenxiao')}
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">代理省</label>
+								<div class="layui-input-inline" style="width:80px">
+									<input type="text" name="areafenhong_province" autocomplete="off" class="layui-input" placeholder="代理省">
+								</div>
+							</div>
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">代理市</label>
+								<div class="layui-input-inline" style="width:80px">
+									<input type="text" name="areafenhong_city" autocomplete="off" class="layui-input" placeholder="代理市">
+								</div>
+							</div>
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">代理区县</label>
+								<div class="layui-input-inline" style="width:80px">
+									<input type="text" name="areafenhong_area" autocomplete="off" class="layui-input" placeholder="代理区县">
+								</div>
+							</div>
+							{/if}
+							{if getcustom('member_tag')}					
+							<div class="layui-inline">
+								<label class="layui-form-label">标签</label>
+								<div class="layui-input-inline">
+									<select name="tagid" >
+										<option value="">请选择标签</option>
+										{foreach $taglist as $k=>$v}
+										<option value="{$k}">{$v}</option>
+										{/foreach}
+									</select>
+								</div>
+							</div>
+							{/if}
+							<div class="layui-inline">
+								<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+									<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+								</button>
+							</div>
+						</div>
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	<div id="rechargeModel" style="width:500px;display:none;margin-top:30px">
+		<div class="layui-form" lay-filter="">
+			<input type="hidden" name="rechargemid" id="rechargemid"/>
+			<div class="layui-form-item">
+				<label class="layui-form-label">充值方式</label>
+				<div class="layui-input-inline">
+					<select name="rechargetype">
+						<option value="wxpay">微信</option>
+						<option value="alipay">支付宝</option>
+						<option value="cash">现金</option>
+						<option value="bank">银行卡</option>
+					</select>
+				</div>
+				<div class="layui-form-mid layui-word-aux"></div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">充值金额</label>
+				<div class="layui-input-inline">
+					<input type="text" name="rechargemoney" required lay-verify="required" placeholder="" autocomplete="off" class="layui-input">
+				</div>
+				<div class="layui-form-mid layui-word-aux">输入负值表示扣除金额</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">备注</label>
+				<div class="layui-input-inline">
+					<input type="text" name="remark"   placeholder="" autocomplete="off" class="layui-input">
+				</div>
+				<div class="layui-form-mid layui-word-aux"></div>
+			</div>
+			<div class="layui-form-item">
+				<div class="layui-input-block">
+					<button class="layui-btn layui-btn-normal" lay-submit lay-filter="formRecharge">确定充值</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="addktnumModel" style="width:500px;display:none;margin-top:30px">
+		<div class="layui-form" lay-filter="">
+			<input type="hidden" name="ktmid" id="ktmid"/>
+			<div class="layui-form-item">
+				<label class="layui-form-label">开团次数</label>
+				<div class="layui-input-inline">
+					<input type="text" name="ktnum" required lay-verify="required" placeholder="" autocomplete="off" class="layui-input">
+				</div>
+				<div class="layui-form-mid layui-word-aux">输入负值表示扣除开团次数</div>
+			</div>
+			<div class="layui-form-item">
+				<div class="layui-input-block">
+					<button class="layui-btn layui-btn-normal" lay-submit lay-filter="formKtnum">确定</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="ywtimeModel" style="width:500px;display:none;margin-top:30px">
+		<div class="layui-form" lay-filter="">
+			<input type="hidden" name="ywtmid" id="ywtmid"/>
+
+			<div class="layui-form-item">
+				<label class="layui-form-label" style="width: 130px">{:t('余额宝')}收益:</label>
+				<div class="layui-input-inline" style="width: 210px">
+					<input type="number" name="ywrate" id="ywrate" required lay-verify="required" placeholder="" autocomplete="off" class="layui-input" style="display: inline-block;width: 190px">%
+				</div>
+				<div class="layui-form-mid layui-word-aux" style="width: 400px;margin-left: 40px;">注意：1、填-1为关闭单独设置，填0为无收益 </div>
+			</div>
+
+			<div class="layui-form-item">
+				<label class="layui-form-label" style="width: 130px">{:t('余额宝')}提现天数:</label>
+				<div class="layui-input-inline">
+					<input type="number" name="ywtime" id="ywtime" required lay-verify="required" placeholder="" autocomplete="off" class="layui-input">
+				</div>
+				<div class="layui-form-mid layui-word-aux" style="width: 400px;margin-left: 40px;">注意：1、必须为整数 2、填-1为关闭单独设置 3、填0为不限制，填其他数字，如填写10，为每10天可提现一次</div>
+			</div>
+
+			<div class="layui-form-item">
+				<div class="layui-input-block">
+					<button class="layui-btn layui-btn-normal" lay-submit lay-filter="formywtime">确定</button>
+				</div>
+			</div>
+		</div>
+	</div>
+  		{if getcustom('member_commission_max') && getcustom('add_commission_max')}
+	  <div id="commissionmaxModel" style="width:500px;display:none;margin-top:30px">
+		  <div class="layui-form">
+			  <div class="layui-form-item" style="margin-top:40px;margin-right:20px;">
+				  <label class="layui-form-label" style="width:80px">增加数量：</label>
+				  <div class="layui-input-inline" style="width:100px">
+					  <input type="text" id="addcommissionmaxnum" class="layui-input"/>
+					  </div>
+				  <div class="layui-form-mid layui-word-aux">输入负值表示扣除{:t('佣金上限')}</div>
+				  </div>
+			  <div class="layui-form-item" style="">
+				  <label class="layui-form-label" style="width:80px">来源：</label>
+				  <div class="layui-input-inline"  style="width:300px">
+					 <input type="radio" name="in_type" title="后台发放" value="1" checked="checked" />
+					  <input type="radio" name="in_type" title="系统发放" value="0" />
+				  </div>
+			  </div>
+			  <div class="layui-form-item" style="">
+				  <label class="layui-form-label" style="width:80px">备注信息：</label>
+				  <div class="layui-input-inline" style="width:200px">
+					  <input type="text" id="addcommissionmaxremark" class="layui-input"/>
+				  </div>
+			  </div>
+		  </div>
+	  </div>
+  	{/if}
+  <script type="text/html" id="leftbtn">
+	  <div class="layui-btn-container">
+		  {if getcustom('member_add')}
+		  <button class="layui-btn " lay-event="getCheckData" onclick="openmax('{:url('edit')}')">添加</button>
+		  {/if}
+		  <button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="datadel(0)">删除</button>
+		  <button class="layui-btn layui-btn-primary layuiadmin-btn-list" data-form-export="{:url('excel')}">导出</button>
+		  <button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="daoru()">导入</button>
+		  {if getcustom('member_overdraft_money')}
+		  {if $rechargeOverdraftMoneyAuth}
+		  <button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="editLimitOverdraftmoney()">批量修改额度</button>
+		  {/if}
+		  {/if}
+		  	<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="datadelsql()">删除测试数据</button>
+			<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="addmem()">批量添加会员</button>
+	  </div>
+  </script>
+	{include file="public/js"/}
+  
+	<script>
+  var table = layui.table;
+  var sortdata = "{$sort}";
+	var datawhere = {};
+	{if input('?param.fxmid') && input('param.fxmid')!==''}
+	datawhere['fxmid'] = "{$Request.param.fxmid}";
+	{/if}
+	{if input('?param.deep') && input('param.deep')!==''}
+	datawhere['deep'] = "{$Request.param.deep}";
+	{/if}
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: '{$Request.url}' //数据接口
+    ,page: true //开启分页
+		,checkbox: true
+		,autoSort:false,
+	toolbar: '#leftbtn',
+	defaultToolbar: [
+	  'filter', // 列筛选
+	],
+	
+	cols: [[ //表头
+			{type:"checkbox"},
+        {field: 'id', title: 'ID',sort: true,width:60},
+        {field: 'nickname',width:160, title: '头像昵称',templet:function(d){
+			var html = '';
+				html += '<li><strong></strong><img src="'+d.headimg+'" style="height:30px"/> </li>';
+				html += '<li><strong>昵称: </strong>'+d.nickname+'</li>';
+			if(d.remark){
+			    html += '<li><strong>备注: </strong>'+d.remark+'</li>';
+			}
+		
+			if(d.isfreeze == 1){
+			     html += '<li><strong>状态: </strong>已冻结</li>';
+			}
+			{if in_array('mp',$platform) && in_array('wx',$platform)}
+		      	var platform = d.platform;
+				if(d.platform=='wx') platform = '小程序';
+				if(d.platform=='mp') platform='公众号';
+				if(d.platform=='h5') platform= 'H5';
+				if(d.platform=='alipay') platform= '支付宝小程序';
+				if(d.platform=='qq') platform= 'QQ小程序';
+				if(d.platform=='baidu') platform= '百度小程序';
+				if(d.platform=='toutiao') platform= '抖音小程序';
+				if(d.platform=='app') platform= 'APP';
+				if(d.platform=='qywx') platform= '企业微信';
+				if(d.platform=='cashdesk') platform= '收银台';
+				if(d.platform=='wx_channels') platform= '视频号小店';
+	     	    {if in_array('mp',$platform) && in_array('wx',$platform)}
+				    html += '<li><strong>来源: </strong>'+platform+'</li>';
+				{/if}
+	    	{/if}
+			if(d.isfreeze == 1){
+			     html += '<li><strong>状态: </strong>已冻结</li>';
+			}
+			
+			return html;
+		}},
+      
+    
+		{field: 'realname', title: '会员信息',templet:function(d){
+			var html = '<ul style="line-height: 25px">';
+			html+='<li >{:t('优惠券')}：<a  href="javascript:void(0)"  onclick="openmax(\'{:url('Coupon/record')}&isopen=1&mid='+d.id+'\')">'+d.coupon_count+'</a></li>';
+		
+		        var  realname = d.realname?d.realname:'';
+				html+='<li>姓&nbsp;&nbsp;名：'+realname+'</li>';
+				html+='<li>电&nbsp;&nbsp;话：'+d.tel+'</li>';
+			{if getcustom('member_realname_verify')}
+				var  usercard =  d.usercard?d.usercard:'';
+				html+='<li>身份证号：'+usercard+'</li>';
+			{/if}
+			html+' </ul>';
+			return html;
+		},width:150},
+			
+		 {if $adminset['reg_acc_tel']!=0}
+            {field: 'acc', align:"center", title: '账号',width:100},
+    	 {/if}	
+			
+         {field: 'nickname', title: '推荐人',templet: function(d){
+	    	var html = '';
+			if(d.parent && d.parent.id){
+				html= '<img src="'+d.parent.headimg+'" style="height:30px"/>'+d.parent.nickname+ '【' + +d.parent.id +'】';;
+			}else{
+				html= '无';
+			}
+		  if(d.parent_origin && d.parent_origin.id){
+			  html += '<div><img src="'+d.parent_origin.headimg+'" style="height:30px"/><br>'+d.parent_origin.nickname+'(原推荐人)</div>';
+		  }
+		  return html;
+		},width:170},
+    	{if getcustom('2+1')}
+    		 {field: 'nickname', title: '排位',templet: function(d){
+    			if(d._parent && d._parent.id){
+    				return '<img src="'+d._parent.headimg+'" style="height:20px"/>'+d._parent.nickname + '【' + +d._parent.id +'】';
+    			}else{
+    				return '无';
+    			}
+    		},width:180},
+		{/if}
+
+
+
+
+          
+			{field: 'money', title: '{:t('余额')}',sort: sortdata,width:100,templet:function(d){
+				return '<a href="javascript:void(0)" onclick="openmax(\'{:url('Money/moneylog')}&isopen=1&mid='+d.id+'\')">'+d.money+'</a>';
+			}},
+			{field: 'score', title: '{:t('积分')}',sort: sortdata,width:80,templet:function(d){
+				return '<a href="javascript:void(0)" onclick="openmax(\'{:url('Score/scorelog')}&isopen=1&mid='+d.id+'\')">'+d.score+'</a>';
+			}},
+			{field: 'commission', title: '{:t('佣金')}',sort: true,width:100,templet:function(d){
+				var html = '<ul style="line-height: 25px">';
+				html+= '<li>{:t(\'佣金\')}：<a href="javascript:void(0)" onclick="openmax(\'{:url('Commission/commissionlog')}&isopen=1&mid='+d.id+'\')">'+d.commission+'</a></li>';
+				{if getcustom('member_commission_max') }
+				html+= '<li>上限：<a href="javascript:void(0)" onclick="openmax(\'{:url('Commission/maxlog')}&isopen=1&mid='+d.id+'\')">'+d.commission_max+'</a></li>';
+				html+= '<li>累计：<a href="javascript:void(0)" onclick="openmax(\'{:url('Commission/commissionlog')}&isopen=1&mid='+d.id+'\')">'+d.totalcommission+'</a></li>';
+				{/if}
+				{if getcustom('add_commission_max') }
+				html+= '<li>后台发放：<a href="javascript:void(0)" onclick="openmax(\'{:url('Commission/maxlog')}&isopen=1&in_type=1&mid='+d.id+'\')">'+d.commission_max_plate+'</a></li>';
+				html+= '<li>系统发放：<a href="javascript:void(0)" onclick="openmax(\'{:url('Commission/maxlog')}&isopen=1&in_type=0&mid='+d.id+'\')">'+d.commission_max_self+'</a></li>';
+				{/if}
+				html+' </ul>';	
+				return html;
+			},width:150},
+			
+		    {if getcustom('credit1')}
+            	{field: 'credit1', align:"center", title: '{:t('credit1')}',sort: sortdata,width:100,templet:function(d){
+            		return '<a href="javascript:void(0)" onclick="openmax(\'{:url('Credit1/credit1log')}&isopen=1&mid='+d.id+'\')">'+d.credit1+'</a>';
+                }},
+    	   {/if}
+    	    {if getcustom('credit2')}
+        	    {field: 'credit2', align:"center", title: '{:t('credit2')}',sort: sortdata,width:100,templet:function(d){
+            		return '<a href="javascript:void(0)" onclick="openmax(\'{:url('Credit2/credit2log')}&isopen=1&mid='+d.id+'\')">'+d.credit2+'</a>';
+                }},
+                
+    	   {/if}
+			
+			
+			
+			
+			
+			
+			{if getcustom('member_business')}
+				{if $showbusiness}
+				{field: 'bname', title: '所属商户',width:160},
+				{/if}
+			{/if}
+			{if getcustom('xixie')}
+			    {field: 'mendian_infor', title: '门店信息',sort: sortdata,width:100,templet:function(d){
+			    	if(d.mendian_infor){
+					  return '<a href="javascript:void(0)" onclick="openmax(\'{:url('mendian/index')}&isopen=1&id='+d.mdid+'\')">'+d.mendian_infor+'</a>';
+			    	}else{
+			    		return '无';
+			    	}
+				}},
+			{/if}
+		{if getcustom('network_slide_down_max')}
+		{field: 'slide_num', title: '上级滑落人数',srot:true},
+		{/if}
+      {if getcustom('other_money')}
+     	 {if $othermoney_status}
+	      {field: 'money2', title: '{:t('余额2')}',sort: sortdata,width:100,templet:function(d){
+					return '<a href="javascript:void(0)" onclick="openmax(\'{:url('OtherMoney/moneylog')}&type=money2&act=money&isopen=1&mid='+d.id+'\')">'+d.money2+'</a>';
+	      }},
+	      {field: 'money3', title: '{:t('余额3')}',sort: sortdata,width:100,templet:function(d){
+					return '<a href="javascript:void(0)" onclick="openmax(\'{:url('OtherMoney/moneylog')}&type=money3&act=money&isopen=1&mid='+d.id+'\')">'+d.money3+'</a>';
+	      }},
+	      {field: 'money4', title: '{:t('余额4')}',sort: sortdata,width:100,templet:function(d){
+					return '<a href="javascript:void(0)" onclick="openmax(\'{:url('OtherMoney/moneylog')}&type=money4&act=money&isopen=1&mid='+d.id+'\')">'+d.money4+'</a>';
+	      }},
+	      {field: 'money5', title: '{:t('余额5')}',sort: sortdata,width:100,templet:function(d){
+					return '<a href="javascript:void(0)" onclick="openmax(\'{:url('OtherMoney/moneylog')}&type=money5&act=money&isopen=1&mid='+d.id+'\')">'+d.money5+'</a>';
+	      }},
+	      {field: 'frozen_money', title: '{:t('冻结金额')}',sort: sortdata,width:100,templet:function(d){
+					return '<a href="javascript:void(0)" onclick="openmax(\'{:url('OtherMoney/moneylog')}&type=frozen_money&act=money&isopen=1&mid='+d.id+'\')">'+d.frozen_money+'</a>';
+	      }},
+	      {/if}
+      {/if}
+		  {if getcustom('product_service_fee') && ($auth_data=='all' || in_array('service_fee_switch',$auth_data))}
+		  {field: 'score', title: '{:t('服务费')}',sort: sortdata,width:100,templet:function(d){
+				  return '<a href="javascript:void(0)" onclick="openmax(\'{:url('ServiceFee/servicefeeLog')}&isopen=1&mid='+d.id+'\')">'+d.service_fee+'</a>';
+			  }},
+		  {/if}
+
+			{if $business_selfscore==1}
+			{field: 'score', title: '{:t('商家积分')}',sort: sortdata,width:100,templet:function(d){
+				return '<a href="javascript:void(0)" onclick="openmax(\'{:url('BusinessScore/memberscore')}&isopen=1&mid='+d.id+'\')">'+d.bscore+'</a>';
+      }},
+			{/if}
+		  {if getcustom('score_withdraw')}
+		  {field: 'score_withdraw', title: '允提{:t('积分')}',sort: sortdata,width:100,templet:function(d){
+				  return '<a href="javascript:void(0)" onclick="openmax(\'{:url('Score/scorelog')}&isopen=1&mid='+d.id+'\')">'+d.score_withdraw+'</a>';
+			  }},
+		  {/if}
+      
+	  {if getcustom('product_givetongzheng') }
+		  {field: 'fhcopies', title: '{:t('通证')}',width:100,templet:function(d){
+				  return '<a href="javascript:void(0)" onclick="openmax(\'{:url('Tongzheng/moneylog')}&isopen=1&mid='+d.id+'\')">'+d.tongzheng+'</a>';
+			  }},
+		  {/if}
+		  {if getcustom('commission_duipeng_score_withdraw') && ($auth_data=='all' || in_array('CommissionWithdrawScorePower/authscorelog',$auth_data))}
+		  {field: 'fhcopies', title: '提现积分',width:100,templet:function(d){
+				  return '<a href="javascript:void(0)" onclick="openmax(\'{:url('CommissionWithdrawScore/scorelog')}&isopen=1&mid='+d.id+'\')">'+d.commission_withdraw_score+'</a>';
+			  }},
+		  {/if}
+		  {if getcustom('shop_paiming_fenhong') && ($auth_data=='all' || in_array('PaimingFenhong/moneylog',$auth_data))}
+		  {field: 'paiming_fenhong_money', title: '{:t('排名分红')}',width:100,templet:function(d){
+				  return '<a href="javascript:void(0)" onclick="openmax(\'{:url('PaimingFenhong/moneylog')}&isopen=1&mid='+d.id+'\')">'+d.paiming_fenhong_money+'</a>';
+			  }},
+		  {/if}
+			  {if getcustom('member_overdraft_money')}
+			  {if $rechargeOverdraftMoneyAuth}
+			  {field: 'overdraft_money', title: '欠款{:t('信用额度')}',sort: true, width:120,templet:function(d){
+				  return '<a href="javascript:void(0)" onclick="openmax(\'{:url('OverdraftMoney/moneylog')}&isopen=1&mid='+d.id+'\')">'+d.overdraft_money+'</a>';
+			  }},
+			  {field: 'limit_overdraft_money', title: '{:t('信用额度')}',sort: true, width:120,templet:function(d){
+				  if(d.open_overdraft_money==0){
+					  if(d.limit_overdraft_money==0){
+						  return '<span >0</span>';
+					  }else{
+						  return d.limit_overdraft_money;
+					  }
+				  }else{
+					  return '<span >无限制</span>';
+				  }
+			  }},
+			  {/if}
+			{/if}
+
+	  {if getcustom('fenhong_jiaquan_bylevel')}
+		{field: 'fhcopies', title: '分红份数',width:80,templet:function(d){
+			return '<a href="javascript:void(0)" title="点击修改" onclick="updateCopies('+d.id+')">'+d.fhcopies+'</a>';
+		}},
+	  {/if}
+		  {if(getcustom('commission_frozen') && $admin['commission_frozen'])}
+		{field: 'fuchi_money', title: '{:t('扶持金')}',sort: true,width:100,templet:function(d){
+			return '<a href="javascript:void(0)" onclick="openmax(\'{:url('Commission/fuchiLog')}&isopen=1&mid='+d.id+'\')">'+d.fuchi_money+'</a>';
+		}},
+		{/if}
+		{if(getcustom('member_gongxian') && $admin['member_gongxian_status'])}
+		{field: 'gongxian', title: '{:t('贡献')}',sort: true,width:100,templet:function(d){
+			return '<a href="javascript:void(0)" onclick="openmax(\'{:url('Commission/gongxianlog')}&isopen=1&mid='+d.id+'\')">'+d.gongxian+'</a>';
+		}},
+		{/if}
+      {if getcustom('plug_yuebao') && $adminset['open_yuebao']}
+      	  {field: 'money', title: '{:t('余额宝')}',sort: sortdata,width:100,templet:function(d){
+			    return '<a href="javascript:void(0)" onclick="openmax(\'{:url('Yuebao/moneylog')}&isopen=1&mid='+d.id+'\')">'+d.yuebao_money+'</a>';
+      	  }},
+      	  {field: 'yuebao_rate', title: '{:t('余额宝')}收益率',sort: sortdata,width:130,templet:function(d){
+				return '<a href="javascript:void(0)">'+d.yuebao_rate+'%</a>';
+	      }},
+		  {field: 'yuebao_withdraw_time', title: '{:t('余额宝')}提现天数',sort: sortdata,width:130,templet:function(d){
+				return '<a href="javascript:void(0)">'+d.yuebao_withdraw_time+'</a>';
+	      }},
+	  {/if}
+	  {if getcustom('pay_yuanbao') }
+      	  {field: 'yuanbao', title: '{:t('元宝')}',sort: sortdata,width:100,templet:function(d){
+				  return '<a href="javascript:void(0)" onclick="openmax(\'{:url('YuanBao/yuanbaolog')}&isopen=1&mid='+d.id+'\')">'+d.yuanbao+'</a>';
+		   }},
+	  {/if}
+		  {if getcustom('consumer_value_add') && ($auth_data=='all' || in_array('Consumer/*',$auth_data)) }
+		  {field: 'green_score', title: '{:t('绿色积分')}',sort: sortdata,width:100,templet:function(d){
+			  return '<a href="javascript:void(0)" onclick="openmax(\'{:url('GreenScore/index')}&isopen=1&mid='+d.id+'\')">'+d.green_score+'</a>';
+		  }},
+		  {/if}
+			  {if getcustom('active_coin') && ($auth_data=='all' || in_array('ActiveCoin/*',$auth_data)) }
+			  {field: 'active_coin', title: '{:t('激活币')}',sort: sortdata,width:100,templet:function(d){
+				  return '<a href="javascript:void(0)" onclick="openmax(\'{:url('ActiveCoin/index')}&isopen=1&mid='+d.id+'\')">'+d.active_coin+'</a>';
+			  }},
+			  {/if}
+	  {if getcustom('plug_luckycollage')}
+		  {field: 'ktnum', title: '开团次数',sort: sortdata,width:100,templet:function(d){
+				  return '<a href="javascript:void(0)">'+d.ktnum+'</a>';
+	      }},
+	  {/if}
+	  
+	  
+	  	{field: 'levelname',sort: true, title: '等级',width:100},
+	  	{if getcustom('teamlevel')}
+			{field: 'teamlevel', sort: true,width:100,align:"center",title: '{:t('团队等级')}',templet:function(d){
+    				return  (d.teamlevel ? d.teamlevel : '')
+            }},
+		{/if}
+	  	{if getcustom('storelevel')}
+			{field: 'storelevel', sort: true,width:100,align:"center",title: '{:t('推荐等级')}',templet:function(d){
+				return  (d.storelevel ? d.storelevel : '')
+           }},
+		{/if}
+	  	{field: 'downcount', title: '团队业绩',width:160,templet:function(d){
+				  return d.downcount+'人<br>团队'+d.teamyeji+'元 小区'+d.teamyeji2+'元';
+	    }},
+	  
+		  {if getcustom('memberlist_show_buymoney')}
+		  {field: 'buymoney', title: '个人业绩',width:100,templet:function(d){
+			  return d.buymoney+'元';
+		  },sort:true},
+		  {/if}
+	  {if getcustom('memberlist_showteamyeji')}
+		{field: 'downcount', title: '团队业绩',width:100,templet:function(d){
+				  return d.downcount+'人<br>'+d.ordercount+'单<br>'+d.teamyeji+'元';
+	      }},
+	  {/if}
+	  {if getcustom('member_recharge_yj') }
+      	  {field: 'rechargeyj_money', title: '充值业绩',sort: sortdata,width:100,templet:function(d){
+				  return '<a href="javascript:void(0)" onclick="openmax(\'{:url('RechargeYjLog/index')}&isopen=1&mid='+d.id+'\')">'+d.rechargeyj_money+'</a>';
+		}},
+	  {/if}
+    
+		  {if getcustom('ganer_fenxiao')}
+		  {field: 'areafenhong_province', title: '代理省市区',width:100,templet:function(d){
+			 return d.areafenhong_province+d.areafenhong_city+d.areafenhong_area;
+		  }},
+		  {/if}
+	  {if getcustom('fenhong_max')}
+		  {field: 'gudong_max', title: '股东分红信息',templet:function(d){
+			  var html = '<ul>';
+			  html+='<li>最大股东分红：'+d.gudong_max+'</li>';
+			  html+='<li>已发股东分红：<a href="javascript:void(0)" onclick="openmax(\'{:url('Commission/fenhonglog')}&isopen=1&fenhong_remark=股东分红&mid='+d.id+'\') ">'+d.gudong_total+'</a></li>';
+			  html+' </ul>';
+			  return html;
+		  },width:150},	  
+			  
+	  {/if}
+	  {if getcustom('fenhong_gudong_huiben')}
+		  {if $auth_data=='all' || in_array('gdfenhong_huiben',$auth_data)}
+		  {field: 'total_fenhong_huiben', title: '已发{:t('回本股东分红')}',width:100,templet:function(d){
+			  return '<a href="javascript:void(0)" onclick="openmax(\'{:url('Commission/fenhonglog')}&isopen=1&fenhong_remark={:t(\'回本股东分红\')}&mid='+d.id+'\')">'+d.total_fenhong_huiben+'</a>';
+		  }},
+		  {/if}
+	  {/if}
+	  {if getcustom('member_tag')}
+		 {field: 'tagname', title: '标签',width:80},
+	  {/if}
+	  
+			{if $adminset['reg_invite_code']!=0 && $adminset['reg_invite_code_type'] == 1}
+      		{field: 'yqcode', title: '邀请码',width:70},
+			{/if}
+			 {field: 'createtime', width:160,title: '加入时间',sort: true,templet:function(d){ return date('Y-m-d H:i',d.createtime)}},
+		
+		{if $adminset['reg_check']!=0}
+		  {field: 'checkst', title: '审核状态',width:70,templet:function(d){
+					if(d.checkst == 0) return '<span style="color:blue">审核中</span>';
+					if(d.checkst == 1) return '<span style="color:green">已通过</span>';
+					if(d.checkst == 2) return '<span style="color:red">驳回,'+d.checkreason+'</span>';
+		  }},
+		{/if}
+      {field: 'subscribe', title: '关注状态',width:80,templet:function(d){
+			if(d.subscribe==1){
+				return '<span style="color:green">已关注</span>';
+			}else{
+				return '<span style="color:red">未关注</span>';
+			}
+		}},
+			{if in_array('mp',$platform)}
+			{field: 'card_code',width:160, title: '会员卡号',templet: function(d){
+				if(d.card_code){
+					return d.card_code + '<br><a href="javascript:void(0)" onclick="showcarddetail(\''+d.card_id+'\',\''+d.card_code+'\')">查看</a>';
+				}else{
+					return '未领取';
+				}
+             }},
+		{/if}
+	  {if getcustom('plug_tengrui') }
+		{field: 'tr_is_rzh', title: '是否认证',width:80,templet:function(d){
+			if(d.tr_is_rzh==1){
+				return '<span style="color:green">已认证</span>';
+			}else{
+				return '<span style="color:red">未认证</span>';
+			}
+		}},
+		{field: 'community_infor', title: '小区信息',width:150},
+	  {/if}
+	  
+     
+		{if getcustom('cashback_yongjin') }
+			{field: 'cash_yongji_total', title: '佣金提现',width:100,templet:function(d){
+				var html = '<ul>';
+				html+='<li>累计佣金提现：'+d.cash_yongji_total+'</li>';
+				html+='<li>累 计 返  现：'+d.cashback_total+'</li>';
+				html+' </ul>';
+				return html;
+			},width:140},
+		{/if}
+
+		{if getcustom('product_bonus_pool') }
+			{if $auth_data=='all' || in_array('BonusPool/index',$auth_data)}
+
+			 {field: 'bonus_pool_money', title: '{:t('贡献值')}',width:100,templet:function(d){
+				 var html = '<ul>';
+				 html+='<li>{:t('贡献值')}上限：'+d.bonus_pool_max_money+'</li>';
+				 html+='<li>已获{:t('贡献值')}：'+d.bonus_pool_money+'</li>';
+				 html+' </ul>';
+				 return html;
+			 },width:135},
+			{/if}
+		{/if}
+		{if getcustom('ciruikang_fenxiao') }
+			{field: 'crk_up_levelid', title: '一次性升级信息',width:140,templet:function(d){
+				if(d.crk_up_levelid>0){
+					return d.crk_up_info;
+				}else{
+					return '无';
+				}
+			}},
+		{/if}
+		{if getcustom('yx_buy_fenhong') }
+			{if $auth_data=='all' || in_array('BuyFenhong/*',$auth_data)}
+			{field: 'buy_fenhong_score_weight', title: '{:t('积分')}权',width:70},
+			{/if}
+		{/if}	
+		{if getcustom('shop_label') }
+			{field: 'labelnames', title: '商品标签'},
+		{/if}	
+			{if getcustom('product_baodan') }
+			{field: 'baodan_max', title: '报单冻结信息',templet:function(d){
+				var html = '<ul>';
+				html+='<li>冻结金额上限：'+d.baodan_max+'</li>';
+				html+='<li>冻结金额：'+d.baodan_freeze+'</li>';
+				html+' </ul>';
+				return html;
+			},width:140},
+			{/if}
+			{if getcustom('member_goldmoney_silvermoney')}
+				{if $showsilvermoney}
+		      {field: 'silvermoney', title: '{:t('银值')}',sort: sortdata,width:100,templet:function(d){
+						return '<a href="javascript:void(0)" onclick="openmax(\'{:url('Money/silvermoneylog')}&type=silvermoney&act=money&isopen=1&mid='+d.id+'\')">'+d.silvermoney+'</a>';
+		      }},
+	      {/if}
+				{if $showgoldmoney}
+		      {field: 'goldmoney', title: '{:t('金值')}',sort: sortdata,width:100,templet:function(d){
+						return '<a href="javascript:void(0)" onclick="openmax(\'{:url('Money/goldmoneylog')}&type=goldmoney&act=money&isopen=1&mid='+d.id+'\')">'+d.goldmoney+'</a>';
+		      }},
+	      {/if}
+      {/if}
+      {fixed: 'right',field: 'operation', title: '操作',templet: function(d){
+				var html = '';
+	{if $haverechargeAuth}
+				html += '<button class="table-btn" id="cz" onclick="checklock('+d.islock+',function(){recharge('+d.id+')})">充值记录</button>';
+				{/if}
+				{if getcustom('plug_luckycollage')}
+				html += '<button class="table-btn" id="cz" onclick="checklock('+d.islock+',function(){addktnum('+d.id+')})">增加开团次数</button>';
+				{/if}
+					html += '<button class="table-btn" onclick="checklock('+d.islock+',function(){addcredit('+d.id+')})">充值</button>';	
+					
+			
+				// {if $haveaddscoreAuth}
+				// html += '<button class="table-btn" id="jf" onclick="checklock('+d.islock+',function(){addscore('+d.id+')})">加{:t('积分')}</button>';
+				// {/if}
+				// {if $haveaddservicefeeAuth}
+				// html += '<button class="table-btn" id="jf" onclick="checklock('+d.islock+',function(){addServiceFee('+d.id+')})">加{:t('服务费')}</button>';
+				// {/if}
+				// {if $haveaaddcommissionAuth}
+				// html += '<button class="table-btn" id="yj" onclick="checklock('+d.islock+',function(){addcommission('+d.id+')})">加{:t('佣金')}</button>';
+				// {/if}
+				// {if getcustom('pay_yuanbao') && $haveaddyuanbaoAuth}
+				// html += '<button class="table-btn" id="jf" onclick="checklock('+d.islock+',function(){addyuanbao('+d.id+')})">加{:t('元宝')}</button>';
+				// {/if}
+				// {if(getcustom('member_gongxian') && $admin['member_gongxian_status'])}
+				// 	{if $haveaddgongxianAuth}
+				// 	html += '<button class="table-btn" id="jf" onclick="checklock('+d.islock+',function(){addgongxian('+d.id+')})">加{:t('贡献')}</button>';
+				// 	{/if}
+				// {/if}
+				{if getcustom('other_money')}
+					{if $othermoney_status}
+						{if $haveaddmoney2Auth}
+							html += '<button class="table-btn" id="cz" onclick="checklock('+d.islock+',function(){addOtherMoney('+d.id+',\'money2\')})">加{:t('余额2')}</button>';
+						{/if}
+						{if $haveaddmoney3Auth}
+							html += '<button class="table-btn" id="cz" onclick="checklock('+d.islock+',function(){addOtherMoney('+d.id+',\'money3\')})">加{:t('余额3')}</button>';
+						{/if}
+						{if $haveaddmoney4Auth}
+							html += '<button class="table-btn" id="cz" onclick="checklock('+d.islock+',function(){addOtherMoney('+d.id+',\'money4\')})">加{:t('余额4')}</button>';
+						{/if}
+						{if $haveaddmoney5Auth}
+							html += '<button class="table-btn" id="cz" onclick="checklock('+d.islock+',function(){addOtherMoney('+d.id+',\'money5\')})">加{:t('余额5')}</button>';
+						{/if}
+						{if $haveaddfrozen_moneyAuth}
+							html += '<button class="table-btn" id="cz" onclick="checklock('+d.islock+',function(){addOtherMoney('+d.id+',\'frozen_money\')})">加{:t('冻结金额')}</button>';
+						{/if}
+					{/if}
+				{/if}
+				{if getcustom('product_givetongzheng') && ($auth_data=='all' || in_array('Member/addtongzheng',$auth_data))}
+				html += '<button class="table-btn" id="jf" onclick="checklock('+d.islock+',function(){addtongzheng('+d.id+')})">加{:t('通证')}</button>';
+				{/if}
+					{if getcustom('member_commission_max') && getcustom('add_commission_max')  && ($auth_data=='all' || in_array('Member/addcommissionMax',$auth_data))}
+					html += '<button class="table-btn" id="cz" onclick="checklock('+d.islock+',function(){addcommissionMax('+d.id+')})">加{:t('佣金上限')}</button>';
+					{/if}
+						{if getcustom('consumer_value_add') && getcustom('greenscore_max')  && ($auth_data=='all' || in_array('Member/addgreenscore',$auth_data))}
+						html += '<button class="table-btn" id="cz" onclick="checklock('+d.islock+',function(){addgreenscore('+d.id+')})">加{:t('绿色积分')}</button>';
+						{/if}
+						
+					
+						
+						
+						
+				html += '<button class="table-btn" onclick="checklock('+d.islock+',function(){openmax(\'{:url('ShopOrder/index')}/isopen/1/mid/'+d.id+'\')})">商城订单</button>';
+				{if getcustom('hotel')  && ($auth_data=='all' || in_array('HotelOrder/*',$auth_data))}
+				html += '<button class="table-btn" onclick="checklock('+d.islock+',function(){openmax(\'{:url('HotelOrder/index')}/isopen/1/mid/'+d.id+'\')})">{$text['酒店']}订单</button>';
+				{/if}
+				{if getcustom('huodong_baoming')  && ($auth_data=='all' || in_array('HuodongBaomingOrder/*',$auth_data))}
+				html += '<button class="table-btn" onclick="checklock('+d.islock+',function(){openmax(\'{:url('HuodongBaomingOrder/index')}/isopen/1/mid/'+d.id+'\')})">活动订单</button>';
+				{/if}
+				html += '<button class="table-btn" onclick="checklock('+d.islock+',function(){openmax(\'{:url('edit')}/id/'+d.id+'\')})">编辑</button>';
+				html += '<button class="table-btn" onclick="checklock('+d.islock+',function(){datadel('+d.id+')})">删除</button>';
+				html += '<button class="table-btn" onclick="checklock('+d.islock+',function(){openmax(\'{:url('charts')}/isopen/1/mid/'+d.id+'\')})">关系图</button>';
+				{if getcustom('plug_yuebao') && $adminset['open_yuebao']}
+				html += '<button class="table-btn" id="cz" onclick="checklock('+d.islock+',function(){setywtime('+d.id+','+d.self_yuebao_rate+','+d.self_yuebao_withdraw_time+')})">设置天数</button>';
+				{/if}
+				if(d.checkst == 0){
+					//html+='<button class="table-btn" onclick="checklock('+d.islock+',function(){setst('+d.id+',1)})">通过</button>';		
+					html+= '<button class="table-btn" onclick="checklock('+d.islock+',function(){openmax(\'{:url('check')}/id/'+d.id+'\')})">通过</button>';			
+					html+='<button class="table-btn" onclick="checklock('+d.islock+',function(){setst('+d.id+',2)})">驳回</button>';
+				}
+				
+				if(d.checkst == 2){
+					//html+='<button class="table-btn" onclick="checklock('+d.islock+',function(){setst('+d.id+',1)})">通过</button>';
+					html+= '<button class="table-btn" onclick="checklock('+d.islock+',function(){openmax(\'{:url('check')}/id/'+d.id+'\')})">通过</button>';
+				}
+				{if getcustom('member_freeze')}
+				if(d.checkst == 1){
+					if(d.isfreeze == 1){
+						html+='<button class="table-btn" onclick="checklock('+d.islock+',function(){setfreeze('+d.id+',0)})">解冻</button>';
+					}else{
+						html+='<button class="table-btn" onclick="checklock('+d.islock+',function(){setfreeze('+d.id+',1)})">冻结</button>';
+					}
+				}
+				{/if}
+					if(d.pid_origin > 0){
+						{if getcustom('up_giveparent')}
+						{if $auth_data=='all' || in_array('up_giveparent',$auth_data)}
+						html+='<button class="table-btn" onclick="checklock('+d.islock+',function(){huigui('+d.id+')})">脱离回归</button>';
+						{/if}
+						{/if}
+					}
+
+				  {if(getcustom('commission_frozen') && $admin['commission_frozen'])}
+					{if $auth_data=='all' || in_array('Member/unfrozenFuchi',$auth_data)}
+	  				html+='<button class="table-btn" onclick="checklock('+d.islock+',function(){unfrozenFuchi('+d.id+')})">解冻{:t('扶持金')}</button>';
+					{/if}
+				  {/if}
+
+				{if getcustom('yuyueworker_searchmember')}
+				html += '<button class="table-btn" id="cz"  onclick="checklock('+d.islock+',function(){openmax(\'{:url('coupon/record')}/bid/all/mid/'+d.id+'\')})">计次卡</button>';
+				html += '<button class="table-btn" id="cz"  onclick="checklock('+d.islock+',function(){openmax(\'{:url('YuyueOrder/index')}/bid/all/isopen/1/mid/'+d.id+'\')})">预约订单</button>';
+					if(d.tel){
+						html += '<button class="table-btn" id="cz"  onclick="checklock('+d.islock+',function(){openmax(\'{:url('Form/record')}/bid/all/tel/'+d.tel+'\')})">病例档案</button>';
+					}
+				{/if}
+				
+				{if getcustom('edit_locking') && session('IS_ADMIN')>0}
+				if(d.islock == 1){
+					html += '<button class="table-btn" onClick="checklock('+d.islock+',function(){dolock('+d.id+',0)})">解锁</button>';
+				}else{
+					html += '<button class="table-btn" onClick="dolock('+d.id+',1)">锁定</button>';
+				}
+				{/if}
+				{if getcustom('yunyuzhou')}
+				html += '<button class="table-btn" onclick="checklock('+d.islock+',function(){openmax(\'{:url('Member/index')}/deep/1/isopen/1/fxmid/'+d.id+'\')})">下线名单</button>';
+				html += '<button class="table-btn" onclick="checklock('+d.islock+',function(){openmax(\'{:url('ShopOrder/index')}/isopen/1/fxmid/'+d.id+'\')})">分销订单</button>';
+				{/if}
+				{if getcustom('member_archives')}
+				html += '<button class="table-btn" onclick="checklock('+d.islock+',function(){openmax(\'{:url('MemberArchives/index')}/isopen/1/mid/'+d.id+'\')})">录入档案</button>';
+				{/if}
+				{if getcustom('team_auth')}
+				html += '<button class="table-btn" onclick="checklock('+d.islock+',function(){openmax(\'{:url('MemberTeam/index')}/isopen/1/mid/'+d.id+'\')})">查看团队和业绩</button>';
+				{/if}
+				{if getcustom('member_friend') && $haveFriendAuth}
+				html += '<button class="table-btn" onclick="checklock('+d.islock+',function(){openmax(\'{:url('Friend/index')}/mid/'+d.id+'\')})">会员好友</button>';
+				{/if}
+				{if getcustom('member_overdraft_money')}
+					{if $rechargeOverdraftMoneyAuth}
+					html += '<button class="table-btn" id="overdraft_money_recharge" onclick="overdraftRecharge('+d.id+',\''+d.overdraft_money+'\','+'\''+d.limit_overdraft_money+'\','+'\''+d.open_overdraft_money+'\')">{:t("信用额度")}</button>';
+					{/if}
+				{/if}
+				{if getcustom('coupon_xianxia_buy')}
+					html += '<button class="table-btn"  onclick="openmax(\'{:url('yejitongji')}/mid/'+d.id+'\')">线下{:t("优惠券")}业绩统计</button>';
+				{/if}
+				{if getcustom('member_level_salary_bonus')}
+				html += '<button class="table-btn"  onclick="showTeamYeji('+d.id+')">查看团队业绩</button>';
+				{/if}
+				{if getcustom('member_goldmoney_silvermoney')}
+						{if $showsilvermoney}
+							html += '<button class="table-btn" id="cz" onclick="checklock('+d.islock+',function(){addSilvermoney('+d.id+')})">加{:t('银值')}</button>';
+						{/if}
+						{if $showgoldmoney}
+							html += '<button class="table-btn" id="cz" onclick="checklock('+d.islock+',function(){addGoldmoney('+d.id+')})">加{:t('金值')}</button>';
+						{/if}
+				{/if}
+					 var url = "{:m_url('pages/index/login')}"+'?frompage=pages/index/index&user_id='+d.id;
+	      	     html+='	<a  href='+url+'  target="_blank"><button class="table-btn" >登录</button></a>';
+				return html;
+      },width:280}
+    ]],	 done: function() {
+        // 解决操作栏因为内容过多换行问题
+        $(".layui-table-main tr").each(function (index, val) {
+            $($(".layui-table-fixed-l .layui-table-body tbody tr")[index]).height($(val).height());
+            $($(".layui-table-fixed-r .layui-table-body tbody tr")[index]).height($(val).height());
+        });
+    }		
+  });
+  function addcredit(id){
+		console.log(id)
+    	var html = '';
+			html = '<div class="layui-form" style="width:100%">';
+			html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+			html+='		<label class="layui-form-label" style="width:80px">充值类型：</label>';
+			html+='		<div class="layui-input-inline" style="width:400px">';
+			{if $haverechargeAuth}
+			html+='			<input type="radio" name="type" value="money" title="{:t('余额')}" lay-skin="primary">';
+			{/if}
+			{if $haveaddscoreAuth}
+			html+='			<input type="radio" name="type" value="score" title="{:t('积分')}" lay-skin="primary">';
+			{/if}
+			{if $haveaaddcommissionAuth}
+			html+='			<input type="radio" name="type" value="commission" title="{:t('佣金')}" lay-skin="primary">';
+			{/if}
+			
+			{if $haveaddcredit1Auth}
+			html+='			<input type="radio" name="type" value="credit1" title="{:t('credit1')}" lay-skin="primary">';
+			{/if}
+			{if $haveaddcredit2Auth}
+			html+='			<input type="radio" name="type" value="credit2" title="{:t('credit2')}" lay-skin="primary">';
+			{/if}
+			{if $haveaddcredit3Auth}
+			html+='			<input type="radio" name="type" value="credit3" title="{:t('credit3')}" lay-skin="primary">';
+			{/if}
+			{if $haveaddcredit4Auth}
+			html+='			<input type="radio" name="type" value="credit4" title="{:t('credit4')}" lay-skin="primary">';
+			{/if}
+			html+='		</div>';
+			html+='	</div>';
+		
+			html+='	</div>';
+    		html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+    		html+='		<label class="layui-form-label" style="width:80px">增加数量：</label>';
+    		html+='		<div class="layui-input-inline" style="width:180px">';
+    		html+='			<input type="text" id="addcredit" class="layui-input"/>';
+    		html+='		</div>';
+    		html+='		<div class="layui-form-mid layui-word-aux">输入负值表示扣除</div>';
+    		html+='	</div>';
+    		html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+    		html+='		<label class="layui-form-label" style="width:80px">备注信息：</label>';
+    		html+='		<div class="layui-input-inline" style="width:350px">';
+    		html+='			<input type="text" id="addremark" class="layui-input"/>';
+    		html+='		</div>';
+    		html+='	</div>';
+    		var addcreditLayer = layer.open({type:1,area:['600px','400px'],title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+    			yes:function(){
+    				var index = layer.load();
+					var type = $('input[name=type]:checked').val();
+					if(!type){
+    					  layer.close(index);
+        				  dialog('请选择充值类型',0);
+        				  layer.close(addcredit2Layer);
+        				  tableIns.reload()
+       				      return ;
+        			}
+        			var add = 'add'+ type;
+    				$.post('{:url('add')}'+type,{id:id,money:$('#addcredit').val(),remark:$('#addremark').val()},function(res){
+    					layer.close(index);
+    					dialog(res.msg,res.status);
+    					layer.close(addcreditLayer);
+    					tableIns.reload()
+    				})
+    			}
+    		})
+    		layui.form.render();
+			return;
+	}
+	function openedit(id){
+		layer.open({type:2,content:"{:url('edit')}/id/"+id,title:id?'{:t('会员')}编辑':'添加{:t('会员')}',area:['100%','100%']})
+	}
+	function setst(id,st){
+		if(st == 1){
+			layer.confirm('确定要通过吗?',{icon: 7, title:'操作确认'}, function(index){
+				var index = layer.load();
+				$.post("{:url('setst')}",{id:id,st:st},function(res){
+					layer.close(index);
+					dialog(res.msg,res.status);
+					layer.close(setstLayer);
+					tableIns.reload()
+				})
+			})
+		}else{
+			var html = '';
+			html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+			html+='		<label class="layui-form-label" style="width:80px">驳回原因：</label>';
+			html+='		<div class="layui-input-inline" style="width:200px">';
+			html+='			<input type="text" id="checkreason" class="layui-input"/>';
+			html+='		</div>';
+			html+='	</div>';
+			var setstLayer = layer.open({type:1,area:['500px','300px'],title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+				yes:function(){
+					var index = layer.load();
+					$.post("{:url('setst')}",{id:id,st:st,checkreason:$('#checkreason').val()},function(res){
+						layer.close(index);
+						dialog(res.msg,res.status);
+						layer.close(setstLayer);
+						tableIns.reload()
+					})
+				}
+			})
+		}
+	}
+	function addscore(id){
+		var html = '';
+		html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+		html+='		<label class="layui-form-label" style="width:80px">增加数量：</label>';
+		html+='		<div class="layui-input-inline" style="width:200px">';
+		html+='			<input type="text" id="addscorescore" class="layui-input"/>';
+		html+='		</div>';
+		html+='		<div class="layui-form-mid layui-word-aux">输入负值表示扣除{:t('积分')}</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+		html+='		<label class="layui-form-label" style="width:80px">备注信息：</label>';
+		html+='		<div class="layui-input-inline" style="width:350px">';
+		html+='			<input type="text" id="addscoreremark" class="layui-input"/>';
+		html+='		</div>';
+		html+='	</div>';
+		var addscoreLayer = layer.open({type:1,area:['500px','300px'],title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+			yes:function(){
+				var index = layer.load();
+				$.post("{:url('addscore')}",{id:id,score:$('#addscorescore').val(),remark:$('#addscoreremark').val()},function(res){
+					layer.close(index);
+					dialog(res.msg,res.status);
+					layer.close(addscoreLayer);
+					tableIns.reload()
+				})
+			}
+		})
+	}
+
+	{if getcustom('product_service_fee') && ($auth_data=='all' || in_array('service_fee_switch',$auth_data))}
+	function addServiceFee(id){
+		var html = '';
+		html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+		html+='		<label class="layui-form-label" style="width:80px">增加金额：</label>';
+		html+='		<div class="layui-input-inline" style="width:200px">';
+		html+='			<input type="text" id="addServiceFee" class="layui-input"/>';
+		html+='		</div>';
+		html+='		<div class="layui-form-mid layui-word-aux" style="margin-right: 5px;">输入负值表示扣除{:t(\'服务费\')}</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+		html+='		<label class="layui-form-label" style="width:80px">备注信息：</label>';
+		html+='		<div class="layui-input-inline" style="width:350px">';
+		html+='			<input type="text" id="addServiceFeeRemark" class="layui-input"/>';
+		html+='		</div>';
+		html+='	</div>';
+		var addServiceFeeLayer = layer.open({type:1,area:['500px','300px'],title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+			yes:function(){
+				var index = layer.load();
+				$.post("{:url('addServiceFee')}",{id:id,service_fee:$('#addServiceFee').val(),remark:$('#addServiceFeeRemark').val()},function(res){
+					layer.close(index);
+					dialog(res.msg,res.status);
+					layer.close(addServiceFeeLayer);
+					tableIns.reload()
+				})
+			}
+		})
+	}
+	{/if}
+
+	{if getcustom('fenhong_jiaquan_bylevel')}
+		function updateCopies(id){
+			var html = '';
+			html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+			html+='		<label class="layui-form-label" style="width:80px">增加份数：</label>';
+			html+='		<div class="layui-input-inline" style="width:200px">';
+			html+='			<input type="text" id="addcopies" class="layui-input"/>';
+			html+='		</div>';
+			html+='		<div class="layui-form-mid layui-word-aux">输入负值表示扣除</div>';
+			html+='	</div>';
+			html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+			html+='		<label class="layui-form-label" style="width:80px">备注信息：</label>';
+			html+='		<div class="layui-input-inline" style="width:250px">';
+			html+='			<input type="text" id="addcopiesremark" class="layui-input"/>';
+			html+='		</div>';
+			html+='	</div>';
+			var addcopiesLayer = layer.open({type:1,area:['500px','300px'],title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+				yes:function(){
+					var index = layer.load();
+					$.post("{:url('addfhcopies')}",{id:id,copies:$('#addcopies').val(),remark:$('#addcopiesremark').val()},function(res){
+						layer.close(index);
+						dialog(res.msg,res.status);
+						layer.close(addcopiesLayer);
+						tableIns.reload()
+					})
+				}
+			})
+		}
+   {/if}
+
+	{if getcustom('member_level_salary_bonus')}
+	function showTeamYeji(id){
+		var index = layer.load();
+		$.get("{:url('getTeamYeji')}",{id:id},function(res){
+			layer.close(index);
+			if(res.member){
+				var html = '<div style="padding-top:20px;">';
+				var member = res.member;
+				html+='	<div class="layui-form-item">';
+				html+='		<label class="layui-form-label" style="width:100px;font-weight: bold;">会员：</label>';
+				html+='		<div class="layui-input-inline" style="padding-top: 10px;">';
+				html+='			'+member.nickname+'('+member.id+')';
+				html+='		</div>';
+				html+='	</div>';
+				html+='	<div class="layui-form-item">';
+				html+='		<label class="layui-form-label" style="width:100px;font-weight: bold;">团队业绩：</label>';
+				html+='		<div class="layui-input-inline" style="padding-top: 10px;">';
+				html+='			'+member.teamyeji;
+				html+='		</div>';
+				html+='	</div>';
+				html+='	<div class="layui-form-item" style="padding-top: 8px;">';
+				html+='		<label class="layui-form-label" style="width:100px;font-weight: bold;">小市场业绩：</label>';
+				html+='		<div class="layui-input-inline" style="padding-top: 10px;">';
+				html+='			'+member.teamyeji_mini;
+				html+='		</div>';
+				html+='	</div></div>';
+				layer.open({type:1,area:['500px','300px'],title:false,content:html,shadeClose:true})
+			}else{
+				layer.msg(res.msg)
+			}
+		})
+	}
+	{/if}
+
+
+	function addgongxian(id){
+		var html = '';
+		html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+		html+='		<label class="layui-form-label" style="width:80px">增加数量：</label>';
+		html+='		<div class="layui-input-inline" style="width:180px">';
+		html+='			<input type="text" id="addgongxianscore" class="layui-input"/>';
+		html+='		</div>';
+		html+='		<div class="layui-form-mid layui-word-aux">输入负值表示扣除{:t('贡献')}</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+		html+='		<label class="layui-form-label" style="width:80px">备注信息：</label>';
+		html+='		<div class="layui-input-inline" style="width:350px">';
+		html+='			<input type="text" id="addgongxianremark" class="layui-input"/>';
+		html+='		</div>';
+		html+='	</div>';
+		var addgongxianLayer = layer.open({type:1,area:['500px','300px'],title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+			yes:function(){
+				var index = layer.load();
+				$.post("{:url('addgongxian')}",{id:id,score:$('#addgongxianscore').val(),remark:$('#addgongxianremark').val()},function(res){
+					layer.close(index);
+					dialog(res.msg,res.status);
+					layer.close(addgongxianLayer);
+					tableIns.reload()
+				})
+			}
+		})
+	}
+	function addcommission(id){
+		var html = '';
+		html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+		html+='		<label class="layui-form-label" style="width:80px">增加金额：</label>';
+		html+='		<div class="layui-input-inline" style="width:200px">';
+		html+='			<input type="text" id="addcommissionnuml" class="layui-input" />';
+		html+='		</div>';
+		html+='		<div class="layui-form-mid layui-word-aux">输入负值表示扣除{:t('佣金')}</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+		html+='		<label class="layui-form-label" style="width:80px">备注信息：</label>';
+		html+='		<div class="layui-input-inline" style="width:350px">';
+		html+='			<input type="text" id="addcommissionremark" class="layui-input"/>';
+		html+='		</div>';
+		html+='	</div>';
+		var addscoreLayer = layer.open({type:1,area:['500px','300px'],title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+			yes:function(){
+				var index = layer.load();
+				$.post("{:url('addcommission')}",{id:id,commission:$('#addcommissionnuml').val(),remark:$('#addcommissionremark').val()},function(res){
+					layer.close(index);
+					dialog(res.msg,res.status);
+					layer.close(addscoreLayer);
+					tableIns.reload()
+				})
+			}
+		})
+	}
+	function addyuanbao(id){
+		var html = '';
+		html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+		html+='		<label class="layui-form-label" style="width:80px">增加数量：</label>';
+		html+='		<div class="layui-input-inline" style="width:200px">';
+		html+='			<input type="text" id="addyuanbao" class="layui-input"/>';
+		html+='		</div>';
+		html+='		<div class="layui-form-mid layui-word-aux">输入负值表示扣除{:t('元宝')}</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+		html+='		<label class="layui-form-label" style="width:80px">备注信息：</label>';
+		html+='		<div class="layui-input-inline" style="width:350px">';
+		html+='			<input type="text" id="addyuanbaoremark" class="layui-input"/>';
+		html+='		</div>';
+		html+='	</div>';
+		var addyuanbaoLayer = layer.open({type:1,area:['500px','300px'],title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+			yes:function(){
+				var index = layer.load();
+				$.post("{:url('addyuanbao')}",{id:id,yuanbao:$('#addyuanbao').val(),remark:$('#addyuanbaoremark').val()},function(res){
+					layer.close(index);
+					dialog(res.msg,res.status);
+					layer.close(addyuanbaoLayer);
+					tableIns.reload()
+				})
+			}
+		})
+	}
+		{if getcustom('product_givetongzheng')}
+		function addtongzheng(id){
+			var html = '';
+			html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+			html+='		<label class="layui-form-label" style="width:80px">增加数量：</label>';
+			html+='		<div class="layui-input-inline" style="width:180px">';
+			html+='			<input type="text" id="addtongzheng" class="layui-input"/>';
+			html+='		</div>';
+			html+='		<div class="layui-form-mid layui-word-aux">输入负值表示扣除{:t('通证')}</div>';
+			html+='	</div>';
+			html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+			html+='		<label class="layui-form-label" style="width:80px">备注信息：</label>';
+			html+='		<div class="layui-input-inline" style="width:350px">';
+			html+='			<input type="text" id="addtongzhengremark" class="layui-input"/>';
+			html+='		</div>';
+			html+='	</div>';
+			var addtongzhengLayer = layer.open({type:1,area:['500px','300px'],title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+				yes:function(){
+					var index = layer.load();
+					$.post("{:url('addtongzheng')}",{id:id,tongzheng:$('#addtongzheng').val(),remark:$('#addtongzhengremark').val()},function(res){
+						layer.close(index);
+						dialog(res.msg,res.status);
+						layer.close(addtongzhengLayer);
+						tableIns.reload()
+					})
+				}
+			})
+		}
+		{/if}
+			{if getcustom('member_commission_max')}
+			function addcommissionMax(id){
+				var addscoreLayer = layer.open({type:1,area:['500px','300px'],title:false,content:$('#commissionmaxModel'),shadeClose:true,btn: ['确定', '取消'],
+					yes:function(){
+						var index = layer.load();
+						$.post("{:url('addcommissionMax')}",{id:id,commission:$('#addcommissionmaxnum').val(),remark:$('#addcommissionmaxremark').val(),in_type:$('input[name="in_type"]:checked').val()},function(res){
+							layer.close(index);
+							dialog(res.msg,res.status);
+							layer.close(addscoreLayer);
+							tableIns.reload()
+						})
+					}
+				})
+			}
+			{/if}
+				{if getcustom('consumer_value_add') && getcustom('greenscore_max')}
+				function addgreenscore(id){
+					var html = '';
+					html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+					html+='		<label class="layui-form-label" style="width:80px">增加数量：</label>';
+					html+='		<div class="layui-input-inline" style="width:200px">';
+					html+='			<input type="text" id="addgreenscore" class="layui-input"/>';
+					html+='		</div>';
+					html+='		<div class="layui-form-mid layui-word-aux">输入负值表示扣除{:t('绿色积分')}</div>';
+					html+='	</div>';
+					html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+					html+='		<label class="layui-form-label" style="width:80px">备注信息：</label>';
+					html+='		<div class="layui-input-inline" style="width:350px">';
+					html+='			<input type="text" id="addgreenscoreremark" class="layui-input"/>';
+					html+='		</div>';
+					html+='	</div>';
+					var addscoreLayer = layer.open({type:1,area:['500px','300px'],title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+						yes:function(){
+							var index = layer.load();
+							$.post("{:url('addgreenscore')}",{id:id,commission:$('#addgreenscore').val(),remark:$('#addgreenscoreremark').val()},function(res){
+								layer.close(index);
+								dialog(res.msg,res.status);
+								layer.close(addscoreLayer);
+								tableIns.reload()
+							})
+						}
+					})
+				}
+				{/if}
+	var rechargelayer
+	function recharge(id){
+		$('#rechargemid').val(id);
+		rechargelayer = layer.open({type:1,area: ['500px', '380px'],title:'{:t('余额')}充值',content:$('#rechargeModel'),shadeClose:true})
+	}
+	//充值提交
+  layui.form.on('submit(formRecharge)', function(obj){
+		var index= layer.load();
+    $.post("{:url('recharge')}",obj.field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status,data.url);
+			if(data.status==1){
+				tableIns.reload({
+					where: datawhere
+				});
+			}
+			layer.close(rechargelayer);
+		})
+  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//日期范围选择
+	layui.laydate.render({
+		elem: '#ctime',
+		trigger: 'click',
+		range: '~' //或 range: '~' 来自定义分割字符
+	});
+	//团队业绩日期范围选择
+	layui.laydate.render({
+		elem: '#teamyeji_time',
+		trigger: 'click',
+		range: '~' //或 range: '~' 来自定义分割字符
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	//删除
+	function datadel(id){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			var ids = [];
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id)
+		}
+		layer.confirm('确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('del')}",{ids:ids},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	//导入
+	function daoru(){
+		var html = '<div style="margin:20px auto;">';
+		html+='<div class="layui-form" lay-filter="">';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label" style="width:150px">上传EXCEL文件：</label>';
+		html+='		<div class="layui-input-inline" style="width:300px">';
+		html+='			<input type="text" name="upload_file" id="upload_file" class="layui-input">';
+		html+='		</div>';
+		html+='		<button style="float:left;" type="button" class="layui-btn layui-btn-primary uploadexcel" upload-input="upload_file">上传</button>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item" style="padding:0 20px">';
+		html+='		<div class="layui-form-mid" style="color:red;">注意：手机号(必填)、公众号openid、小程序openid 中任意一项在{:t('会员')}列表中已存在则表示该会员已存在，导入时将不会新增{:t('会员')}而是修改{:t('会员')}信息；{:t('会员')}等级必须与当前系统设置的{:t('会员')}等级名称一致</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label" style="width:150px"></label>';
+		{if getcustom('member_import')}
+			html+='		<div class="layui-form-mid"> <a href="__STATIC__/demo_member2.xls">点击下载查看导入格式</a></div>';
+		{else}
+			html+='		<div class="layui-form-mid"> <a href="__STATIC__/demo_member.xls">点击下载查看导入格式</a></div>';
+		{/if}
+		html+='	</div>';
+		html+='	<div class="layui-form-item" style="margin-top:30px">';
+		html+='		<label class="layui-form-label" style="width:150px"></label>';
+		html+='		<div class="layui-input-inline">';
+		html+='			<button class="layui-btn layui-btn-normal" lay-submit lay-filter="submit_excel">确定导入</button>';
+		html+='		</div>';
+		html+='	</div>';
+		html+='</div>';
+		html+='</div>'
+		layer.open({type:1,area: ['600px', '360px'],title:'导入{:t('会员')}信息',content:html,shadeClose:true})
+		layui.form.render();
+		//文件上传
+		layui.upload.render({
+			elem: '.uploadexcel',
+			accept:'file',
+			url: "{:url('upload/index')}",
+			done: function(res){
+				if(res.status==0){
+					dialog(res.msg,0);
+				}else{
+					var item = this.item;
+					var inputid = $(this.item).attr('upload-input');
+					if(inputid){
+						$('#'+inputid).val(res.url);
+						$('#'+inputid).change();
+					}
+				}
+			}
+		});
+		layui.form.on('submit(submit_excel)', function(obj){
+			var field = obj.field;
+			console.log(field);
+			var index= layer.load();
+			$.post("{:url('importexcel')}",{file:field.upload_file},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		})
+	}
+
+	//查看详情
+	function showcarddetail(card_id,card_code){
+		var index = layer.load();
+		$.post("{:url('getcarddetail')}",{card_id:card_id,card_code:card_code},function(res){
+			layer.close(index);
+			var info = res.data
+			var html='';
+			html+='<div class="orderdetail">';
+			html+='<div class="orderinfo">';
+			html+='<div class="item">';
+			html+='	<span class="t1">粉丝信息</span>';
+			html+='	<span class="t2"><img src="'+info.headimg+'" style="width:40px"/> '+info.nickname+'</span>';
+			html+='</div>';
+			if(info.card_id){
+				html+='<div class="item">';
+				html+='	<span class="t1">卡券ID</span>';
+				html+='	<span class="t2">'+info.card_id+'</span>';
+				html+='</div>';
+			}
+			if(info.card_code){
+				html+='<div class="item">';
+				html+='	<span class="t1">会员卡号</span>';
+				html+='	<span class="t2">'+info.card_code+'</span>';
+				html+='</div>';
+			}
+			if(info.name){
+				html+='<div class="item">';
+				html+='	<span class="t1">姓名</span>';
+				html+='	<span class="t2">'+info.name+'</span>';
+				html+='</div>';
+			}
+			if(info.mobile){
+				html+='<div class="item">';
+				html+='	<span class="t1">手机号</span>';
+				html+='	<span class="t2">'+info.mobile+'</span>';
+				html+='</div>';
+			}
+			if(info.sex){
+				html+='<div class="item">';
+				html+='	<span class="t1">性别</span>';
+				html+='	<span class="t2">'+info.sex+'</span>';
+				html+='</div>';
+			}
+			if(info.birthday){
+				html+='<div class="item">';
+				html+='	<span class="t1">生日</span>';
+				html+='	<span class="t2">'+info.birthday+'</span>';
+				html+='</div>';
+			}
+			if(info.email){
+				html+='<div class="item">';
+				html+='	<span class="t1">邮箱</span>';
+				html+='	<span class="t2">'+info.email+'</span>';
+				html+='</div>';
+			}
+			if(info.idcard){
+				html+='<div class="item">';
+				html+='	<span class="t1">身份证</span>';
+				html+='	<span class="t2">'+info.idcard+'</span>';
+				html+='</div>';
+			}
+			if(info.education){
+				html+='<div class="item">';
+				html+='	<span class="t1">学历</span>';
+				html+='	<span class="t2">'+info.education+'</span>';
+				html+='</div>';
+			}
+			if(info.industry){
+				html+='<div class="item">';
+				html+='	<span class="t1">行业</span>';
+				html+='	<span class="t2">'+info.industry+'</span>';
+				html+='</div>';
+			}
+			if(info.income){
+				html+='<div class="item">';
+				html+='	<span class="t1">年收入</span>';
+				html+='	<span class="t2">'+info.income+'</span>';
+				html+='</div>';
+			}
+			if(info.habit){
+				html+='<div class="item">';
+				html+='	<span class="t1">爱好</span>';
+				html+='	<span class="t2">'+info.habit+'</span>';
+				html+='</div>';
+			}
+			if(info.location){
+				html+='<div class="item">';
+				html+='	<span class="t1">地址</span>';
+				html+='	<span class="t2">'+info.location+'</span>';
+				html+='</div>';
+			}
+			if(info.sex){
+				html+='<div class="item">';
+				html+='	<span class="t1">性别</span>';
+				html+='	<span class="t2">'+info.sex+'</span>';
+				html+='</div>';
+			}
+			if(info.field1){
+				var field1 = (info.field1).split(' :  ');
+				html+='<div class="item">';
+				html+='	<span class="t1">'+field1[0]+'</span>';
+				html+='	<span class="t2">'+field1[1]+'</span>';
+				html+='</div>';
+			}
+			if(info.field2){
+				var field2 = (info.field2).split(' :  ');
+				html+='<div class="item">';
+				html+='	<span class="t1">'+field2[0]+'</span>';
+				html+='	<span class="t2">'+field2[1]+'</span>';
+				html+='</div>';
+			}
+			if(info.field3){
+				var field3 = (info.field3).split(' :  ');
+				html+='<div class="item">';
+				html+='	<span class="t1">'+field3[0]+'</span>';
+				html+='	<span class="t2">'+field3[1]+'</span>';
+				html+='</div>';
+			}
+			if(info.field4){
+				var field4 = (info.field4).split(' :  ');
+				html+='<div class="item">';
+				html+='	<span class="t1">'+field4[0]+'</span>';
+				html+='	<span class="t2">'+field4[1]+'</span>';
+				html+='</div>';
+			}
+			if(info.field5){
+				var field5 = (info.field5).split(' :  ');
+				html+='<div class="item">';
+				html+='	<span class="t1">'+field5[0]+'</span>';
+				html+='	<span class="t2">'+field5[1]+'</span>';
+				html+='</div>';
+			}
+			html+='<div class="item">';
+			html+='	<span class="t1">领取时间</span>';
+			html+='	<span class="t2">'+date('Y-m-d H:i:s',info.createtime)+'</span>';
+			html+='</div>';
+			html+='<div class="item">';
+			html+='	<span class="t1">状态</span>';
+			if(info.status==1){
+				html+='	<span class="t2">正常</span>';
+			}
+			if(info.status==2){
+				html+='	<span class="t2">已删除</span>';
+			}
+			if(info.status==3){
+				html+='	<span class="t2">已注销</span>';
+			}
+			html+='</div>';
+			html+='</div>';
+			html+='</div>';
+			layer.open({type:1,area:['300px','460px'],content:html,title:false,shadeClose:true});
+		})
+	}
+
+		var addktnumlayer
+		function addktnum(id){
+			$('#ktmid').val(id);
+			addktnumlayer = layer.open({type:1,area: ['500px', '200px'],title:'开团次数',content:$('#addktnumModel'),shadeClose:true})
+		}
+		//增加开团次数
+		 layui.form.on('submit(formKtnum)', function(obj){
+				var index= layer.load();
+			$.post("{:url('addktnum')}",obj.field,function(data){
+					layer.close(index);
+					dialog(data.msg,data.status,data.url);
+					if(data.status==1){
+						tableIns.reload({
+							where: datawhere
+						});
+					}
+					layer.close(addktnumlayer);
+				})
+		 });
+
+		var setywtimelayer
+		function setywtime(id,ywrate,ywtime){
+			$('#ywtmid').val(id);
+			$('#ywrate').val(ywrate);
+			$('#ywtime').val(ywtime);
+			setywtimelayer = layer.open({type:1,area: ['500px', '400px'],title:'设置余额宝提现天数',content:$('#ywtimeModel'),shadeClose:true})
+		}
+		//余额宝收益率、提现天数
+		layui.form.on('submit(formywtime)', function(obj){
+			var index= layer.load();
+			$.post("{:url('setywtime')}",obj.field,function(data){
+					layer.close(index);
+					dialog(data.msg,data.status,data.url);
+					if(data.status==1){
+						tableIns.reload({
+							where: datawhere
+						});
+					}
+					layer.close(setywtimelayer);
+			})
+		});
+		
+	function setfreeze(id,st){
+		layer.confirm('确定要'+(st==1?'冻结':'解冻')+'吗?',{icon: 7, title:'操作确认'}, function(index){
+			var index = layer.load();
+			$.post("{:url('setfreeze')}",{id:id,st:st},function(res){
+				layer.close(index);
+				dialog(res.msg,res.status);
+				tableIns.reload()
+			})
+		})
+	}
+  function unfrozenFuchi(id){
+	  layer.confirm('确定要解冻吗？解冻后不会继续冻结',{icon: 7, title:'操作确认'}, function(index){
+		  var index = layer.load();
+		  $.post("{:url('unfrozenFuchi')}",{id:id},function(res){
+			  layer.close(index);
+			  dialog(res.msg,res.status);
+			  tableIns.reload()
+		  })
+	  })
+  }
+  function huigui(id)
+  {
+	  layer.confirm('确定要回归吗？操作后不可撤销',{icon: 7, title:'操作确认'}, function(index){
+		  var index = layer.load();
+		  $.post("{:url('huigui')}",{id:id},function(res){
+			  layer.close(index);
+			  dialog(res.msg,res.status);
+			  tableIns.reload()
+		  })
+	  })
+}
+
+	
+	function dolock(id,st){
+		layer.confirm('确定要'+(st==1?'锁定':'解除锁定')+'吗?',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('dolock')}",{id:id,st:st},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	function checklock(islock,func){
+		if(islock == 0){
+			func();return;
+		}
+		var html = '';
+		html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+		html+='		<label class="layui-form-label" style="width:140px">输入解锁密码：</label>';
+		html+='		<div class="layui-input-inline" style="width:200px">';
+		html+='			<input type="password" id="lockpwd" class="layui-input"/>';
+		html+='		</div>';
+		html+='	</div>';
+		var openmaxneedpwdLayer = layer.open({type:1,area:['600px','200px'],title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+			yes:function(){
+				var index = layer.load();
+				$.post("{:url('inputlockpwd')}",{lockpwd:$('#lockpwd').val()},function(data){
+					layer.close(index);
+					if(data.status == 1){
+						layer.close(openmaxneedpwdLayer);
+						func();
+					}else{
+						dialog(data.msg,data.status);
+					}
+				});
+			}
+		});
+	}
+	{if getcustom('other_money')}
+		function addOtherMoney(id,type){
+			var name = '';
+			if(type == 'money2'){
+				name = "{:t('余额2')}";
+			}else if(type == 'money3'){
+				name = "{:t('余额3')}";
+			}else if(type == 'money4'){
+				name = "{:t('余额4')}";
+			}else if(type == 'money5'){
+				name = "{:t('余额5')}";
+			}else if(type == 'frozen_money'){
+				name = "{:t('冻结金额')}";
+			}else{
+				alert('添加类型错误');
+				return;
+			}
+			var html = '';
+			html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+			html+='		<label class="layui-form-label">增加数量：</label>';
+			html+='		<div class="layui-input-inline" style="width:200px">';
+			html+='			<input type="text" id="addOtherMoney" class="layui-input"/>';
+			html+='		</div>';
+			html+='		<div class="layui-form-mid layui-word-aux">输入负值表示扣除'+name+'</div>';
+			html+='	</div>';
+			html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+			html+='		<label class="layui-form-label">备注信息：</label>';
+			html+='		<div class="layui-input-inline" style="width:350px">';
+			html+='			<input type="text" id="addOtherMoneyremark" class="layui-input"/>';
+			html+='		</div>';
+			html+='	</div>';
+			var addOtherMoneyLayer = layer.open({type:1,area:['600px','300px'],title:'加'+name,content:html,shadeClose:true,btn: ['确定', '取消'],
+				yes:function(){
+					var index = layer.load();
+					$.post("{:url('addOtherMoney')}",{id:id,type:type,money:$('#addOtherMoney').val(),remark:$('#addOtherMoneyremark').val()},function(res){
+						layer.close(index);
+						dialog(res.msg,res.status);
+						layer.close(addOtherMoneyLayer);
+						tableIns.reload()
+					})
+				}
+			})
+		}
+	{/if}
+	{if getcustom('member_overdraft_money')}
+	function overdraftRecharge(mid,od_money,limit_money,open_overdraft_money){
+		var checked0 ='';
+		var checked1 ='';
+		if(open_overdraft_money == '1'){
+			checked1 = 'checked';
+		}else{
+			checked0 = 'checked';
+		}
+		var html = '<div class="layui-form" style="margin-top:20px;">';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">{:t('信用额度')}：</label>';
+		html+='		<div class="layui-input-inline">';
+		html+='			<input type="text" id="overdraftMoneyLimit" class="layui-input" value="'+limit_money+'"/>';
+		html+='		</div>';
+		html+='		<div class="layui-form-mid layui-word-aux">0表示无额度</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label" >无限额度：</label>';
+		html+='		<div class="layui-input-inline">';
+		html+='			<input type="radio" name="open_overdraft_money_radio" value="0" title="关闭" '+checked0+' >';
+		html+='			<input type="radio" name="open_overdraft_money_radio" value="1" title="开启" '+checked1+ ' >';
+		html+='		</div>';
+		html+='		<div class="layui-form-mid layui-word-aux">开启后表示无限额度</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">欠款总额：</label>';
+		html+='		<div class="layui-input-inline" style="padding-top: 10px;color: #ff1717;font-weight: bold;">';
+		html+=		od_money;
+		html+='		</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">充值数量：</label>';
+		html+='		<div class="layui-input-inline">';
+		html+='			<input type="text" id="overdraftMoneyAdd" class="layui-input"/>';
+		html+='		</div>';
+		html+='		<div class="layui-form-mid layui-word-aux">输入负值表示扣除</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">备注信息：</label>';
+		html+='		<div class="layui-input-inline" style="width: 300px;">';
+		html+='			<textarea id="overdraftMoneyAddRemark" class="layui-textarea"></textarea>';
+		html+='		</div>';
+		html+='	</div>';
+		html+='	</div>';
+		var addOtherMoneyLayer = layer.open({type:1,area:['500px','550px'],title:'{:t("信用额度")}充值',content:html,shadeClose:true,btn: ['确定', '取消'],
+			yes:function(){
+				var remark = $('#overdraftMoneyAddRemark').val();
+				var money = $('#overdraftMoneyAdd').val();
+				var limit_money = $('#overdraftMoneyLimit').val();
+				var open_overdraft_money = $("input[name='open_overdraft_money_radio']:checked").val();
+				if(isNaN(money)===true){
+					layer.msg('充值数量有误');return;
+				}
+				if(money && remark==''){
+					layer.msg('请填写备注信息');return;
+				}
+				var index = layer.load();
+				$.post("{:url('OverdraftMoney/recharge')}",{mid:mid,money:money,remark:remark,limit_money:limit_money,open_overdraft_money:open_overdraft_money},function(res){
+					layer.close(index);
+					dialog(res.msg,res.status);
+					if(res.status==1){
+						layer.close(addOtherMoneyLayer);
+						tableIns.reload()
+					}
+				})				
+			}
+		})
+		layui.form.render();
+	}
+	{/if}
+
+		//批量编辑额度
+		function editLimitOverdraftmoney(){
+			var ids = [];
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择需要编辑列表');
+			}
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+			var html = '<div class="layui-form" style="margin-top:20px;">';
+			html+='	<div class="layui-form-item">';
+			html+='		<label class="layui-form-label">{:t('信用额度')}：</label>';
+			html+='		<div class="layui-input-inline">';
+			html+='			<input type="text" id="overdraftMoneyLimitmore" class="layui-input" value=""/>';
+			html+='		</div>';
+			html+='		<div class="layui-form-mid layui-word-aux">0表示无额度</div>';
+			html+='	</div>';
+			html+='	</div>';
+			var checkLayer = layer.open({type:1,area:['500px','200px'],title:'批量编辑额度',content:html,shadeClose:true,btn: ['确定', '取消'],
+				yes:function(){
+					var limit_money = $('#overdraftMoneyLimitmore').val();
+					if(limit_money.length <=0){
+						layer.msg('请填写额度');
+						return false;
+					}
+					var index = layer.load();
+					$.post("{:url('OverdraftMoney/batchLimitOverdrafmoney')}",{ids:ids,limit_money:limit_money},function(res){
+						layer.close(index);
+						dialog(res.msg,res.status);
+						layer.close(checkLayer);
+						tableIns.reload();
+					})
+				}
+			});
+			layui.form.render();
+	
+	}
+	{if getcustom('member_goldmoney_silvermoney')}
+		{if $showgoldmoney}
+			function addGoldmoney(id){
+				var html = '';
+				html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+				html+='		<label class="layui-form-label" style="width:80px">增加数量：</label>';
+				html+='		<div class="layui-input-inline" style="width:200px">';
+				html+='			<input type="text" id="addgoldmoney" class="layui-input"/>';
+				html+='		</div>';
+				html+='		<div class="layui-form-mid layui-word-aux">输入负值表示扣除{:t('金值')}</div>';
+				html+='	</div>';
+				html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+				html+='		<label class="layui-form-label" style="width:80px">备注信息：</label>';
+				html+='		<div class="layui-input-inline" style="width:350px">';
+				html+='			<input type="text" id="addgoldmoneyremark" class="layui-input"/>';
+				html+='		</div>';
+				html+='	</div>';
+				var addgoldmoneyLayer = layer.open({type:1,area:['500px','300px'],title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+					yes:function(){
+						var index = layer.load();
+						$.post("{:url('addGoldmoney')}",{id:id,goldmoney:$('#addgoldmoney').val(),remark:$('#addgoldmoneyremark').val()},function(res){
+							layer.close(index);
+							dialog(res.msg,res.status);
+							layer.close(addgoldmoneyLayer);
+							tableIns.reload()
+						})
+					}
+				})
+			}
+		{/if}
+		{if $showsilvermoney}
+			function addSilvermoney(id){
+				var html = '';
+				html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+				html+='		<label class="layui-form-label" style="width:80px">增加数量：</label>';
+				html+='		<div class="layui-input-inline" style="width:200px">';
+				html+='			<input type="text" id="addsilvermoney" class="layui-input"/>';
+				html+='		</div>';
+				html+='		<div class="layui-form-mid layui-word-aux">输入负值表示扣除{:t('银值')}</div>';
+				html+='	</div>';
+				html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+				html+='		<label class="layui-form-label" style="width:80px">备注信息：</label>';
+				html+='		<div class="layui-input-inline" style="width:350px">';
+				html+='			<input type="text" id="addsilvermoneyremark" class="layui-input"/>';
+				html+='		</div>';
+				html+='	</div>';
+				var addsilvermoneyLayer = layer.open({type:1,area:['500px','300px'],title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+					yes:function(){
+						var index = layer.load();
+						$.post("{:url('addSilvermoney')}",{id:id,silvermoney:$('#addsilvermoney').val(),remark:$('#addsilvermoneyremark').val()},function(res){
+							layer.close(index);
+							dialog(res.msg,res.status);
+							layer.close(addsilvermoneyLayer);
+							tableIns.reload()
+						})
+					}
+				})
+			}
+		{/if}
+	{/if}
+		function datadelsql(){
+	    var html = '';
+		html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+		html+='		<label class="layui-form-label" style="width:80px">验证密码：</label>';
+		html+='		<div class="layui-input-inline" style="width:180px">';
+		html+='			<input type="text" id="password" class="layui-input"/>';
+		html+='		</div>';
+		html+='	</div>';
+	
+		var delcsLayer = layer.open({type:1,area:['500px','300px'],title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+			yes:function(){
+				var index = layer.load();
+				$.post("{:url('delsql')}",{password:$('#password').val()},function(res){
+					layer.close(index);
+					dialog(res.msg,res.status);
+					layer.close(delcsLayer);
+					tableIns.reload()
+				})
+			}
+		})
+	}
+	function addmem(){
+		var html = '';
+		html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+		html+='		<label class="layui-form-label" style="width:80px">增加数量：</label>';
+		html+='		<div class="layui-input-inline" style="width:200px">';
+		html+='			<input type="text" value="5" id="addnum" class="layui-input"/>';
+		html+='		</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+		html+='		<label class="layui-form-label" style="width:80px">默认密码：</label>';
+		html+='		<div class="layui-input-inline" style="width:350px">';
+		html+='			<input type="text" value="123456" id="addpwd" class="layui-input"/>';
+		html+='		</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+		html+='		<label class="layui-form-label" style="width:80px">默认余额：</label>';
+		html+='		<div class="layui-input-inline" style="width:350px">';
+		html+='			<input type="text" value="20000" id="addmoney" class="layui-input"/>';
+		html+='		</div>';
+		html+='	</div>';
+		var addscoreLayer = layer.open({type:1,area:['600px','400px'],title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+			yes:function(){
+				var index = layer.load();
+				$.post("{:url('addmem')}",{num:$('#addnum').val(),pwd:$('#addpwd').val(),money:$('#addmoney').val()},function(res){
+					layer.close(index);
+					dialog(res.msg,res.status);
+					layer.close(addscoreLayer);
+					tableIns.reload()
+				})
+			}
+		})
+	}
+
+	</script>
+	{include file="public/copyright"/}
+</body>
+</html>

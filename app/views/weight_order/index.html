@@ -1,0 +1,508 @@
+<!DOCTYPE html><!--custom_file(product_weight)-->
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>称重订单</title>
+	<meta name="renderer" content="webkit">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	{include file="public/css"/}
+	<style>
+		.goods-item{display: flex;align-items: center;border-bottom: 1px dashed #bbb;padding: 3px 0;}
+		.goods-item:last-child{border: none}
+		.product{width:100%; padding:5px;background: #FFF;margin-top:5px;}
+		.product .content{display:flex;padding: 10px 20px}
+		.product .box{position:relative;width: 100%; padding:5px 0px;border-bottom: 1px #e5e5e5 dashed;position:relative}
+		.product .content{display:flex;position:relative;}
+		.product .box:last-child{ border-bottom: 0; }
+		.product .content img{ width: 70px; height: 70px;}
+		.product .content .detail{display:flex;flex-direction:column;margin-left:7px;flex:1}
+		.product .content .detail .t1{height: 30px;line-height: 15px;color: #000;}
+		.product .content .detail .t2{height: 23px;line-height: 23px;color: #999;overflow: hidden;font-size:13px;}
+		.product .content .detail .t3{display:flex;height:15px;line-height:15px;color: #ff4246;}
+		.product .content .detail .x1{ flex:1}
+		.product .content .detail .x2{ width:50px;font-size:16px;text-align:right;margin-right:4px}
+
+		.orderinfo{ width:100%;margin-top:5px;padding: 5px;background: #FFF;}
+
+		.orderinfo .item .t1{width:100px;flex-shrink:0}
+		.orderinfo .item .t2{flex:1;text-align:right;}
+
+		.logistics .item .f1 img{ width: 15px; height: 100%;}
+
+		.logistics .item .f2 .t1{font-size: 15px;}
+		.logistics .item .f2 .t1{font-size: 13px;}
+
+		.layui-table-view .layui-table td .table-imgbox img{max-width:60px;max-height:60px;float:left;}
+		.layui-form-select{text-align: left}
+		.layer-open .layui-form-label{width: 120px;font-size: 18px}
+		.tongji{display: flex;justify-content: space-around;align-items: center;font-weight: bold;font-size: 16px;padding: 15px 30px;background: #f2f2f2;border: 1px solid #e0e0e0;margin-bottom: 10px;}
+		.layui-card-body .layui-input,.dark-border,.layui-table-page,.layui-btn,.layui-table,.layui-table td, .layui-table th,.layui-collapse,.layui-form-checkbox i.layui-icon{
+			border-color: #bbb !important;
+			border:1px solid #bbb !important;
+		}
+		.layui-card .layui-card-header{border-bottom:1px solid #bbb !important;}
+		input::placeholder{color: #888;}
+		.layui-btn{margin-top: 5px}
+		.layuiadmin-btn-list{padding: 0 8px}
+	</style>
+</head>
+<body>
+<div class="layui-fluid">
+	<div class="layui-row layui-col-space15">
+		<div class="layui-card layui-col-md12">
+			<div class="layui-card-header">称重订单</div>
+			<div class="layui-card-body" pad15>
+				<div style="display: flex;justify-content: space-between;">
+					<div style="padding-bottom:10px">
+						<button class="layui-btn layui-btn-primary layuiadmin-btn-list"  onclick="openmax('{:url('editchoose')}/isopen/1')">订单录入</button>
+						<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="plshd(0,0)">打印送货单</button>
+						{if getcustom('restaurant_wifiprint_yingmeiyun')}
+						<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="wifiprint(0,0)">映美云送货单</button>
+						{/if}
+						{if $auth_data=='all' || in_array('WeightRemark/*',$auth_data)}
+							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="openmax('{:url('WeightRemark/edit')}/isopen/1')">备注预置</button>
+						{/if}
+						{if $orderdoneAuth}
+						<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="orderDone(0)">完成订单</button>
+						{/if}
+						<button class="layui-btn layui-btn-primary layuiadmin-btn-list" data-form-export="{:url('excel')}">导出</button>
+					</div>
+					<div class="layui-form layui-form-search">
+						<div class="layui-inline layuiadmin-input-useradmin">
+							<label class="layui-form-label">会员id</label>
+							<div class="layui-input-inline" style="width: 80px;">
+								<input type="text" name="mid" placeholder="mid" placeholder-style="color:#222;" autocomplete="off" class="layui-input" value="">
+							</div>
+						</div>
+						<div class="layui-inline layuiadmin-input-useradmin">
+							<label class="layui-form-label">关键字</label>
+							<div class="layui-input-inline" style="width: 180px;">
+								<input type="text" name="keyword" placeholder-style="color:#222;" placeholder="订单编号|联系人|客户姓名" autocomplete="off" class="layui-input" value="">
+							</div>
+						</div>
+						<div class="layui-inline">
+							<label class="layui-form-label">状态</label>
+							<div class="layui-input-inline" style="width: 100px">
+								<select name="status">
+									<option value="-1">全部</option>
+									<option value="0" {if $status==='0'}selected{/if}>未支付</option>
+									<option value="1" {if $status==='1'}selected{/if}>待发货</option>
+									<option value="2" {if $status==='2'}selected{/if}>已发货</option>
+									<option value="3" {if $status==='3'}selected{/if}>已完成</option>
+									<option value="4" {if $status==='4'}selected{/if}>已关闭</option>
+									<!-- <option value="5" {if $status==='5'}selected{/if}>退款待审核</option> -->
+									<option value="6" {if $status==='6'}selected{/if}>已退款</option>
+									<option value="6" {if $status==='12'}selected{/if}>已挂单</option>
+									<!-- <option value="7" {if $status==='7'}selected{/if}>退款驳回</option> -->
+								</select>
+							</div>
+						</div>
+						<div class="layui-inline">
+							<div class="layui-input-inline" style="width:300px;margin-left:0px">
+								<input type="text" placeholder-style="color:#222;" placeholder="创建时间" name="ctime" id="ctime" autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-inline">
+							<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+								<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+							</button>
+						</div>
+					</div>
+				</div>
+				<div class="tongji">
+					<div class="tongji-item">重量：<span id="totalweight"></span></div>
+					<div class="tongji-item">数量：<span id="totalnum"></span></div>
+					<div class="tongji-item">总价：<span id="totalprice"></span></div>
+				</div>
+				<div class="layui-col-md12">
+					<table id="tabledata" lay-filter="tabledata"></table>
+				</div>
+
+			</div>
+		</div>
+	</div>
+</div>
+{include file="public/js"/}
+<script id="refundtpl" type="text/html">
+	<div class="orderdetail">
+		<div class="product">
+
+			{{#  layui.each(d.prolist, function(index, item){ }}
+			<div class="content">
+				<div>
+					<img src="{{item.pic}}"/>
+				</div>
+				<div class="detail">
+					<span class="t1">{{item.name}}</span>
+					<span class="t2">{{item.ggname}}</span>
+					<div class="t3"><span class="x1 flex1">￥{{item.sell_price}}×{{item.num}}</span><span style="color: #999;font-size: 12px;">最多可退{{item.canRefundNum}}件</span>
+						<div class="layui-form-item">
+							<div class="layui-input-inline" style="width:50px">
+								<input type="number" name="refundNum[]" min="0" max="{{item.canRefundNum}}" data-ogid="{{item.id}}" data-order="{{d.detail.id}}" value="{{item.canRefundNum}}" class="layui-input refundNum" onchange="refundChange(this)" style="height: 28px; margin-top: -8px; margin-left: 2px;"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			{{# }); }}
+		</div>
+
+		<div class="orderinfo">
+			<div class="layui-form-item">
+				<label class="layui-form-label" style="width:90px">退款原因</label>
+				<div class="layui-input-inline" style="width:300px">
+					<textarea type="text" id="tuireason" class="layui-textarea"></textarea>
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label" style="width:90px">退款金额</label>
+				<div class="layui-input-inline" style="width:300px">
+					<input type="number" name="money" id="refund_money" min="0" max="{{d.detail.returnTotalprice}}" value="{{d.detail.returnTotalprice}}" class="layui-input">
+				</div>
+			</div>
+		</div>
+	</div>
+
+</script>
+<script>
+	var table = layui.table;
+	var datawhere = {$datawhere};
+	//数据表
+	var tableIns = table.render({
+		elem: '#tabledata'
+		,url: "{$Request.url}" //数据接口
+		,page: true //开启分页
+		,cols: [[ //表头
+			{type:"checkbox"},
+			// {field: 'id', title: 'ID',  width:60},
+			{field: 'goodsdata', title: '商品信息',minWidth: 200},
+			{field: 'customerdata', title: '客户',minWidth: 220},
+			{field: 'pricedata', title: '订单',templet:function(d){
+					var html='';
+					html+='<div><div style="color: #009701">编号：'+d.ordernum+'</div>';
+					html+='<div>时间：'+date('Y-m-d H:i:s',d.createtime)+'</div></div>';
+					html+='<div style="font-weight: bold">原价:￥'+d.product_price+' 实付:'+'￥'+d.totalprice+'</div>';
+					return html;
+			},width: 200},
+			{field: 'status', title: '状态',templet:function(d){
+					var html = '';
+					if(d.status==0) html+='<div style="color:#ff8758">未支付</span>';
+					if(d.status==1){
+						if(d.express_isbufen==1){
+							html+='<div style="color:#fe9400">已挂单</span>'
+						}else{
+							html+='<div style="color:#008000">待发货</span>'
+						}
+					}
+					if(d.status==2){
+						html+='<div style="color:#ff4246">已发货</span>';
+					}
+					if(d.status==3) html+='<div style="color:#999">已完成</span>';
+					if(d.status==4) html+='<div style="color:#bbb">已关闭</span>';
+					if(d.refund_status == 1) html+='<div style="color:red">退款待审核,￥'+d.refund_money+'</div>';
+					if(d.refund_status == 2) html+='<div style="color:red">已退款,￥'+d.refund_money+'</div>';
+					if(d.refund_status == 3) html+='<div style="color:red">退款驳回,￥'+d.refund_money+'</div>';
+					if(d.refundCount > 0)  html+='<div><a href="javascript:void(0)" style="color:red" onclick="openmax(\'{:url('ShopRefundOrder/index')}/bid/'+d.bid+'/orderid/'+d.id+'/isopen/1\')">有退款（'+d.refundCount+'）</a></div>';
+					return html;
+				},width: 60},
+			{field: 'operation', title: '操作',minWidth:140,templet:function(d){
+					var html = '';
+					html += '<button class="table-btn dark-border" onclick="openmax(\'{:url('detail')}/id/'+d.id+'\')">详情</button>';
+					// html += '<button class="table-btn" onclick="showdetail('+d.id+')">详情</button>';
+					// html += '<button class="table-btn" onclick="openmax(\'{:url('shd')}/id/'+d.id+'\')">送货单</button>';
+					if(d.status==2){
+						html += '<button class="table-btn dark-border" onclick="doOperation('+d.id+',\'退款\')">退款</button>';
+					}
+
+					{if $hasprint}
+					if(d.freight_type>0){
+						html += '<button class="table-btn dark-border" onclick="wifiprint('+d.id+',1)">打印小票</button>';
+					}
+					{/if}
+					html += '<button class="table-btn dark-border" onclick="datadel('+d.id+')">删除</button>';
+					if(d.status==1){ //已支付
+						if(d.express_isbufen==1){
+							html += '<button class="table-btn dark-border" onclick="openmax(\'{:url('WeightOrder/fahuo')}/ispending/1/id/'+d.id+'\')">挂单发货</button>';
+						}else{
+							html += '<button class="table-btn dark-border" onclick="openmax(\'{:url('WeightOrder/fahuo')}/id/'+d.id+'\')">发货</button>';
+						}
+					}
+					/*else if(d.status==2){ //已发货
+						html += '<button class="table-btn" onclick="doOperation('+d.id+',\'确认收货\')">确认收货</button>';
+					}*/
+					return html;
+			}}
+		]]
+	});
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+
+	//日期范围选择
+	layui.laydate.render({
+		elem: '#ctime',
+		trigger: 'click',
+		type:'datetime',
+		range: '~' //或 range: '~' 来自定义分割字符
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+		tongji()
+	})
+	//批量打印送货单
+	function plshd(id,type=1) {
+		var ids = [];
+		if (id == 0) {
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if (checkData.length === 0) {
+				return layer.msg('请选择数据');
+			}
+			var ids = [];
+			for (var i = 0; i < checkData.length; i++) {
+				ids.push(checkData[i]['id']);
+			}
+		} else {
+			ids.push(id)
+		}
+		openmax("{:url('WeightOrder/plshd')}/isopen/1/ids/" + ids)
+	}
+	//删除
+	function datadel(id){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				return layer.msg('请选择数据');
+			}
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id);
+		}
+		layer.confirm('确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('ShopOrder/del')}",{ids:ids},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				if(data.status==1){
+					tableIns.reload()
+				}
+			})
+		});
+	}
+
+	var orderdata = {};
+	var detailLayer;
+	function doOperation(orderid,type){
+		var index_load = layer.load();
+		$.post("{:url('ShopOrder/getdetail')}",{orderid:orderid},function(data){
+			layer.close(index_load);
+			orderdata = data;
+			btnOperation(type,data);
+		})
+	}
+	function btnOperation(type,data){
+		var orderid = data.order.id;
+			if(type == '退款'){
+				var index_load = layer.load();
+				$.post("{:url('ShopOrder/refundinit')}",{orderid:orderid},function(data) {
+					tuikuandata = data;
+					layer.close(index_load);
+					layui.laytpl(refundtpl.innerHTML).render(data, function(html){
+						var refundLayer = layer.open({type:1,title:'退款',area:'500px',content:html,resize:true,shadeClose:true,maxmin:true,btn: ['确定', '取消'],
+							yes:function(){
+								var reason = $('#tuireason').val();
+								var refundNum = [];
+								var money = $('#refund_money').val();
+								$(".refundNum").each(function(){
+									refundNum.push({ogid:$(this).attr('data-ogid'),num:$(this).val()})
+								});
+								var refund_type = $("input[name=refund_type]").val();
+								// console.log(refund_type);return;
+								if(reason == '') {
+									layer.msg('请填写退款原因');return false;
+								}
+								if(money < 0) {
+									layer.msg('请输入正确的退款金额');return false;
+								}
+
+								var index = layer.load();
+								$.post("{:url('ShopOrder/refund')}",{orderid:orderid,money: money,reason:reason,refundNum:refundNum},function(res){
+									layer.close(index);
+									dialog(res.msg,res.status);
+									layer.close(refundLayer);
+									layer.close(detailLayer);
+									tableIns.reload()
+								})
+							}
+						})
+					});
+				});
+			}else if(type == '删除'){
+				layer.confirm('确定要删除该订单吗?',{icon: 7, title:'操作确认'}, function(index){
+					layer.close(index);
+					var index = layer.load();
+					$.post("{:url('ShopOrder/del')}",{id:orderid},function(res){
+						layer.close(index);
+						dialog(res.msg,res.status);
+						layer.close(detailLayer);
+						tableIns.reload()
+					})
+				})
+			}else if(type == '确认收货'){
+				layer.confirm('确定要改为已完成状态吗?',{icon: 7, title:'操作确认'}, function(index){
+					layer.close(index);
+					var index = layer.load();
+					$.post("{:url('ShopOrder/orderCollect')}",{orderid:orderid},function(res){
+						layer.close(index);
+						dialog(res.msg,res.status);
+						layer.close(detailLayer);
+						tableIns.reload()
+					})
+				})
+			}
+			return false;
+		}
+	function orderDone(id){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				return layer.msg('请选择数据');
+			}
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id);
+		}
+		layer.confirm('确定完成订单吗？<br>订单完成后，会员信用额度会自动恢复', function(){
+			var index = layer.load();
+			$.post("{:url('WeightOrder/orderDone')}",{ids:ids},function(res){
+				layer.close(index);
+				layer.msg(res.msg);
+				if(res.status==1){
+					tableIns.reload()
+				}
+			})
+		});
+	}
+	function remarkIndex(){
+		layer.closeAll();
+		openmax("{:url('WeightRemark/index')}/isopen/1")
+	}
+	function weightorder(){
+		var index = layer.load();
+		$.post("{:url('WeightOrder/getEditData')}",{ },function(res){
+			layer.close(index);
+			var datalist = res.customerlist
+			var prolist = res.prolist
+			// var cstoption = '<option value="">请选择</option>'
+			var cstoption = ''
+			for (i=0;i<datalist.length;i++){
+				cstoption+= '<option value="'+datalist[i].id+'">'+datalist[i].name+'</option>'
+			}
+			var prooption = '';
+			var prolist = res.prolist;
+			for (i=0;i<prolist.length;i++){
+				prooption+= '<input type="checkbox" name="proids[]" lay-skin="primary" value="'+prolist[i].id+'" title="'+prolist[i].name+'">'
+			}
+			var html = '<div class="layui-form layer-open">';
+			html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+			html+='		<label class="layui-form-label" style="font-weight: bold">选择客户：</label>';
+			html+='		<div class="layui-input-inline" style="width:360px">';
+			html+='		<select class="layui-select" lay-filter="customer" id="customer" style="width: 400px">';
+			html+= 		cstoption;
+			html+='		</select>';
+			html+='		</div>';
+			html+='	</div>';
+			html+='	<div class="layui-form-item" style="margin-right:20px;">';
+			html+='		<label class="layui-form-label" style="font-weight: bold">选择商品：</label>';
+			html+='		<div class="layui-input-inline" style="width:600px">';
+			html+= 		prooption;
+			html+='		</div>';
+			html+='	</div>';
+			html+='	</div>';
+			var layerOpen1 = layer.open({type:1,area:['800px','400px'],title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+				yes:function(){
+					var ctmid = $('#customer').val();
+					var proids = [];
+					$('input[name="proids[]"]:checked').each(function (e){
+						proids.push($(this).val())
+					});
+					if(!ctmid){
+						layer.msg('请选择客户');
+						return;
+					}
+					if(proids.length<1){
+						layer.msg('请选择商品');
+						return;
+					}
+					layer.close(layerOpen1);
+					openmax('{:url('WeightOrder/edit')}/ctmid/'+ctmid+'/proids/'+proids.join(','));
+				},
+				success:function (){
+					layui.form.render();
+				}
+			});
+		})
+	}
+	tongji();
+	function tongji(){
+		$.get("{:url('indexTongji')}",datawhere,function(data){
+			$('#totalnum').text(data.totalnum)
+			$('#totalweight').text(data.totalweight)
+			$('#totalprice').text(data.totalprice)
+		})
+
+	}
+
+	//machineType=0 小票
+	function wifiprint(id,machineType=1){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				return layer.msg('请选择数据');
+			}
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id);
+		}
+		layer.confirm('确定要打印吗?',{icon: 7, title:'操作确认'}, function(index){
+			var index = layer.load();
+			$.post("{:url('WeightOrder/wifiprint')}",{id:ids.join(','),machineType:machineType},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				// tableIns.reload();
+			})
+		})
+	}
+</script>
+{include file="public/copyright"/}
+</body>
+</html>

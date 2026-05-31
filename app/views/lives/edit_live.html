@@ -1,0 +1,334 @@
+<!--
+ * @Descripttion: 
+ * @Author: cbing
+ * @Date: 2019-06-17 09:55:00
+ * @LastEditors: cbing
+ * @LastEditTime: 2019-09-09 20:28:18
+-->
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="keywords" content="">
+        <meta name="description" content="">
+        <link rel="shortcut icon" href="favicon.ico"> 
+        <link href="__PUBLIC__/admin/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+        <link href="__PUBLIC__/admin/css/font-awesome.css?v=4.4.0" rel="stylesheet">
+        <link href="__PUBLIC__/admin/css/style.css?v=4.1.0" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="__PUBLIC__/admin/Huploadify/Huploadify.css"/>
+        <script src="__PUBLIC__/admin/js/jquery.min.js?v=2.1.4"></script>
+    </head>
+
+    <script>
+        var url = "{$referer}";
+        var checkLivename = "{:url('live/checkLiveName')}";
+        var updateUrl = "{:url('Live/editLive')}";
+    </script>
+
+    <body class="gray-bg">
+        <style>
+            input.error{
+                border:1px solid red;
+            }
+            span.error{
+                padding-top:10px;
+                color: #f00;
+                font-size:12px;
+            }
+        </style>
+
+        <div class="wrapper wrapper-content">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5>编辑直播间信息</h5>
+                        </div>
+                        <div class="ibox-content">
+                            <form method="post" class="form-horizontal" id="form">
+
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">直播间名称:</label>
+                                    <div class="col-sm-6">
+                                        <input type="text" name="title" class="form-control" value="{$data.title}">
+                                    </div>
+                                    <label class="col-sm-1" style="padding-top:7px; color:#F00; font-size:16px;">*</label>
+                                </div>						
+                                <div class="hr-line-dashed"></div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">直播商品类型:</label>
+                                    <div class="col-sm-6">
+                                        <select class="form-control m-b" name="type_id">
+                                            <option value="">请选择</option>
+                                            {foreach name="typeList" id="v"}
+                                            <option value="{$v.id}" {eq name="data.type_id" value="$v.id"}selected{/eq}>{$v.industry_name}</option>
+                                            {/foreach}
+                                        </select>
+                                    </div>
+                                    <label class="col-sm-1" style="padding-top:7px; color:#F00; font-size:16px;">*</label>
+                                </div>						
+                                <div class="hr-line-dashed"></div>
+
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">所属店铺:</label>
+                                    <div class="col-sm-6">
+                                        <!--<input type="number" name="shop_id" class="form-control" value="{$data.shop_id}">-->
+                                        <select class="form-control m-b" name="shop_id">
+                                            <option value="">请选择</option>
+                                            {foreach name="shopList" id="v"}
+                                            <option value="{$v.id}" {eq name="data.shop_id" value="$v.id"}selected{/eq}>{$v.shop_name}</option>
+                                            {/foreach}
+                                        </select>
+                                    </div>
+                                    <label class="col-sm-1" style="padding-top:7px; color:#F00; font-size:16px;">*</label>
+                                </div>	
+
+                                <div class="hr-line-dashed"></div>   
+
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">直播间房号:</label>
+                                    <div class="col-sm-6">
+                                        <input type="text" name="room" class="form-control" value="{$data.room}">
+                                    </div>
+                                    <label class="col-sm-1" style="padding-top:7px; color:#F00; font-size:16px;">*</label>
+                                </div>	
+                                <div class="hr-line-dashed"></div>
+
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">开播时间:</label>
+                                    <div class="col-sm-6">
+                                        <div class="date date1 fl" id="from" style="float:left; margin-right:25px;">
+                                            <input type="text" name="start_time" placeholder="开始时间" class="form-control" value="{$data.start_time}">
+                                        </div>
+                                        <div class="date fr" id="to" style="float:left;">
+                                            <input type="text" name="end_time" placeholder="结束时间" class="form-control" value="{$data.end_time}">
+                                        </div>
+                                    </div>
+                                    <label class="col-sm-1" style="padding-top:7px; color:#F00; font-size:16px;">*</label>
+                                </div>
+                                <div class="hr-line-dashed"></div>   
+
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">直播间公告:</label>
+                                    <div class="col-sm-6">
+                                        <textarea name="notice" class="form-control">{$data.notice}</textarea>
+                                    </div>
+                                    <label class="col-sm-1" style="padding-top:7px; color:#F00; font-size:16px;">*</label>
+                                </div>	
+                                <div class="hr-line-dashed"></div>   
+
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">主播介绍:</label>
+                                    <div class="col-sm-6">
+                                        <textarea name="user_profile" class="form-control">{$data.notice}</textarea>
+                                    </div>
+                                    <label class="col-sm-1" style="padding-top:7px; color:#F00; font-size:16px;">*</label>
+                                </div>	
+                                <div class="hr-line-dashed"></div>   
+
+                                <div class="guanggao">
+                                    <div class="form-group">
+                                        <label  class="col-sm-2 control-label">上传封面图片:</label>
+                                        <div class="col-sm-6">
+                                            <div style="margin-bottom:7px; margin-top:5px;">
+                                                <img id="imageinfo" src="{$data.cover}" width="180" height="120" border="0" onerror="this.src='__PUBLIC__/admin/img/nopic.jpg'"/>
+                                                <br/><button type="button" class="btn btn-danger btn-xs del" style="display:none;">删除</button>
+                                            </div>
+                                            <div id="uploaderInput"></div>
+                                            <input type="hidden" name="cover" value="{$data.cover}" >
+                                            <div class="picurl hidden">{$data.cover}</div>
+                                        </div>
+                                    </div>
+                                    <div class="hr-line-dashed"></div>                                                                
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">是否首页推荐:</label>
+                                    <div class="col-sm-6">
+                                        <label class="radio-inline"><input type="radio" name="isrecommend" {eq name="data.isrecommend" value="1"}checked="checked"{/eq} value="1">是</label>
+                                        <label class="radio-inline"><input type="radio" name="isrecommend" {eq name="data.isrecommend" value="-1"}checked="checked"{/eq} value="-1">否</label>
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+                                
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">是否新人直播:</label>
+                                    <div class="col-sm-6">
+                                        <label class="radio-inline"><input type="radio" name="isnewperson" {eq name="data.isnewperson" value="1"}checked="checked"{/eq} value="1">是</label>
+                                        <label class="radio-inline"><input type="radio" name="isnewperson" {eq name="data.isnewperson" value="-1"}checked="checked"{/eq} value="-1">否</label>
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">是否开启：</label>
+                                    <div class="col-sm-6">
+                                        <label class="radio-inline"><input type="radio" name="isclose" {eq name="data.isclose" value="0"}checked="checked"{/eq} value="0">是</label>
+                                        <label class="radio-inline"><input type="radio" name="isclose" {eq name="data.isclose" value="1"}checked="checked"{/eq} value="1">否</label>
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+                                <input type="hidden" name="id" value="{$data.id}" />
+
+                                <div class="form-group">
+                                    <div class="col-sm-4 col-sm-offset-2">
+                                        <button class="btn btn-primary" type="submit" id="doSubmit">保存内容</button>
+                                        <button class="btn btn-primary" type="button" onclick="goBackLst('/{$Request.module}/live/lst');">返回</button>
+                                        <button type="reset" class="btn btn-default">重置</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- 全局js -->
+        <script src="__PUBLIC__/admin/js/bootstrap.min.js?v=3.3.6"></script>
+        <!-- 自定义js -->
+        <script type="text/javascript" src="__PUBLIC__/admin/Huploadify/jquery.Huploadify.js"></script>    
+        <script src="__PUBLIC__/admin/js/plugins/layer/layer.min.js"></script>
+        <script src="__PUBLIC__/admin/js/plugins/validate/jquery.validate.min.js"></script>	
+        <!-- iCheck -->
+        <script src="__PUBLIC__/admin/js/plugins/iCheck/icheck.min.js"></script>
+        <script src="__PUBLIC__/admin/js/common/ajax.js"></script>
+
+        <script>
+        $(function () {
+            $('.i-checks').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+            });
+
+            $('.guanggao').hide();
+            $('.guanggao').eq(0).show();
+            $('.adurl').hide();
+            $('.adurl').eq(0).show();
+            $('#atype .radio-inline').click(function () {
+                var i = $(this).index();
+                $('.guanggao').hide();
+                $('.guanggao').eq(i).show();
+                $('.adurl').hide();
+                $('.adurl').eq(i).show();
+            });
+
+            //上传缩略图
+            $('#uploaderInput').Huploadify({
+                uploader: '{:url("Common/Upload/uploadPic")}',
+                method: 'post',
+                formData: {name:'live'}, //发送给服务端的参数，格式：{key1:value1,key2:value2}
+                buttonText: '上传图像',
+                removeTimeout: 2000,
+                fileTypeDesc: '*.jpg;*.jpeg;*.gif;*.png;*.JPG;*.JPEG;*.GIF;*.PNG;',
+                fileTypeExts: '*.jpg;*.jpeg;*.gif;*.png;*.JPG;*.JPEG;*.GIF;*.PNG;',
+                fileObjName: 'file', //上传附件$_FILE标识
+                fileSizeLimit: 2048,
+                //showUploadedPercent:false,//是否实时显示上传的百分比，如20%
+                auto: true, //开启,自动上传
+                multi: false, //开启,多选文件
+                //开始上传
+                onUploadStart: function (file) {
+                    layer.load(2);
+                },
+                onUploadSuccess: function (file, data, response) {
+                    //解析成json对象
+                    eval('var data=' + data);
+                    if (data.status == 200) {
+                        var picpath = data.data.path;
+                        $('#imageinfo').attr('src', picpath);
+                        $('.del').show();
+                        $('input[name=cover]').val(picpath);
+                    } else {
+                        layer.msg(data.mess, {icon: 2, time: 2000});
+                    }
+                },
+                //上传完成后执行的操作
+                onUploadComplete: function (file) {
+                    layer.closeAll('loading');
+                },
+                //上传错误  
+                onUploadError: function (file, errorCode, errorMsg, errorString) {
+                    layer.msg('文件' + file.name + '上传失败:' + errorString, {icon: 2, time: 2000});
+                }
+            });
+
+            $('.del').click(function () {
+                var cover = $('.picurl').text();
+                if(cover != ''){
+                    $('input[name=cover]').val(cover);
+                    $('#imageinfo').attr('src', cover);
+                }else{
+                    $('input[name=cover]').val('');
+                    $('#imageinfo').attr('src', '__PUBLIC__/admin/img/nopic.jpg');
+                }
+                $('.del').hide();
+            });
+
+            var icon = "<i class='fa fa-times-circle'></i>&nbsp;&nbsp;";
+            $('#form').validate({
+                errorElement: 'span',
+                debug: true, //只验证不提交表单
+                //layer ajax提交表单
+                submitHandler: function () {
+                    // 序列化 表单数据 后提交 ，太简洁了
+                    post(updateUrl, 'POST', $('#form').serialize(), 1);
+                    return false;
+                }, //这是关键的语句，配置这个参数后表单不会自动提交，验证通过之后会去调用的方法
+
+                rules: {
+                    title: {
+                        required: true,
+                    },
+                    type_id: {required: true},
+                    shop_id: {required: true},
+                    room: {required: true},
+                    notice: {required: true},
+                    user_profile: {required: true},
+                },
+
+                messages: {
+                    title: {
+                        required: icon + '必填',
+                        remote: icon + '直播间名称已存在'
+                    },
+                    type_id: {required: icon + '必选'},
+                    shop_id: {required: icon + '必填'},
+                    room: {required: icon + '必填'},
+                    notice: {required: icon + '必填'},
+                    user_profile: {required: icon + '必填'},
+                }
+            });
+        });
+
+        //删除批量上传临时文件
+        function deletegp(obj) {
+            var div = $(obj).parent();
+            var pic_id = div.find('input[class=pic_id]').val();
+            $.ajax({
+                url: '{:url("keyword/deletefile")}',
+                type: 'POST',
+                data: {'pic_id': pic_id},
+                dataType: 'json',
+                success: function (data) {
+                    if (data == 1) {
+                        div.remove();
+                    } else {
+                        layer.msg('删除临时图片失败', {icon: 2, time: 1000});
+                    }
+                },
+                error: function () {
+                    layer.msg('操作失败，请重试', {icon: 2, time: 2000});
+                }
+            });
+        }
+
+        function cl() {
+            location.href = url;
+        }
+        </script>
+
+    </body>
+</html>

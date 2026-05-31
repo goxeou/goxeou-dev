@@ -1,0 +1,118 @@
+<!DOCTYPE html><!--custom_file(kecheng_lecturer)-->
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>讲师个人资料</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+         <div class="layui-card-header">讲师个人资料</div>
+        <div class="layui-card-body" pad15>
+          <div class="layui-form">
+            <input type="hidden" name="info[id]" value="{$info.id}"/>
+            <div class="layui-form-item">
+              <label class="layui-form-label">头像：</label>
+              <input type="hidden" name="info[headimg]" id="headimg" class="layui-input" value="{$info.headimg}">
+              <button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="headimg" upload-preview="headimgPreview" onclick="uploader(this)">上传图片</button>
+              <div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：150×150像素</div>
+              <div id="headimgPreview" class="picsList-class-padding" style="padding-top: 10px;padding-left: 110px;clear: both;">
+                <div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.headimg}"/></div></div>
+              </div>
+            </div>
+            <div class="layui-form-item">
+              <label class="layui-form-label">昵称：</label>
+              <div class="layui-input-inline">
+                <input type="text" name="info[nickname]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.nickname}">
+              </div>
+            </div>
+            <div class="layui-form-item">
+              <label class="layui-form-label">姓名：</label>
+              <div class="layui-input-inline" style="width:200px">
+                <input type="text" name="info[realname]" class="layui-input" value="{$info.realname}">
+              </div>
+            </div>
+            <div class="layui-form-item">
+              <label class="layui-form-label">手机号：</label>
+              <div class="layui-input-inline" style="width:200px">
+                <input type="text"   id="tel" name="info[tel]" class="layui-input" value="{$info.tel}">
+                <input type="hidden" id="oldtel" class="layui-input" value="{$info.tel}">
+              </div>
+            </div>
+            {if $cansendsms}
+            <div  class="layui-form-item">
+              <label class="layui-form-label">验证码：</label>
+              <div class="layui-input-inline" style="width:275px;display:flex;align-items: center;">
+                <input type="text" placeholder="修改手机号需要发送验证码" class="layui-input" value="">
+                <span onclick="smscode()" id="sendcode" style="width:100px;margin-left: 5px;cursor: pointer;">获取验证码</span>
+              </div>
+            </div>
+            {/if}
+            <div class="layui-form-item">
+              <label class="layui-form-label">简介：</label>
+              <div class="layui-input-inline" style="width:500px">
+                <input type="text" name="info[shortdesc]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.shortdesc}">
+              </div>
+            </div>
+            <div class="layui-form-item">
+              <div class="layui-input-block">
+                <button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {include file="public/js"/}
+  <script>
+  var hqing = 0;
+  function smscode() {
+      var that = this;
+      if (hqing == 1) return;
+      hqing = 1;
+      var tel = $('#tel').val();
+      if (tel == '') {
+        dialog('请输入手机号码',0);
+        hqing = 0;
+        return false;
+      }
+      var len = tel.length;
+      if (len != 11) {
+        dialog('手机号码有误，请重填',0);
+        hqing = 0;
+        return false;
+      }
+      $.post("{:url('sendsms')}", {tel: tel}, function (data) {
+        dialog(data.msg,data.status);
+      });
+      var time = 120;
+      var interval1 = setInterval(function () {
+        time--;
+        if (time < 0) {
+          $('#sendcode').html('重新获取');
+          hqing = 0;
+          clearInterval(interval1);
+        } else if (time >= 0) {
+          var smsdjs = time + '秒';
+          $('#sendcode').html(smsdjs);
+        }
+      }, 1000);
+  }
+  layui.form.on('submit(formsubmit)', function(obj){
+    var field = obj.field
+    var index = layer.load();
+    $.post("{:url('')}",field,function(data){
+      layer.close(index);
+      dialog(data.msg,data.status,data.url);
+    })
+  })
+  </script>
+  {include file="public/copyright"/}
+</body>
+</html>

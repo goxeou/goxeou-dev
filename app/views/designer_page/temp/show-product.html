@@ -1,0 +1,161 @@
+<div class="dsn-mod dp-product" ng-class="{'dsn-mod-select':Item.id == focus}" ng-style="{'background-color':Item.params.bgcolor,'margin':Item.params.margin_y+'px '+Item.params.margin_x+'px 0','padding':Item.params.padding_y+'px '+Item.params.padding_x+'px'}">
+	<div style="line-height: 170px; text-align: center; color: #999; font-size: 16px;width:100%" ng-show="Item.data == ''">一个商品都没有...</div>
+	<!--123排-->
+	<div class="dp-product-item" ng-show="Item.params.style=='1' || Item.params.style=='2' || Item.params.style=='3' || Item.params.style=='waterfall'">
+		<div class="item" ng-repeat="item in Item.data" ng-init="index = $index" style="{{Item.params.style==2 || Item.params.style=='waterfall'  ? 'width:49%;margin-right:'+(index%2==0?'2%':0) : (Item.params.style==3 ? 'width:32%;margin-right:'+(index%3!=2?'2%':0) :'width:100%')}}" ng-style="{'background-color':Item.params.probgcolor}">
+			<div class="product-pic" ng-style="{'background-color':Item.params.probgcolor}">
+				<img class="image" ng-src="{{item.pic}}"/>
+				<img class="saleimg" ng-src="{{Item.params.saleimg}}" ng-if="Item.params.saleimg!=''"/>
+			</div>
+			<div class="product-info" ng-style="{'background-color':Item.params.probgcolor}" ng-if="Item.params.showname != '0' || Item.params.showprice != '0' || Item.params.showsales!='0'">
+				<div class="p1" ng-if="Item.params.showname == 1">{{item.name}}</div>
+				{if getcustom('home_product_show_binfo')}
+				<div class="couponitem" ng-if="(Item.params.style!='3' && Item.params.style!='line') && (Item.params.showbname == 1 || Item.params.showbdistance == 1)" style="color: #0a87c0;font-size: 11px">
+					<div class="f1" style="justify-content: space-between">
+						<div class="t">
+							<span ng-if="Item.params.showbname == 1">商城名称</span>
+							<span ng-if="!Item.params.showbname">&nbsp;</span>
+						</div>
+						<div class="t" ng-if="Item.params.showbdistance == 1" >
+							8.6km
+						</div>
+					</div>
+				</div>
+				{/if}
+				
+				{if(getcustom('product_cost_show'))}
+				<div ng-if="Item.params.showcost == '1'">
+					<p style="color: #999;font-size: 12px;padding-left: 3px">成本价：￥10</p>
+				</div>
+				{/if}
+				<div class="p2">
+					<div class="p2-1" ng-if="Item.params.showprice != '0' && ( item.price_type != 1 || item.sell_price > 0)">
+						<span class="t1" style="color:{:t('color1')}"><span style="font-size:12px">￥</span>{{item.sell_price}}</span>
+						<span class="t2" ng-if="Item.params.showprice == '1' && item.market_price*1 > item.sell_price*1">￥{{item.market_price}}</span>
+					</div>
+					<div class="p2-1" ng-if="item.xunjia_text && item.price_type == 1 && item.sell_price <= 0" style="height: 25px;line-height: 22px;">
+						<span ng-if="Item.params.style!='1'" class="t1" style="color:{:t('color1')};font-size: 14px">询价</span>
+						<span ng-if="Item.params.style=='1'" class="t1" style="color:{:t('color1')}">询价</span>
+						{if(getcustom('shop_other_infor'))}
+							<div ng-if="item.price_type == 1" style="background:{:t('color1')};color: #fff;border-radius: 25px 25px;line-height: 25px;text-align: center;font-size: 10px;padding: 0 5px;display: inline-block;float: right;" >
+							{{item.xunjia_text?item.xunjia_text:'联系TA'}}
+							</div>
+						{/if}
+					</div>
+				</div>
+				{if getcustom('design_product_commission') || getcustom('home_product_show_binfo')}
+				<div class="couponitem" ng-if="Item.params.showcommission == 1">
+					<div class="f1">
+						<div class="t" style="background:rgba({:t('color2rgb')},0.1);color:{:t('color2')}">
+							<span>{:t('佣金')}0.99元</span>
+						</div>
+					</div>
+				</div>
+				{/if}
+				{if(getcustom('shop_other_infor'))}
+					<div class="p1" ng-if="item.merchant_name" style="color: #666;font-size: 12px;white-space: nowrap;text-overflow: ellipsis;margin-top: 3px;height: 15px;font-weight: normal;">
+						<span>{{item.merchant_name}}</span>
+					</div>
+                	<div class="p1" ng-if="item.main_business" style="color: #666;font-size: 12px;margin-top: 2px;font-weight: normal;">
+                		<span>{{item.main_business}}</span>
+                	</div>
+				{/if}
+				<div class="p3" ng-if="Item.params.showsales=='1' && item.sales>0">已售{{item.sales}}件</div>
+				<!-- <div ng-if="Item.params.showsales=='1' && item.sales>0" style="height: 22px;"></div> -->
+				
+				<div class="p4" style="background:rgba({:t('color1rgb')},0.1);color:{:t('color1')}" ng-if="Item.params.showcart==1 && !item.price_type"><span class="iconfont icon_gouwuche"></span></div>
+				<div class="p4" style="background:rgba({:t('color1rgb')},0.1);color:{:t('color1')}" ng-if="Item.params.showcart==2 && !item.price_type"><img ng-src="{{Item.params.cartimg}}" class="img"/></div>
+			</div>
+		</div>
+	</div>
+	<div class="dp-product-itemlist" ng-show="Item.params.style=='list'">
+		<div ng-repeat="item in Item.data" ng-style="{'background-color':Item.params.probgcolor}">
+			<div class="item">
+				<div class="product-pic" ng-style="{'background-color':Item.params.probgcolor}">
+					<img class="image" ng-src="{{item.pic}}" mode="widthFix"/>
+					<img class="saleimg" ng-src="{{Item.params.saleimg}}" ng-if="Item.params.saleimg!=''"/>
+				</div>
+				<div class="product-info">
+					<div class="p1" ng-if="Item.params.showname == 1">{{item.name}}</div>
+					{if(getcustom('product_cost_show'))}
+					<div ng-if="Item.params.showcost == 1" class="t" style="color: #999;font-size: 12px;padding-left: 3px">
+						<span>成本价：￥10</span>
+					</div>
+					{/if}
+					<div class="p2" ng-if="Item.params.showprice != '0' && ( item.price_type != 1 || item.sell_price > 0)" style="height: 25px;line-height: 22px;">
+						<span class="t1" style="color:{:t('color1')}"><span style="font-size:12px;padding-right:1px">￥</span>{{item.sell_price}}</span>
+						<span class="t2" ng-if="Item.params.showprice == '1' && item.market_price*1 > item.sell_price*1">￥{{item.market_price}}</span>
+					</div>
+					<div class="p2" ng-if="item.xunjia_text && item.price_type == 1 && item.sell_price <= 0">
+						<span class="t1" style="color:{:t('color1')};font-size: 14px">询价</span>
+						{if(getcustom('shop_other_infor'))}
+							<div ng-if="item.price_type == 1" style="background:{:t('color1')};color: #fff;border-radius: 25px 25px;line-height: 25px;text-align: center;font-size: 10px;padding: 0 5px;display: inline-block;float: right;" >
+							{{item.xunjia_text?item.xunjia_text:'联系TA'}}
+							</div>
+						{/if}
+					</div>
+					{if(getcustom('home_product_show_binfo'))}
+					<div ng-if="Item.params.showcommission == 1" class="t" style="background:rgba({:t('color2rgb')},0.1);color:{:t('color2')}">
+						<span>{:t('佣金')}0.99元</span>
+					</div>
+					{/if}
+					{if(getcustom('shop_other_infor'))}
+					<div class="p1" ng-if="item.merchant_name" style="color: #666;font-size: 12px;white-space: nowrap;text-overflow: ellipsis;margin-top: 3px;height: 15px;font-weight: normal;"><span>{{item.merchant_name}}</span></div>
+					<div class="p1" ng-if="item.main_business" style="color: #666;font-size: 12px;margin-top: 2px;font-weight: normal;"><span>{{item.main_business}}</span></div>
+					{/if}
+					<div class="p3">
+						<div class="p3-1" ng-if="Item.params.showsales=='1' && item.sales>0"><span style="overflow:hidden">已售{{item.sales}}件</span></div>
+					</div>
+					<div ng-if="Item.params.showsales!='1' || item.sales<=0" style="height: 22px;"></div>
+					<div class="p4" style="background:rgba({:t('color1rgb')},0.1);color:{:t('color1')}" ng-if="Item.params.showcart==1 && !item.price_type"><span class="iconfont icon_gouwuche"></span></div>
+					<div class="p4" style="background:rgba({:t('color1rgb')},0.1);color:{:t('color1')}" ng-if="Item.params.showcart==2 && !item.price_type"><img ng-src="{{Item.params.cartimg}}" class="img"/></span></div>
+				</div>
+			</div>
+			{if getcustom('home_product_show_binfo')}
+			<div ng-if="Item.params.showbname == 1 || Item.params.showbdistance == 1" style="display: flex;justify-content: space-between;color: #0a87c0;font-size: 11px">
+				<div class="t">
+					<span ng-if="Item.params.showbname == 1">商城名称</span>
+					<span ng-if="!Item.params.showbname">&nbsp;</span>
+				</div>
+				<div class="t" ng-if="Item.params.showbdistance == 1" >
+					8.6km
+				</div>
+			</div>
+			{/if}
+		</div>
+	</div>
+	<div class="dp-product-itemline" ng-show="Item.params.style=='line'">
+		<div class="item" ng-repeat="item in Item.data" ng-style="{'background-color':Item.params.probgcolor}" >
+			<div class="product-pic" ng-style="{'background-color':Item.params.probgcolor}">
+				<img class="image" ng-src="{{item.pic}}"/>
+				<img class="saleimg" ng-src="{{Item.params.saleimg}}" ng-if="Item.params.saleimg!=''"/>
+			</div>
+			<div class="product-info">
+				<div class="p1" ng-if="Item.params.showname == 1">{{item.name}}</div>
+				<div class="p2">
+					<div class="p2-1" ng-if="Item.params.showprice != '0' && ( item.price_type != 1 || item.sell_price > 0)" style="height: 25px;line-height: 22px;">
+						<span class="t1" style="color:{:t('color1')}"><span style="font-size:12px">￥</span>{{item.sell_price}}</span>
+						<span class="t2" ng-if="Item.params.showprice == '1' && item.market_price*1 > item.sell_price*1">￥{{item.market_price}}</span>
+					</div>
+					<div class="p2-1" ng-if="item.xunjia_text && item.price_type == 1 && item.sell_price <= 0">
+						<span class="t1" style="color:{:t('color1')};font-size: 14px">询价</span>
+						{if(getcustom('shop_other_infor'))}
+							<div ng-if="item.price_type == 1" style="background:{:t('color1')};color: #fff;border-radius: 25px 25px;line-height: 25px;text-align: center;font-size: 10px;padding: 0 5px;display: inline-block;float: right;" >
+							{{item.xunjia_text?item.xunjia_text:'联系TA'}}
+							</div>
+						{/if}
+					</div>
+				</div>
+				{if(getcustom('shop_other_infor'))}
+				<div class="p1" ng-if="item.merchant_name" style="color: #666;font-size: 12px;white-space: nowrap;text-overflow: ellipsis;margin-top: 3px;height: 15px;font-weight: normal;"><span>{{item.merchant_name}}</span></div>
+                <div class="p1" ng-if="item.main_business" style="color: #666;font-size: 12px;margin-top: 2px;font-weight: normal;"><span>{{item.main_business}}</span></div>
+				{/if}
+				<div class="p3" ng-if="Item.params.showsales=='1' && item.sales>0">已售{{item.sales}}件</div>
+				<div ng-if="Item.params.showsales!='1' || item.sales<=0" style="height: 22px;"></div>
+				<div class="p4" style="background:rgba({:t('color1rgb')},0.1);color:{:t('color1')}" ng-if="Item.params.showcart==1 && !item.price_type"><span class="iconfont icon_gouwuche"></span></div>
+				<div class="p4" style="background:rgba({:t('color1rgb')},0.1);color:{:t('color1')}" ng-if="Item.params.showcart==2 && !item.price_type"><img ng-src="{{Item.params.cartimg}}" class="img"/></div>
+				
+			</div>
+		</div>
+	</div>
+</div>

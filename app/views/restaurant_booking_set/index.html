@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>预定设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header"><i class="fa fa-cog"></i> 预定设置</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w6" lay-filter="">
+						<div class="layui-form-item">
+							<label class="layui-form-label">预定开关：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[status]" title="开启" value="1" {if $info['status']==1}checked{/if}/>
+								<input type="radio" name="info[status]" title="关闭" value="0" {if $info['status']==0}checked{/if}/>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">付费预定：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[pay]" title="开启" value="1" {if $info['pay']==1}checked{/if}/>
+								<input type="radio" name="info[pay]" title="关闭" value="0" {if $info['pay']==0}checked{/if}/>
+							</div>
+						</div>
+						{if !getcustom('restaurant_book_custom')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">付费金额：</label>
+							<div class="layui-input-inline">
+								<input type="number" name="info[pay_money]" value="{$info['pay_money']}" class="layui-input" >
+							</div>
+							<div class="layui-form-mid">餐桌分类未设置预定费用时使用此金额</div>
+						</div>
+						{/if}
+						
+						<div id="timeset_div">
+						<div id="timedata">
+							{php} $timedata = json_decode($info['timedata'],true);{/php}
+							{if !$timedata}{php}$timedata = [['day'=>1,'hour'=>0,'minute'=>0,'hour2'=>0,'minute2'=>0]];{/php}{/if}
+							{foreach $timedata as $k=>$v}
+							<div class="layui-form-item">
+								<label class="layui-form-label">{if $k==0}预定可选时间：{/if}</label>
+								<div class="layui-input-inline" style="width:120px">
+									<select name="timeday[]">
+										<option value="1" {if $v['day']==1}selected{/if}>当天</option>
+										<option value="2" {if $v['day']==2}selected{/if}>第2天</option>
+										<option value="3" {if $v['day']==3}selected{/if}>第3天</option>
+									</select>
+								</div>
+								<div class="layui-input-inline" style="width:90px">
+									<select name="timehour[]">
+										{for start="0" end="24"}
+										<option value="{$i}" {if $v['hour']==$i}selected{/if}>{$i}</option>
+										{/for}
+									</select>
+								</div>
+								<div class="layui-form-mid">点</div>
+								<div class="layui-input-inline" style="width:90px">
+									<select name="timeminute[]">
+										{for start="0" end="60"}
+										<option value="{$i}" {if $v['minute']==$i}selected{/if}>{$i}</option>
+										{/for}
+									</select>
+								</div>
+								<div class="layui-form-mid">分</div>
+								<div class="layui-form-mid"> 到 </div>
+
+								<div class="layui-input-inline" style="width:90px">
+									<select name="timehour2[]">
+										{for start="0" end="24"}
+										<option value="{$i}" {if $v['hour2']==$i}selected{/if}>{$i}</option>
+										{/for}
+									</select>
+								</div>
+								<div class="layui-form-mid">点</div>
+								<div class="layui-input-inline" style="width:90px">
+									<select name="timeminute2[]">
+										{for start="0" end="60"}
+										<option value="{$i}" {if $v['minute2']==$i}selected{/if}>{$i}</option>
+										{/for}
+									</select>
+								</div>
+								<div class="layui-form-mid">分</div>
+								{if $k==0}
+								<button class="layui-btn layui-btn-primary" onclick="addtime()"><i class="fa fa-plus"></i></button>
+								{else}
+								<button class="layui-btn layui-btn-primary" onclick="removetime(this)"><i class="fa fa-minus"></i></button>
+								{/if}
+							</div>
+							{/foreach}
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">可选条件：</label>
+							<div class="layui-form-mid">下单时间大于可选时间</div>
+							<div class="layui-input-inline" style="width:70px">
+								<input type="text" name="info[prehour]" value="{if !$info['id']}4{else}{$info['prehour']}{/if}" class="layui-input">
+							</div>
+							<div class="layui-form-mid">小时</div>
+						</div>
+						
+						<script>
+							function addtime(){
+								var html = '';
+								html+='<div class="layui-form-item">';
+								html+='	<label class="layui-form-label"></label>';
+								html+='	<div class="layui-input-inline" style="width:120px">';
+								html+='		<select name="timeday[]">';
+								html+='			<option value="1">当天</option>';
+								html+='			<option value="2">第2天</option>';
+								html+='			<option value="3">第3天</option>';
+								html+='		</select>';
+								html+='	</div>';
+								html+='	<div class="layui-input-inline" style="width:90px">';
+								html+='		<select name="timehour[]">';
+								{for start="0" end="24"}
+								html+='			<option value="{$i}">{$i}</option>';
+								{/for}
+									html+='		</select>';
+									html+='	</div>';
+									html+='	<div class="layui-form-mid">点</div>';
+									html+='	<div class="layui-input-inline" style="width:90px">';
+									html+='		<select name="timeminute[]">';
+									{for start="0" end="60"}
+									html+='			<option value="{$i}">{$i}</option>';
+									{/for}
+										html+='		</select>';
+										html+='	</div>';
+										html+='	<div class="layui-form-mid">分</div>';
+										html+='	<div class="layui-form-mid"> 到 </div>';
+										html+='	<div class="layui-input-inline" style="width:90px">';
+										html+='		<select name="timehour2[]">';
+										{for start="0" end="24"}
+										html+='			<option value="{$i}">{$i}</option>';
+										{/for}
+											html+='		</select>';
+											html+='	</div>';
+											html+='	<div class="layui-form-mid">点</div>';
+											html+='	<div class="layui-input-inline" style="width:90px">';
+											html+='		<select name="timeminute2[]">';
+											{for start="0" end="60"}
+											html+='			<option value="{$i}">{$i}</option>';
+											{/for}
+												html+='		</select>';
+												html+='	</div>';
+												html+='	<div class="layui-form-mid">分</div>';
+												html+='	<button class="layui-btn layui-btn-primary" onclick="removetime(this)"><i class="fa fa-minus"></i></button>';
+												html+='</div>';
+												$('#timedata').append(html);
+												layui.form.render();
+											}
+											function removetime(obj){
+												$(obj).parent().remove();
+											}
+						</script>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.laydate.render({ 
+		elem: '#start_hours',
+		type: 'time',
+		format:'HH:mm',
+		trigger: 'click'
+	});
+	layui.laydate.render({ 
+		elem: '#end_hours',
+		type: 'time',
+		format:'HH:mm',
+		trigger: 'click'
+	});
+	layui.form.on('radio(freightfree)', function(data){
+		if(data.value == '1'){
+			$('#freightfreemoneyset').show();
+		}else{
+			$('#freightfreemoneyset').hide();
+		}
+	});
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		if(field['info[logo]'] == ''){
+			dialog('请上传商家LOGO',0);return;
+		}
+		$.post("{:url('save')}",field,function(data){
+			dialog(data.msg,data.status,data.url);
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

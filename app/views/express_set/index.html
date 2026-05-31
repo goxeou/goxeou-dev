@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>基本设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<script src="__STATIC__/admin/js/address3.js?v=1"></script>
+	<style>
+	#ggtable .layui-input{ display:inline;height:30px}
+	#ggtable .layui-btn{ margin-top:-3px;margin-left:1px}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					<i class="fa fa-plus"></i> 基本设置
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w8" lay-filter="">
+						<input type="hidden" name="info[id]" value="{$info['id']}">
+		
+						<div class="layui-form-item">
+							<label class="layui-form-label">用户secret_key：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[secret_key]" class="layui-input" value="{$info['secret_key']}"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">注：寄件接口使用，在买家中心账户中心中查找</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">用户secret_secret：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[secret_secret]" class="layui-input" value="{$info['secret_secret']}"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">注：寄件接口使用，在买家中心账户中心中查找</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">接口编号：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[secret_code]" class="layui-input" value="{$info['secret_code']}"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">注：寄件接口使用，在我的接口快递寄件授权密钥中查看，快递寄件编号</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">查询价格编号：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[secret_codep]" class="layui-input" value="{$info['secret_codep']}"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">注：查询预估价格接口使用，在我的接口快递价格查询授权密钥中查看，查询编号</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">授权key：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[key]" class="layui-input" value="{$info['key']}"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">注：在查询快递时使用，企业管理后台，企业信息中查看</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">customer：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[customer]" class="layui-input" value="{$info['customer']}"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">注：在查询快递时使用，企业管理后台，企业信息中查看</div>
+						</div>	
+						<div class="layui-form-item">
+							<label class="layui-form-label">授权secret：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[secret]" class="layui-input" value="{$info['secret']}"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">注：在取消寄件时使用，企业管理后台，企业信息中查看</div>
+						</div>
+							
+						<div id="pstimeset_div" >
+							<div id="pstimedata">
+							{php} $pstimedata = json_decode($info['pstimedata'],true);{/php}
+							{if !$pstimedata}{php}$pstimedata = [['day'=>1,'hour'=>0,'minute'=>0,'hour2'=>0,'minute2'=>0]];{/php}{/if}
+							{foreach $pstimedata as $k=>$v}
+							<div class="layui-form-item">
+								<label class="layui-form-label">{if $k==0}可选时间：{/if}</label>
+								<div class="layui-input-inline" style="width:120px">
+									<select name="pstimeday[]">
+										<option value="1" {if $v['day']==1}selected{/if}>当天</option>
+										{for start="2" end="16"}
+										<option value="{$i}" {if $v['day']==$i}selected{/if}>第{$i}天</option>
+										{/for}
+									</select>
+								</div>
+								<div class="layui-input-inline" style="width:90px">
+									<select name="pstimehour[]">
+										{for start="0" end="24"}
+										<option value="{$i}" {if $v['hour']==$i}selected{/if}>{$i}</option>
+										{/for}
+									</select>
+								</div>
+								<div class="layui-form-mid">点</div>
+								<div class="layui-input-inline" style="width:90px">
+									<select name="pstimeminute[]">
+										{for start="0" end="60"}
+										<option value="{$i}" {if $v['minute']==$i}selected{/if}>{$i}</option>
+										{/for}
+									</select>
+								</div>
+								<div class="layui-form-mid">分</div>
+								<div class="layui-form-mid"> 到 </div>
+								
+								<div class="layui-input-inline" style="width:90px">
+									<select name="pstimehour2[]">
+										{for start="0" end="24"}
+										<option value="{$i}" {if $v['hour2']==$i}selected{/if}>{$i}</option>
+										{/for}
+									</select>
+								</div>
+								<div class="layui-form-mid">点</div>
+								<div class="layui-input-inline" style="width:90px">
+									<select name="pstimeminute2[]">
+										{for start="0" end="60"}
+										<option value="{$i}" {if $v['minute2']==$i}selected{/if}>{$i}</option>
+										{/for}
+									</select>
+								</div>
+								<div class="layui-form-mid">分</div>
+								{if $k==0}
+								<button class="layui-btn layui-btn-primary" onclick="addpstime()"><i class="fa fa-plus"></i></button>
+								{else}
+								<button class="layui-btn layui-btn-primary" onclick="removepstime(this)"><i class="fa fa-minus"></i></button>
+								{/if}
+							</div>
+							{/foreach}
+							</div>
+							
+							<div class="layui-form-item">
+								<label class="layui-form-label">可选条件：</label>
+								<div class="layui-form-mid">下单时间大于可选时间</div>
+								<div class="layui-input-inline" style="width:70px">
+									<input type="text" name="info[psprehour]" value="{if !$info['id']}4{else}{$info['psprehour']}{/if}" class="layui-input">
+								</div>
+								<div class="layui-form-mid">小时</div>
+							</div>
+						</div>
+						<script>
+						function addpstime(){
+							var html = '';
+							html+='<div class="layui-form-item">';
+							html+='	<label class="layui-form-label"></label>';
+							html+='	<div class="layui-input-inline" style="width:120px">';
+							html+='		<select name="pstimeday[]">';
+							html+='			<option value="1">当天</option>';
+							{for start="2" end="16"}
+							html+='			<option value="{$i}">第{$i}天</option>';
+							{/for}
+							html+='		</select>';
+							html+='	</div>';
+							html+='	<div class="layui-input-inline" style="width:90px">';
+							html+='		<select name="pstimehour[]">';
+							{for start="0" end="24"}
+							html+='			<option value="{$i}">{$i}</option>';
+							{/for}
+							html+='		</select>';
+							html+='	</div>';
+							html+='	<div class="layui-form-mid">点</div>';
+							html+='	<div class="layui-input-inline" style="width:90px">';
+							html+='		<select name="pstimeminute[]">';
+							{for start="0" end="60"}
+							html+='			<option value="{$i}">{$i}</option>';
+							{/for}
+							html+='		</select>';
+							html+='	</div>';
+							html+='	<div class="layui-form-mid">分</div>';
+							html+='	<div class="layui-form-mid"> 到 </div>';
+							html+='	<div class="layui-input-inline" style="width:90px">';
+							html+='		<select name="pstimehour2[]">';
+							{for start="0" end="24"}
+							html+='			<option value="{$i}">{$i}</option>';
+							{/for}
+							html+='		</select>';
+							html+='	</div>';
+							html+='	<div class="layui-form-mid">点</div>';
+							html+='	<div class="layui-input-inline" style="width:90px">';
+							html+='		<select name="pstimeminute2[]">';
+							{for start="0" end="60"}
+							html+='			<option value="{$i}">{$i}</option>';
+							{/for}
+							html+='		</select>';
+							html+='	</div>';
+							html+='	<div class="layui-form-mid">分</div>';
+							html+='	<button class="layui-btn layui-btn-primary" onclick="removepstime(this)"><i class="fa fa-minus"></i></button>';
+							html+='</div>';
+							$('#pstimedata').append(html);
+							layui.form.render();
+						}
+						function removepstime(obj){
+							$(obj).parent().remove();
+						}
+						</script>
+					
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+					
+				</div>
+			</div>
+		</div>
+  </div>
+	<style type='text/css'>
+	.modal-areas .layui-layer-content{ position:static;overflow:visible;height:300px}
+	.province { float:left; position:relative;width:210px; height:35px; line-height:35px;border:1px solid #fff;}
+	.province:hover { border:1px solid #f7e4a5;border-bottom:1px solid #fffec6; background:#fffec6;}
+	.province .cityall { margin-top:10px;}
+	.province ul { list-style: outside none none;position:absolute;padding:0;background:#fffec6;border:1px solid #f7e4a5;display:none;width:auto; width:300px; z-index:999999;left:-1px;top:32px;}
+	.province ul li  { float:left;min-width:60px;margin-left:20px; height:30px;line-height:30px; }
+	</style>
+	<div id="modal-areas" style="display:none">
+	</div> 
+	{include file="public/js"/}
+	<script>
+
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		if(!field['info[pstimeset]']) field['info[pstimeset]'] = 0;
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status==1){
+				setTimeout(function(){
+					parent.layer.closeAll();
+					parent.tableIns.reload();
+				},1000)
+			}
+		})
+	})
+  </script>
+
+	
+</body>
+</html>

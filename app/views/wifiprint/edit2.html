@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>小票打印机设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加飞鹅小票打印机{else}<i class="fa fa-pencil"></i> 编辑飞鹅小票打印机{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w6">
+						<input type="hidden" name="info[id]" value="{$info.id}"/>
+						<div class="layui-form-item">
+							<label class="layui-form-label">名称：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[name]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.name}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">小票标题：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[title]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.title}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">USER：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[client_id]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.client_id}">
+							</div>
+							<div class="layui-form-mid layui-word-aux">请在 <a href="http://www.feieyun.com/" target="_blank">飞鹅</a> 注册认证后 个人中心查找
+								<div class="layui-popover layui-default-link layui-inline">
+									示例
+									<div class="layui-popover-div">
+										<img src="__STATIC__/admin/img/dianda_feie.png"   />
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">UKEY：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[client_secret]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.client_secret}">
+							</div>
+							<div class="layui-form-mid layui-word-aux">请在 <a href="http://www.feieyun.com/" target="_blank">飞鹅</a> 注册认证后 个人中心查找</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">编号(SN)：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[machine_code]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.machine_code}">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">密钥(KEY)：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[msign]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.msign}">
+							</div>
+						</div>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">自动打印：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[autoprint]" value="1" title="开启" {if !$info['id'] || $info['autoprint']==1}checked{/if}>
+								<input type="radio" name="info[autoprint]" value="0" title="关闭" {if $info['id'] && $info['autoprint']==0}checked{/if}>
+							</div>
+							<div class="layui-form-mid layui-word-aux">关闭自动打印后需要在订单列表手动点击打印才会打印</div>
+						</div>
+						<div id="autoprintset">
+							<div class="layui-form-item">
+								<label class="layui-form-label">配送订单：</label>
+								<div class="layui-input-inline" style="width:500px">
+									<input type="radio" name="info[print_ps]" value="1" title="打印" {if !$info['id'] || $info['print_ps']==1}checked{/if}>
+									<input type="radio" name="info[print_ps]" value="0" title="不打印" {if $info['id'] && $info['print_ps']==0}checked{/if}>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">自提订单：</label>
+								<div class="layui-input-inline" style="width:500px">
+									<input type="radio" name="info[print_zt_type]" value="0" title="不打印" {if $info['id'] && $info['print_zt_type']==0}checked{/if} lay-filter="print_zt_type">
+									<input type="radio" name="info[print_zt_type]" value="1" title="全部门店" {if !$info['id'] || $info['print_zt_type']==1}checked{/if} lay-filter="print_zt_type">
+									<input type="radio" name="info[print_zt_type]" value="2" title="选择门店" {if $info['print_zt_type']==2}checked{/if} lay-filter="print_zt_type">
+								</div>
+							</div>
+							{if getcustom('hexiao_auto_wifiprint')}
+							<div class="layui-form-item">
+								<label class="layui-form-label">核销打印：</label>
+								<div class="layui-input-inline" style="width:500px">
+									<input type="radio" name="info[print_hexiao]" value="1" title="开启" {if !$info['id'] || $info['print_hexiao']==1}checked{/if}>
+									<input type="radio" name="info[print_hexiao]" value="0" title="关闭" {if $info['id'] && $info['print_hexiao']==0}checked{/if}>
+								</div>
+							</div>
+							{/if}
+							<div class="layui-form-item">
+								<label class="layui-form-label">买单付款：</label>
+								<div class="layui-input-inline" style="width:500px">
+									<input type="radio" name="info[print_maidan]" value="1" title="打印" {if !$info['id'] || $info['print_maidan']==1}checked{/if}>
+									<input type="radio" name="info[print_maidan]" value="0" title="不打印" {if $info['id'] && $info['print_maidan']==0}checked{/if}>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">收银台收款：</label>
+								<div class="layui-input-inline" style="width:500px">
+									<input type="radio" name="info[print_cashdesk]" value="1" title="打印" {if !$info['id'] || $info['print_cashdesk']==1}checked{/if}>
+									<input type="radio" name="info[print_cashdesk]" value="0" title="不打印" {if $info['id'] && $info['print_cashdesk']==0}checked{/if}>
+								</div>
+							</div>
+							{if getcustom('recharge_order_wifiprint')}
+							<div class="layui-form-item">
+								<label class="layui-form-label">充值收款：</label>
+								<div class="layui-input-inline" style="width:500px">
+									<input type="radio" name="info[print_recharge]" value="1" title="打印" {if !$info['id'] || $info['print_recharge']==1}checked{/if}>
+									<input type="radio" name="info[print_recharge]" value="0" title="不打印" {if $info['id'] && $info['print_recharge']==0}checked{/if}>
+								</div>
+							</div>
+							{/if}
+							<div class="layui-form-item" id="print_zt_type_div" {if $info['print_zt_type']!=2}style="display:none"{/if}>
+								<label class="layui-form-label">选择门店：</label>
+								<div class="layui-input-inline" style="width:500px">
+								{php} $storeids = explode(',',$info['print_zt_mdid']);{/php}
+								{foreach $mendianArr as $k=>$v}
+									<input type="checkbox" name="info[print_zt_mdid][]" value="{$k}" title="{$v}" lay-skin="primary" {if in_array($k,$storeids)}checked{/if}>
+								{/foreach}
+								</div>
+							</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">打印机类型：</label>
+							<div class="layui-input-inline" style="width:500px">
+								<input type="radio" name="info[machine_type]" value="0" title="小票打印机" {if !$info['id'] || $info['machine_type']==0}checked{/if} lay-filter="machine_type">
+								<input type="radio" name="info[machine_type]" value="1" title="标签打印机" {if $info['id'] && $info['machine_type']==1}checked{/if} lay-filter="machine_type">
+							</div>
+						</div>
+						<!-- <div class="layui-form-item">
+							<label class="layui-form-label">音量大小：</label>
+							<div class="layui-input-inline" style="width:600px">
+								<input type="radio" name="info[voice]" value="0" title="不播报" {if $info['voice']==0}checked{/if}>
+								<input type="radio" name="info[voice]" value="1" title="低音量" {if $info['voice']==1}checked{/if}>
+								<input type="radio" name="info[voice]" value="2" title="中音量" {if $info['voice']==2}checked{/if}>
+								<input type="radio" name="info[voice]" value="3" title="高音量" {if $info['voice']==3}checked{/if}>
+							</div>
+						</div> -->
+						<div {if $info['machine_type']==1}style="display:none"{/if} id="tmpltype_div">
+							<div class="layui-form-item">
+								<label class="layui-form-label">打印机模板：</label>
+								<div class="layui-input-inline">
+									<input type="radio" name="info[tmpltype]" value="0" title="默认" {if !$info['id'] || $info['tmpltype']==0}checked{/if} lay-filter="tmpltype">
+									<input type="radio" name="info[tmpltype]" value="1" title="自定义" {if $info['id'] && $info['tmpltype']==1}checked{/if} lay-filter="tmpltype">
+								</div>
+							</div>
+							<div class="layui-form-item" {if !$info['id'] || $info['tmpltype']==0}style="display:none"{/if} id="tmplcontent_div">
+								<label class="layui-form-label">模板内容：</label>
+								<div class="layui-input-inline" style="width:400px;height:260px">
+									<textarea name="info[tmplcontent]" class="layui-textarea" style="width:400px;height:260px">{$info.tmplcontent}</textarea>
+								</div>
+								<div class="layui-form-mid layui-word-aux"> 
+								支持的标签：<br/>
+								&lt;BR&gt; ：换行符<br/> 
+								&lt;LOGO&gt; ：打印LOGO指令(前提是预先在机器内置LOGO图片) <br/>
+								&lt;CB&gt;&lt;/CB&gt;：居中放大 <br/>
+								&lt;B&gt;&lt;/B&gt;：放大一倍 <br/>
+								&lt;C&gt;&lt;/C&gt;：居中 <br/>
+								&lt;L&gt;&lt;/L&gt;：字体变高一倍 <br/>
+								&lt;W&gt;&lt;/W&gt;：字体变宽一倍 <br/>
+								&lt;QR&gt;&lt;/QR&gt;：二维码（单个订单，最多只能打印一个二维码） <br/>
+								&lt;RIGHT&gt;&lt;/RIGHT&gt;：右对齐 <br/>
+								&lt;BOLD&gt;&lt;/BOLD&gt;：字体加粗<br/>
+								&lt;PLOOP&gt;&lt;/PLOOP&gt;：遍历商品（单个订单最多只能设置一个）<br/>
+								支持的变量：[订单号]、[配送方式]、[配送时间]、[收货人]、[联系电话]、[收货地址]、[付款时间]、[付款方式]、<br/>[商品名称]、[规格]、[数量]、[价格]、[实付金额]、[备注]
+								</div>
+							</div>
+						</div>
+						{if getcustom('restaurant_wifiprint_tmpl_custom')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">餐饮打印模板：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[restaurant_tmpltype]" value="0" title="默认" {if !$info['id'] || $info['restaurant_tmpltype']==0}checked{/if} lay-filter="restaurant_tmpltype">
+								<input type="radio" name="info[restaurant_tmpltype]" value="1" title="详细模板" {if $info['id'] && $info['restaurant_tmpltype']==1}checked{/if} lay-filter="restaurant_tmpltype">
+							</div>
+						</div>
+						{/if}				
+						{if getcustom('sys_print_set')}
+							<div {if $info['machine_type']==1}style="display:none"{/if} id="tmpltype_div2">
+								<div class="layui-form-item">
+									<label class="layui-form-label">底部自定义：</label>
+									<div class="layui-input-inline">
+										<input type="radio" name="info[boot_custom]" value="0" title="关闭" {if !$info['id'] || $info['boot_custom']==0}checked{/if} lay-filter="boot_custom">
+										<input type="radio" name="info[boot_custom]" value="1" title="开启" {if $info['id'] && $info['boot_custom']==1}checked{/if} lay-filter="boot_custom">
+									</div>
+									<div class="layui-form-mid layui-word-aux">启用后将在小票底部增加此内容，不支持标签类型打印机</div>
+								</div>
+								<div class="layui-form-item" {if !$info['id'] || $info['boot_custom']==0}style="display:none"{/if} id="boot_custom_content_div">
+									<label class="layui-form-label">模板内容：</label>
+									<div class="layui-input-inline" style="width:400px;height:260px">
+										<textarea name="info[boot_custom_content]" class="layui-textarea" style="width:400px;height:260px">{$info.boot_custom_content}</textarea>
+									</div>
+									<div class="layui-form-mid layui-word-aux"> 
+									支持的标签：<br/>
+									&lt;BR&gt; ：换行符<br/> 
+									&lt;LOGO&gt; ：打印LOGO指令(前提是预先在机器内置LOGO图片) <br/>
+									&lt;CB&gt;&lt;/CB&gt;：居中放大 <br/>
+									&lt;B&gt;&lt;/B&gt;：放大一倍 <br/>
+									&lt;C&gt;&lt;/C&gt;：居中 <br/>
+									&lt;L&gt;&lt;/L&gt;：字体变高一倍 <br/>
+									&lt;W&gt;&lt;/W&gt;：字体变宽一倍 <br/>
+									&lt;QR&gt;&lt;/QR&gt;：二维码（单个订单，最多只能打印一个二维码） <br/>
+									&lt;RIGHT&gt;&lt;/RIGHT&gt;：右对齐 <br/>
+									&lt;BOLD&gt;&lt;/BOLD&gt;：字体加粗<br/>
+									&lt;BC128_A&gt;123ABCDEF&lt;/BC128_A&gt;：数字字母混合条形码,最多支持14位数字大写字母混合<br/>
+ 									&lt;BC128_C&gt;0123456789&lt;/BC128_C&gt;：最多支持22位纯数字<br/>
+									</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label">日单号：</label>
+									<div class="layui-input-inline" >
+										<input type="radio" name="info[day_ordernum]" value="0" title="关闭" {if $info['day_ordernum']==0}checked{/if}>
+										<input type="radio" name="info[day_ordernum]" value="1" title="开启" {if $info['day_ordernum']==1}checked{/if}>
+									</div>
+									<div class="layui-form-mid layui-word-aux">1、开启后将在小票头部显示一天的打印数量 2、标签打印不支持 3、仅商城、收银台、买单、积分、点餐、外卖起效</div>
+								</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">打印份数：</label>
+								<div class="layui-input-inline" >
+									<input type="num" name="info[print_num]" class="layui-input" value="{$info.print_num?$info.print_num:'1'}">
+								</div>
+								<div class="layui-form-mid layui-word-aux"> 份 最少一份</div>
+							</div>
+						{/if}
+
+						  <div {if $info['machine_type']==0}style="display:none"{/if} id="machine_type1">
+  							{if getcustom('print_label_qrcode')}
+							  <div class="layui-form-item">
+								  <label class="layui-form-label">打印二维码：</label>
+								  <div class="layui-input-inline" >
+									  <input type="radio" name="info[print_qrcode]" value="0" title="关闭" {if $info['print_qrcode']==0}checked{/if}>
+									  <input type="radio" name="info[print_qrcode]" value="1" title="开启" {if $info['print_qrcode']==1}checked{/if}>
+								  </div>
+								  <div class="layui-form-mid layui-word-aux">商品货号转换二维码</div>
+							  </div>
+  							{/if}
+  							{if getcustom('print_label_barcode')}
+							  <div class="layui-form-item">
+								  <label class="layui-form-label">打印条形码：</label>
+								  <div class="layui-input-inline" >
+									  <input type="radio" name="info[print_barcode]" value="0" title="关闭" {if $info['print_barcode']==0}checked{/if}>
+									  <input type="radio" name="info[print_barcode]" value="1" title="开启" {if $info['print_barcode']==1}checked{/if}>
+								  </div>
+								  <div class="layui-form-mid layui-word-aux">商品货号转换条形码</div>
+							  </div>
+  							{/if}
+							  <div class="layui-form-item">
+								  <label class="layui-form-label">标签纸宽度：</label>
+								  <div class="layui-input-inline" >
+									  <input type="num" name="info[width]" class="layui-input" value="{$info.width?$info.width:'40'}">
+								  </div>
+								  <div class="layui-form-mid layui-word-aux">单位mm</div>
+							  </div>
+							  <div class="layui-form-item">
+								  <label class="layui-form-label">标签纸高度：</label>
+								  <div class="layui-input-inline" >
+									  <input type="num" name="info[height]" class="layui-input" value="{$info.height?$info.height:'30'}">
+								  </div>
+								  <div class="layui-form-mid layui-word-aux">单位mm</div>
+							  </div>
+						  </div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">状态：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[status]" value="1" title="开启" {if !$info['id'] || $info['status']==1}checked{/if}>
+								<input type="radio" name="info[status]" value="0" title="关闭" {if $info['id'] && $info['status']==0}checked{/if}>
+							</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	{include file="public/js"/}
+	<script>
+	layui.form.on('radio(autoprint)',function(data){
+		if(data.value == '1'){
+			$('#autoprintset').show();
+		}else{
+			$('#autoprintset').hide();
+		}
+	})
+	layui.form.on('radio(print_zt_type)',function(data){
+		if(data.value == '2'){
+			$('#print_zt_type_div').show();
+		}else{
+			$('#print_zt_type_div').hide();
+		}
+	})
+	layui.form.on('radio(machine_type)',function(data){
+		if(data.value == '1'){
+			$('#tmpltype_div').hide();
+			$('#tmpltype_div2').hide();
+			$("#machine_type1").show();
+			$('#machine_type1').show();
+			$('#machine_type0').hide()
+		}else{
+			$('#tmpltype_div').show();
+			$('#tmpltype_div2').show();
+			$("#machine_type1").hide();
+			$('#machine_type1').hide();
+			$('#machine_type0').show();
+		}
+	})
+	layui.form.on('radio(tmpltype)',function(data){
+		if(data.value == '1'){
+			$('#tmplcontent_div').show();
+		}else{
+			$('#tmplcontent_div').hide();
+		}
+	})
+	layui.form.on('radio(restaurant_tmpltype)',function(data){
+		if(data.value == '1'){
+			$('#restaurant_tmplcontent_div').show();
+		}else{
+			$('#restaurant_tmplcontent_div').hide();
+		}
+	})
+	layui.form.on('radio(boot_custom)',function(data){
+		if(data.value == '1'){
+			$('#boot_custom_content_div').show();
+		}else{
+			$('#boot_custom_content_div').hide();
+		}
+	})
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		//console.log(field);return;
+		var index = layer.load();
+		$.post("{:url('save2')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.close(parent.layer.getFrameIndex(window.name));
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

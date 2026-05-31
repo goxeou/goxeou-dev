@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>附件设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">附件设置</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w10" lay-filter="">
+						<div class="layui-form-item">
+							<label class="layui-form-label">存储类型</label>
+							<div class="layui-input-inline" style="width:300px">
+								<select name="info[type]" lay-filter="changetype">
+									<option value="1" {if $info['type']==1}selected{/if}>本地存储</option>
+									<option value="2" {if $info['type']==2}selected{/if}>阿里云</option>
+									<option value="3" {if $info['type']==3}selected{/if}>七牛云</option>
+									<option value="4" {if $info['type']==4}selected{/if}>腾讯云</option>
+								</select>
+							</div>
+						</div>
+						<div id="aliossset" {if $info['type']!=2}style="display:none"{/if}>
+							<div class="layui-form-item">
+								<label class="layui-form-label">Access Key ID</label>
+								<div class="layui-input-inline" style="width:300px">
+									<input type="text" name="info[alioss][key]" value="{$info['alioss']['key']}" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">Access Key Secret</label>
+								<div class="layui-input-inline" style="width:300px">
+									<input type="text" name="info[alioss][secret]" value="{$info['alioss']['secret']}" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">Bucket名称</label>
+								<div class="layui-input-inline" style="width:300px">
+									<input type="text" name="info[alioss][bucket]" value="{$info['alioss']['bucket']}" class="layui-input">
+								</div>
+								<div class="layui-form-mid layui-word-aux">空间名称</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">EndPoint（地域节点）</label>
+								<div class="layui-input-inline" style="width:300px">
+									<input type="text" name="info[alioss][ossurl]" value="{$info['alioss']['ossurl']}" class="layui-input">
+								</div>
+								<div class="layui-form-mid layui-word-aux">如：oss-cn-qingdao.aliyuncs.com</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">Bucket域名</label>
+								<div class="layui-input-inline" style="width:300px">
+									<input type="text" name="info[alioss][url]" value="{$info['alioss']['url']}" class="layui-input">
+								</div>
+								<div class="layui-form-mid layui-word-aux">开头须加https://</div>
+							</div>
+						</div>
+						<div id="qiniuset" {if $info['type']!=3}style="display:none"{/if}>
+							<div class="layui-form-item">
+								<label class="layui-form-label">Accesskey</label>
+								<div class="layui-input-inline" style="width:300px">
+									<input type="text" name="info[qiniu][accesskey]" value="{$info['qiniu']['accesskey']}" class="layui-input">
+								</div>
+								<div class="layui-form-mid layui-word-aux">在密钥管理中查找</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">Secretkey</label>
+								<div class="layui-input-inline" style="width:300px">
+									<input type="text" name="info[qiniu][secretkey]" value="{$info['qiniu']['secretkey']}" class="layui-input">
+								</div>
+								<div class="layui-form-mid layui-word-aux">在密钥管理中查找</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">Bucket</label>
+								<div class="layui-input-inline" style="width:300px">
+									<input type="text" name="info[qiniu][bucket]" value="{$info['qiniu']['bucket']}" class="layui-input">
+								</div>
+								<div class="layui-form-mid layui-word-aux">空间名称</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">Url</label>
+								<div class="layui-input-inline" style="width:300px">
+									<input type="text" name="info[qiniu][url]" value="{$info['qiniu']['url']}" class="layui-input">
+								</div>
+								<div class="layui-form-mid layui-word-aux">开头须加https://</div>
+							</div>
+							{if getcustom('qiniu_transcode')}
+							<div class="layui-form-item">
+								<label class="layui-form-label">转码</label>
+								<div class="layui-input-inline" style="width:300px">
+									<input type="radio" name="info[qiniu][transcode]" value="" {if $info[qiniu][transcode]==''}checked{/if} title="关闭">
+									<input type="radio" name="info[qiniu][transcode]" value="webp" {if $info[qiniu][transcode]=='webp'}checked{/if} title="webp">
+								</div>
+								<div class="layui-form-mid layui-word-aux"></div>
+							</div>
+							{/if}
+
+						</div>
+						<div id="cosset" {if $info['type']!=4}style="display:none"{/if}>
+							<div class="layui-form-item">
+								<label class="layui-form-label">APPID</label>
+								<div class="layui-input-inline" style="width:300px">
+									<input type="text" name="info[cos][appid]" value="{$info['cos']['appid']}" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">SecretID</label>
+								<div class="layui-input-inline" style="width:300px">
+									<input type="text" name="info[cos][secretid]" value="{$info['cos']['secretid']}" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">SecretKEY</label>
+								<div class="layui-input-inline" style="width:300px">
+									<input type="text" name="info[cos][secretkey]" value="{$info['cos']['secretkey']}" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">Bucket</label>
+								<div class="layui-input-inline" style="width:300px">
+									<input type="text" name="info[cos][bucket]" value="{$info['cos']['bucket']}" class="layui-input">
+								</div>
+								<div class="layui-form-mid layui-word-aux">存储桶名称</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">bucket所属地域</label>
+								<div class="layui-input-inline" style="width:300px">
+									<input type="text" name="info[cos][local]" value="{$info['cos']['local']}" class="layui-input">
+								</div>
+								<div class="layui-form-mid layui-word-aux">地域代码，如：ap-beijing</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">Url</label>
+								<div class="layui-input-inline" style="width:300px">
+									<input type="text" name="info[cos][url]" value="{$info['cos']['url']}" class="layui-input">
+								</div>
+								<div class="layui-form-mid layui-word-aux">开头须加https://</div>
+							</div>
+						</div>
+							
+						<div class="layui-form-item">
+							<label class="layui-form-label">图片压缩</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="radio" name="info[thumb]" value="1" {if $info['thumb']==1}checked{/if} title="开启">
+								<input type="radio" name="info[thumb]" value="0" {if $info['thumb']==0}checked{/if} title="关闭">
+							</div>
+							<div class="layui-form-mid">最大宽度</div>
+							<div class="layui-input-inline" style="width:70px">
+								<input type="text" name="info[thumb_width]" value="{$info['thumb_width']}" class="layui-input">
+							</div>
+							<div class="layui-form-mid">最大高度</div>
+							<div class="layui-input-inline" style="width:70px">
+								<input type="text" name="info[thumb_height]" value="{$info['thumb_height']}" class="layui-input">
+							</div>
+							<div class="layui-form-mid layui-word-aux">上传图片超出设置的宽高时自动压缩，png格式压缩会变成不透明，谨慎开启！！！</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">服务器单次上传限制</label>
+							<div class="layui-form-mid" style="width:100px;font-weight:bold">{$config['upload_max_filesize']}</div>
+							<div class="layui-form-mid layui-word-aux">宝塔-[软件商店]-[PHP{$phpversion}]-[设置]-[上传限制]设置</div>
+						</div>
+<!--						<div class="layui-form-item">-->
+<!--							<label class="layui-form-label">表单上传限制：</label>-->
+<!--							<div class="layui-form-mid" style="width:100px;font-weight:bold">{$config['post_max_size']}</div>-->
+<!--							<div class="layui-form-mid layui-word-aux">宝塔-[软件商店]-[PHP{$phpversion}]-[设置]-[上传限制]设置，不能小于“上传限制”</div>-->
+<!--						</div>-->
+						{if getcustom('file_size_limit')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">图片上传限制</label>
+							<div class="layui-input-inline" style="width:100px;margin-right:0">
+								<input type="number" step="1" min="0" max="1000" name="info[file_image_limit]" value="{$info['file_image_limit']}" class="layui-input">
+							</div>
+							<div class="layui-form-mid" style="margin-left:0;background:#e6e6e6;padding: 9px 9px !important">MB</div>
+							<div class="layui-form-mid layui-word-aux">单个文件上传大小限制，0为不限制</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">视频上传限制</label>
+							<div class="layui-input-inline" style="width:100px;margin-right:0">
+								<input type="number" step="1" min="0" max="10000" name="info[file_video_limit]" value="{$info['file_video_limit']}" class="layui-input">
+							</div>
+							<div class="layui-form-mid" style="margin-left:0;background:#e6e6e6;padding: 9px 9px !important">MB</div>
+							<div class="layui-form-mid layui-word-aux">单个文件上传大小限制，0为不限制</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">其他上传限制</label>
+							<div class="layui-input-inline" style="width:100px;margin-right:0">
+								<input type="number" step="1" min="0" max="10000" name="info[file_other_limit]" value="{$info['file_other_limit']}" class="layui-input">
+							</div>
+							<div class="layui-form-mid" style="margin-left:0;background:#e6e6e6;padding: 9px 9px !important">MB</div>
+							<div class="layui-form-mid layui-word-aux">图片和视频外的其他文件，单个文件上传大小限制，0为不限制</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">用户独立设置限制</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="radio" name="info[file_limit_user]" value="1" {if $info['file_limit_user']==1}checked{/if} title="开启">
+								<input type="radio" name="info[file_limit_user]" value="0" {if $info['file_limit_user']==0}checked{/if} title="关闭">
+							</div>
+							<div class="layui-form-mid layui-word-aux">各个子系统是否可独立设置上传限制，独立设置优先级高于此设置</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">用户附件上限</label>
+							<div class="layui-input-inline" style="width:100px;margin-right:0">
+								<input type="number" step="1" min="0" name="info[file_upload_limit]" value="{$info['file_upload_limit']}" class="layui-input">
+							</div>
+							<div class="layui-form-mid" style="margin-left:0;background:#e6e6e6;padding: 9px 9px !important">MB</div>
+							<div class="layui-form-mid layui-word-aux">各个子系统附件上限（仅跟随平台存储类型生效），0为不限制，到达上限后用户后台无法继续上传文件{if(!getcustom('admin_user_hide'))}，[用户列表]-[编辑]-可独立设置{/if}</div>
+						</div>
+						{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="setmypass">保 存</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.form.on('select(changetype)',function(data){
+		$('#aliossset').hide()
+		$('#qiniuset').hide()
+		$('#cosset').hide()
+		if(data.value==2){
+			$('#aliossset').show()
+		}
+		if(data.value==3){
+			$('#qiniuset').show()
+		}
+		if(data.value==4){
+			$('#cosset').show()
+		}
+	})
+	layui.form.on('submit(setmypass)', function(obj){
+		var field = obj.field
+		$.post("",obj.field,function(data){
+			dialog(data.msg,data.status,data.url);
+		})
+	})
+  </script>
+</body>
+</html>

@@ -1,0 +1,298 @@
+<!DOCTYPE html><!--custom_file(yx_team_yeji)-->
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>团队业绩阶梯奖</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style type="text/css">
+		.layui-form-label{width: 130px !important;}
+		.object_table .layui-input {width: 80px}
+		.object_table .xuhao .layui-input {width: 146px;}
+		.object_table .layui-input:nth-child(2){ margin-top: 10px; }
+		.displaylb{display: inline-block}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					<i class="fa fa-cog"></i> 团队业绩阶梯奖设置
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w6" lay-filter="">
+						<div class="layui-form-item">
+							<label class="layui-form-label">状态：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[status]" value="1" title="开启" {if !$info['id'] || $info['status']==1}checked{/if}>
+								<input type="radio" name="info[status]" value="0" title="关闭" {if $info['status']==0}checked{/if}>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">结算时间：</label>
+							<div class="layui-input-block">
+								<input type="radio" name="info[jiesuan_type]" value="1" title="按月" {if !$info['id'] || $info['jiesuan_type']==1}checked{/if}>
+								<input type="radio" name="info[jiesuan_type]" value="3" title="按季度" {if !$info['id'] || $info['jiesuan_type']==3}checked{/if}>
+								<input type="radio" name="info[jiesuan_type]" value="2" title="按年" {if $info['jiesuan_type']==2}checked{/if}>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">
+								<p>按月：次月1号1点进行结算上个月的业绩奖励；</p>
+								<p>按季度：每季度1号1点进行结算上个季度的业绩奖励；</p>
+								<p>按年：次年的1月1号1点进行结算</p>
+							</div>
+						</div>
+						<div class="layui-form-item" style="margin-bottom:0">
+							<label class="layui-form-label">奖励设置：</label>
+							<div class="layui-input-block" style="width:1000px;">
+								<table class="layui-table object_table" style="width:700px" id="object_table">
+									<thead>
+									<tr>
+										<th>等级</th>
+										<th>业绩范围奖励</th>
+										<th>层级数</th>
+										<th>操作</th>
+									</tr>
+									</thead>
+									<tbody>
+									{if $info['config_data']}
+									{foreach $info['config_data'] as $k=>$item}
+									<tr class="choose-tr-list" data-key="{$k}">
+										<td class="xuhao">
+											<select name="levelid[{$k}]" class="layui-form-select">
+												{foreach $memberlevel as $lk=>$level}
+												<option value="{$level.id}" {if $item.levelid == $level.id}selected{/if}>{$level.name}</option>
+												{/foreach}
+											</select>
+										</td>
+										<td>
+											{if $item['range']}
+											{foreach $item['range'] as $k2=>$range}
+											<div>
+												<input type="text" name="range[{$k}][start][]" placeholder="起" value="{$range.start}" class="layui-input displaylb" style="display: inline-block"/>
+												 -
+												<input type="text" name="range[{$k}][end][]" placeholder="止" value="{$range.end}" class="layui-input displaylb" style="display: inline-block;"/>
+												<input type="text" name="range[{$k}][ratio][]" placeholder="奖励比例" value="{$range.ratio}" class="layui-input displaylb"/>
+												{if $k2 >0} 
+												<button type="button" class="layui-btn layui-btn-sm layui-btn-primary"  onclick="delggname(this,0)" style="margin-top:-3px;"><i class="fa fa-remove" style="font-size:14px!important"></i></button>
+												{else}
+												<button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="addggname(this,{$k})" style="margin-top:-3px;"><i class="fa fa-plus" style="font-size:14px!important"></i></button>
+												{/if}
+											</div>
+											{/foreach}
+											{else}
+											<div>
+												<input type="text" name="range[{$k}][start][]" placeholder="起" value="" class="layui-input displaylb" />
+												-
+												<input type="text" name="range[{$k}][end][]" placeholder="止" value="" class="layui-input displaylb" />
+												<input type="text" name="range[{$k}][ratio][]" placeholder="奖励比例" value="" class="layui-input displaylb"/>
+												{if $k2==0}
+												<button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="addggname(this,0)" style="margin-top:-3px;"><i class="fa fa-plus" style="font-size:14px!important"></i></button>
+												{else}
+												<button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delggname(this,0)" style="margin-top:-3px;"><i class="fa fa-remove" style="font-size:14px!important"></i></button>
+												{/if}
+											</div>
+											{/if}
+										</td>
+										<td>
+											<input type="text" name="levelnum[{$k}]" placeholder="层级数" value="{$item.levelnum}" class="layui-input displaylb" />
+										</td>
+										{if $k >0}
+										<td align="center"><input type="hidden" name="" value=""><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delInviteCashbak(this)">删除</button></td>
+										{else}
+										<td  align="center"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="addInviteCashbak()">添加</button></td>
+										{/if}
+									</tr>
+									{/foreach}
+									{else}
+									<tr class="choose-tr-list" data-key="0">
+										<td class="xuhao">
+											<select name="levelid[0]" class="layui-form-select">
+												{foreach $memberlevel as $level}
+												<option value="{$level.id}">{$level.name}</option>
+												{/foreach}
+											</select>
+										</td>
+										<td>
+											<div>
+												<input type="text" name="range[0][start][]" placeholder="起" value="" class="layui-input displaylb" />
+												 -
+												<input type="text" name="range[0][end][]" placeholder="止" value="" class="layui-input displaylb" />
+												<input type="text" name="range[0][ratio][]" placeholder="奖励比例" value="" class="layui-input displaylb"/>
+												{if $k2==0}
+												<button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="addggname(this,0)" style="margin-top:-3px;"><i class="fa fa-plus" style="font-size:14px!important"></i></button>
+												{else}
+												<button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delggname(this,0)" style="margin-top:-3px;"><i class="fa fa-remove" style="font-size:14px!important"></i></button>
+												{/if}
+											</div>
+										</td>
+										<td>
+											<input type="text" name="levelnum[0]" placeholder="层级数" value="0" class="layui-input displaylb" />
+										</td>
+										<td  align="center"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="addInviteCashbak()">添加</button></td>
+									</tr>
+									{/if}
+									</tbody>
+								</table>
+								<script>
+
+									function addInviteCashbak(){
+										var data_key = $('#object_table tr:last').attr('data-key');
+										var key = Number(data_key)+1;
+										;
+										var tr = '<tr class="choose-tr-list" data-key="'+key+'">\n' +
+												'\t\t\t\t\t\t\t\t\t\t<td class="xuhao">\n' +
+												'\t\t\t\t\t\t\t\t\t\t\t<select name="levelid['+key+']">\n';
+												{foreach $memberlevel as $level}
+												tr += '\t\t\t\t\t\t\t\t\t\t\t\t<option value="{$level.id}">{$level.name}</option>\n';
+												{/foreach}
+													tr += '\t\t\t\t\t\t\t\t\t\t\t</select>\n' +
+												'\t\t\t\t\t\t\t\t\t\t</td>\n' +
+												'<td>\n' +
+												'\t\t\t\t\t\t\t\t\t\t\t<div><input type="text" name="range['+key+'][start][]" placeholder="起" value="" class="layui-input displaylb" style="display: inline-block;"/> - \n' +
+												'\t\t\t\t\t\t\t\t\t\t\t<input type="text" name="range['+key+'][end][]" placeholder="止" value="" class="layui-input displaylb" style="display: inline-block;"/>\n' +
+														
+												'<input type="text" name="range['+key+'][ratio][]" placeholder="奖励比例" value="" class="layui-input displaylb"/>'+	
+												'\t<button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="addggname(this,'+key+')" style="margin-top:-3px;"><i class="fa fa-plus" style="font-size:14px!important"></i></button>'+			
+												'\t\t\t\t\t\t\t\t\t\t</div></td>' +
+												'<td>\n' +
+												'<input type="text" name="levelnum['+key+']" placeholder="层级数" value="0" class="layui-input displaylb" />\n' +
+												'</td>'+
+												'<td align="center"><input type="hidden" name="" value=""><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delInviteCashbak(this)">删除</button></td></tr>';
+										$('#object_table').append(tr);
+										layui.form.render();
+									}
+									function delInviteCashbak(obj){
+										$(obj).closest('.choose-tr-list').remove();
+									}
+									function	addggname(obj,key){
+										var html = '<div>\n' +
+											'\t\t\t\t\t\t\t\t\t\t\t\t\n' +
+											'\t\t\t\t\t\t\t\t\t\t\t\t<input type="text" name="range['+key+'][start][]" placeholder="起" value="" class="layui-input displaylb" />\n' +
+											'\t\t\t\t\t\t\t\t\t\t\t\t -\n' +
+											'\t\t\t\t\t\t\t\t\t\t\t\t<input type="text" name="range['+key+'][end][]" placeholder="止" value="" class="layui-input displaylb" />\n' +
+											'\t\t\t\t\t\t\t\t\t\t\t\t<input type="text" name="range['+key+'][ratio][]" placeholder="奖励比例" value="" class="layui-input displaylb"/>\n' +
+											'\t\t\t\t\t\t\t\t\t\t\t\t<button type="button" class="layui-btn layui-btn-sm layui-btn-primary"  onclick="delggname(this,0)" style="margin-top:-3px;"><i class="fa fa-remove" style="font-size:14px!important"></i></button>\n' +
+											'\t\t\t\t\t\t\t\t\t\t\t</div>';
+
+										$(obj).parent().parent().append(html);
+									}
+									function delggname(obj){
+										$(obj).parent().remove();return;		
+									}
+								</script>
+							</div>
+						</div>
+						{if getcustom('yx_team_yeji_include_self')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">团队业绩包含自己：</label>
+							<div class="layui-input-block">
+								<input type="radio" name="info[include_self]" value="0" title="不包含" {if !$info['id'] || $info['include_self']==0}checked{/if}>
+								<input type="radio" name="info[include_self]" value="1" title="包含" {if !$info['id'] || $info['include_self']==1}checked{/if}>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">
+								团队业绩计算范围是否包含自己的订单
+							</div>
+						</div>
+						{/if}
+						{if getcustom('yx_team_yeji_jicha')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">级差：</label>
+							<div class="layui-input-block">
+								<input type="radio" name="info[is_jicha]" value="0" title="关闭" {if !$info['id'] || $info['is_jicha']==0}checked{/if}>
+								<input type="radio" name="info[is_jicha]" value="1" title="开启" {if !$info['id'] || $info['is_jicha']==1}checked{/if}>
+							</div>
+							<div class="layui-form-mid layui-word-aux" >
+								1、当前{:t('会员')}等级在奖励设置中<br>2、查找当前{:t('会员')}每条线中相同等级的最近{:t('会员')}，进行分红级差计算<br>3、每条线找到后不再向下找
+							</div>
+						</div>
+						{/if}      
+						{if getcustom('yx_team_yeji_pingji_jinsuo')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">下级同级或越级不算上级业绩：</label>
+							<div class="layui-input-block">
+								<input type="radio" name="info[yueji_pingji_status]" value="0" title="关闭" {if  $info['yueji_pingji_status']==0}checked{/if}>
+								<input type="radio" name="info[yueji_pingji_status]" value="1" title="开启" {if $info['yueji_pingji_status']==1}checked{/if}>
+							</div>
+							<div class="layui-form-mid layui-word-aux">开启后，下级平级和越级的业绩不计算在内</div>
+						</div>
+						{foreach $levelup_levelist as $level}
+						<div class="layui-form-item">
+							<label class="layui-form-label">{$level.name}平级奖：</label>
+							<input type="hidden" name="yueji_pingji[levelid][]" value="{$level.id}">
+							<div class="layui-input-inline layui-module-itemL">
+								<div>一级：</div>
+								<input type="text" name="yueji_pingji[commission1][]" class="layui-input" value="{$level.commission1}" style="margin-right: 0">
+								<div>%</div>
+							</div>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>二级：</div>
+								<input type="text" name="yueji_pingji[commission2][]" class="layui-input" value="{$level.commission2}" style="margin-right: 0">
+								<div>%</div>
+							</div>
+							<div class="layui-form-mid">紧缩</div>
+							<div class="layui-input-inline" style="width: 80px;">
+								<input type="checkbox" lay-skin="switch" lay-text="开启|关闭" name="yueji_pingji[jinsuo][]" value="1" {if $level['jinsuo']==1}checked{/if} title="只返最近的上级" lay-skin="primary">
+							</div>
+						</div>
+						
+						{/foreach}
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<div class="layui-form-mid layui-word-aux">
+									平级奖励举例如下：<br>
+									1.A团队长，推荐了B、C、D，贡献业绩10万，奖励比例10%，A可拿10万*10%<br>
+									2.其中C升级为团队长后，C独立计算，团队业绩不在计算到A的业绩内<br>
+									3.C推荐C1，C1推荐C2，C2升级为团队长，C1非团队长<br>
+									4.开启紧缩后，C拿C2团队业绩阶梯奖收入的一级百分比，A拿C2团队业绩阶梯奖收入的二级百分比<br>
+									5.关闭紧缩后，C1拿C2团队业绩阶梯奖收入的一级百分比，C2非平级，奖励不发放<br>
+								</div>
+							</div>
+						</div>
+						{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<div class="layui-form-mid layui-word-aux">
+									规则如下：<br>
+									1.符合等级条件的会员，伞下X层会员业绩达到奖励范围（满足多个取最高的），发放对应奖励。发放佣金=业绩（必须达标）*奖励比例。<br>
+									2.层级数0或空为不限制，团队业绩查询为对应的层级业绩。<br>
+									3.业绩计算范围：伞下会员已支付的商城订单，不含自己<br>
+								</div>
+							</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+					
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		var index = layer.load();
+		$.post('',field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status==1){
+				setTimeout(function(){
+					location.href = location.href
+				},1000)
+			}
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

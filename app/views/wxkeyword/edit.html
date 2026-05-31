@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>关键字设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	.face-layer{position: absolute; top:100px; left:40px;width:430px;background:#fff;border: 2px solid #eee;z-index:666666;display:none}
+	.face-layer-face{position:relative;overflow: auto;font-size: 0;padding:5px;margin:0}
+	.face-layer-face li{cursor: pointer; display: inline-block; vertical-align: bottom; padding:2px 2px; text-align: center;-webkit-box-sizing: border-box !important; -moz-box-sizing: border-box !important; box-sizing: border-box !important;}
+	.face-layer-face li img{width: 22px; height: 22px;}
+	.hide{display:none}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加关键字{else}<i class="fa fa-pencil"></i> 编辑关键字{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form" lay-filter="">
+						<input type="hidden" name="info[id]" value="{$info['id']}"/>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">关键字</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[keyword]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info['keyword']}">
+							</div>
+							<div class="layui-form-mid layui-word-aux">当用户输入该关键字时会自动触发回复内容，星号"*"代表所有文本内容</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">匹配类型</label>
+							<div class="layui-input-inline" style="width:250px">
+								<input type="radio" name="info[ktype]" value="0" title="完全匹配"  {if !$info['id'] || $info['ktype']==0}checked{/if}/>
+								<input type="radio" name="info[ktype]" value="1" title="包含匹配"  {if $info['ktype']==1}checked{/if}/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">完全匹配：用户输入的内容与关键字一致，包含匹配：用户输入的内容包含关键字</div>
+						</div>
+						<div class="layui-form-item" style="margin-bottom:10px">
+                <label class="layui-form-label">回复类型</label>
+                <div class="layui-input-inline" style="width:500px">
+									<input type="radio" name="info[msgtype]" value="text" title="文本消息"  {if !$info['id'] || $info['msgtype']=='text'}checked{/if} lay-filter="msgtype"/>
+									<input type="radio" name="info[msgtype]" value="image" title="图片消息"  {if $info['msgtype']=='image'}checked{/if} lay-filter="msgtype"/>
+									<input type="radio" name="info[msgtype]" value="link" title="图文链接"  {if $info['msgtype']=='link'}checked{/if} lay-filter="msgtype"/>
+									<input type="radio" name="info[msgtype]" value="miniprogrampage" title="小程序卡片"  {if $info['msgtype']=='miniprogrampage'}checked{/if} lay-filter="msgtype"/>
+                </div>
+              </div>
+						<div style="height:1px;margin-bottom:10px;border-top:1px dotted #e5e5e5"></div>
+						<div class="layui-form-item" msgtype="text" {if $info['id'] && $info['msgtype']!='text'}style="display:none"{/if}>
+							<label class="layui-form-label">回复文字</label>
+							<div class="layui-input-inline" style="width:480px">
+								<textarea type="text" name="text" class="layui-textarea" value="" id="text_content">{$text}</textarea>
+								<div><img src="__STATIC__/admin/img/emojiIcon.png" style="width:40px;height:40px;cursor:pointer" id="get_smile"/></div>
+								<div class="face-layer" id="facedialog" style="">
+									<ul class="face-layer-face">
+										<li title="[微笑]"><img class="face" src="__STATIC__/chat/wxface/0.png"></li><li title="[撇嘴]"><img class="face" src="__STATIC__/chat/wxface/24.png"></li><li title="[色]"><img class="face" src="__STATIC__/chat/wxface/2.png"></li><li title="[发呆]"><img class="face" src="__STATIC__/chat/wxface/3.png"></li><li title="[得意]"><img class="face" src="__STATIC__/chat/wxface/4.png"></li><li title="[流泪]"><img class="face" src="__STATIC__/chat/wxface/5.png"></li><li title="[害羞]"><img class="face" src="__STATIC__/chat/wxface/6.png"></li><li title="[闭嘴]"><img class="face" src="__STATIC__/chat/wxface/7.png"></li><li title="[睡]"><img class="face" src="__STATIC__/chat/wxface/8.png"></li><li title="[大哭]"><img class="face" src="__STATIC__/chat/wxface/9.png"></li><li title="[尴尬]"><img class="face" src="__STATIC__/chat/wxface/10.png"></li><li title="[发怒]"><img class="face" src="__STATIC__/chat/wxface/11.png"></li><li title="[调皮]"><img class="face" src="__STATIC__/chat/wxface/12.png"></li><li title="[呲牙]"><img class="face" src="__STATIC__/chat/wxface/13.png"></li><li title="[惊讶]"><img class="face" src="__STATIC__/chat/wxface/14.png"></li><li title="[难过]"><img class="face" src="__STATIC__/chat/wxface/15.png"></li><li title="[酷]"><img class="face" src="__STATIC__/chat/wxface/16.png"></li><li title="[囧]"><img class="face" src="__STATIC__/chat/wxface/17.png"></li><li title="[抓狂]"><img class="face" src="__STATIC__/chat/wxface/18.png"></li><li title="[吐]"><img class="face" src="__STATIC__/chat/wxface/19.png"></li><li title="[偷笑]"><img class="face" src="__STATIC__/chat/wxface/20.png"></li><li title="[愉快]"><img class="face" src="__STATIC__/chat/wxface/21.png"></li><li title="[白眼]"><img class="face" src="__STATIC__/chat/wxface/22.png"></li><li title="[傲慢]"><img class="face" src="__STATIC__/chat/wxface/23.png"></li><li title="[困]"><img class="face" src="__STATIC__/chat/wxface/25.png"></li><li title="[惊恐]"><img class="face" src="__STATIC__/chat/wxface/26.png"></li><li title="[流汗]"><img class="face" src="__STATIC__/chat/wxface/27.png"></li><li title="[憨笑]"><img class="face" src="__STATIC__/chat/wxface/28.png"></li><li title="[悠闲]"><img class="face" src="__STATIC__/chat/wxface/29.png"></li><li title="[奋斗]"><img class="face" src="__STATIC__/chat/wxface/30.png"></li><li title="[咒骂]"><img class="face" src="__STATIC__/chat/wxface/31.png"></li><li title="[疑问]"><img class="face" src="__STATIC__/chat/wxface/32.png"></li><li title="[嘘]"><img class="face" src="__STATIC__/chat/wxface/33.png"></li><li title="[晕]"><img class="face" src="__STATIC__/chat/wxface/34.png"></li><li title="[衰]"><img class="face" src="__STATIC__/chat/wxface/36.png"></li><li title="[骷髅]"><img class="face" src="__STATIC__/chat/wxface/37.png"></li><li title="[敲打]"><img class="face" src="__STATIC__/chat/wxface/38.png"></li><li title="[再见]"><img class="face" src="__STATIC__/chat/wxface/39.png"></li><li title="[擦汗]"><img class="face" src="__STATIC__/chat/wxface/40.png"></li><li title="[抠鼻]"><img class="face" src="__STATIC__/chat/wxface/41.png"></li><li title="[鼓掌]"><img class="face" src="__STATIC__/chat/wxface/42.png"></li><li title="[糗大了]"><img class="face" src="__STATIC__/chat/wxface/43.png"></li><li title="[坏笑]"><img class="face" src="__STATIC__/chat/wxface/44.png"></li><li title="[左哼哼]"><img class="face" src="__STATIC__/chat/wxface/45.png"></li><li title="[右哼哼]"><img class="face" src="__STATIC__/chat/wxface/46.png"></li><li title="[哈欠]"><img class="face" src="__STATIC__/chat/wxface/47.png"></li><li title="[鄙视]"><img class="face" src="__STATIC__/chat/wxface/48.png"></li><li title="[委屈]"><img class="face" src="__STATIC__/chat/wxface/49.png"></li><li title="[快哭了]"><img class="face" src="__STATIC__/chat/wxface/50.png"></li><li title="[阴险]"><img class="face" src="__STATIC__/chat/wxface/51.png"></li><li title="[亲亲]"><img class="face" src="__STATIC__/chat/wxface/52.png"></li><li title="[吓]"><img class="face" src="__STATIC__/chat/wxface/53.png"></li><li title="[可怜]"><img class="face" src="__STATIC__/chat/wxface/54.png"></li><li title="[菜刀]"><img class="face" src="__STATIC__/chat/wxface/55.png"></li><li title="[西瓜]"><img class="face" src="__STATIC__/chat/wxface/56.png"></li><li title="[啤酒]"><img class="face" src="__STATIC__/chat/wxface/57.png"></li><li title="[篮球]"><img class="face" src="__STATIC__/chat/wxface/58.png"></li><li title="[乒乓]"><img class="face" src="__STATIC__/chat/wxface/59.png"></li><li title="[咖啡]"><img class="face" src="__STATIC__/chat/wxface/60.png"></li><li title="[饭]"><img class="face" src="__STATIC__/chat/wxface/61.png"></li><li title="[猪头]"><img class="face" src="__STATIC__/chat/wxface/62.png"></li><li title="[玫瑰]"><img class="face" src="__STATIC__/chat/wxface/63.png"></li><li title="[凋谢]"><img class="face" src="__STATIC__/chat/wxface/64.png"></li><li title="[嘴唇]"><img class="face" src="__STATIC__/chat/wxface/65.png"></li><li title="[爱心]"><img class="face" src="__STATIC__/chat/wxface/66.png"></li><li title="[心碎]"><img class="face" src="__STATIC__/chat/wxface/67.png"></li><li title="[蛋糕]"><img class="face" src="__STATIC__/chat/wxface/68.png"></li><li title="[闪电]"><img class="face" src="__STATIC__/chat/wxface/69.png"></li><li title="[炸弹]"><img class="face" src="__STATIC__/chat/wxface/70.png"></li><li title="[刀]"><img class="face" src="__STATIC__/chat/wxface/71.png"></li><li title="[足球]"><img class="face" src="__STATIC__/chat/wxface/72.png"></li><li title="[瓢虫]"><img class="face" src="__STATIC__/chat/wxface/73.png"></li><li title="[便便]"><img class="face" src="__STATIC__/chat/wxface/74.png"></li><li title="[月亮]"><img class="face" src="__STATIC__/chat/wxface/75.png"></li><li title="[太阳]"><img class="face" src="__STATIC__/chat/wxface/76.png"></li><li title="[礼物]"><img class="face" src="__STATIC__/chat/wxface/77.png"></li><li title="[拥抱]"><img class="face" src="__STATIC__/chat/wxface/78.png"></li><li title="[强]"><img class="face" src="__STATIC__/chat/wxface/79.png"></li><li title="[弱]"><img class="face" src="__STATIC__/chat/wxface/80.png"></li><li title="[握手]"><img class="face" src="__STATIC__/chat/wxface/81.png"></li><li title="[胜利]"><img class="face" src="__STATIC__/chat/wxface/82.png"></li><li title="[抱拳]"><img class="face" src="__STATIC__/chat/wxface/83.png"></li><li title="[勾引]"><img class="face" src="__STATIC__/chat/wxface/84.png"></li><li title="[拳头]"><img class="face" src="__STATIC__/chat/wxface/85.png"></li><li title="[差劲]"><img class="face" src="__STATIC__/chat/wxface/86.png"></li><li title="[爱你]"><img class="face" src="__STATIC__/chat/wxface/87.png"></li><li title="[NO]"><img class="face" src="__STATIC__/chat/wxface/88.png"></li><li title="[OK]"><img class="face" src="__STATIC__/chat/wxface/89.png"></li><li title="[跳跳]"><img class="face" src="__STATIC__/chat/wxface/90.png"></li><li title="[发抖]"><img class="face" src="__STATIC__/chat/wxface/91.png"></li><li title="[怄火]"><img class="face" src="__STATIC__/chat/wxface/92.png"></li><li title="[转圈]"><img class="face" src="__STATIC__/chat/wxface/93.png"></li>
+									</ul>
+								</div>
+							</div>
+						</div>
+						<div class="layui-form-item" msgtype="image" {if $info['msgtype']!='image'}style="display:none"{/if}>
+							<label class="layui-form-label">回复图片</label>
+							<input type="hidden" name="image[url]" id="imageurl" class="layui-input" value="{$image['url']}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="imageurl" upload-preview="imageurlPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+							<div id="imageurlPreview" style="float:left;padding-top:10px;margin-left:110px;clear: both;">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$image['url']}"/></div></div>
+							</div>
+						</div>
+						<div class="layui-form-item" msgtype="link" {if $info['msgtype']!='link'}style="display:none"{/if}>
+							<label class="layui-form-label">图文标题</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="link[title]" class="layui-input" value="{$link['title']}">
+							</div>
+						</div>
+						<div class="layui-form-item" msgtype="link" {if $info['msgtype']!='link'}style="display:none"{/if}>
+							<label class="layui-form-label">图文描述</label>
+							<div class="layui-input-inline" style="width:400px">
+								<textarea type="text" name="link[description]" class="layui-textarea" value="">{$link.description}</textarea>
+							</div>
+						</div>
+						<div class="layui-form-item" msgtype="link" {if $info['msgtype']!='link'}style="display:none"{/if}>
+							<label class="layui-form-label">图文图片</label>
+							<input type="hidden" name="link[pic]" id="linkpic" class="layui-input" value="{$link['pic']}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="linkpic" upload-preview="linkpicPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：640×320像素 或 80×80像素</div>
+							<div id="linkpicPreview" style="float:left;padding-top:10px;margin-left:110px;clear: both;">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$link['pic']}"/></div></div>
+							</div>
+						</div>
+						<div class="layui-form-item" msgtype="link" {if $info['msgtype']!='link'}style="display:none"{/if}>
+							<label class="layui-form-label">打开链接</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="link[url]" lay-verType="tips" id="linkurl" class="layui-input" value="{$link['url']}">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="linkurl" onclick="uploader(this)">上传</button>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="chooseUrl(0)">选择链接</button>
+							<div class="layui-form-mid layui-word-aux" style="float:left;padding-top:10px;margin-left:110px;clear: both;">请填写http://或https://开头的完整链接地址</div>
+						</div>
+
+						<div class="layui-form-item" msgtype="miniprogrampage" {if $info['msgtype']!='miniprogrampage'}style="display:none"{/if}>
+							<label class="layui-form-label">消息标题</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="miniprogrampage[title]" class="layui-input" value="{$miniprogrampage['title']}">
+							</div>
+						</div>
+						<div class="layui-form-item" msgtype="miniprogrampage" {if $info['msgtype']!='miniprogrampage'}style="display:none"{/if}>
+							<label class="layui-form-label">封面图片</label>
+							<input type="hidden" name="miniprogrampage[pic]" id="miniprogrampagepic" class="layui-input" value="{$miniprogrampage['pic']}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="miniprogrampagepic" upload-preview="miniprogrampagepicPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：640×320像素 或 80×80像素</div>
+							<div id="miniprogrampagepicPreview" style="float:left;padding-top:10px;margin-left:110px;clear: both;">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$miniprogrampage['pic']}"/></div></div>
+							</div>
+						</div>
+						<div class="layui-form-item" msgtype="miniprogrampage" {if $info['msgtype']!='miniprogrampage'}style="display:none"{/if}>
+							<label class="layui-form-label">页面路径</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="miniprogrampage[pagepath]" id="pagepath" class="layui-input" value="{$miniprogrampage['pagepath']}">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="chooseUrl(1)">选择路径</button>
+						</div>
+						<div style="height:1px;margin-bottom:10px;border-top:1px dotted #e5e5e5"></div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">排序</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[sort]" class="layui-input" value="{if $info['id']}{$info['sort']}{else}0{/if}">
+							</div>
+							<div class="layui-form-mid layui-word-aux">触发权重顺序，越大越靠前</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">状态</label>
+							<div class="layui-input-inline" style="width:500px">
+								<input type="radio" name="info[status]" value="1" title="开启"  {if !$info['id'] || $info['status']==1}checked{/if}/>
+								<input type="radio" name="info[status]" value="0" title="关闭"  {if $info['id'] && $info['status']==0}checked{/if}/>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">确 定</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	{include file="public/js"/}
+	<script>
+	$(function(){
+		//表情
+		$('#get_smile').click(function(){
+			$("#facedialog").show();
+		})
+		$(document).click(function (e) {
+			var drag = $("#facedialog"),
+			dragel = $("#facedialog")[0],
+			btnel = $("#get_smile")[0],
+			target = e.target;
+			if(dragel !== target && !$.contains(dragel, target) && btnel !== target && !$.contains(btnel, target)) {
+					drag.hide();
+			}
+		});
+		$('.face-layer-face>li').click(function(){
+			$("#facedialog").hide();
+			var face = $(this).attr('title');
+			$('#text_content').val($('#text_content').val() + face);
+			$('#text_content').keyup();
+		});
+	})
+	layui.form.on('radio(msgtype)',function(data){
+		$('div[msgtype]').hide();
+		if(data.value=='text'){
+			$('div[msgtype=text]').show();
+		}else if(data.value=='image'){
+			$('div[msgtype=image]').show();
+		}else if(data.value=='link'){
+			$('div[msgtype=link]').show();
+		}else if(data.value=='miniprogrampage'){
+			$('div[msgtype=miniprogrampage]').show();
+		}
+	});
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		if(field['info[msgtype]'] == 'text'){
+			if(field.text == ''){
+				dialog('请输入回复文字',0);return;
+			}
+		}
+		if(field['info[msgtype]'] == 'image'){
+			if(field['image[url]'] == ''){
+				dialog('请上传回复图片',0);return;
+			}
+		}
+		if(field['info[msgtype]'] == 'link'){
+			if(field['link[title]'] == ''){
+				dialog('请输入图文标题',0);return;
+			}
+			if(field['link[description]'] == ''){
+				dialog('请输入图文描述',0);return;
+			}
+			if(field['link[pic]'] == ''){
+				dialog('请上传图文图片',0);return;
+			}
+			if(field['link[url]'] == ''){
+				dialog('请输入打开链接',0);return;
+			}
+		}
+		var index = layer.load();
+		$.post("{:url('save')}",obj.field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.closeAll();
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+	//选择链接
+	var urltype = 0
+	function chooseUrl(type){
+		urltype = type
+		layer.open({type:2,shadeClose:true,area:['1200px', '650px'],'title':'选择链接',content:"{:url('DesignerPage/chooseurl')}"})
+	}
+	function chooseLink(urlname,url){
+		if(urltype==0){
+			url = '{$Think.const.PRE_URL2}/h5/{$aid}.html#'+url;
+			$("input[id='linkurl']").val(url);
+		}else{
+			$("input[id='pagepath']").val(url.substr(1));
+		}
+	}
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

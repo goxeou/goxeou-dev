@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>投票记录</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header">
+						投票记录
+						<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+					</div>
+          <div class="layui-card-body" pad15>
+						<div class="layui-col-md4" style="padding-bottom:10px">
+							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" data-form-export="{:url('helpexcel')}">导出</button>
+							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="datadel(0)">删除</button>
+						</div>
+						<div class="layui-form layui-col-md8 layui-form-search">
+							{if input('param.hid')}
+							<div class="layui-inline">
+								<label class="layui-form-label">选手</label>
+								<div class="layui-input-inline">
+									<select name="joinid">
+										<option value="">全部</option>
+										{foreach $joinArr as $k=>$v}
+										<option value="{$k}">{$v}</option>
+										{/foreach}
+									</select>
+								</div>
+							</div>
+							{else}
+							<div class="layui-inline">
+								<label class="layui-form-label">活动</label>
+								<div class="layui-input-inline">
+									<select name="hid" lay-filter="changehid">
+										<option value="">全部</option>
+										{foreach $toupiaoArr as $k=>$v}
+										<option value="{$k}">{$v}</option>
+										{/foreach}
+									</select>
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label">选手</label>
+								<div class="layui-input-inline">
+									<select name="joinid" id="joinid">
+										<option value="">全部</option>
+									</select>
+								</div>
+							</div>
+							{/if}
+							<div class="layui-inline">
+								<label class="layui-form-label">投票时间</label>
+								<div class="layui-input-inline" style="width:180px">
+									<input type="text" name="ctime" id="ctime" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+									<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+								</button>
+							</div>
+						</div>
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+  var table = layui.table;
+	var datawhere = {};
+	{if input('?param.joinid') && input('param.joinid')!==''}
+	datawhere['joinid'] = "{$Request.param.joinid}";
+	{/if}
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: '{$Request.url}' //数据接口
+    ,page: true //开启分页
+    ,cols: [[ //表头
+			{type:"checkbox"},
+      {field: 'id', title: 'ID',  sort: true,width:80},
+      {field: 'hdname', title: '所属活动'},
+      {field: 'joinname', title: '选手名称'},
+      {field: 'number', title: '选手编号'},
+      {field: 'banner', title: '投票人',templet:function(d){
+				return '<img src="'+d.headimg+'" style="width:60px;height:60px"/> '+d.nickname;
+      }},
+      {field: 'createtime', title: '投票时间',sort: true,templet:function(d){ return date('Y-m-d H:i',d.createtime)}},
+      {field: 'operation', title: '操作',templet: function(d){
+				var html = '';
+				html += '<button class="table-btn" onclick="datadel('+d.id+')">删除</button>';
+				return html;
+      }}
+    ]]
+  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	//删除
+	function datadel(id){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id);
+		}
+		layer.confirm('确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('helplistdel')}",{ids:ids},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+
+	layui.form.on('select(changehid)',function(obj){
+		var index = layer.load();
+		$.post("{:url('getjoinlist')}",{hid:obj.value},function(res){
+			layer.close(index);
+			var data = res.data;
+			var html = '';
+			html += '<option value="">全部</option>';
+			for(var i in data){
+				html += '<option value="'+data[i].id+'">'+data[i].name+'</option>';
+			}
+			$('#joinid').html(html);
+			layui.form.render();
+		})
+	})
+	
+	//日期范围选择
+	layui.laydate.render({ 
+		elem: '#ctime',
+		trigger: 'click',
+		range: '~' //或 range: '~' 来自定义分割字符
+	});
+	</script>
+	{include file="public/copyright"/}
+</body>
+</html>

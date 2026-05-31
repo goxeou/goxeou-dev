@@ -1,0 +1,85 @@
+{if getcustom('up_fxorder_condition_new')}
+<!--------------------------新增升级条件start 20231104------------------------------->
+<div class="layui-form-item" style="margin-bottom:5px">
+	<div class="layui-input-inline" style="width: 70px;margin-left: 80px;">
+		<select name="info[up_fxorder_condition_new]" lay-verify="required">
+			<option value="or" {if $info['up_fxorder_condition_new'] == 'or'}selected{/if}>或</option>
+			<option value="and" {if $info['up_fxorder_condition_new'] == 'and'}selected{/if}>且</option>
+		</select>
+	</div>
+	<div class="layui-input-inline layui-module-itemL">
+		<div>下级总人数满</div>
+		<input   type="text" name="info[up_fxdowncount_new]" class="layui-input" value="{$info.up_fxdowncount_new}">
+	</div>
+	<div class="layui-input-inline layui-module-itemL">
+		<div>级数</div>
+		<input   type="text" name="info[up_fxdownlevelnum_new]" class="layui-input" value="{$info.up_fxdownlevelnum_new}">
+	</div>
+	<div class="layui-input-inline layui-module-itemL">
+		<div>等级ID</div>
+		<input   type="text" name="info[up_fxdownlevelid_new]" class="layui-input" value="{$info.up_fxdownlevelid_new}">
+	</div>
+</div>
+<div class="layui-form-item" style="margin-bottom:5px">
+	<div class="layui-input-inline" style="width: 70px;margin-left: 80px;">
+		<select name="info[up_fxorder_condition2_new]" lay-verify="required">
+			<option value="or" {if $info['up_fxorder_condition2_new'] == 'or'}selected{/if}>或</option>
+			<option value="and" {if $info['up_fxorder_condition2_new'] == 'and'}selected{/if}>且</option>
+		</select>
+	</div>
+	<div class="layui-input-inline layui-module-itemL">
+		<div>下级总人数满</div>
+		<input   type="text" name="info[up_fxdowncount2_new]" class="layui-input" value="{$info.up_fxdowncount2_new}">
+	</div>
+	<div class="layui-input-inline layui-module-itemL">
+		<div>级数</div>
+		<input   type="text" name="info[up_fxdownlevelnum2_new]" class="layui-input" value="{$info.up_fxdownlevelnum2_new}">
+	</div>
+	<div class="layui-input-inline layui-module-itemL">
+		<div>等级ID</div>
+		<input   type="text" name="info[up_fxdownlevelid2_new]" class="layui-input" value="{$info.up_fxdownlevelid2_new}">
+	</div>
+</div>
+<div class="layui-form-item" style="margin-bottom:5px">
+	<div class="layui-input-inline" style="width: 70px;margin-left: 80px;">
+		<select name="info[up_fxorder_condition3_new]" lay-verify="required">
+			<option value="or" {if $info['up_fxorder_condition3_new'] == 'or'}selected{/if}>或</option>
+			<option value="and" {if $info['up_fxorder_condition3_new'] == 'and'}selected{/if}>且</option>
+		</select>
+	</div>
+	<div class="layui-input-inline layui-module-itemL">
+		<div>下级总人数满</div>
+		<input   type="text" name="info[up_fxdowncount3_new]" class="layui-input" value="{$info.up_fxdowncount3_new}">
+	</div>
+	<div class="layui-input-inline layui-module-itemL">
+		<div>级数</div>
+		<input   type="text" name="info[up_fxdownlevelnum3_new]" class="layui-input" value="{$info.up_fxdownlevelnum3_new}">
+	</div>
+	<div class="layui-input-inline layui-module-itemL">
+		<div>等级ID</div>
+		<input   type="text" name="info[up_fxdownlevelid3_new]" class="layui-input" value="{$info.up_fxdownlevelid3_new}">
+	</div>
+</div>
+<div class="layui-form-item" style="margin-bottom:5px">
+	<div class="layui-input-inline" style="width: 70px;margin-left: 80px;">
+		<select name="info[up_fxorder_condition4_new]" lay-verify="required">
+			<option value="or" {if $info['up_fxorder_condition4_new'] == 'or'}selected{/if}>或</option>
+			<option value="and" {if $info['up_fxorder_condition4_new'] == 'and'}selected{/if}>且</option>
+		</select>
+	</div>
+	<div class="layui-input-inline layui-module-itemL">
+		<div>下级总人数满</div>
+		<input   type="text" name="info[up_fxdowncount4_new]" class="layui-input" value="{$info.up_fxdowncount4_new}">
+	</div>
+	<div class="layui-input-inline layui-module-itemL">
+		<div>级数</div>
+		<input   type="text" name="info[up_fxdownlevelnum4_new]" class="layui-input" value="{$info.up_fxdownlevelnum4_new}">
+	</div>
+	<div class="layui-input-inline layui-module-itemL">
+		<div>等级ID</div>
+		<input   type="text" name="info[up_fxdownlevelid4_new]" class="layui-input" value="{$info.up_fxdownlevelid4_new}">
+	</div>
+	<div class="layui-form-mid layui-word-aux layui-clear">级数：统计到下级多少层级，如3级；等级ID：0表示不限制等级,多个用英文逗号","分隔；</div>
+</div>
+<!--------------------------新增升级条件end 20231104------------------------------->
+{/if}

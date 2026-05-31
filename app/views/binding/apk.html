@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>绑定手机APP</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					手机APP设置
+					{if input('param.isopen')==1}<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>{/if}
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w8" lay-filter="" style="margin-top:20px">
+						<!--<span style="color:#333">绑定微信开放平台</span><hr/>-->
+						<!--<div class="layui-form-item">-->
+						<!--	<label class="layui-form-label">支付商户号：</label>-->
+						<!--	<div class="layui-input-inline">-->
+						<!--		<input type="text" name="info[wxpay_mchid]" value="{$info['wxpay_mchid']}" class="layui-input"/>-->
+						<!--	</div>-->
+						<!--</div>-->
+						<span style="color:#333">安装包地址</span><hr/>
+						<div class="layui-form-item">
+							<label class="layui-form-label">Android安装地址：</label>
+							<div class="layui-input-inline" style="width:340px">
+								<input type="text" name="info[androidurl]" id="upload_file" value="{$info.androidurl}" class="layui-input">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary uploadexcel" upload-input="upload_file">上传</button>
+							<div class="layui-form-mid layui-word-aux">可上传到站点根目录然后设置安装包地址{$Think.const.PRE_URL2}/安装包文件名.apk</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">IOS安装地址：</label>
+							<div class="layui-input-inline" style="width:340px">
+								<input type="text" name="info[iosurl]" value="{$info.iosurl}" class="layui-input">
+							</div>
+							<div class="layui-form-mid layui-word-aux">上架后在应用商店中复制链接地址</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">用户下载地址：</label>
+							<div class="layui-form-mid">{$Think.const.PRE_URL2}/?s=/Index/downloadapp/aid/{$aid}</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-inline" style="width:500px">
+								<button class="layui-btn layui-btn-normal" lay-submit lay-filter="submit_reg">保 存</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.form.on('radio(wxpay_type)', function(data){
+		if(data.value == '0'){
+			$('#wxpay_type1set').hide();
+			$('#wxpay_type0set').show();
+		}else{
+			$('#wxpay_type1set').show();
+			$('#wxpay_type0set').hide();
+		}
+	})
+		layui.upload.render({
+			elem: '.uploadexcel',
+			accept:'file',
+			url: "{:url('upload/index2')}",
+			before: function(obj){
+              // 显示加载动画
+              layer.load(2); 
+            } ,
+			done: function(res){
+			     layer.closeAll('loading'); 
+				if(res.status==0){
+					dialog(res.msg,0);
+				}else{
+					var item = this.item;
+					var inputid = $(this.item).attr('upload-input');
+					if(inputid){
+						$('#'+inputid).val(res.url);
+						$('#'+inputid).change();
+					}
+				}
+			}
+		});
+	layui.form.on('submit(submit_reg)', function(obj){
+		var field = obj.field
+		field.op = 'setappid';
+		$.post('',field,function(data){
+			dialog(data.msg,data.status,data.url);
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

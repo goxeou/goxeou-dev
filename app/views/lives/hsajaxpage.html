@@ -1,0 +1,74 @@
+<!--
+ * @Descripttion: 
+ * @Copyright: 武汉一一零七科技有限公司©版权所有
+ * @Link: www.s1107.com
+ * @Contact: QQ:2487937004
+ * @LastEditors: cbing
+ * @LastEditTime: 2020-05-01 18:41:02
+ -->
+<script>
+	var pnum = {$pnum};
+	{if condition="(!isset($search)) OR (!$search)"}
+	var search = 0;
+	var goUrl = "/{$Request.module}/goods/hslst.html?page="+pnum;
+	{else/}
+	var search = {$search};
+	var goUrl = "/{$Request.module}/goods/search.html?page="+pnum;
+	{/if}
+	
+	$(function(){
+		$("#checkAll").click(function () {
+		    $("input[class='text_id']:checkbox").prop("checked", this.checked);
+		}); 
+	});
+</script>                           
+                        
+                        <table class="table table-hover table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="width:5%"><input type="checkbox" id="checkAll"/></th>
+                                    <th style="width:5%">房间ID</th>
+                                    <th style="width:10%">直播封面</th>
+                                    <th style="width:10%">直播间名称</th>
+                                    <th style="width:10%">直播房间号</th>
+                                    <th style="width:20%">主播信息</th>
+                                    <th style="width:10%">所属店铺</th>
+                                    <th style="width:10%">直播状态</th>
+                                    <th style="width:10%">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {if condition="$list->isEmpty() == false"}
+							{foreach name="list" item="v"} 
+                                <tr>
+                                    <td><input type="checkbox" class="text_id" name="id" value="{$v.id}" /></td>
+                                    <td>{$v.id}</td>
+                                    <td><img src="{$v.cover|url_format}" width="80px;"/></td>
+                                    <td>{$v.title}</td>
+                                    <!--<td>{$v.type_name}</td>-->
+                                    <td>{$v.room}</td>
+                                    <td>用户名:{$v.user_name}<br>手机号:{$v.phone}</td>
+                                    <td>{$v.shop_name}</td>
+                                    <td>
+                                        {switch name="v.status"}{case value="-1"}
+                                        <span>等待直播</span>
+                                        {/case}
+                                        {case value="1"}
+                                        <span style="color:#008000">直播中</span>
+                                        {/case}
+                                        {case value="2"}
+                                        <span style="color:#f53c02">被管理员关闭</span>
+                                        {/case}
+                                        {/switch}
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-success btn-xs" onclick="recovery({$v.id},this);"><i class="fa fa-paste"></i>&nbsp;恢复</button>&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-danger btn-xs" onclick="delone({$v.id},this);"><i class="fa fa-close"></i>&nbsp;彻底删除</button>
+                                    </td>
+                                </tr>
+							{/foreach}
+							{else/}
+							<tr><td colspan="8" style="text-align:center; font-size:14px;">没有找到相关数据</td></tr>
+							{/if}								
+                            </tbody>
+                        </table>
+                        <div class="row"><div class="pagination" style="float:right; margin-right:20px;">{$page}</div></div>

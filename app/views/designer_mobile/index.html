@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>移动端后台设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+  <style>
+  .tabBar{ width:340px; height:50px;background:#fff; border-top:1px #dedede solid;position:absolute;bottom:0}
+  .tabBar-tab{ width:100%; text-align:center; padding:0px; margin:0px; table-layout:fixed; }
+  .tabBar-tab td{ border:none;  margin:0px; text-align:center; padding:5px 0 1px 0;display: table-cell;cursor:pointer}
+  .tabBar-tab td img{ width:24px; height:24px; margin:0 auto; }
+  .tabBar-tab td span{ display:block; width:100%; height:18px; line-height:18px; font-size:12px; }
+  .type_css{margin-right:20px;padding:0 40px;border:1px solid #F0F0F0;border-radius: 8px;}
+
+
+  #editor-content{height: 800px}
+  .bg_div1{width:100%;height: 100%;overflow: hidden;}
+  .content_div1{width: 300px; margin: 0 auto;}
+  .title1{opacity: 1;font-size: 25px;font-weight: bold;line-height: 45px;text-align: left;margin-top: 40px;}
+  .subhead1{font-size: 14px;font-weight: 500;line-height: 20px;}
+  .card_div1{width: 100%;padding:20px;border-radius: 12px;margin-top: 20px;}
+  .tel1{width:100%;height:50px;border-radius: 50px;line-height: 50px;background-color: #F5F7FA;padding:0 20px;color:#CACACA;margin: 10px 0;margin-top: 15px;}
+  .code1{height: 50px;font-size: 12px;line-height: 50px;float: right;}
+  .btn1{width:100%;height:50px;border-radius: 50px;line-height: 50px;margin: 10px 0;text-align: center;font-weight: bold;}
+  .other_line{width: 48px;height: 1px;background: #D8D8D8;margin-top: 12px;}
+  </style>
+
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+        <div class="layui-card-header">移动端后台</div>
+        <div class="layui-card-body layui-col-md12" pad15 ng-app="loginApp" ng-controller="loginCtrl" style="display: flex;">
+          <div class="dsn-phone" style="display: none">
+            <div class="dsn-phone-left"></div>
+            <div class="dsn-phone-center">
+              <div class="dsn-phone-top"></div>
+              <div class="dsn-phone-main">
+                <div id="editor">
+
+                  <div class="dsn-mod dsn-topbar dsn-mod-nohover" style="color:#fff;background:#333;">
+                    <div style="float:left;width:100%;font-size:12px">
+                      <div style="float:left;width:30%">&nbsp;<i class="fa fa-signal"></i> wechat <i class="fa fa-wifi"></i></div>
+                      <div style="float:left;text-align:center;width:40%">12:00</div>
+                      <div style="float:left;text-align:right;width:30%">100% <i class="fa fa-battery-full"></i>&nbsp;</div>
+                    </div>
+
+                    <div style="float:left;width:98%;margin:2px 1% 0 1%;">
+                      <div style="float:left;width:30%">&nbsp;</div>
+                      <div style="float:left;text-align:center;width:40%;font-size:16px;height:27px;line-height:27px">登录页面</div>
+                    </div>
+
+                  </div>
+
+                  <div id="editor-content">
+                    <input type="hidden" name="info[id]" value="{$info['id']}"/>
+                    <div style="width:100%;height: 100%;">
+
+                      <!-- s -->
+                      <div  style="width:100%;height: 100%;">
+                        <div class="bg_div1" style='{{data.bgtype==1?"background:"+data.bgcolor:"background:url("+data.bgimg+") no-repeat center;background-size:100% 100%"}}'>
+
+                          <div ng-show="type==1" style="width: 300px;margin:0 auto;">
+                            <div class="title1" style="color: {{data.titlecolor}};text-align: {{data.titletype}};">
+                              {{data.title}}
+                            </div>
+                            <div class="subhead1" ng-if="data.subhead" style="color: {{data.subheadcolor}};text-align: {{data.titletype}};">
+                              {{data.subhead}}
+                            </div>
+                          </div>
+
+                          <div ng-show="type==2" style="width: 100px;height: 100px;margin: 0 auto;margin-top:20px;margin-bottom: 20px;border-radius: 6px;overflow: hidden;">
+                              <img src="{{data.logo}}" style="width: 100%;height: 100%;">
+                          </div>
+
+                          <div class="content_div1">
+                            <div class="card_div1" style="background:{{data.cardcolor}}">
+                              <div ng-show="type==2">
+                                <div class="title1" style="color: {{data.titlecolor}};text-align: {{data.titletype}};margin-top: 10px;font-size: 20px;">
+                                  {{data.title}}
+                                </div>
+                                <div class="subhead1" ng-if="data.subhead" style="color: {{data.subheadcolor}};text-align: {{data.titletype}};">
+                                  {{data.subhead}}
+                                </div>
+                              </div>
+
+                              <div class="tel1" >
+                                请输入手机号码
+                              </div>
+                              <div class="tel1">
+                                <span>请输入验证码</span>
+                                <span class="code1" style="color:{{data.codecolor}}">获取验证码</span>
+                              </div>
+
+                              <div style="line-height: 30px;font-size: 12px;overflow: hidden;">
+                                <div style="width: 12px;height: 12px;border-radius: 100%;background-color: #F5F7FA;border: 1px solid #D3D5D7;display: inline-block;"></div>
+                                <span style="color:{{data.xytipcolor}};">{{data.xytipword}}</span>
+                                <span style="color:{{data.xycolor}};">{$xyname}</span>
+                              </div>
+
+                              <div class="btn1" ng-show="data.btntype==1" style="background:rgba({:t('color1rgb')});color: {{data.btnwordcolor}};">
+                                登录
+                              </div>
+                              <div class="btn1" ng-show="data.btntype==2" style="background-color:{{data.btncolor}};color: {{data.btnwordcolor}};">
+                                登录
+                              </div>
+
+                              <div style="line-height: 50px;float: 12px;overflow: hidden;">
+                                <span style="color: {{data.regbtncolor}};">注册账号</span>
+                              </div>
+
+                              <div style="width:210px;margin: 30px auto;">
+                                <div style="display: flex;width: 100%;">
+                                  <div class="other_line"></div>
+                                  <div style="margin: 0 10px;color: #D8D8D8;">其他登录方式</div>
+                                  <div  class="other_line"></div>
+                                </div>
+                                <div style="overflow: hidden;padding:0 20px;width: 100%;margin-top: 30px;">
+                                  <img src="__STATIC__/img/login-weixin.png" style="width:50px;height:50px;float: left;">
+                                  <img src="__STATIC__/img/reg-tellogin.png" style="width:50px;height:50px;float: right;">
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <!-- e -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="dsn-phone-bottom"></div>
+            </div>
+            <div class="dsn-phone-right"></div>
+          </div>
+          
+          <div class="layui-form form-label-w10 layui-col-md12" lay-filter="">
+
+            <div class="layui-form-item">
+              <label class="layui-form-label">顶部背景图片</label>
+              <div class="layui-input-inline" style="width:400px">
+                <input type="text" name="data[bgimg]" id="bgimg" lay-verType="tips" class="layui-input" value="{$data['bgimg']}" style="width: 300px;display: inline-block;">
+                <button  type="button" class="layui-btn layui-btn-primary" upload-input="bgimg" upload-preview="bgimgPreview" onclick="uploader(this)">上传图片</button>
+                <div class="layui-form-mid layui-word-aux">建议尺寸：750×750像素</div>
+                <div id="bgimgPreview" style="float:left;padding-top:10px;clear: both;">
+                  <div class="layui-imgbox" style=""><div class="layui-imgbox-img"><img src="{$data['bgimg']}"/></div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="layui-form-item">
+              <label class="layui-form-label"></label>
+              <div class="layui-input-block">
+                <button class="layui-btn" ng-click="save(0)">保存</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {include file="public/js"/}
+  <script src="__STATIC__/admin/js/jscolor.js"></script>
+  <script type="text/javascript" src="__STATIC__/admin/js/angular.min.js"></script>
+  <script type="text/javascript" src="__STATIC__/admin/js/angular-ueditor.js"></script>
+  <script>
+  var app = angular.module('loginApp', ['ng.ueditor']);
+  app.controller('loginCtrl', function($scope) {
+      $scope.data = {$info.data};
+      $scope.chagnetype = function(type){
+        $scope.type = type;
+      },
+      $scope.save = function(param){
+
+        var field = new Object();
+        field.id   = {$info.id};
+        var data = $scope.data;
+        data.bgimg  = $('#bgimg').val();
+        field.data = data;
+        console.log(field)
+        var loadlay = layer.open({type:3})
+        $.post("{:url('save')}",{info:field},function(data){
+            layer.close(loadlay);
+            dialog(data.msg,data.status,data.url);
+        })
+      }
+  });
+  </script>
+  {include file="public/copyright"/}
+</body>
+</html>

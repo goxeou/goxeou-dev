@@ -1,0 +1,1864 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>商品管理</title>
+	<meta name="renderer" content="webkit">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	{include file="public/css"/}
+	<style>
+		#ggnamediv .layui-input,#ggvaldiv .layui-input{ display:inline;height:30px}
+		.guigeimg{display: inline-block; position: relative}
+		.guigeimg_close{width: 25px;height: 22px;right: -14px;top:-14px;}
+		.layui-imgbox .layui-imgbox-close{z-index: 6;}
+		#jieti_discountdiv .layui-input,#jieti_discountdiv .layui-input{ display:inline;height:30px}
+		.mt5 {margin-bottom: 5px}
+	</style>
+</head>
+<body>
+<div class="layui-fluid">
+	<div class="layui-row layui-col-space15">
+		<div class="layui-card layui-col-md12">
+			<div class="layui-card-header">
+				{if !$info['id']}<i class="fa fa-plus"></i> 添加商品{else}<i class="fa fa-pencil"></i> 编辑商品{/if}
+				<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+			</div>
+			<div class="layui-card-body" pad15>
+				{if $info['ischecked']==2}<blockquote class="layui-elem-quote" style="color:red">商品未审核通过，驳回原因：{$info.check_reason}</blockquote>{/if}
+				<div class="layui-form form-label-w6">
+					<div class="layui-tab" lay-filter="mytab">
+						<ul class="layui-tab-title">
+							<li class="layui-this" lay-id="1">商品信息</li>
+							<li lay-id="6">库存/规格</li>
+							<li lay-id="7">购买设置</li>
+							<li lay-id="5">分销设置</li>
+							<li lay-id="2">商品参数</li>
+							<li lay-id="3">商品详情</li>
+							<li lay-id="4">分享设置</li>
+						</ul>
+						<div class="layui-tab-content">
+							<div class="layui-tab-item layui-show">
+								<input type="hidden" name="id" value="{$info['id']}"/>
+								{if input('param.bid')}<input type="hidden" name="info[bid]" value="{$Request.param.bid}"/>{/if}
+								{if getcustom('douyin_groupbuy')}
+									{if $info['dyg_product_id']>0}
+	                                <div class="layui-form-item" >
+	                                    <label class="layui-form-label">抖音端商品id：</label>
+	                                    <div class="layui-input-inline">
+	                                        <input type="text" disabled="true" class="layui-input" value="{$info['dyg_product_id']}">
+	                                    </div>
+	                                </div>
+	                                {/if}
+                                {/if}
+                                {if getcustom('supply_zhenxin')}
+									{if $info['sproid']>0 && $info['source'] == 'supply_zhenxin'}
+	                                <div class="layui-form-item" >
+	                                    <label class="layui-form-label">甄新汇选端商品id：</label>
+	                                    <div class="layui-input-inline">
+	                                        <input type="text" disabled="true" class="layui-input" value="{$info['sproid']}">
+	                                    </div>
+	                                </div>
+	                                {/if}
+                                {/if}
+								<div class="layui-form-item">
+									<label class="layui-form-label"><span class="redstar">*</span>商品名称：</label>
+									<div class="layui-input-inline" style="width:400px">
+										<input type="text" name="info[name]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info['name']}">
+									</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label">商品别名：</label>
+									<div class="layui-input-inline" style="width:300px">
+										<input type="text" name="info[print_name]" lay-verType="tips" class="layui-input" value="{$info['print_name']}">
+									</div>
+									<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">小票打印使用别名替代商品名称，留空使用商品名称</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label"><span class="redstar">*</span>商品主图：</label>
+									<!-- <input type="hidden" name="info[pic]" id="pic" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info['pic']}"> -->
+									<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="pic" upload-preview="picPreview" onclick="uploader(this)">上传图片</button>
+									<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：640×640像素</div>
+									<div id="picPreview" class="picsList-class-padding">
+										<div class="layui-imgbox imgbox-required">
+											<a {if $info['pic']}style="display: block;" {else /} style="display: none;"  {/if} class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().find('img').attr('src','').hide();getpicsval('pic','picPreview');$(this).hide();" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+											<div class="layui-imgbox-img">
+												<img src="{$info['pic']}"/>
+											</div>
+											<input autocomplete='off' type="text" id="pic" name="info[pic]" lay-verify="required" lay-verType="tips" value="{$info['pic']}" style="cursor:default;">
+										</div>
+									</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label">商品图片：</label>
+									<input type="hidden" name="info[pics]" value="{$info['pics']}" id="pics">
+									<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this,true)" upload-input="pics" upload-preview="picList" >批量上传</button>
+									<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：640×640像素</div>
+									<div id="picList" class="picsList-class-padding">
+										{if $info['pics']}{php}$pics = explode(',',$info['pics']);{/php}{foreach $pics as $pic}
+										<div class="layui-imgbox">
+											<a class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().remove();getpicsval('pics','picList')" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+											<span class="layui-imgbox-img"><img src="{$pic}"></span>
+										</div>
+										{/foreach}{/if}
+									</div>
+								</div>
+								{if getcustom('diy_light') && $auth['diy_light']}
+								<div class="layui-form-item">
+									<label class="layui-form-label">配灯图片：</label>
+									<input type="hidden" name="info[diypics]" value="{$info['diypics']}" id="diypics">
+									<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this,true)" upload-input="diypics" upload-preview="diypicList" >批量上传</button>
+									<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：640×640像素，png格式透明背景</div>
+									<div id="diypicList" style="float:left;padding-top:10px;padding-left:130px;clear: both;">
+										{if $info['diypics']}{php}$diypics = explode(',',$info['diypics']);{/php}{foreach $diypics as $pic}
+										<div class="layui-imgbox">
+											<a class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().remove();getpicsval('diypics','diypicList')" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+											<span class="layui-imgbox-img"><img src="{$pic}"></span>
+										</div>
+										{/foreach}{/if}
+									</div>
+								</div>
+								{/if}
+								<div class="layui-form-item">
+									<label class="layui-form-label">商品视频：</label>
+									<div class="layui-input-inline" style="width:400px">
+										<input type="text" name="info[video]" id="video" lay-verType="tips" class="layui-input" value="{$info['video']}">
+									</div>
+									<input type="hidden" name="info[video_duration]" id="video_duration" value="{$info.video_duration}">
+									<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="video" onclick="uploader(this)">上传视频</button>
+									<button style="float:left;" type="button" class="layui-btn layui-btn-primary"  onclick="toChooseVideoList('video')">选择视频</button>
+									<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">填写视频链接或上传视频，视频链接必须为mp4格式的源链接，视频大小须在50MB以内</div>
+								</div>
+								<!-- <div class="layui-form-item">
+                                    <label class="layui-form-label">商品服务：</label>
+                                    <div class="layui-input-inline" style="width:400px">
+                                        <input type="text" name="info[fuwupoint]" class="layui-input" value="{$info['fuwupoint']}">
+                                    </div>
+                                    <div class="layui-form-mid layui-word-aux">多个用空格隔开,如: 7天退换 48小时发货 假一赔十</div>
+                                </div> -->
+								<div class="layui-form-item">
+									<label class="layui-form-label">商品卖点：</label>
+									<div class="layui-input-inline" style="width:400px">
+										<input type="text" name="info[sellpoint]" class="layui-input" value="{$info['sellpoint']}">
+									</div>
+									<div class="layui-form-mid layui-word-aux">在商品详情页标题下面展示商品卖点，建议60字以内</div>
+								</div>
+								{if getcustom('product_keyword')}
+								<div class="layui-form-item">
+									<label class="layui-form-label">商品关键字：</label>
+									<div class="layui-input-inline" style="width:400px">
+										<input type="text" name="info[keyword]" class="layui-input" value="{$info['keyword']}">
+									</div>
+									<div class="layui-form-mid layui-word-aux">可通过商品关键字检索商品</div>
+								</div>
+								{/if}
+								<div class="layui-form-item">
+									<label class="layui-form-label">商品分类：</label>
+									<div class="layui-input-inline" style="width:400px">
+										<select name="info[cid]" id="cid" xm-select="selectCid" xm-select-max="5" xm-select-search >
+											<option value="">--请选择--</option>
+											{foreach $clist as $cv}
+											<option value="{$cv['id']}" {if in_array($cv['id'],$info['cid'])}selected{/if}>{$cv['name']}</option>
+											{foreach $cv['child'] as $k=>$v}
+											{if $k < count($cv['child'])-1}
+											<option value="{$v['id']}" {if in_array($v['id'],$info['cid'])}selected{/if}>&nbsp;&nbsp;&nbsp;&nbsp;├ {$v['name']}</option>
+											{else}
+											<option value="{$v['id']}" {if in_array($v['id'],$info['cid'])}selected{/if}>&nbsp;&nbsp;&nbsp;&nbsp;└ {$v['name']}</option>
+											{/if}
+											{foreach $v['child'] as $k2=>$v2}
+											{if $k2 < count($v['child'])-1}
+											<option value="{$v2['id']}" {if in_array($v2['id'],$info['cid'])}selected{/if}>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├ {$v2['name']}</option>
+											{else}
+											<option value="{$v2['id']}" {if in_array($v2['id'],$info['cid'])}selected{/if}>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└ {$v2['name']}</option>
+											{/if}
+											{/foreach}
+											{/foreach}
+											{/foreach}
+										</select>
+									</div>
+									<div class="layui-form-mid layui-word-aux">最多可选5个分类</div>
+									<!-- <div class="layui-form-mid layui-word-aux"><a href="categoryadd.php">创建分类</a></div> -->
+								</div>
+								{if $bid > 0}
+								<div class="layui-form-item">
+									<label class="layui-form-label">商家商品分类：</label>
+									<div class="layui-input-inline" style="width:400px">
+										<select name="info[cid2]" id="cid2" xm-select="selectCid2" xm-select-max="5" xm-select-search >
+											<option value="">--请选择--</option>
+											{foreach $clist2 as $cv}
+											<option value="{$cv['id']}" {if in_array($cv['id'],$info['cid2'])}selected{/if}>{$cv['name']}</option>
+											{foreach $cv['child'] as $k=>$v}
+											{if $k < count($cv['child'])-1}
+											<option value="{$v['id']}" {if in_array($v['id'],$info['cid2'])}selected{/if}>&nbsp;&nbsp;&nbsp;&nbsp;├ {$v['name']}</option>
+											{else}
+											<option value="{$v['id']}" {if in_array($v['id'],$info['cid2'])}selected{/if}>&nbsp;&nbsp;&nbsp;&nbsp;└ {$v['name']}</option>
+											{/if}
+											{foreach $v['child'] as $k2=>$v2}
+											{if $k2 < count($v['child'])-1}
+											<option value="{$v2['id']}" {if in_array($v2['id'],$info['cid2'])}selected{/if}>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├ {$v2['name']}</option>
+											{else}
+											<option value="{$v2['id']}" {if in_array($v2['id'],$info['cid2'])}selected{/if}>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└ {$v2['name']}</option>
+											{/if}
+											{/foreach}
+											{/foreach}
+											{/foreach}
+										</select>
+									</div>
+									<div class="layui-form-mid layui-word-aux">最多可选5个分类</div>
+								</div>
+								{/if}
+								<div class="layui-form-item">
+									<label class="layui-form-label">商品分组：</label>
+									<div class="layui-input-inline" style="width:600px">
+										{php} $gids = explode(',',$info['gid']);{/php}
+										{foreach $glist as $g}<input type="checkbox" name="info[gid][]" value="{$g['id']}" {if in_array($g['id'],$gids)}checked{/if} title="{$g['name']}" lay-skin="primary">{/foreach}
+									</div>
+									<!-- <div class="layui-form-mid layui-word-aux"><a href="groupadd.php">创建分组</a></div> -->
+								</div>
+								{if getcustom('product_xieyi') && ($auth_data=='all' || in_array('ProductXieyi/*',$auth_data))}
+								<div class="layui-form-item">
+									<label class="layui-form-label">商品协议ID：</label>
+									<div class="layui-input-inline">
+										<input type="text" name="info[xieyi_id]" value="{$info['xieyi_id']}" class="layui-input" />
+									</div>
+									<a href="javascript:vodi(0)" class="layui-btn layui-btn-primary" onclick="chooseproductxieyi()">查找商品协议ID</a>
+								</div>
+								<script>
+									function chooseproductxieyi(){
+										layer.open({type:2,title:'选择协议',content:"{:url('ProductXieyi/choosexieyi')}/args/promoter",area:['900px','600px'],shadeClose:true});
+									}
+									function choosexieyi(data){
+										console.log(data);
+										$('input[name="info[xieyi_id]"]').val(data.id)
+									}
+								</script>
+								{/if}
+								{if getcustom('product_supplier')}
+								<div class="layui-form-item">
+									<label class="layui-form-label">供应商：</label>
+									<div class="layui-input-inline">
+										<input type="text" name="info[supplier_id]" value="{$info['supplier_id']}" class="layui-input" />
+									</div>
+									<a href="javascript:vodi(0)" class="layui-btn layui-btn-primary" onclick="chooseProductSupplier()">查找供应商ID</a>
+								</div>
+								<script>
+									function chooseProductSupplier(){
+										layer.open({type:2,title:'选择供应商',content:"{:url('ProductSupplier/chooseSupplier')}/args/promoter",area:['900px','600px'],shadeClose:true});
+									}
+									function chooseSupplier(data){
+										$('input[name="info[supplier_id]"]').val(data.id)
+									}
+								</script>
+								{/if}
+								<div class="layui-form-item">
+									<label class="layui-form-label">商品服务：</label>
+									<div class="layui-input-inline" style="width:600px">
+										{php} $fwids = explode(',',$info['fwid']);{/php}
+										{foreach $fuwulist as $fuwu}<input type="checkbox" name="info[fwid][]" value="{$fuwu['id']}" {if in_array($fuwu['id'],$fwids)}checked{/if} title="{$fuwu['name']}" lay-skin="primary">{/foreach}
+									</div>
+									<!-- <div class="layui-form-mid layui-word-aux"><a href="groupadd.php">创建分组</a></div> -->
+								</div>
+								{if getcustom('shop_label')}
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">商品标签：</label>
+                                    <div class="layui-input-inline" style="width:300px">
+                                    	{php} $labelids = explode(',',$info['labelid']);{/php}
+                                        <select name="info[labelid]" id="labelid" xm-select="selectLabelid" xm-select-max="" xm-select-search >
+                                            <option value="">--请选择--</option>
+                                            {foreach $labels as $cv}
+                                            <option value="{$cv['id']}" {if in_array($cv['id'],$labelids)}selected{/if}>{$cv['name']}</option>
+                                            {/foreach}
+                                        </select>
+                                    </div>
+                                    <div class="layui-form-mid layui-word-aux"></div>
+                                </div>
+                                <div class="layui-form-item">
+                                  <label class="layui-form-label">标签背景色：</label>
+                                  <div class="layui-input-inline">
+                                    <input type="text" name="info[labelbgcolor]" value="{$info['labelbgcolor']}" class="layui-input">
+                                  </div>
+                                  <div class="_colorpicker" style="float:left"></div>
+                                  <div class="layui-form-mid layui-word-aux">商品标签背景色，不填写默认商城主色调</div>
+                                </div>
+                                <div class="layui-form-item">
+                                  <label class="layui-form-label">标签字体色：</label>
+                                  <div class="layui-input-inline">
+                                    <input type="text" name="info[labelcolor]" value="{$info['labelcolor']}" class="layui-input">
+                                  </div>
+                                  <div class="_colorpicker" style="float:left"></div>
+                                  <div class="layui-form-mid layui-word-aux">商品标签字体色，不填写默认白色</div>
+                                </div>
+								{/if}
+								{if getcustom('product_bind_mendian')}
+								<div class="layui-form-item">
+									<label class="layui-form-label">销售门店：</label>
+									<div class="layui-input-inline" style="width:80%">
+										{php} $bind_mendian_ids = $info['bind_mendian_ids']?explode(',',$info['bind_mendian_ids']):[];{/php}
+										<input type="checkbox" name="info[bind_mendian_ids][]" value="-1" {if !$info['id'] || !$info['bind_mendian_ids'] || in_array('-1',$bind_mendian_ids)}checked{/if} title="所有" lay-skin="primary">
+										{foreach $mendianlist as $mendian}
+										<input type="checkbox" name="info[bind_mendian_ids][]" value="{$mendian['id']}" {if in_array($mendian['id'],$bind_mendian_ids)}checked{/if} title="{$mendian['name']}" lay-skin="primary">
+										{/foreach}
+									</div>
+									<!-- <div class="layui-form-mid layui-word-aux"><a href="groupadd.php">创建分组</a></div> -->
+								</div>
+								{/if}
+								
+								
+								
+	
+
+<div class="layui-form-item">
+	<label class="layui-form-label">序号：</label>
+	<div class="layui-input-inline">
+		<input type="text" name="info[sort]" value="{$info['sort']?$info['sort']:'0'}" class="layui-input">
+	</div>
+	<div class="layui-form-mid layui-word-aux">用于排序,越大越靠前</div>
+</div>
+
+
+<div class="layui-form-item">
+	<label class="layui-form-label">状态：</label>
+	<div class="layui-input-inline" style="width:600px">
+		<input type="radio" name="info[status]" value="1" title="已上架" {if !$info['id'] || $info['status']==1}checked{/if} lay-filter="set_status"/>
+		<input type="radio" name="info[status]" value="0" title="未上架" {if $info['id'] && $info['status']==0}checked{/if} lay-filter="set_status"/>
+		<input type="radio" name="info[status]" value="2" title="设置上架时间" {if $info['id'] && $info['status']==2}checked{/if} lay-filter="set_status"/>
+		<input type="radio" name="info[status]" value="3" title="设置上架周期" {if $info['id'] && $info['status']==3}checked{/if} lay-filter="set_status"/>
+	</div>
+</div>
+
+<div class="layui-form-item" id="set_status2" {if $info['status']!=2}style="display:none"{/if}>
+<label class="layui-form-label">上架时间：</label>
+<div class="layui-input-inline" style="width:150px">
+	<input type="text" name="info[start_time]" class="layui-input" value="{$info.start_time}" id="start_time" autocomplete="off">
+</div>
+<div class="layui-form-mid">到</div>
+<div class="layui-input-inline" style="width:150px">
+	<input type="text" name="info[end_time]" class="layui-input" value="{$info.end_time}" id="end_time" autocomplete="off">
+</div>
+<div class="layui-form-mid layui-word-aux" style="clear:left;margin-left:110px"></div>
+</div>
+<div class="layui-form-item" id="set_status3" {if $info['status']!=3}style="display:none"{/if}>
+<label class="layui-form-label">上架周期：</label>
+<div class="layui-input-inline" style="width:150px">
+	<input type="text" name="info[start_hours]" class="layui-input" value="{$info.start_hours}" id="start_hours" autocomplete="off">
+</div>
+<div class="layui-form-mid">到</div>
+<div class="layui-input-inline" style="width:150px">
+	<input type="text" name="info[end_hours]" class="layui-input" value="{$info.end_hours}" id="end_hours" autocomplete="off">
+</div>
+<div class="layui-form-mid layui-word-aux layui-clear">结束时间小于或等于开始时间表示跨天,如:16:00到06:00表示下午4点到次日早晨6点</div>
+</div>
+
+{if $fromwxvideo}
+<div class="layui-form-item">
+	<label class="layui-form-label">类目ID：</label>
+	<div class="layui-input-inline" style="width:200px">
+		<input type="text" name="info[wxvideo_third_cat_id]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info['wxvideo_third_cat_id']}">
+	</div>
+	<button type="button" class="layui-btn layui-btn-primary" onclick="showChooseCategory()">选择</button>
+</div>
+<div class="layui-form-item">
+	<label class="layui-form-label">品牌：</label>
+	<div class="layui-input-inline" style="width:200px">
+		<select name="info[wxvideo_brand_id]">
+			{foreach $brand_list as $v}
+			<option value="{$v.brand_id}" {if $info['wxvideo_brand_id'] == $v['brand_id']}selected{/if}>{$v.brand_wording}</option>
+			{/foreach}
+		</select>
+	</div>
+</div>
+
+<div class="layui-form-item" id="trademark_registration_certificate_div">
+	<label class="layui-form-label">资质图片：</label>
+	<input type="hidden" name="info[wxvideo_qualification_pics]" value="{$info['wxvideo_qualification_pics']}" id="wxvideo_qualification_pics">
+	<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this,true)" upload-input="wxvideo_qualification_pics" upload-preview="qualification_picsList" >上传图片</button>
+	<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">如所选类目需要商品资质，请在此上传</div>
+	<div id="qualification_picsList" style="float:left;padding-top:10px;padding-left:110px;clear: both;">
+		{if $info['wxvideo_qualification_pics']}{php}$pics = explode(',',$info['wxvideo_qualification_pics']);{/php}{foreach $pics as $pic}
+		<div class="layui-imgbox">
+			<a class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).parent().remove();getpicsval('wxvideo_qualification_pics','qualification_picsList')" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a>
+			<span class="layui-imgbox-img"><img src="{$pic}"></span>
+		</div>
+		{/foreach}{/if}
+	</div>
+</div>
+{/if}
+
+
+    <div class="layui-form-item">
+    	<label class="layui-form-label"></label>
+    	<div class="layui-input-block">
+    		<button class="layui-btn layui-btn-normal" onclick="gonext(6)">下一步:编辑规格</button>
+    		<button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+    	</div>
+    </div>
+
+</div>
+<div class="layui-tab-item">
+	{include file="shop_product/option"/}
+</div>
+<div class="layui-tab-item">
+	{include file="shop_product/buy"/}
+</div>
+<div class="layui-tab-item">
+	{include file="shop_product/commissionset"/}
+</div>
+
+
+
+<div class="layui-tab-item">
+	<div class="paramTab">
+		{if !$paramList}<div class="layui-form-item"><label class="layui-form-label"></label><div class="layui-form-mid">暂未添加商品参数或当前商品分类下无参数，<a href="javascript:void(0)" onclick="openmax('{:url('ShopParam/index')}&isopen=1')">去添加</a></div></div>{/if}
+		{foreach $paramList as $k=>$param}
+		<div class="layui-form-item">
+			<label class="layui-form-label">{if $param['is_required']==1}<span class="redstar">*</span>{/if}{$param.name}：</label>
+			{if $param.type == '0'}
+			<div class="layui-input-inline" style="width:240px">
+				<input type="text" class="layui-input" name="paramdata[{$param.name}]" value="{$paramdata[$param['name']]}" {if $param['is_required']==1}lay-verify="required" lay-verType="tips"{/if} placeholder="{$param.tips}"/>
+			</div>
+			{elseif $param.type == '1'}
+			<div class="layui-input-inline" style="width:240px">
+				<select name="paramdata[{$param.name}]" {if $param['is_required']==1}lay-verify="required" lay-verType="tips"{/if}>
+				<option value="">{$param.tips}</option>
+				{php} $params = json_decode($param['params'],true);{/php}
+				{foreach $params as $pm}<option {if $paramdata[$param['name']] == $pm}selected{/if}>{$pm}</option>{/foreach}
+				</select>
+			</div>
+			{elseif $param.type == '2'}
+			<div class="layui-input-inline" style="width:500px">
+				{php} $params = json_decode($param['params'],true);{/php}
+				{foreach $params as $pm}
+				<input type="checkbox" name="paramdata[{$param.name}][]" value="{$pm}" title="{$pm}" lay-skin="primary" {if in_array($pm,$paramdata[$param['name']])}checked{/if}>
+				{/foreach}
+			</div>
+			<div class="layui-form-mid layui-word-aux" style="clear:left;margin-left:130px">{$param.tips}</div>
+			{/if}
+		</div>
+		{/foreach}
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label"></label>
+		<div class="layui-input-block">
+			<button class="layui-btn layui-btn-normal" onclick="gonext(3)">下一步:编辑商品详情</button>
+			<button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<label class="layui-form-label"></label>
+		<div class="layui-input-inline" style="width:500px"></div>
+		<div class="layui-form-mid layui-word-aux">使用商品对应的分类参数+未关联分类参数</div>
+	</div>
+</div>
+
+<div class="layui-tab-item">
+	<!-- 详情编辑器 -->
+	<!-- <div class="layui-form-item">
+        <label class="layui-form-label">商品详情</label>
+        <div class="layui-input-inline" style="width:500px">
+            <script id="content" name="info[detail]" type="text/plain" style="width:100%;height:500px">{$info['detail']}</script>
+        </div>
+    </div> -->
+	<!-- 详情编辑器 -->
+	<?php
+									$pagetitle='商品详情';
+									$pagedata= $info['detail'] && json_decode($info['detail']) ? $info['detail'] : '[{"id":"M0000000000000","temp":"richtext","params":{bgcolor:"#FFFFFF",margin_x:"0",margin_y:"0",padding_x:"10",padding_y:"10","quanxian":{"all":true},"platform":{"all":true}},"data":"","other":"","content":""}]';
+									?>
+	{include file="designer_page/designer_editor" /}
+
+	<div class="layui-form-item">
+		<label class="layui-form-label"></label>
+		<div class="layui-input-block">
+			<button class="layui-btn layui-btn-normal" onclick="gonext(2)">上一步:编辑商品参数</button>
+			<button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+		</div>
+	</div>
+</div>
+<div class="layui-tab-item">
+	<div class="layui-form-item">
+		<label class="layui-form-label">分享标题：</label>
+		<div class="layui-input-inline" style="width:300px">
+			<input type="text" class="layui-input" name="info[sharetitle]" value="{$info.sharetitle}"/>
+		</div>
+		<div class="layui-form-mid layui-word-aux">默认为商品名称</div>
+	</div>
+	<div class="layui-form-item">
+		<label class="layui-form-label">分享图标：</label>
+		<input type="hidden" name="info[sharepic]" id="sharepic" lay-verType="tips" class="layui-input" value="{$info.sharepic}">
+		<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="sharepic" upload-preview="sharepicPreview" onclick="uploader(this)">上传图片</button>
+		<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：400*400像素，默认为商品主图</div>
+		<div id="sharepicPreview" class="picsList-class-padding">
+			<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.sharepic}"/></div></div>
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<label class="layui-form-label">分享描述：</label>
+		<div class="layui-input-inline" style="width:300px">
+			<input type="text" class="layui-input" name="info[sharedesc]" value="{$info.sharedesc}"/>
+		</div>
+		<div class="layui-form-mid layui-word-aux">默认为商品卖点</div>
+	</div>
+	<!-- <div class="layui-form-item">
+        <label class="layui-form-label">分享链接：</label>
+        <div class="layui-input-inline" style="width:300px">
+            <input type="text" class="layui-input" name="info[sharelink]" value="{$info.sharelink}"/>
+        </div>
+        <div class="layui-form-mid layui-word-aux">默认为商品链接，非特殊需求无需填写</div>
+    </div> -->
+	<div class="layui-form-item">
+		<label class="layui-form-label"></label>
+		<div class="layui-input-block">
+			<button class="layui-btn layui-btn-normal" onclick="gonext(3)">上一步:编辑商品详情</button>
+			<button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+		</div>
+	</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<video id="myvideo" style="display:none"></video>
+
+<script>
+	var fillstate =false;
+	layui.form.verify({
+		positiveWholeNumberRequiredTrue:[/^[+]{0,1}(\d+)$/,'只能填写正整数'],//必填，且只能输入
+	})
+	var formSelects = layui.formSelects;
+	layui.form.on('radio(group_status)',function(data){
+		if(data.value == 1){
+			$('.group_status1').show();
+		}else{
+			$('.group_status1').hide();
+		}
+
+	})
+	$(".layui-form input#video").bind("input change propertychange",function(event){
+		var videourl = $('#video').val();
+		if(videourl){
+			$("#myvideo").prop("src", videourl);
+			$("#myvideo")[0].addEventListener("loadedmetadata", function() {
+				var tol = Math.floor(this.duration); //获取总时长
+				$('#video_duration').val(tol);
+			});
+		}else{
+			$('#video_duration').val(0);
+		}
+	})
+	//var ueditor = UE.getEditor('content');
+	layui.form.on('radio(freighttypeset)', function(data){
+		if(data.value == '1'){
+			$('#setfreight').hide();
+			$('#freighttype3').hide();
+			$('#freighttype4').hide();
+			$('#freighttype3_4').hide();
+		}else if(data.value == '3'){
+			$('#setfreight').hide();
+			$('#freighttype3').show();
+			$('#freighttype3_4').show();
+			$('#freighttype4').hide();
+		}else if(data.value == '4'){
+			$('#setfreight').hide();
+			$('#freighttype3').hide();
+			$('#freighttype3_4').show();
+			$('#freighttype4').show();
+		}else{
+			$('#setfreight').show();
+			$('#freighttype3').hide();
+			$('#freighttype4').hide();
+			$('#freighttype3_4').hide();
+		}
+	})
+
+
+	layui.form.on('radio(weighttype)', function(data){
+		if(data.value == '2'){
+			$('#setweight').show();
+		}else{
+			$('#setweight').hide();
+		}
+	})
+
+	layui.form.on('radio(set_status)',function(data){
+		if(data.value=="0" || data.value=="1"){
+			$('#set_status2').hide();
+			$('#set_status3').hide();
+		}
+		if(data.value=="2"){
+			$('#set_status2').show();
+			$('#set_status3').hide();
+		}
+		if(data.value=="3"){
+			$('#set_status2').hide();
+			$('#set_status3').show();
+		}
+	});
+
+	layui.laydate.render({
+		elem: '#start_hours',
+		type: 'time',
+		format:'HH:mm',
+		trigger: 'click'
+	});
+	layui.laydate.render({
+		elem: '#end_hours',
+		type: 'time',
+		format:'HH:mm',
+		trigger: 'click'
+	});
+	layui.laydate.render({
+		elem: '#start_time',
+		type: 'datetime',
+		trigger: 'click'
+	});
+	layui.laydate.render({
+		elem: '#end_time',
+		type: 'datetime',
+		trigger: 'click'
+	});
+
+	layui.form.on('switch(isfuwu)',function(data){
+		if(data.elem.checked){
+			$('#isfuwudiv').show();
+		}else{
+			$('#isfuwudiv').hide();
+		}
+	})
+	layui.form.on('radio(commissionset)', function(data){
+		if(data.value == '1'){
+			$('#commissionset1').show();
+			$('#commissionset2').hide();
+			$('#commissionset3').hide();
+			$('#commissionset4').hide();
+					$('#commissionset6').hide();
+			$('#commissionset7').hide();
+			{if getcustom('commission_butie')}
+			$('#commission_butie').hide();
+			$('#commission_butie2').show();
+			{/if}
+		}else if(data.value == '2'){
+			$('#commissionset1').hide();
+			$('#commissionset2').show();
+			$('#commissionset3').hide();
+			$('#commissionset4').hide();
+					$('#commissionset6').hide();
+			$('#commissionset7').hide();
+			{if getcustom('commission_butie')}
+			$('#commission_butie').show();
+			$('#commission_butie2').hide();
+			{/if}
+		}else if(data.value == '3'){
+			$('#commissionset1').hide();
+			$('#commissionset2').hide();
+			$('#commissionset3').show();
+			$('#commissionset4').hide();
+					$('#commissionset6').hide();
+			$('#commissionset7').hide();
+			{if getcustom('commission_butie')}
+			$('#commission_butie').hide();
+			$('#commission_butie2').hide();
+			{/if}
+		}else if(data.value == '5'){
+			$('#commissionset1').show();
+			$('#commissionset2').hide();
+			$('#commissionset3').show();
+			$('#commissionset4').hide();
+					$('#commissionset6').hide();
+			$('#commissionset7').hide();
+			{if getcustom('commission_butie')}
+			$('#commission_butie').hide();
+			$('#commission_butie2').show();
+			{/if}
+		}else if(data.value == '6'){
+			$('#commissionset1').hide();
+			$('#commissionset2').hide();
+			$('#commissionset3').hide();
+			$('#commissionset4').hide();
+			$('#commissionset6').show();
+			$('#commissionset7').hide();
+			{if getcustom('commission_butie')}
+			$('#commission_butie').show();
+			$('#commission_butie2').hide();
+			{/if}
+		}else if(data.value == '7'){
+			$('#commissionset1').hide();
+			$('#commissionset2').hide();
+			$('#commissionset3').hide();
+			$('#commissionset4').hide();
+			$('#commissionset6').hide();
+			$('#commissionset7').show();
+			{if getcustom('commission_butie')}
+			$('#commission_butie').hide();
+			$('#commission_butie2').hide();
+			{/if}
+		}else{
+			$('#commissionset1').hide();
+			$('#commissionset2').hide();
+			$('#commissionset3').hide();
+			$('#commissionset4').hide();
+			$('#commissionset6').hide();
+			$('#commissionset7').hide();
+			{if getcustom('commission_butie')}
+			$('#commission_butie').hide();
+			$('#commission_butie2').hide();
+			{/if}
+		}
+	});
+	layui.form.on('radio(commissionpingjiset)', function(data){
+		if(data.value == '1'){
+			$('#commissionpingjiset1').show();
+			$('#commissionpingjiset2').hide();
+		}else if(data.value == '2'){
+			$('#commissionpingjiset1').hide();
+			$('#commissionpingjiset2').show();
+		}else{
+			$('#commissionpingjiset1').hide();
+			$('#commissionpingjiset2').hide();
+		}
+	})
+	{if getcustom('commission_bole')}
+	//分销伯乐奖
+	layui.form.on('radio(commissionboleset)', function(data){
+		if(data.value == '1'){
+			$('#commissionboleset1').show();
+			$('#commissionboleset2').hide();
+		}else if(data.value == '2'){
+			$('#commissionboleset1').hide();
+			$('#commissionboleset2').show();
+		}else{
+			$('#commissionboleset1').hide();
+			$('#commissionboleset2').hide();
+		}
+	})
+	{/if}
+	//购车基金
+	layui.form.on('radio(gouchebonusset)', function(data){
+		if(data.value == '1'){
+			$('#gouchebonusset1').show();
+			$('#gouchebonusset2').hide();
+		}else if(data.value == '2'){
+			$('#gouchebonusset1').hide();
+			$('#gouchebonusset2').show();
+		}else{
+			$('#gouchebonusset1').hide();
+			$('#gouchebonusset2').hide();
+		}
+	})
+	//旅游基金
+	layui.form.on('radio(lvyoubonusset)', function(data){
+		if(data.value == '1'){
+			$('#lvyoubonusset1').show();
+			$('#lvyoubonusset2').hide();
+		}else if(data.value == '2'){
+			$('#lvyoubonusset1').hide();
+			$('#lvyoubonusset2').show();
+		}else{
+			$('#lvyoubonusset1').hide();
+			$('#lvyoubonusset2').hide();
+		}
+	})
+	layui.form.on('radio(fenhongset)', function(data){
+		if(data.value == '1'){
+			$('#fenhongset').show();
+		}else{
+			$('#fenhongset').hide();
+		}
+	})
+
+	layui.form.on('radio(scoredkmaxset)', function(data){
+		if(data.value == '1'){
+			$('#scoredkmaxset1').show();
+			$('#scoredkmaxunit').html('%');
+		}else if(data.value == '2'){
+			$('#scoredkmaxset1').show();
+			$('#scoredkmaxunit').html('元');
+		}else{
+			$('#scoredkmaxset1').hide();
+		}
+	})
+	layui.form.on('radio(creditdkmaxset)', function(data){
+		if(data.value == '1'){
+			$('#creditdkmaxset1').show();
+			$('#creditdkmaxunit').html('%');
+		}else if(data.value == '2'){
+			$('#creditdkmaxset1').show();
+			$('#creditdkmaxunit').html('元');
+		}else{
+			$('#creditdkmaxset1').hide();
+		}
+	})
+	{if getcustom('product_givetongzheng')}
+	layui.form.on('radio(tongzhengdkmaxset)', function(data){
+		if(data.value == '1'){
+			$('#tongzhengdkmaxset1').show();
+			$('#tongzhengdkmaxunit').html('%');
+		}else if(data.value == '2'){
+			$('#tongzhengdkmaxset1').show();
+			$('#tongzhengdkmaxunit').html('元');
+		}else{
+			$('#tongzhengdkmaxset1').hide();
+		}
+	})
+	{/if}
+	layui.form.on('radio(mendianhexiaoset)', function(data){
+		if(data.value == '1'){
+			$('#mendianhexiaoset1').show();
+			$('#mendianhexiaoset2').hide();
+		}else if(data.value == '2'){
+			$('#mendianhexiaoset1').hide();
+			$('#mendianhexiaoset2').show();
+		}else{
+			$('#mendianhexiaoset1').hide();
+			$('#mendianhexiaoset2').hide();
+		}
+	})
+	{if getcustom('shoporder_ranking')}
+	layui.form.on('radio(rankingset)', function(data){
+		if(data.value == '1'){
+			$('#rankingset1').show();
+		}else{
+			$('#rankingset1').hide();
+		}
+	})
+	{/if}
+	{if getcustom('member_levelup_givechild')}
+	layui.form.on('radio(give_team_levelup)', function(data){
+		if(data.value == '1'){
+			$('.team_levelup_div').show();
+		}else{
+			$('.team_levelup_div').hide();
+		}
+	})
+	{/if}
+
+	function gonext(layid){
+		$(window).scrollTop(0);
+		layui.element.tabChange('mytab', layid);
+	}
+	layui.element.on('tab(mytab)', function(){
+		try{
+			changeconentxy();
+		}catch(e){}
+	})
+	//var ueditor = UE.getEditor('editor');
+	var oldgglist = {:json_encode($newgglist)};
+	var Copyoldgglist = {:json_encode($newgglist)};
+	$(function(){
+		refreshgg();
+	})
+	function addggtype(){
+		var gghtml = '<tr>';
+		gghtml += '<td><input type="text" name="ggname" class="layui-input" value="" style="width:120px;margin-bottom: 5px;" placeholder="请输入规格分组"/></td>';
+		gghtml += '<td><div><input type="text" name="ggnameguige" class="layui-input" style="width:180px;margin-bottom:5px" value="" placeholder="请输入规格名称"> <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="addggname(this)" style="margin-top:-3px;"><i class="fa fa-plus" style="font-size:14px!important"></i></button>';
+		{if getcustom('more_productunit_guige')}
+			var product_type = $(".product_type").val();
+			var style_prounit = 'style="margin-top:-3px;"';
+			if(product_type !=6){ 
+				var style_prounit = 'style="display:none;margin-top:-3px;"';
+			}
+			gghtml +=' <button title="上移" type="button" class="layui-btn layui-btn-primary layui-btn-sm prounit_show" '+ style_prounit+' onclick="toup(this)"><i class="fa fa-arrow-up" style="font-size:14px!important"></i></button>';								
+		{/if}
+		gghtml +='</div></td>';
+		gghtml += '<td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="$(this).parent().parent().remove()">删除</button></td>';
+		gghtml += '</tr>';
+		$('#ggnamediv').append(gghtml);
+	}
+	function addggname(obj){
+		var pichtml = '';
+		{if getcustom('more_productunit_guige')}
+		var product_type = $(".product_type").val();
+		var style_prounit = 'style="margin-top:-3px;"';
+			if(product_type !=6){ 
+				var style_prounit = 'style="display:none;margin-top:-3px;"';
+			}
+		pichtml +=' <button title="上移" type="button" class="layui-btn layui-btn-primary layui-btn-sm prounit_show" '+ style_prounit+' onclick="toup(this)"><i class="fa fa-arrow-up" style="font-size:14px!important"></i></button>';								
+		{/if}	
+		{if getcustom('product_wholesale')}
+		var tdindex = $(obj).parent().parent().parent().index();
+		if(tdindex == 0){
+			var randomNum = Math.floor(Math.random() * 100);
+			var lt = $(obj).parent().siblings().length;
+			var product_type = $(".product_type").val();
+			if(product_type !=4){ 
+				var style = 'style="display:none"';
+			}
+			pichtml+='<div id="ggpic_wholesale'+randomNum+lt+'" class="jieti_discount" '+ style+'  ><input type="hidden" name="ggpic_wholesale" id="ggpic_wholesale_val'+randomNum+lt+'" value=""/><div class="guigeimg" style="margin-bottom:6px;" ><img class="thumb_img" src="" style="max-width:50px;"/><a  style="display: none;" class="layui-imgbox-close" href="javascript:void(0)" onclick="$(this).prev(\'.thumb_img\').attr(\'src\',\'\');$(this).parent().prev(\'input\').val(\'\');$(this).hide();"  title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a></div> <button class="layui-btn layui-btn-sm layui-btn-primary" style="margin-bottom:6px;"  onclick="uploader(this)" upload-input="ggpic_wholesale_val'+randomNum+lt+'" upload-preview="ggpic_wholesale'+randomNum+lt+'" type="button">上传</button></div>';
+		}
+		{/if}	
+		var ggnameobj = $(obj).parent().parent().append('<div><input class="layui-input" name="ggnameguige" type="text" style="width:180px;margin-bottom:5px" value="" placeholder="请输入规格名称"> <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delggname(this,1)" style="margin-top:-3px;"><i class="fa fa-remove" style="font-size:14px!important"></i></button>'+pichtml+'</div>');
+	}
+	function delggname(obj,type){
+		let ksarrdel = [];
+		let haskongdel = 0;
+		$('#ggnamediv').find("input").each(function(){
+			if($(this).val()=='') haskongdel = 1
+		})
+		if(haskongdel){
+			$(obj).parent().remove();return;
+		}
+		var product_type = $(".product_type").val();
+		// 获取点击规格名称的索引
+		var mcid= $(obj).parent().index();
+		var fzid = $(obj).parent().parent().parent().index();
+		$(obj).parent().remove();
+		specs = [];
+		var i=0;
+		// 规格分组
+		$('input[name=ggname]').each(function(){
+			var ggval = [];
+			var j=0;
+			$(this).parent().next().find('input[name=ggnameguige]').each(function(){
+				
+				if(product_type ==4){
+					var ggpic_wholesale = $(this).nextAll().find('input[name=ggpic_wholesale]').val();
+					ggval.push({ 'k':j,'title':$(this).val(),'ggpic_wholesale':ggpic_wholesale});
+				}else{
+					ggval.push({ 'k':j,'title':$(this).val()});
+				}
+				//ggval.push({ 'k':j,'title':$(this).val()});
+				j++
+			})
+			specs.push({ 'k':i,'title':$(this).val(),'items':ggval});
+			i++;
+		});
+		var len = specs.length;
+		var newlen = 1;
+		var h = new Array(len);
+		var rowspans = new Array(len);
+		for(var i=0;i<len;i++){
+			var itemlen = specs[i].items.length;
+			if(itemlen<=0) { itemlen = 1 };
+			newlen*=itemlen;
+			h[i] = new Array(newlen);
+			for(var j=0;j<newlen;j++){
+				h[i][j] = new Array();
+			}
+			var l = specs[i].items.length;
+			rowspans[i] = 1;
+			for(j=i+1;j<len;j++){
+				rowspans[i]*= specs[j].items.length;
+			}
+		}	
+		for(var m=0;m<len;m++){
+			var k = 0,kid = 0,n=0;
+			for(var j=0;j<newlen;j++){
+				var rowspan = rowspans[m];
+				if( j % rowspan==0){
+					h[m][j]={ k:specs[m].items[kid].k,title: specs[m].items[kid].title,id: specs[m].items[kid].id};
+				}else{
+					h[m][j]={ k:specs[m].items[kid].k,title:specs[m].items[kid].title,id: specs[m].items[kid].id};
+				}
+				n++;
+				if(n==rowspan){
+					kid++; if(kid>specs[m].items.length-1) { kid=0; }
+					n=0;
+				}
+			}
+		}
+		for(var i=0;i<newlen;i++){
+			var ks = [];
+			for(var j=0;j<len;j++){
+				ks.push( h[j][i].k);
+			}
+			ks =ks.join(',');
+			ksarrdel.push(ks)
+		}
+	if(type){
+		let oldgglistcopys = {}
+		Object.keys(oldgglist).forEach(item => {
+			if(item.split(',')[fzid] == mcid){
+				delete oldgglist[item]
+			}
+		})
+		ksarrdel.forEach((item,index) => {
+			oldgglistcopys[item] = Object.values(oldgglist)[index]
+		})
+		oldgglist = oldgglistcopys
+		return;
+	}
+		let oldgglistcopy = {}
+		Object.keys(Copyoldgglist).forEach(item => {
+			if(item.split(',')[$(obj).attr('data-id')] == $(obj).attr('id')){
+				delete Copyoldgglist[item]
+			}
+		})
+		if(Object.values(Copyoldgglist).length < ksarrdel.length){
+			// 编辑时添加新规格删除
+			let idarr = Object.values(Copyoldgglist).map(item => item.id);
+			let arr = [];
+			Object.values(oldgglist).forEach((item,index) => {
+				// 通过数据唯一值id筛选未删除的数据
+				if(item.id != undefined){
+					if(idarr.some(i => i == item.id)){
+						arr.push(item)
+					}
+				}else{
+					// 判断当前数据的值是否为选中取消的
+					if(Object.keys(oldgglist)[index].split(',')[fzid] != mcid){
+						arr.push(item)
+					}
+				}
+			})
+			ksarrdel.forEach((item,index) => {
+				oldgglistcopy[item] = arr[index];
+			})
+			// key值重新编译，数据按照顺序赋值
+		}else{
+			ksarrdel.forEach((item,index) => {
+				oldgglistcopy[item] = Object.values(Copyoldgglist)[index]
+			})
+		}
+		// 
+		oldgglist = oldgglistcopy
+	}
+	function lvpriceset(){
+		var lvprice = $("input[name='info[lvprice]']").val();
+		if(lvprice == 0){
+			$("input[name='info[lvprice]']").val('1');
+			$('#lvpricebtn').text('关闭会员价');
+			$('#commissionset4input').show();
+			$('#commissionset4tips').show();
+			$('#lvpricesetWithRate').show();
+			//layui.form.render();
+		}else{
+			fillstate = false;
+			$("input[name='info[lvprice]']").val('0');
+			$('#lvpricebtn').text('开启会员价');
+			$('#commissionset4input').hide();
+			$('#commissionset4tips').hide();
+			$('#lvpricesetWithRate').hide();
+		}
+		refreshgg()
+	}
+	{if getcustom('product_service_fee')}
+	function serviceFeeSet(){
+		var serviceFeeSwitch = $("input[name='info[service_fee_switch]']").val();
+        if(serviceFeeSwitch == 0){
+            $("input[name='info[service_fee_switch]']").val(1);
+            $('#serviceFeeBtn').text('关闭{:t('服务费')}');
+        }
+        else{
+            $("input[name='info[service_fee_switch]']").val(0);
+            $('#serviceFeeBtn').text('开启{:t('服务费')}');
+        }
+		refreshgg()
+	}
+	{/if}
+	function lvpricesetWithRate()
+	{
+		fillstate = true;
+		refreshgg()
+		//todo 等级列表$levellist，费率字段price_rate
+	}
+	var ismoveggname = false;
+	{if getcustom('more_productunit_guige')}
+	function toup(obj){
+		var onthis=$(obj).parent();  
+		var getUp=onthis.prev(); 
+		if (getUp.length<=0)  {  
+		layer.msg("到顶了");  
+		return;  
+		}  
+		ismoveggname = true;
+		onthis.after(getUp);  
+	}
+	{/if}
+	var specs = [];
+	var prounit = [];
+	function refreshgg(){
+		var haskong = 0
+		var ksarr = [];
+		$('#ggnamediv').find("input[name=ggname]").each(function(){
+			if($(this).val()=='') haskong = 1
+		})
+		if(haskong){
+			layer.msg('请填写完整');return;
+		}
+		var lvprice = $("input[name='info[lvprice]']").val();
+
+		{if getcustom('product_service_fee')}
+		var serviceFeeSwitch = $("input[name='info[service_fee_switch]']").val();
+		{/if}
+
+		var product_type = $(".product_type").val();
+		if(ismoveggname){
+			oldgglist = [];
+			ismoveggname = false;
+		}
+		specs = [];
+		var i=0;
+		// 规格分组
+		$('input[name=ggname]').each(function(){
+			var ggval = [];
+			var j=0;
+			$(this).parent().next().find('input[name=ggnameguige]').each(function(){
+				
+				if(product_type ==4){
+					var ggpic_wholesale = $(this).nextAll().find('input[name=ggpic_wholesale]').val();
+					ggval.push({ 'k':j,'title':$(this).val(),'ggpic_wholesale':ggpic_wholesale});
+				}else{
+					ggval.push({ 'k':j,'title':$(this).val()});
+				}
+				//ggval.push({ 'k':j,'title':$(this).val()});
+				j++
+			})
+
+			specs.push({ 'k':i,'title':$(this).val(),'items':ggval});
+
+			
+			i++;
+		});	
+		{if getcustom('more_productunit_guige')}
+		prounit = [];
+		$('#prounit input').each(function(index,value){
+			var val = $(this).val();
+			if(val && index > 0){
+				prounit.push(val);
+			}
+		});
+		{/if}
+		console.log(specs)
+		var len = specs.length;
+		var newlen = 1;
+		var h = new Array(len);
+		var rowspans = new Array(len);
+		var html = '<thead><tr>';
+		for(var i=0;i<len;i++){
+			html+="<th>" + specs[i].title + "</th>";
+			var itemlen = specs[i].items.length;
+			if(itemlen<=0) { itemlen = 1 };
+			newlen*=itemlen;
+			h[i] = new Array(newlen);
+			for(var j=0;j<newlen;j++){
+				h[i][j] = new Array();
+			}
+			var l = specs[i].items.length;
+			rowspans[i] = 1;
+			for(j=i+1;j<len;j++){
+				rowspans[i]*= specs[j].items.length;
+			}
+		}
+		var product_type = $(".product_type").val();
+		{if getcustom('product_handwork')}
+			var product_type = $(".product_type").val();
+		{/if}
+		html += '<th>规格编号</th>';
+		{if getcustom('more_productunit_guige')}
+		prounit.map(function(value,index){
+				if(product_type == 6){
+					html += '<th class="prounit_show" style="text-align:center">'+ value +'(单位换算数量)</th>';
+				}else{
+					html += '<th class="prounit_show" style="text-align:center;display:none">'+ value +'(单位换算数量)</th>';
+				}
+			})
+		{/if}
+		html += '<th>市场价（元）</th>';
+		html += '<th>成本价（元）</th>';
+		if(lvprice==1){
+			{foreach $levellist as $level}
+			html += '<th>{$level.name}（元）</th>';
+			{/foreach}
+			}else{
+				html += '<th>销售价（元）</th>';
+			}
+			{if getcustom('price_dollar') && usdrate>0}
+			html += '<th>美元</th>';
+			{/if}
+				html += '<th>重量（克）</th>';
+				html += '<th>库存</th>';
+				{if $bid==0 || $business_selfscore==1}
+				html += '<th>赠{:t('积分')}(个)</th>';
+				{/if}
+					{if getcustom('consumer_value_add') && ($auth_data=='all' || in_array('Consumer/*',$auth_data)) }
+					html += '<th>赠{:t('绿色积分')}(元)</th>';
+					html += '<th>{:t('奖金池')}(元)</th>';
+					{/if}
+				{if $bid==0 && getcustom('commission_duipeng_score_withdraw') && ($auth_data=='all' || in_array('CommissionWithdrawScorePower/authscorelog',$auth_data))}
+				html += '<th>自购赠提现积分(个)</th>';
+				html += '<th>直推赠提现积分(个)</th>';
+				{/if}
+					{if getcustom('product_givetongzheng')}
+					html += '<th>赠{:t('通证')}(个)</th>';
+					{/if}
+				{if getcustom('product_handwork')}
+					if(product_type == 3){
+						html += '<th class="handfee">手工费</th>';
+					}else{
+						html += '<th class="handfee" style="display:none">手工费</th>';
+					}
+				{/if}
+				{if $bid==0}
+					{if $ShopSendSilvermoney}
+					html += '<th>赠{:t('银值')}(个)</th>';
+					{/if}
+					{if $ShopSendGoldmoney}
+					html += '<th>赠{:t('金值')}(个)</th>';
+					{/if}
+				{/if}
+					{if getcustom('guige_limit_start')}
+					html += '<th>起售数量</th>';
+					{/if}
+					{if getcustom('product_stock_warning')}
+					html += '<th>预警值</th>';
+					{/if}
+						{if getcustom('member_commission_max') && $member_commission_max==1}
+						html += '<th>赠送{:t('佣金上限')}</th>';
+						{/if}
+					if(product_type == 4){
+						html += '<th class="showguigeimg" style="display:none">图片</th>';
+					}else{
+						html += '<th class="showguigeimg" >图片</th>';
+					}
+						html += '</tr></thead>';
+
+						for(var m=0;m<len;m++){
+							var k = 0,kid = 0,n=0;
+							for(var j=0;j<newlen;j++){
+								var rowspan = rowspans[m];
+								if( j % rowspan==0){
+									h[m][j]={ k:specs[m].items[kid].k,title: specs[m].items[kid].title, html: "<td rowspan='" +rowspan + "'>"+ specs[m].items[kid].title+"</td>\r\n",id: specs[m].items[kid].id};
+								}else{
+									h[m][j]={ k:specs[m].items[kid].k,title:specs[m].items[kid].title, html: "",id: specs[m].items[kid].id};
+								}
+								n++;
+								if(n==rowspan){
+									kid++; if(kid>specs[m].items.length-1) { kid=0; }
+									n=0;
+								}
+							}
+						}
+
+						var hh = "";
+						for(var i=0;i<newlen;i++){
+
+							hh+="<tr>";
+							var ks = [];
+							var titles = [];
+							for(var j=0;j<len;j++){
+								hh+=h[j][i].html;
+								ks.push( h[j][i].k);
+								titles.push( h[j][i].title);
+							}
+							ks2 =ks.join('_');
+							ks =ks.join(',');
+							titles =titles.join(',');
+							ksarr.push(ks)							
+							
+							if(typeof(oldgglist[ks])!='undefined'){
+								var val = oldgglist[ks];
+							}else{
+								if(Object.values(oldgglist).length == 0){
+									oldgglist ={}
+								}
+								var val = { procode:'',market_price:'',cost_price:'',sell_price:'',weight:'100',stock:'1000',givescore:'0',givetongzheng:'0',pic:'',lvprice_data:null,caneditstock:1};
+								if(product_type == 6){
+									var val = { prounit:'',procode:'',market_price:'',cost_price:'',sell_price:'',weight:'100',stock:'1000',givescore:'0',givetongzheng:'0',pic:'',lvprice_data:null};
+								}
+								oldgglist[ks] = val;
+							}
+							//hh += '<td>';
+							//hh += '	<input name="option['+ks+'][procode]" class="layui-input" type="text" style="width:100px" value="'+(val.procode==null?'':val.procode)+'"/>';
+							//if(i==0){
+							//	hh += ' <i class="fa fa-hand-o-down" style="cursor:pointer" title="批量设置" onclick="plset(\'procode\')"></i>';
+							//}
+							// hh += '</td>';
+							hh += '<td>';
+							hh += '	<input name="option['+ks+'][barcode]" class="layui-input" id="'+ks+'" oninput="barcodeChange(this)" type="text" style="width:100px;" value="'+(val.barcode==null?'':val.barcode)+'"/>';
+							if(i==0){
+								hh += ' <i class="fa fa-hand-o-down" style="cursor:pointer" title="批量设置" onclick="plset(\'barcode\')"></i>';
+							}
+							hh += '</td>';
+							{if getcustom('more_productunit_guige')}
+							prounit.map(function(value,index){       
+								if(product_type == 6){
+									hh += '<td class="prounit_show">';
+								}else{
+									hh += '<td class="prounit_show" style="display:none">';
+								}
+								prounit_index ='prounit_'+index;
+								hh += '	<input name="option['+ks+'][prounit_'+index+']" class="layui-input" type="text" style="width:100px" value="'+(val['prounit_'+index]==null?'':val['prounit_'+index])+'"/>';
+								if(i==0){
+									hh += ' <i class="fa fa-hand-o-down" style="cursor:pointer" title="批量设置" onclick="plset(\'prounit_'+index+'\')"></i>';
+								}
+								hh += '</td>';
+							})
+							{/if}
+							hh += '<td>';
+							hh += '	<input name="option['+ks+'][name]" type="hidden" value="'+titles+'" class="layui-input"/><input name="option['+ks+'][market_price]" type="text" class="layui-input" id="'+ks+'" oninput="marketPriceChange(this)" style="width:70px" value="'+(val.market_price==null?'':val.market_price)+'"/>';
+							if(i==0){
+								hh += ' <i class="fa fa-hand-o-down" style="cursor:pointer" title="批量设置" onclick="plset(\'market_price\')"></i>';
+							}
+							hh += '</td>';
+							hh += '<td>';
+							hh += '	<input name="option['+ks+'][cost_price]" id="'+ks+'" oninput="costPriceChange(this)" type="text" class="layui-input" style="width:70px;" value="'+(val.cost_price==null?'':val.cost_price)+'" {if $costPriceDisabled}disabled="disabled"{/if} />';
+							if(i==0){
+								hh += ' <i class="fa fa-hand-o-down" style="cursor:pointer" title="批量设置" onclick="plset(\'cost_price\')"></i>';
+							}
+							hh += '</td>';
+							if(lvprice==1){
+								{foreach $levellist as $lk=>$level}
+								hh += '<td>';
+								if(fillstate){
+									 {if $level.price_rate}
+									 hh += '<input name="option['+ks+'][sell_price_{$level.id}]" type="text" style="width:70px;" value="'+(val.sell_price==null?'':val.sell_price*{$level.price_rate}).toFixed(2)+'" class="layui-input" id="levelprice_'+i+'_{$lk}"/>';
+									 {else}
+									 hh += '<input name="option['+ks+'][sell_price_{$level.id}]" type="text" style="width:70px;" value="'+(val.sell_price==null?'':val.sell_price)+'" class="layui-input" id="levelprice_'+i+'_{$lk}"/>';
+									 {/if}
+								}else{
+									hh += '	<input name="option['+ks+'][sell_price_{$level.id}]" type="text" style="width:70px" value="'+(val.lvprice_data==null || val.lvprice_data[{$level.id}]==null?'':val.lvprice_data[{$level.id}])+'" class="layui-input" id="levelprice_'+i+'_{$lk}"/>';
+								}
+									{if getcustom('product_service_fee')}
+									if(serviceFeeSwitch == 1){
+										hh += '<input name="option['+ks+'][service_fee_{$level.id}]" type="text"  style="width:70px" value="'+(val.service_fee_data==null || val.service_fee_data[{$level.id}]==null?'':val.service_fee_data[{$level.id}])+'"  placeholder="{:t(\'服务费\')}"  class="layui-input" id="servicefee_'+i+'_{$lk}"/>';
+									}
+									{/if}
+
+									if(i==0){
+									{if $lk==0}
+									hh += ' <i class="fa fa-hand-o-down" style="cursor:pointer" title="批量设置" onclick="plset(\'sell_price_{$level.id}\')"></i>';
+									{else}
+									hh += ' <i class="fa fa-hand-o-down" style="cursor:pointer" title="批量设置" onclick="plsetlevelprice(\''+i+'\',\'{$lk}\')"></i>';
+									{/if}
+									}
+									hh += '</td>';
+									{/foreach}
+									}else{
+										hh += '<td>';
+										hh += '<input name="option['+ks+'][sell_price]" id="'+ks+'" oninput="getusd(this,'+i+')"  type="text" style="width:70px;" value="'+(val.sell_price==null?'':val.sell_price)+'" class="layui-input"/>';
+										{if getcustom('product_service_fee')}
+										if(serviceFeeSwitch == 1){
+											hh += '<input name="option['+ks+'][service_fee]" style="width:70px" value="'+(val.service_fee==null ?'':val.service_fee)+'"  placeholder="{:t(\'服务费\')}"  class="layui-input"/>';
+										}
+										{/if}
+										if(i==0){
+											hh += ' <i class="fa fa-hand-o-down" style="cursor:pointer" title="批量设置" onclick="plset(\'sell_price\')"></i>';
+										}
+										hh += '</td>';
+									}
+									{if getcustom('price_dollar') && usdrate>0}
+									hh += '<td>';
+									hh += '	<input  type="text" id="usdprice'+i+'" class="layui-input" style="width:70px" value="'+(val.usdprice?val.usdprice:'')+'"/>';
+									if(i==0){
+										hh += ' <i class="fa fa-hand-o-down" style="cursor:pointer" title="批量设置" onclick="plset(\'cost_price\')"></i>';
+									}
+									hh += '</td>';
+									{/if}
+
+										hh += '<td>';
+										hh += ' <input name="option['+ks+'][weight]" type="text" style="width:60px" value="'+(val.weight==null?'':val.weight)+'" class="layui-input"/>';
+										if(i==0){
+											hh += ' <i class="fa fa-hand-o-down" style="cursor:pointer" title="批量设置" onclick="plset(\'weight\')"></i>';
+										}
+										hh += '</td>';
+										hh += '<td>';
+										console.log('---------------');
+										console.log(val)
+										if(val.caneditstock==1) {
+											hh += ' <input name="option[' + ks + '][stock]" type="text" style="width:60px" value="' + (val.stock == null ? '' : val.stock) + '" class="layui-input"/>';
+											if(i==0){
+												hh += ' <i class="fa fa-hand-o-down" style="cursor:pointer" title="批量设置" onclick="plset(\'stock\')"></i>';
+											}
+										}else{
+											hh += '-';
+										}
+										{if getcustom('product_stock_warning')}
+											if(val.stock<val.stock_warning){
+												hh += '<a style="color:red"> 库存不足</a>';
+											}
+										{/if}
+
+									
+										hh += '</td>';
+										{if $bid==0 || $business_selfscore==1}
+										hh += '<td>';
+										hh += ' <input name="option['+ks+'][givescore]" type="text" style="width:60px" value="'+(val.givescore==null?'':val.givescore)+'" class="layui-input"/>';
+										if(i==0){
+											hh += ' <i class="fa fa-hand-o-down" style="cursor:pointer" title="批量设置" onclick="plset(\'givescore\')"></i>';
+										}
+										hh += '</td>';
+										{/if}
+											{if getcustom('consumer_value_add') && ($auth_data=='all' || in_array('Consumer/*',$auth_data))}
+											hh += '<td>';
+											hh += ' <input name="option['+ks+'][give_green_score]" type="text" style="width:60px" value="'+(val.give_green_score==null?'':val.give_green_score)+'" class="layui-input"/>';
+											if(i==0){
+												hh += ' <i class="fa fa-hand-o-down" style="cursor:pointer" title="批量设置" onclick="plset(\'give_green_score\')"></i>';
+											}
+											hh += '</td>';
+
+											hh += '<td>';
+											hh += ' <input name="option['+ks+'][give_bonus_pool]" type="text" style="width:60px" value="'+(val.give_bonus_pool==null?'':val.give_bonus_pool)+'" class="layui-input"/>';
+											if(i==0){
+												hh += ' <i class="fa fa-hand-o-down" style="cursor:pointer" title="批量设置" onclick="plset(\'give_bonus_pool\')"></i>';
+											}
+											hh += '</td>';
+											{/if}
+										{if $bid==0 && getcustom('commission_duipeng_score_withdraw') && ($auth_data=='all' || in_array('CommissionWithdrawScorePower/authscorelog',$auth_data))}
+										hh += '<td>';
+										hh += ' <input name="option['+ks+'][give_withdraw_score]" type="text" style="width:60px" value="'+(val.give_withdraw_score==null?'':val.give_withdraw_score)+'" class="layui-input"/>';
+										if(i==0){
+											hh += ' <i class="fa fa-hand-o-down" style="cursor:pointer" title="批量设置" onclick="plset(\'give_withdraw_score\')"></i>';
+										}
+										hh += '</td>';
+
+										hh += '<td>';
+										hh += ' <input name="option['+ks+'][give_parent1_withdraw_score]" type="text" style="width:60px" value="'+(val.give_parent1_withdraw_score==null?'':val.give_parent1_withdraw_score)+'" class="layui-input"/>';
+										if(i==0){
+											hh += ' <i class="fa fa-hand-o-down" style="cursor:pointer" title="批量设置" onclick="plset(\'give_parent1_withdraw_score\')"></i>';
+										}
+										hh += '</td>';
+										{/if}
+											{if getcustom('product_givetongzheng')}
+											hh += '<td>';
+											hh += ' <input name="option['+ks+'][givetongzheng]" type="text" style="width:60px" value="'+(val.givetongzheng==null?'':val.givetongzheng)+'" class="layui-input"/>';
+											if(i==0){
+												hh += ' <i class="fa fa-hand-o-down" style="cursor:pointer" title="批量设置" onclick="plset(\'givetongzheng\')"></i>';
+											}
+											hh += '</td>';
+											{/if}
+
+										{if getcustom('product_handwork')}
+											if(product_type == 3){
+												hh += '<td class="handfee">';
+											}else{
+												hh += '<td class="handfee" style="display:none">';
+											}
+											hh += ' <input name="option['+ks+'][hand_fee]" type="number" min="0" style="width:60px" value="'+(val.hand_fee<=0?'0':val.hand_fee)+'" class="layui-input"/>';
+											if(i==0){
+												hh += ' <i class="fa fa-hand-o-down" style="cursor:pointer" title="批量设置" onclick="plset(\'hand_fee\')"></i>';
+											}
+											hh += '</td>';
+										{/if}
+										{if $bid==0}
+											{if $ShopSendSilvermoney}
+											hh += '<td>';
+											hh += ' <input name="option['+ks+'][givesilvermoney]" type="number" min="0" style="width:60px" value="'+(val.givesilvermoney<=0?'0':val.givesilvermoney)+'" class="layui-input"/>';
+											if(i==0){
+												hh += ' <i class="fa fa-hand-o-down" style="cursor:pointer" title="批量设置" onclick="plset(\'givesilvermoney\')"></i>';
+											}
+											hh += '</td>';
+											{/if}
+											{if $ShopSendGoldmoney}
+											hh += '<td>';
+											hh += ' <input name="option['+ks+'][givegoldmoney]" type="number" min="0" style="width:60px" value="'+(val.givegoldmoney<=0?'0':val.givegoldmoney)+'" class="layui-input"/>';
+											if(i==0){
+												hh += ' <i class="fa fa-hand-o-down" style="cursor:pointer" title="批量设置" onclick="plset(\'givegoldmoney\')"></i>';
+											}
+											hh += '</td>';
+											{/if}
+										{/if}
+											{if getcustom('guige_limit_start')}
+											hh += '<td>';
+											hh += ' <input name="option['+ks+'][limit_start]" type="number" min="0" style="width:60px" value="'+(val.limit_start<=0?'0':val.limit_start)+'" class="layui-input"/>';
+											if(i==0){
+												hh += ' <i class="fa fa-hand-o-down" style="cursor:pointer" title="批量设置" onclick="plset(\'limit_start\')"></i>';
+											}
+											hh += '</td>';
+											{/if}
+
+											{if getcustom('product_stock_warning')}
+											hh += '<td>';
+											hh += ' <input name="option['+ks+'][stock_warning]" type="number" min="0" style="width:60px" value="'+(val.stock_warning<=0?'0':val.stock_warning)+'" class="layui-input"/>';
+											if(i==0){
+												hh += ' <i class="fa fa-hand-o-down" style="cursor:pointer" title="批量设置" onclick="plset(\'limit_start\')"></i>';
+											}
+											hh += '</td>';
+											{/if}
+												{if getcustom('member_commission_max') && $member_commission_max==1}
+												hh += '<td>';
+												hh += ' <input name="option['+ks+'][give_commission_max]" type="number" min="0" style="width:60px" value="'+(val.give_commission_max<=0?'0':val.give_commission_max)+'" class="layui-input"/>';
+												if(i==0){
+													hh += ' <i class="fa fa-hand-o-down" style="cursor:pointer" title="批量设置" onclick="plset(\'give_commission_max\')"></i>';
+												}
+												hh += '</td>';
+												{/if}
+												if(product_type == 4){
+													hh += '<td class="showguigeimg" id="ggpic'+ks2+'" style="display:none">';
+												}else{
+													hh += '<td class="showguigeimg" id="ggpic'+ks2+'">';
+												}
+												hh += '<input type="hidden" name="option['+ks+'][pic]" id="ggpicval'+ks2+'" value="'+(val.pic==null?'':val.pic)+'"/><div class="guigeimg"><img class="thumb_img" src="'+(val.pic?val.pic:'')+'" style="max-width:50px;"/><a class="layui-imgbox-close guigeimg_close" style="'+(val.pic=='' ||val.pic==null?'display:none':'display:block')+'"    href="javascript:void(0)" onclick="$(this).prev(\'.thumb_img\').attr(\'src\',\'\');$(this).parent().prev(\'input\').val(\'\');$(this).hide();" title="删除"><i class="layui-icon layui-icon-close-fill-opaque"></i></a></div> <button class="layui-btn layui-btn-sm layui-btn-primary" onclick="uploader(this)" upload-input="ggpicval'+ks2+'" upload-preview="ggpic'+ks2+'" type="button">上传</button></td>';
+												hh += "</tr>";
+											}
+											let copyarr = {}
+											ksarr.forEach(item => {
+												Object.keys(oldgglist).forEach(items => {
+													if(item == items){
+														copyarr[items] =oldgglist[items]
+													}
+												})
+											})
+											oldgglist = copyarr;
+											html+=hh;
+											$("#ggvaldiv").html(html);
+											
+										}
+										function marketPriceChange(obj){
+											oldgglist[obj.id].market_price = obj.value;
+										}
+										function barcodeChange(obj){
+											oldgglist[obj.id].barcode = obj.value;
+										}
+									function costPriceChange(obj){
+										oldgglist[obj.id].cost_price = obj.value;
+									}
+										function getusd(obj,ks){
+											oldgglist[obj.id].sell_price = obj.value;
+											var price = obj.value;
+											var usdrate = '{$usdrate}';
+											var usdprice = (price/usdrate).toFixed(2);
+											console.log(usdprice);
+											$("#usdprice"+ks).val(usdprice);
+										}
+										function plset(name){
+											if(name =='procode'){
+												var procode = $("input[name$='["+name+"]']").eq(0).val();
+												if(procode == '') procode = randomString(6);
+												$("input[name$='["+name+"]']").each(function(i,v){
+													if(i>0) $(this).val(procode+ '-'+i);
+												})
+											}else{
+												if(name =='barcode' || name == 'market_price' || name == "cost_price" || name == 'sell_price'){
+													Object.values(oldgglist).forEach(item => {
+														if(name == 'barcode') return item.barcode = $("input[name$='["+name+"]']").eq(0).val()
+														if(name == 'market_price') return item.market_price = $("input[name$='["+name+"]']").eq(0).val()
+														if(name == 'cost_price') return item.cost_price = $("input[name$='["+name+"]']").eq(0).val()
+														if(name == 'sell_price') return item.sell_price = $("input[name$='["+name+"]']").eq(0).val()
+													})
+												}
+
+												{if getcustom('product_service_fee')}
+													var thisname = name.replace(/sell_price/, "service_fee");
+													$("input[name$='["+thisname+"]']").val($("input[name$='["+thisname+"]']").eq(0).val());
+												{/if}
+												$("input[name$='["+name+"]']").val($("input[name$='["+name+"]']").eq(0).val());
+											}
+										}
+										function plsetlevelprice(i,k){
+											var thisprice = $('#levelprice_'+i+'_'+k).val();
+											console.log(thisprice)
+											var level0price = $('#levelprice_0_0').val();
+											console.log(level0price)
+											var pricepercent = thisprice / level0price;
+											console.log(pricepercent)
+
+											{if getcustom('product_service_fee')}
+											var servicefee = $('#servicefee_'+i+'_'+k).val();
+											{/if}
+											$("input[name$='][market_price]']").each(function(i2,v2){
+												var this_price = ($('#levelprice_'+i2+'_0').val() * pricepercent).toFixed(2);
+												console.log(this_price)
+												this_price = parseInt(this_price*100)/100;
+												$('#levelprice_'+i2+'_'+k).val(this_price);
+												{if getcustom('product_service_fee')}
+												$('#servicefee_'+i2+'_'+k).val(servicefee);
+												{/if}
+											})
+										}
+										function randomString(len) {
+											len = len || 32;
+											var $chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';    /****默认去掉了容易混淆的字符oOLl,9gq,Vv,Uu,I1****/
+											var maxPos = $chars.length;
+											var pwd = '';
+											for (i = 0; i < len; i++) {
+												pwd += $chars.charAt(Math.floor(Math.random() * maxPos));
+											}
+											return pwd;
+										}
+
+										layui.form.on('checkbox(gettjset)', function(data){
+											console.log(data)
+											if(data.elem.checked){
+												$('#gettjset').hide();
+											}else{
+												$('#gettjset').show();
+											}
+										});
+										var chooseUrlField = '';
+										function chooseUrl2(field){
+											chooseUrlField = field;
+											layer.open({type:2,shadeClose:true,area:['1200px', '650px'],'title':'选择链接',content:"{:url('DesignerPage/chooseurl')}&callback=chooseLink2"})
+										}
+										function chooseLink2(urlname,url){
+											$("#"+chooseUrlField).val(url);
+										}
+
+										function showChooseCategory(){
+											layer.open({type:2,title:'选择类目',content:"{:url('Wxvideo/allcategory')}&ischoose=1",area:['900px','600px'],shadeClose:true});
+										}
+										function chooseCategory(data){
+											console.log(data)
+											$("input[name='info[wxvideo_third_cat_id]']").val(data.third_cat_id);
+										}
+
+										/**
+										 * 1.监听select的选中与取消
+										 *
+										 * formSelects.on(ID, Function);
+										 *
+										 * @param ID        xm-select的值
+										 * @param Function  自定义处理方法
+										 * @param isEnd     是否获取实时数据, true/false
+										 */
+										var formSelects = layui.formSelects;
+										var paramdata='{$info[\'paramdata\']}';
+									    if(paramdata !='' && paramdata != null){
+											paramdata = JSON.parse(paramdata);
+									    }
+										formSelects.on('selectCid', function(id, vals, val, isAdd, isDisabled){
+											//console.log($("input[name='info[cid]']").val())
+											var cid = $("input[name='info[cid]']").val();
+											$.post("{:url('getParam')}",{cid:cid},function(data){
+												if(data.status == 1){
+													var paramlist = data.paramlist;
+													var html = '';
+													for(var i=0;i<paramlist.length;i++){
+														html += '<div class="layui-form-item">';
+														html += '	<label class="layui-form-label">';
+														if(paramlist[i]['is_required']==1) html += '<span class="redstar">*</span>';
+														html += paramlist[i]['name'];html += '：</label>';
+														if(paramlist[i]['type']=='0'){
+															html += '<div class="layui-input-inline" style="width:240px">';
+															html += '<input type="text" class="layui-input" name="paramdata['+paramlist[i]['name']+']" ';
+															if(typeof (paramdata[paramlist[i]['name']]) != 'undefined')
+																html +=' value="'+ paramdata[paramlist[i]['name']]+'"';
+															if(paramlist[i]['is_required']==1) html += ' lay-verify="required" lay-verType="tips"';
+															html += ' placeholder="'+paramlist[i]['tips']+'"/>';
+															html += '</div>';
+														}else if(paramlist[i]['type']=='1'){
+															html += '<div class="layui-input-inline" style="width:240px">';
+															html += '	<select name="paramdata['+paramlist[i]['name']+']"';
+															if(paramlist[i]['is_required']==1) html += ' lay-verify="required" lay-verType="tips"';
+															html += '	>';
+															html += '<option value="">'+paramlist[i]['tips']+'</option>';
+															//console.log(paramlist[i]['params'])
+															var parsms = JSON.parse(paramlist[i]['params']);
+															for(var j=0;j<parsms.length;j++){
+																if (paramdata[paramlist[i]['name']] == parsms[j]){
+																	html += '<option selected>'+parsms[j]+'</option>';
+																}else{
+																	html += '<option>'+parsms[j]+'</option>';
+																}
+															}
+															html += '</select></div>';
+														}else if(paramlist[i]['type']=='2'){
+															html += '<div class="layui-input-inline" style="width:240px">';
+															var parsms = JSON.parse(paramlist[i]['params']);
+															for(var j=0;j<parsms.length;j++){
+																html += '<input type="checkbox" name="paramdata['+paramlist[i]['name']+'][]" value="'+parsms[j]+'" title="'+parsms[j]+'" lay-skin="primary" ';
+																if(Array.isArray(paramdata[paramlist[i]['name']]) && paramdata[paramlist[i]['name']].indexOf(parsms[j]) != -1) html += ' checked';
+																html += ' />';
+															}
+															html += '</div>';
+															html += '<div class="layui-form-mid layui-word-aux" style="clear:left;margin-left:130px">{$param.tips}</div>';
+														}
+
+														html += '</div>';
+
+													}
+													if(paramlist.length == 0){
+														html = '<div class="layui-form-item"><label class="layui-form-label"></label><div class="layui-form-mid">暂未添加商品参数或当前商品分类下无参数，<a href="javascript:void(0)" onclick="openmax(\'{:url(\'ShopParam/index\')}&isopen=1\')">去添加</a></div></div>';
+													}
+// console.log(html);
+													$(".paramTab").html(html);
+
+													layui.form.render();
+												}
+											})
+											//id:           点击select的id
+											//vals:         当前select已选中的值
+											//val:          当前select点击的值
+											//isAdd:        当前操作选中or取消
+											//isDisabled:   当前选项是否是disabled
+
+											//如果return false, 那么将取消本次操作
+											// return false;
+										},true);
+</script>
+<script type="text/javascript">
+	function chooseUrlWindow(){
+		layer.open({type:2,shadeClose: true,area: ['1100px', '650px'],'title': '选择链接',content: "{:url('DesignerPage/chooseurl')}&callback=chooseLinkWindow"})
+	}
+	function chooseLinkWindow(link_name,link_url,arg=''){
+		if (link_url){
+			$('#buybtn_link_url').val(link_url);
+			$('#buybtn_link_name').val(link_name);
+			$('.buybtn_link_name').html(link_name);
+			layer.closeAll();
+		}
+	}
+	function chooseUrlWindow2(){
+		layer.open({type:2,shadeClose: true,area: ['1100px', '650px'],'title': '选择链接',content: "{:url('DesignerPage/chooseurl')}&callback=chooseLinkWindow2"})
+	}
+	function chooseLinkWindow2(link_name,link_url,arg=''){
+		if (link_url){
+			$('#addcart_link_url').val(link_url);
+			$('#addcart_link_name').val(link_name);
+			$('.addcart_link_name').html(link_name);
+			layer.closeAll();
+		}
+	}
+</script>
+<script>
+	layui.form.on('radio(show_recommend)',function(data){
+		if(data.value == 2){
+			$('.show_recommend2').show();
+		}else{
+			$('.show_recommend2').hide();
+		}
+	})
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		field.specs = JSON.stringify(specs)
+		//field['info[detail]'] = ueditor.getContent();
+		field['info[detail]'] = geteditordata();
+		//console.log(field);return;
+		if(field['info[freighttype]'] == 0 && field['info[freightdata]'] == ''){
+			dialog('请选择运费模板');
+			return;
+		}
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.closeAll();
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+	layui.form.on('radio(price_type)',function(data){
+		if(data.value==1){
+			$('#xunjia_item').show();
+		}else{
+			$('#xunjia_item').hide();
+		}
+	})
+	layui.form.on('radio(show_xunjia_btn)',function(data){
+		if(data.value==1){
+			$('#xunjia_btn_txt').show();
+		}else{
+			$('#xunjia_btn_txt').hide();
+		}
+	})
+	{if getcustom('product_xunjia_btn')}
+	var chooseUrlFieldCt = '';
+	function showChooseContactLink(field){
+		chooseUrlFieldCt = field;
+		layer.open({type:2,shadeClose:true,area:['1200px', '650px'],'title':'选择链接',content:"{:url('DesignerPage/chooseurl')}&callback=chooseLinkContact"})
+	}
+	function chooseLinkContact(urlname,url){
+		$("#"+chooseUrlFieldCt).val(url);
+	}
+	{/if}
+	
+	layui.form.on('radio(productType)',function(data){
+		{if getcustom('product_handwork')}
+			$(".product_type").val(data.value);
+			if(data.value!=3){
+				$('.handfee').hide();
+			}else if(data.value==3){
+				$('.handfee').show();
+			}
+		{/if}
+		{if getcustom('product_wholesale')}
+			$(".product_type").val(data.value);
+			if(data.value!=4){
+				$('.jieti_discount').hide();
+				$('.showguigeimg').show();
+
+			}else if(data.value==4){
+				$('.jieti_discount').show();
+				$('.showguigeimg').hide();
+			}
+		{/if}
+
+		{if getcustom('shop_product_fenqi_pay')}
+			$(".product_type").val(data.value);
+			if(data.value!=5){
+				$('.fenqi_pro').hide();
+			}else if(data.value==5){
+				$('.fenqi_pro').show();
+			}
+		{/if}
+		{if getcustom('more_productunit_guige')}
+			$(".product_type").val(data.value);
+			if(data.value!=6){
+				$('.prounit_show').hide();
+			}else if(data.value==6){
+				$('.prounit_show').show();
+			}
+		{/if}
+	})
+		{if getcustom('commission_parent_pj_stop_product')}
+		layui.form.on('radio(commissionpj)', function(data){
+			if(data.value == '1'){
+				$('.commissionpj').show();
+			}else{
+				$('.commissionpj').hide();
+			}
+		})
+		{/if}
+		{if getcustom('shop_product_fenqi_pay')}
+		var chooseCouponLayer;									
+		function showChooseCoupon(jx){
+			chooseCouponLayer = layer.open({type:2,title:'选择{:t(\'优惠券\')}',content:"{:url('Coupon/choosecoupon')}/args/"+jx,area:['1000px','600px'],shadeClose:true});
+		}
+		function choosecoupon(res,args){	
+			layer.close(chooseCouponLayer);
+			if(args == 1){
+				$("input[name='info[fenqigive_couponid]']").val(res.id);
+			}
+			if(args == 2){
+				$("input[name='info[fenqigive_fx_couponid]']").val(res.id);
+			}
+			
+		}
+		{/if}
+		{if getcustom('level_teamfenhong')}
+		layui.form.on('radio(level_teamfenhongset)', function(data){
+			if(data.value == '1'){
+				$('#levelteamfenhongset').show();
+			}else{
+				$('#levelteamfenhongset').hide();
+			}
+		})
+		{/if}
+			{if getcustom('commission_max_times')}
+			layui.form.on('radio(commission_max_times_status)', function(data){
+				if(data.value == '1'){
+					$('#commission_max_times_status').show();
+				}else{
+					$('#commission_max_times_status').hide();
+				}
+			})
+			{/if}
+		var chooseVideoListLayer = '';
+		var chooseVideoForField = '';
+		function toChooseVideoList(field){
+			chooseVideoForField = field;
+			chooseVideoListLayer = layer.open({type:2,title:'选择视频',content:"{:url('VideoList/choosevideolist')}/callback/proChooseVideoList",area:['1000px','800px'],shadeClose:true});
+		}
+		function proChooseVideoList(data,args) {
+			$('#'+chooseVideoForField).val('[视频ID:'+data.id+']');
+		}
+		{if getcustom('supply_zhenxin')}
+			function refreshzxfreight(id){
+				var index = layer.load();
+				$.post("{:url('refreshzxfreight')}",{id:id},function(data){
+					layer.close(index);
+					dialog(data.msg,data.status);
+					if(data.status == 1){
+						$('#zxhtml').html(data.zxhtml)
+					}
+				})
+			}
+		{/if}
+</script>
+{include file="public/copyright"/}
+</body>
+</html>

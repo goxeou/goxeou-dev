@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>商户销量</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header">商户销量</div>
+          <div class="layui-card-body" pad15>
+			<div class="layui-col-md4" style="padding-bottom:10px">
+				{if $show_update==1}
+				<a class="layui-btn layuiadmin-btn-list" href="{:url('ApiAuto/countSales')}" target="_blank">更新销量</a>
+				{/if}
+			</div>
+			<div class="layui-form layui-col-md8 layui-form-search">
+				<div class="layui-inline layuiadmin-input-useradmin">
+					<label class="layui-form-label">商户ID</label>
+					<div class="layui-input-inline">
+						<input type="text" name="bid" autocomplete="off" class="layui-input">
+					</div>
+				</div>
+				<div class="layui-inline layuiadmin-input-useradmin">
+					<label class="layui-form-label">名称</label>
+					<div class="layui-input-inline">
+						<input type="text" name="name" autocomplete="off" class="layui-input">
+					</div>
+				</div>
+				<div class="layui-inline">
+					<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+						<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+					</button>
+				</div>
+			</div>
+			<div class="layui-col-md12">
+				<table id="tabledata" lay-filter="tabledata"></table>
+			</div>
+          </div>
+        </div>
+    </div>
+  </div>
+
+	{include file="public/js"/}
+	<script>
+	var shopsel = false;
+	var restaurantsel = false;
+  var table = layui.table;
+	var datawhere = {};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{$Request.url}" //数据接口
+    ,page: true //开启分页
+	  ,autoSort:false
+    ,cols: [[ //表头
+			{type:"checkbox"},
+      {field: 'id', title: 'ID',  sort: true,width:80},
+      {field: 'bid', title: '商家ID'},
+      {field: 'name', title: '商家名称'},
+      {field: 'sales', title: '虚拟销量'},
+		  {field: 'shop_sales', title: '商品销量'},
+		  {field: 'collage_sales', title: '多人拼团销量'},
+		  {field: 'kanjia_sales', title: '砍价销量'},
+		  {field: 'seckill_sales', title: '秒杀销量'},
+		  {field: 'tuangou_sales', title: '团购销量'},
+		  {field: 'scoreshop_sales', title: '积分商品销量'},
+		  {field: 'lucky_collage_sales', title: '幸运拼团销量'},
+		  {field: 'yuyue_sales', title: '预约销量'},
+		  {field: 'kecheng_sales', title: '课程销量'},
+		  {field: 'cycle_sales', title: '周期购销量'},
+		  {field: 'restaurant_takeaway_sales', title: '餐饮外卖销量'},
+		  {field: 'restaurant_shop_sales', title: '餐饮点餐销量'},
+		  {field: 'maidan_sales', title: '买单销量'},
+		  {field: 'total_sales', title: '总销量'},
+    ]]
+  });
+
+
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+
+	</script>
+</body>
+</html>

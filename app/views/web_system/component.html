@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>微信开放平台设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">微信开放平台设置</div>
+				<div class="layui-card-body" pad15>
+					<blockquote class="layui-elem-quote">
+						小程序需要在开放平台开发配置中绑定开发者小程序，然后上传代码到小程序模板库，用户授权后即可在管理后台上传并提交代码<br>
+						常见问题：<br>
+						1、开放平台是否必须申请？可以不申请，申请开放平台后可以便于用户授权公众号及小程序，不需要再进行手动绑定操作<br>
+						2、开发小程序只用于上传代码到开放平台以供其他小程序授权后上传代码，此小程序绑定后无法进行发布，所以需要绑定一个不使用的小程序账号<br>
+						3、上传代码报错61006: component ticket is invalid，检查以下参数是否和开放平台对应参数一致，如果检查无误请等待十分钟后再试，开放平台每十分钟推送一次调用凭证<br>
+						<span style="color:red">4、小程序代码需要更新时需要先在这里上传新版的小程序代码到模板库，然后再在用户账号下上传代码提交审核</span>
+					</blockquote>
+					<div class="layui-form form-label-w10" lay-filter="">
+						<div class="layui-form-item">
+							<label class="layui-form-label">状态：</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="radio" name="info[status]" value="1" {if $info['status']==1}checked{/if} title="开启">
+								<input type="radio" name="info[status]" value="0" {if $info['status']==0}checked{/if} title="关闭">
+							</div>
+							<div class="layui-form-mid layui-word-aux">开启后可以授权公众号或小程序进行接入</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">AppID：</label>
+							<div class="layui-input-inline" style="width:300px">
+								<input type="text" name="info[appid]" value="{$info.appid}" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">AppSecret：</label>
+							<div class="layui-input-inline" style="width:300px">
+								<input type="text" name="info[appsecret]" value="{$info.appsecret}" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">授权事件接收配置：</label>
+							<div class="layui-form-mid" style="color:#111">{$Request.domain}/?s=/ApiWechat/auth</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">消息与事件接收配置：</label>
+							<div class="layui-form-mid" style="color:#111">{$Request.domain}/?s=/ApiWechat/index/appid/$APPID$</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">消息校验Token：</label>
+							<div class="layui-input-inline" style="width:300px">
+								<input type="text" name="info[token]" value="{$info.token}" lay-verify="required" lay-verType="tips" class="layui-input">
+							</div>
+							<div class="layui-form-mid">与开放平台接入设置值一致，必须为英文或者数字，长度为3到32个字符</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">消息加解密Key：</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[key]" value="{$info.key}" lay-verify="required" lay-verType="tips" class="layui-input">
+							</div>
+							<div class="layui-form-mid">与开放平台接入设置值一致，必须为英文或者数字，长度为43个字符</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">授权发起页域名：</label>
+							<div class="layui-form-mid" style="color:#111">{$domain}</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">公众号开发域名：</label>
+							<div class="layui-form-mid" style="color:#111">{$domain}</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">小程序服务器域名：</label>
+							<div class="layui-form-mid" style="color:#111">{$domain}</div>
+							<div class="layui-form-mid">
+								如果使用云存储，也需要添加阿里云的Bucket域名/七牛云的Url/腾讯云的Url
+								<div class="layui-text-popover">
+									<i class="layui-icon layui-icon-about layui-default-link"></i>
+									<div class="layui-textpopover-div">
+										<div class="layui-textpopover-text">
+											最多可以添加1000个合法服务器域名；其中，Request域名、Socket域名、Uploadfile域名、Download域名、Udp域名、tcp域名的设置数量均最大支持200个
+										</div>
+									</div>
+								</div>
+							</div>
+						</div><!--文档：https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/operation/thirdparty/prepare.html-->
+						<div class="layui-form-item">
+							<label class="layui-form-label">小程序业务域名：</label>
+							<div class="layui-form-mid" style="color:#111">{$domain}</div>
+						</div>
+						{php}$hostip = @gethostbyname($_SERVER['SERVER_NAME']);{/php}
+						{if $hostip}
+						<div class="layui-form-item">
+							<label class="layui-form-label">IP白名单：</label>
+							<div class="layui-form-mid" style="color:#111">{$hostip}</div>
+						</div>
+						{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label">开发小程序AppID：</label>
+							<div class="layui-input-inline" style="width:300px">
+								<input type="text" name="info[kfappid]" value="{$info.kfappid}" class="layui-input">
+							</div>
+							<div class="layui-form-mid">请先在 开放平台-第三方平台-开发配置 中添加开发小程序</div>
+						</div>
+						<div class="layui-form-item" style="margin-top:20px">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="setmypass">保 存</button>
+								<button class="layui-btn layui-btn-primary" lay-submit lay-filter="upxcx" style="margin-left:30px">上传代码到小程序模版库</button>
+								<button class="layui-btn layui-btn-primary" type="button" id="uploadjstxt">上传域名校验文件</button>
+							</div>
+						</div>
+					</div>
+					
+				</div>
+			</div>
+		</div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.form.on('submit(setmypass)', function(obj){
+		var field = obj.field
+		$.post("",obj.field,function(data){
+			dialog(data.msg,data.status,data.url);
+		})
+	})
+  </script>
+	<script>
+	var timer = null;
+	var field = {};
+	var loginlayer = null;
+	var successlayer = null;
+	var secondtimeintervel = null
+	var cando = 1;
+	layui.form.on('submit(upxcx)', function(obj){
+		field = obj.field
+		field.op = 'getloginqr';
+		var index = layer.load();
+		$.post('',field,function(res){
+			layer.close(index);
+			if(res.status == 1){
+				var html = '';
+				html += '<div style="margin:auto auto;text-align:center">';
+				html += '<img src="'+res.qrdata+'" style="margin-top:20px;max-width:280px;max-height:280px"/>';
+				html += '<div style="height:25px;line-height:25px;">请扫描二维码，确认后将自动上传代码<br>上传需要一分钟左右时间，扫码后请等待<br>已用时：<span id="secondtime" style="color:red;font-size:20px"></span> 秒</div>';
+				html += '</div>';
+				loginlayer = layer.open({type:1,area:['300px','380px'],content:html,title:false,shadeClose:false,cancel:function(){
+					reload();
+				}});
+				xcxupload();
+				clearInterval(secondtimeintervel);
+				var secondtime = 0
+				secondtimeintervel = setInterval(function(){
+					secondtime++;
+					if(secondtime > 120){
+						clearInterval(secondtimeintervel);
+						dialog('上传失败,请重新操作');cando = 0;
+					}
+					$('#secondtime').html(secondtime);
+				},1000);
+			}else{
+				dialog(res.msg,res.status);
+			}
+		})
+	})
+	layui.upload.render({
+		elem: '#uploadjstxt', //绑定元素
+		url: "{:url('uploadjstxt')}", //上传接口
+		exts:'txt',
+		done: function(res){
+			//上传完毕回调
+			console.log(res)
+			dialog(res)
+		},
+		error: function(){
+			//请求异常回调
+		}
+	});
+	function xcxupload(){
+		if(cando == 0) return;
+		setTimeout(function(){
+			field.op = 'upload';
+			$.post('',field,function(res){
+				if(res.status == 1){
+					clearInterval(secondtimeintervel);
+					layer.close(loginlayer);
+					dialog(res);
+				}else{
+					if(res.status == 2){
+						xcxupload();
+					}else{
+						clearInterval(secondtimeintervel);
+						layer.close(loginlayer);
+						dialog(res.msg,res.status);
+					}
+				}
+			})
+		},5000)
+	}
+  </script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!-- <link rel="stylesheet" href="../../../../static/admin/css/designer.css"> -->
+<div class="dsn-mod dsn-business" ng-class="{'dsn-mod-select':Item.id == focus}" ng-style="{'background-color':Item.params.bgcolor,'margin':Item.params.margin_y+'px '+Item.params.margin_x+'px 0','padding':Item.params.padding_y+'px '+Item.params.padding_x+'px'}">
+	<div style="line-height: 170px; text-align: center; color: #999; font-size: 16px;width:100%" ng-show="Item.data == ''">一个商家都没有...</div>
+
+	<div ng-show="Item.params.showstyle==1 || !Item.params.showstyle" style="background: linear-gradient(180deg, {:t('color1')} 0%, rgba({:t('color1rgb')},0) 100%);">
+		<div class="buslist">
+			<div ng-repeat="item in Item.data" ng-init="idx = $index" class="busbox">
+				<div class="businfo">
+					<div class="f1"><img ng-src="{{item.logo}}"/></div>
+					<div class="f2">
+						<div class="title">{{item.name}}</div>
+						<div class="score" ng-show="Item.params.showpingfen == 1"><img ng-src="__STATIC__/img/star{{item.commentscore}}.png"/>{{item.comment_score}}分</div>
+						
+						
+						<div class="sales" ng-show="Item.params.showsales == 1"><span>销量：</span>{{item.sales}}</div>
+						<div class="address" ng-show="Item.params.showjianjie == 1">{{item.content}}</div>
+						<div class="address flex"><div class="flex1"><span ng-show="Item.params.showaddress == 1">{{item.address}}</span></div><div ng-show="Item.params.showdistance == 1" style="color:{:t('color1')}">200m</div></div>
+					</div>
+				</div>
+				<div class="buspro" ng-show="Item.params.showproduct == 1">
+					<div class="item" ng-repeat="item2 in item.prolist" ng-init="index = $index" style="{{'width:23%;margin-right:'+(index%4!=3?'2%':0)}}">
+						<div class="product-pic">
+							<img class="image" ng-src="{{item2.pic}}"/>
+						</div>
+						<div class="product-info">
+							<div class="p1">{{item2.name}}</div>
+							<div class="p2">
+								<div class="p2-1">
+									<span class="t1" style="color:{:t('color1')}"><span style="font-size:12px">￥</span>{{item2.sell_price}}</span>
+									<!-- <span class="t2" ng-if="item2.market_price*1 > item2.sell_price*1">￥{{item2.market_price}}</span> -->
+								</div>
+							</div>
+							<!-- <div class="p3" ng-if="item.sales>0">已售{{item2.sales}}件</div> -->
+							<div class="p4" style="background:rgba({:t('color1rgb')},0.1);color:{:t('color1')}"><span class="iconfont icon_gouwuche"></span></div>
+						</div>
+					</div>
+				</div>
+				
+			</div>
+		</div>
+	</div>
+	

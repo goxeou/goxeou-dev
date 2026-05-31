@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>短视频管理</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+  <style>
+		.video{width: 140px;float: left; padding-top: 10px;margin-left: 130px;clear: both;}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加短视频{else}<i class="fa fa-pencil"></i> 编辑短视频{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					{if $info['status']==2}<blockquote class="layui-elem-quote" style="color:red">短视频未审核通过，驳回原因：{$info.reason}</blockquote>{/if}
+					<div class="layui-form form-label-w6" lay-filter="">
+						<input type="hidden" name="id" value="{$info.id}">
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>名称：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[name]" lay-verify="required" lay-verType="tips" value="{$info.name}" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">简介：</label>
+							<div class="layui-input-inline" style="width: 400px;">
+								<input type="text" name="info[description]" value="{$info.description}" class="layui-input"/>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">分类：</label>
+							<div class="layui-input-inline">
+								<select name="info[cid]">
+									{foreach $clist as $v}
+										<option value="{$v['id']}" {if $v['id']==$info['cid']}selected{/if}>{$v.name}</option>
+									{/foreach}
+								</select>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">封面图：</label>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="pic" upload-preview="picPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：350×500像素</div>
+							<div id="picPreview" style="float:left;padding-top:10px;margin-left:130px;clear: both;">
+								<div class="layui-imgbox imgbox-required">
+									<div class="layui-imgbox-img"><img src="{$info.coverimg}"/></div>
+									<input type="text" name="info[coverimg]" id="pic" class="layui-input" value="{$info.coverimg}">
+								</div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label" >视频：</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="text" name="info[url]" id="video" class="layui-input" value="{$info['url']}">
+							</div>
+							<input type="hidden" name="info[video_duration]" id="video_duration" value="{$info.video_duration}">
+							{if getcustom('ffmpeg_img')}
+								<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="video" onclick="uploader(this,'','','ffmpeg')">上传视频</button>
+							{/if}
+							{if !getcustom('ffmpeg_img')}
+								<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="video" onclick="uploader(this)">上传视频</button>
+							{/if}
+							<video src="{$info['url']}" controls="controls" class="video" id="video_url">
+							您的浏览器不支持 video 标签。
+							</video>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">填写视频链接或上传视频，视频链接必须为mp4格式的源链接，视频大小须在50MB以内{if getcustom('video_qq_url')}<br>腾讯视频原网页地址仅支持以https://v.qq.com/x/page/开头的网址{/if}</div>
+						</div>
+						{if getcustom('yx_shortvideo_jindubag')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">商品类型：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[goodstype]" value="0" title="商城商品" {if !$info['id'] || $info['goodstype']==0}checked{/if} lay-filter="goodstype_sel">
+								<input type="radio" name="info[goodstype]" value="1" title="礼包" {if $info['id'] && $info['goodstype'] == 1}checked{/if} lay-filter="goodstype_sel">
+							</div>
+						</div>
+						{/if}
+						<div class="fwtype2 fwtypeExtend" id="shopgoods" {if $info['goodstype']  && $info['goodstype'] == 1}style="display:none"{/if}>
+							<label class="layui-form-label" style="width: 100px;">商品列表：</label>
+							<div class="layui-input-inline" style="width:auto">
+								<table id="setproductdiv"  class="layui-table" style="width:500px">
+									<thead>
+									<tr>
+										<th>商品ID</th>
+										<th>商品名称</th>
+										<th>操作</th>
+									</tr>
+									</thead>
+									{if $productdata}
+									{foreach $productdata as $k=>$ff}
+									<tr class="productlisttr"><td>{$ff.id}</td><td>{$ff.name}</td><td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delProduct(this,{$ff.id})">删除</button></td></tr>
+									{/foreach}
+									{/if}
+									<tr id="productaddtr">
+										<td colspan="3"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="showChooseProduct()">添加</button></td>
+									</tr>
+								</table>
+								<input type="hidden" name="info[productids]" value="{$info.productids}"/>
+							</div>
+						</div>
+						
+						<script>
+						var chooseProductLayer;
+						function showChooseProduct(){
+							chooseProductLayer = layer.open({type:2,title:'选择商品',content:"{:url('ShopProduct/chooseproduct')}/hidebid/1",area:['1000px','600px'],shadeClose:true});
+						}
+						function choosepro(res){
+							var product = res.product
+							layer.close(chooseProductLayer);
+							var productids = [];
+							var isadd = 0;
+							$('.productlisttr').each(function(){
+								var thisfid = $(this).find('td:eq(0)').html();
+								if(thisfid == product.id){
+									isadd = 1
+									dialog('该商品已添加过了');
+								}
+								productids.push(thisfid)
+							})
+							if(isadd == 0){
+								productids.push(product.id)
+								$("input[name='info[productids]']").val(productids.join(','));
+								$('#productaddtr').before('<tr class="productlisttr"><td>'+product.id+'</td><td>'+product.name+'</td><td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delProduct(this,'+product.id+')">删除</button></td></tr>');
+							}
+							console.log(productids)
+						}
+						function delProduct(obj,fid){
+							$(obj).parent().parent().remove();
+							var productids = [];
+							$('.productlisttr').each(function(){
+								productids.push($(this).find('td:eq(0)').html())
+							})
+							$("input[name='info[productids]']").val(productids.join(','));
+						}
+						</script>
+						{if getcustom('yx_shortvideo_jindubag')}
+						<div class="layui-form-item" id="gbgoods" {if !$info['goodstype']  || $info['goodstype'] != 1}style="display:none"{/if}>
+							<div class="layui-form-label">礼包：</div>
+							<div class="layui-input-inline" style="width:300px">
+								<input class="layui-input" name="info[gbid]" id="gbid" value="{$info.gbid}"/>
+							</div>
+							<div class="layui-btn layui-btn-primary" style="float:left" onclick="showChooseGb()">选择礼包</div>
+						</div>
+						<script>
+						var chooseGbLayer;
+						function showChooseGb(){
+							chooseGbLayer = layer.open({type:2,title:'选择商品',content:"{:url('GiftBag/chooseproduct')}/hidebid/1",area:['1000px','600px'],shadeClose:true});
+						}
+						function chooseprogb(res){
+							var product = res.product
+							if(product){
+								var gbid =product.id;
+								$("#gbid").val(gbid);
+							}
+						}
+						</script>
+						{/if}
+						<div class="layui-form-item">
+							<div class="layui-form-label">关联链接：</div>
+							<div class="layui-input-inline" style="width:300px">
+								<input class="layui-input" name="info[linkurl]" id="linkurl" value="{$info.linkurl}"/>
+							</div>
+							<div class="layui-btn layui-btn-primary" style="float:left" onclick="chooseUrl2('linkurl')">选择链接</div>
+							<div class="layui-form-label">链接文本：</div>
+							<div class="layui-input-inline" style="width:120px">
+								<input class="layui-input" name="info[linkname]" id="linkurl" value="{$info.linkname|default='前往查看'}"/>
+							</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">播放数：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[view_num]" value="{$info.view_num|default=0}" class="layui-input">
+							</div>
+						</div>
+						{if getcustom('shortvideo_play_give')}
+
+						{if bid==0}
+						<div class="layui-form-item">
+							<label class="layui-form-label">观看赠送{:t('积分')}：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[read_give_score]" class="layui-input" value="{$info.read_give_score|default=''}">
+							</div>
+							<div class="layui-form-mid layui-word-aux">值为空 继承系统设置，0不赠送</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">观看赠送{:t('余额')}：</label>
+							<div class="layui-input-inline" >
+								<input type="text" class="layui-input" value="{$info.read_give_money|default=''}" name="info[read_give_money]">
+							</div>
+							<div class="layui-form-mid layui-word-aux">值为空 继承系统设置，0不赠送</div>
+						</div>
+						{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label">观看赠送{:t('优惠券')}：</label>
+							{if bid==0}
+							<div class="layui-input-block">
+								<input type="radio" title="继承系统设置" name="info[coupon_status]" lay-filter="coupon_status" value="1" {if !isset($info['coupon_status']) || $info['coupon_status']==1}checked{/if}>
+								<input type="radio" title="独立设置" name="info[coupon_status]" lay-filter="coupon_status" value="0" {if isset($info['coupon_status']) && $info['coupon_status']==0}checked{/if}>
+							</div>
+							{else}
+							<div class="layui-input-block">
+								<input type="hidden" title="独立设置" name="info[coupon_status]" value="0">
+							</div>
+							{/if}
+							{if bid==0}
+							<div class="give_coupon {if !isset($info['coupon_status']) || $info['coupon_status']==1}layui-hide{/if}" style="clear:both;">
+							{else}
+							<div class="give_coupon" style="clear:both;">
+							{/if}
+								<label class="layui-form-label"></label>
+								<div class="layui-input-inline" style="width:auto; overflow: hidden;">
+									<table class="layui-table choose-coupon" style="width:500px" id="choose-coupon">
+										<thead>
+										<tr>
+											<th>ID</th>
+											<th>名称</th>
+											<th>库存</th>
+											<th>发放数量</th>
+											<th>操作</th>
+										</tr>
+										</thead>
+										{if $couponList}
+										{foreach $couponList as $k=>$ff}
+										<tr class="choose-tr-list">
+											<td>{$ff.id}</td>
+											<td>{$ff.name}</td>
+											<td>{$ff.stock}</td>
+											<td>
+												<input type="hidden" name="info[coupon_list][coupon_id][]" value="{$ff.id}">
+												<input type="number" name="info[coupon_list][coupon_num][]" class="layui-input" value="{$ff.coupon_num}">
+											</td>
+											<td>
+												<button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delChooseTr(this,{$ff.id})">删除</button>
+											</td>
+										</tr>
+										{/foreach}
+										{/if}
+										<tr class="choose-tr-add">
+											<td colspan="5"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="showChooseCoupon()">添加</button></td>
+										</tr>
+									</table>
+									<div class="layui-form-mid layui-word-aux">请确认{:t('优惠券')}的有效期、库存有效</div>
+								</div>
+								<script>
+									var chooseCouponLayer;
+									function showChooseCoupon(){
+										chooseCouponLayer = layer.open({type:2,title:'选择{:t(\'优惠券\')}',content:"{:url('Coupon/choosecoupon')}",area:['1000px','600px'],shadeClose:true});
+									}
+									function choosecoupon(res){
+										var detail = res;
+										var chooseClassName = '.choose-coupon';
+										layer.close(chooseCouponLayer);
+										var isadd = 0;
+										$(chooseClassName).find('.choose-tr-list').each(function(){
+											var thisfid = $(this).find('td:eq(0)').html();
+											if(thisfid == detail.id){
+												isadd = 1
+												dialog('该项已添加过了');
+											}
+										})
+										if(isadd == 0){
+											var tr = '<tr class="choose-tr-list">' +
+												'<td>'+detail.id+'</td>' +
+												'<td>'+detail.name+'</td>' +
+												'<td>'+detail.stock+'</td>' +
+												'<td>' +
+												'<input type="hidden" name="info[coupon_list][coupon_id][]" value="'+ detail.id+'"/>' +
+												'<input type="number" name="info[coupon_list][coupon_num][]" value="1" class="layui-input"/>' +
+												'</td>' +
+												'<td>' +
+												'<button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delChooseTr(this,'+detail.id+')">删除</button>' +
+												'</td>' +
+												'</tr>';
+											$(chooseClassName).find('.choose-tr-add').before(tr);
+										}
+									}
+									function delChooseTr(obj,fid){
+										$(obj).closest('.choose-tr-list').remove();
+									}
+								</script>
+							</div>
+						</div>
+						{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label">点赞数：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[zan_num]" value="{$info.zan_num|default=0}" class="layui-input">
+							</div>
+						</div>
+						
+						<!-- <div class="layui-form-item">
+							<label class="layui-form-label">转发数：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[share_num]" value="{$info.share_num|default=0}" class="layui-input">
+							</div>
+						</div> -->
+						<div class="layui-form-item">
+							<label class="layui-form-label">序号：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[sort]" value="{$info.sort|default=0}" class="layui-input">
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">用于排序,越大越靠前</div>
+						</div>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">评论：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[comment]" value="1" title="开启" {if $info['comment']==1 || !$info['id']}checked{/if}>
+								<input type="radio" name="info[comment]" value="0" title="关闭" {if $info['id'] && $info['comment']==0}checked{/if}>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">评论审核：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[comment_check]" value="1" title="开启" {if $info['comment_check']==1 || !$info['id']}checked{/if}>
+								<input type="radio" name="info[comment_check]" value="0" title="关闭" {if $info['id'] && $info['comment_check']==0}checked{/if}>
+							</div>
+						</div>
+						{if $bid == 0}
+						<div class="layui-form-item">
+							<label class="layui-form-label">状态：</label>
+							<div class="layui-input-inline" style="width:310px">
+								<input type="radio" name="info[status]" value="0" title="待审核" {if $info['id'] && $info['status']==0}checked{/if} lay-filter="changest">
+								<input type="radio" name="info[status]" value="1" title="已通过" {if !$info['id'] || $info['status']==1}checked{/if} lay-filter="changest">
+								<input type="radio" name="info[status]" value="2" title="已驳回" {if $info['id'] && $info['status']==2}checked{/if} lay-filter="changest">
+							</div>
+						</div>
+						<div id="changestset" {if $info['status']!=2}style="display:none"{/if}>
+							<div class="layui-form-item">
+								<label class="layui-form-label">驳回原因：</label>
+								<div class="layui-input-inline" style="width:310px">
+									<input type="text" name="info[reason]" value="{$info['reason']}" class="layui-input"/>
+								</div>
+							</div>
+						</div>
+						{/if}
+
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+					
+				</div>
+			</div>
+		</div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.closeAll();
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+	var chooseUrlField = '';
+	function chooseUrl2(field){
+		chooseUrlField = field;
+		layer.open({type:2,shadeClose:true,area:['1200px', '650px'],'title':'选择链接',content:"{:url('DesignerPage/chooseurl')}&callback=chooseLink2"})
+	}
+	function chooseLink2(urlname,url){
+		$("#"+chooseUrlField).val(url);
+	}
+	layui.form.on('radio(changest)', function(data){
+		if(data.value == '2'){
+			$('#changestset').show();
+		}else{
+			$('#changestset').hide();
+		}
+	})
+	
+	layui.form.on('radio(goodstype_sel)', function(data){
+		if(data.value == 1){
+			$('#gbgoods').show();
+			$('#shopgoods').hide();
+		}else{
+			$('#gbgoods').hide();
+			$('#shopgoods').show();
+		}
+	})
+	layui.form.on('radio(coupon_status)', function (e) {
+		// console.log(e)
+		if(e.value == 1){
+			$(".give_coupon").addClass('layui-hide');
+		}else{
+			$(".give_coupon").removeClass('layui-hide');
+		}
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

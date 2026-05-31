@@ -1,0 +1,282 @@
+<?php
+
+
+// +----------------------------------------------------------------------
+// | 后台登录
+// +----------------------------------------------------------------------
+namespace app\controllers;
+use app\BaseController;
+use think\facade\View;
+use think\facade\Db;
+
+class Login extends BaseController
+{
+	public $webinfo;
+    public function initialize(){
+		$request = request();
+
+		$this->webinfo = Db::name('sysset')->where(['name'=>'webinfo'])->value('value');
+		$this->webinfo = json_decode($this->webinfo,true);
+		
+		View::assign('webinfo',$this->webinfo);
+		$reg_open = isset($this->webinfo['reg_open']) ? $this->webinfo['reg_open'] : 0;
+		View::assign('reg_open',$reg_open);
+		View::assign('webname',$this->webinfo['webname']);
+	}
+    //登录页
+	public function index(){
+		$remember = cookie('remember');
+		if($remember == 1){//自动登录
+			$rs = Db::name('admin_user')->where('un',cookie('username'))->find();
+			if($rs && md5($rs['pwd']) == cookie('password')){
+				session('ADMIN_LOGIN',1);
+				session('ADMIN_UID',$rs['id']);
+				session('ADMIN_AID',$rs['aid']);
+				session('ADMIN_BID',$rs['bid']);
+				session('ADMIN_NAME',$rs['un'] ? $rs['un'] : $rs['nickname']);
+				session('IS_ADMIN',$rs['isadmin']);
+				if($rs['isadmin'] == 2){ //有控制台权限
+					session('BST_ID',$rs['id']);
+				}else{
+					session('BST_ID',null);
+				}
+				Db::name('admin_user')->where('id',$rs['id'])->update(['ip'=>request()->ip(),'logintime'=>time()]);
+				Db::name('admin_loginlog')->insert(['aid'=>$rs['aid'],'uid'=>$rs['id'],'logintime'=>time(),'loginip'=>request()->ip(),'logintype'=>'自动登录']);
+				if(input('param.fromurl')){
+					return redirect(input('param.fromurl'));
+				}else{
+					return redirect((string)url('Backstage/index'));
+				}
+			}
+		}
+		if(request()->isAjax()){
+			$username = trim(input('post.username'));
+			$password = trim(input('post.password'));
+			$captcha = trim(input('post.captcha'));
+			if($username=='' || $password==''){
+				return json(['status'=>0,'msg'=>'用户名和密码不能为空']);
+			}elseif($captcha == ''){
+				return json(['status'=>0,'msg'=>'验证码不能为空']);
+			}elseif(!captcha_check($captcha)){
+				 return json(['status'=>0,'msg'=>'验证码错误']);
+			}
+			$rs = Db::name('admin_user')->where('un',$username)->where('pwd',md5($password))->find();
+			if(!$rs){
+				return json(['status'=>2,'msg'=>'用户名或密码错误']);
+			}elseif($rs['status']!=1){
+				return json(['status'=>0,'msg'=>'该账号已禁用']);
+			}
+			if($rs['bid'] > 0){
+				$binfo = Db::name('business')->where('id',$rs['bid'])->find();
+				if($binfo['status'] != 1){
+                    if($binfo['status'] == -1)
+                        return json(['status'=>0,'msg'=>'已过期，请续费']);
+                    else
+					    return json(['status'=>0,'msg'=>'该商家尚未审核通过']);
+				}
+			}
+			Db::name('admin_user')->where('un',$username)->where('pwd',md5($password))->update(['ip'=>request()->ip(),'logintime'=>time()]);
+			session('ADMIN_LOGIN',1);
+			session('ADMIN_UID',$rs['id']);
+			session('ADMIN_AID',$rs['aid']);
+			session('ADMIN_BID',$rs['bid']);
+			session('ADMIN_NAME',$rs['un']);
+			session('IS_ADMIN',$rs['isadmin']);
+			if($rs['isadmin'] == 2){ //有控制台权限
+				session('BST_ID',$rs['id']);
+			}else{
+				session('BST_ID',null);
+			}
+			Db::name('admin_loginlog')->insert(['aid'=>$rs['aid'],'uid'=>$rs['id'],'logintime'=>time(),'loginip'=>request()->ip(),'logintype'=>'账号登录']);
+			if(input('post.remember')){//记住密码
+				cookie('remember',1,30*86400);
+				cookie('username',$username,30*86400);
+				cookie('password',md5(md5($password)),30*86400);
+			}else{
+				cookie('remember',null);
+				cookie('username',null);
+				cookie('password',null);
+			}
+			if(input('param.fromurl')){
+				return json(['status'=>1,'msg'=>'登录成功','url'=>input('param.fromurl')]);
+			}else{
+				return json(['status'=>1,'msg'=>'登录成功','url'=>(string)url('Backstage/index')]);
+			}
+		}
+		$webinfo = Db::name('sysset')->where('name','webinfo')->value('value');
+		$webinfo = json_decode($webinfo,true);
+		View::assign('webinfo',$webinfo);
+		return View::fetch();
+    }
+	//退出登录
+	public function logout(){
+		session('ADMIN_LOGIN',null);
+		session('ADMIN_UID',null);
+		session('ADMIN_AID',null);
+		session('ADMIN_BID',null);
+		session('ADMIN_NAME',null);
+		session('IS_ADMIN',null);
+		session('BST_ID',null);
+		cookie('remember',null);
+		cookie('usertel',null);
+		cookie('password',null);
+		return redirect((string)url('index/index'));
+	}
+	
+	//授权登录
+	public function authlogin(){
+		$username = trim(input('param.username'));
+		$password = trim(input('param.password'));
+		if($username=='' || $password==''){
+			die('用户名和密码不能为空');
+		}
+		$rs = Db::name('admin_user')->where('un',$username)->where('pwd',$password)->find();
+		if(!$rs){
+			die('用户名或密码错误');
+		}elseif($rs['status']!=1){
+			die('该账号已禁用');
+		}
+		Db::name('admin_user')->where('un',$username)->where('pwd',$password)->update(['ip'=>request()->ip(),'logintime'=>time()]);
+		session('ADMIN_LOGIN',1);
+		session('ADMIN_UID',$rs['id']);
+		session('ADMIN_AID',$rs['aid']);
+		session('ADMIN_BID',$rs['bid']);
+		session('ADMIN_NAME',$rs['un']);
+		session('IS_ADMIN',$rs['isadmin']);
+		if($rs['isadmin'] == 2){ //有控制台权限
+			session('BST_ID',$rs['id']);
+		}else{
+			session('BST_ID',null);
+		}
+		Db::name('admin_loginlog')->insert(['aid'=>$rs['aid'],'uid'=>$rs['id'],'logintime'=>time(),'loginip'=>request()->ip(),'logintype'=>'授权登录']);
+		
+		return redirect((string)url('Backstage/index'));
+	}
+	
+	//注册
+    public function reg(){
+        /*
+         * 验证码使用场景
+         * 场景1：
+         * 开启短信验证码，发短信时验证图形验证码，提交时验证短信验证码
+         * 场景2：
+         * 关闭短信验证码，无需验证短信验证码，提交时验证图形验证码
+         * */
+        $webinfo = $this->webinfo;
+
+        //开启注册
+        $reg_open = isset($webinfo['reg_open']) ? $webinfo['reg_open'] : 0;
+        //注册会员有效期
+        $reg_user_time = isset($webinfo['reg_user_time']) ? $webinfo['reg_user_time'] : 0;
+        //开启短信验证码
+        $sms_open = isset($webinfo['sms_open']) ? $webinfo['sms_open'] : 0;
+        if(input('param.op') == 'sendsms'){
+            //检查图形验证码
+            $captcha = trim(input('post.captcha'));
+            if($captcha == ''){
+                return json(['status'=>0,'msg'=>'图形验证码不能为空']);
+            }elseif(!captcha_check($captcha)){
+                return json(['status'=>0,'msg'=>'验证码错误']);
+            }
+            //发送短信
+            if(!$sms_open) {
+                return json(['status'=>0,'msg'=>'短信未开启']);
+            }
+            $code = rand(100000,999999);
+            $tel = trim(input('post.username'));
+            // 设置缓存数据
+            session('smscode', md5($tel.'-'.$code));
+            session('smscodetime', time() + 600);
+            $rs = \app\commons\Sms::send(1,$tel,'tmpl_smscode',['code'=>$code]);
+
+            return json($rs);
+        }
+
+        if(request()->isPost()){
+            if(!$reg_open) {
+                return json(['status'=>0,'msg'=>'注册关闭，请联系客服']);
+            }
+
+            $username = trim(input('post.username'));
+            $password = trim(input('post.password'));
+            $smscode = trim(input('post.smscode'));
+            $captcha = trim(input('post.captcha'));
+
+            if(!$sms_open) {
+                if($captcha == ''){
+                    return json(['status'=>0,'msg'=>'图形验证码不能为空']);
+                }elseif(!captcha_check($captcha)){
+                    return json(['status'=>0,'msg'=>'验证码错误']);
+                }
+            }
+
+            if($username=='' || $password==''){
+                return json(['status'=>0,'msg'=>'手机号和密码不能为空']);
+            }
+            if(!checkTel($username)){
+                return json(['status'=>0,'msg'=>'请检查手机号格式']);
+            }
+
+            if($sms_open) {
+                if($smscode == ''){
+                    return json(['status'=>0,'msg'=>'短信验证码不能为空']);
+                }elseif(md5($username.'-'.$smscode) != session('smscode') || time() > session('smscodetime')){
+                    return json(['status'=>0,'msg'=>'验证码错误或已过期']);
+                }
+            }
+
+            $hasun = db('admin_user')->where(['un'=>$username])->find();
+            if($hasun){
+                return json(['status'=>0,'msg'=>'该手机号已注册，请直接登录']);
+            }
+			
+			$ainfo = array();
+            $ainfo['endtime'] = time() + $reg_user_time*86400;
+            $ainfo['tel'] = $username;
+            $ainfo['createtime'] = time();
+            if(cookie('fromid')){
+                $ainfo['pid'] = cookie('fromid');
+            }else{
+                $ainfo['pid'] = 0;
+            }
+			$ainfo['platform'] = 'mp,wx,alipay,baidu,toutiao,h5,app';
+            $ainfo['id'] = Db::name('admin')->insertGetId($ainfo);
+            $auth_type = 1;
+            $uinfo = array();
+			$uinfo['aid'] = $ainfo['id'];
+            $uinfo['createtime'] = time();
+            $uinfo['isadmin'] = 1;
+            $uinfo['un'] = $username;
+            $uinfo['pwd'] = md5($password);
+            $uinfo['ip'] = request()->ip();
+            $uinfo['logintime'] = time();
+            $uinfo['auth_type'] = $auth_type;
+			$uinfo['random_str'] = random(16);
+            $uinfo['id'] = Db::name('admin_user')->insertGetId($uinfo);
+
+            \app\commons\System::initaccount($ainfo['id']);
+
+            session('ADMIN_LOGIN',1);
+            session('ADMIN_UID',$uinfo['id']);
+            session('ADMIN_AID',$ainfo['id']);
+			session('ADMIN_BID',0);
+            session('ADMIN_NAME',$uinfo['un']);
+            session('IS_ADMIN',$uinfo['isadmin']);
+            cookie('remember',null);
+            cookie('usertel',null);
+            cookie('password',null);
+            session('smscode', null);
+            session('smscodetime', null);
+
+            Db::name('admin_loginlog')->insert(['aid'=>$ainfo['id'],'uid'=>$uinfo['id'],'logintime'=>time(),'loginip'=>request()->ip(),'logintype'=>'手机号注册登录']);
+            return json(['status'=>1,'msg'=>'注册成功','url'=>(string)url('Backstage/index')]);
+        }
+
+        View::assign('reg_open', $reg_open);
+        View::assign('reg_user_time', $reg_user_time);
+        View::assign('sms_open', $sms_open);
+
+        return View::fetch('reg');
+
+    }
+}

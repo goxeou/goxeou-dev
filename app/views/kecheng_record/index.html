@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>答题记录</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header">答题记录
+						{if input('param.isopen')==1}<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>{/if}
+					</div>
+          <div class="layui-card-body" pad15>
+						<div class="layui-form layui-col-md12 layui-form-search">
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">{:t('会员')}ID</label>
+								<div class="layui-input-inline">
+									<input type="text" name="mid" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							
+							<div class="layui-inline">
+								<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+									<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+								</button>
+							</div>
+						</div>
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+  var table = layui.table;
+	var datawhere = {};
+	var nowtime = {:time()};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{$Request.url}" //数据接口
+    ,page: true //开启分页
+    ,cols: [[ //表头
+			{type:"checkbox"},
+      {field: 'id', title: 'ID',  sort: true,width:80},
+			{if input('param.showtype')==2}
+      {field: 'bname', title: '所属商户'},
+			{/if}
+	  	{field: 'kcname', title: '所属课程'},
+		  
+      {field: 'name', title: '用户信息',templet:function(d){
+				var html = '';
+				html += '<img src="'+d.headimg+'" style="max-width:50px;float:left"/>';
+				html += '<div style="float: left;width:200px;margin-left: 10px;white-space:normal;line-height:20px;">';
+				html += 'ID:'+d.mid+'	<div style="width:100%;">'+d.nickname+'</div>';
+				html += '</div>';
+				return html;
+			},width:360},
+	  {field: 'time', title: '答题时间',sort: true,templet:function(d){ return '<div style="color:#080">'+ date('Y年m月d日 H:i',d.time)+'</div>'}},
+	  {field: 'endtime', title: '结束时间',sort: true,templet:function(d){ return '<div style="color:#080">'+ date('Y年m月d日 H:i',d.endtime)+'</div>'}},
+	  {field: 'score', title: '分数',sort: true},
+	  {field: 'status', title: '答题状态',templet:function(d){
+				var html = '';
+				if(d.status==0) html+='<div style="color:#ff8758">未答完</span>';
+				if(d.status==1) html+='<div style="color:#008000">已答完</span>';
+				return html;
+			}},
+	  {field: 'ishg', title: '是否合格',templet:function(d){
+				var html = '';
+				if(d.ishg==0) html+='<div style="color:#ff8758">不合格</span>';
+				if(d.ishg==1) html+='<div style="color:#008000">已合格</span>';
+				return html;
+			}},
+	  {field: 'operation', title: '操作',templet:function(d){
+			var html = '';
+			html += '<button class="table-btn" onclick="openmax(\'{:url(\'kechengRecord/logs')}/isopen/1/rid/'+d.id+'\')">答题详情</button>';
+			html += '<button class="table-btn" onclick="datadel('+d.id+')">删除</button>';
+			
+			return html;
+      }}
+    ]],
+		done:function(){
+			layui.element.render('progress');//tableIns.reload();
+		}
+  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	layui.laydate.render({ 
+		elem: '#seckill_date',
+		type: 'date',
+		trigger: 'click'
+	});
+	
+	//审核
+	function setcheckst(id,st){
+		if(st == 2){
+			var html = '';
+			html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+			html+='		<label class="layui-form-label" style="width:80px">驳回原因</label>';
+			html+='		<div class="layui-input-inline" style="width:350px">';
+			html+='			<textarea type="text" id="check_reason" class="layui-textarea"></textarea>';
+			html+='		</div>';
+			html+='	</div>';
+			var checkLayer = layer.open({type:1,area:['500px','250px'],title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+				yes:function(){
+					var index = layer.load();
+					$.post("{:url('setcheckst')}",{id:id,st:st,reason:$('#check_reason').val()},function(res){
+						layer.close(index);
+						dialog(res.msg,res.status);
+						layer.close(checkLayer);
+						tableIns.reload()
+					})
+				}
+			})
+		}else{
+			layer.confirm('确定要审核通过吗?',{icon: 7, title:'操作确认'}, function(index){
+				layer.close(index);
+				var index = layer.load();
+				$.post("{:url('setcheckst')}",{id:id,st:st},function(data){
+					layer.close(index);
+					dialog(data.msg,data.status);
+					tableIns.reload()
+				})
+			});
+		}
+	}
+	//删除
+	function datadel(id){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			var ids = [];
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id)
+		}
+		layer.confirm('确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('del')}",{ids:ids},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	//上下架
+	function setst(id,st){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id)
+		}
+		layer.confirm('确定要'+(st==0?'下架':'上架')+'吗?',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('setst')}",{ids:ids,st:st},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	function showurl(id,type){
+	   var pagepath = 'activity/kecheng/detail?id='+id;
+		{if !in_array('mp',$platform)}
+		showwxqrcode(pagepath);
+		return;
+		{/if}
+		url = '{$Think.const.PRE_URL2}/h5/{$aid}.html#'+pagepath;
+		var html = '';
+		html+='<div style="margin:20px">';
+		html+='	<div style="width:100%;margin:10px 0" id="urlqr"></div>'; 
+		{if in_array('wx',$platform)}
+		html+='	<div style="width:100%;text-align:center"><button class="layui-btn layui-btn-sm layui-btn-primary" onclick="showwxqrcode(\''+pagepath+'\')">查看小程序码</button></div>'; 
+		{/if}
+		html+='	<div style="height:50px;line-height:25px;">链接地址：'+url+'</div>';
+		html+='	<div style="height:50px;line-height:25px;">页面路径：<button class="layui-btn layui-btn-xs layui-btn-primary" onclick="copyText(\'/'+pagepath+'\')">复制</button><br>/'+pagepath+'</div>';
+		html+='</div>'
+		layer.open({type:1,'title':'链接地址',area:['500px','430px'],shadeClose:true,'content':html})
+		var qrcode = new QRCode('urlqr', {
+			text: 'your content',
+			width: 200,
+			height: 200,
+			colorDark : '#000000',
+			colorLight : '#ffffff',
+			correctLevel : QRCode.CorrectLevel.L
+		});
+		qrcode.clear();
+		qrcode.makeCode(url);
+	}
+	function showwxqrcode(pagepath){
+		var index = layer.load();
+		$.post("{:url('DesignerPage/getwxqrcode')}",{path:pagepath},function(res){
+			layer.close(index);
+			if(res.status==0){
+				//dialog(res.msg);
+				layer.open({type:1,area:['300px','350px'],content:'<div style="margin:auto auto;text-align:center"><div style="color:red;width:280px;height:180px;margin-top:100px">'+res.msg+'</div><div style="height:25px;line-height:25px;">'+pagepath+'</div></div>',title:false,shadeClose:true})
+			}else{
+				layer.open({type:1,area:['300px','350px'],content:'<div style="margin:auto auto;text-align:center"><img src="'+res.url+'" style="margin-top:20px;max-width:280px;max-height:280px"/><div style="height:25px;line-height:25px;">'+pagepath+'</div></div>',title:false,shadeClose:true})
+			}
+		})
+	}
+	
+	</script>
+	{include file="public/copyright"/}
+</body>
+</html>

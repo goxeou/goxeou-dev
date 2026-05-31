@@ -1,0 +1,77 @@
+<div class="dsn-panel-editor-title">集点设置</div>
+<div class="dsn-panel-editor-content">
+<!--	<div class="layui-form-item">-->
+<!--    <div class="layui-form-label">文字颜色</div>-->
+<!--    <div class="layui-input-inline">-->
+<!--			<input class="layui-input" value="{{Edit.params.color}}" ng-model="Edit.params.color"/>-->
+<!--    </div>-->
+<!--		<span class="colorpicker" ng-model="Edit.params.color"></span>-->
+<!--	</div>-->
+<!--	<div class="layui-form-item">-->
+<!--    <div class="layui-form-label">边框颜色</div>-->
+<!--    <div class="layui-input-inline">-->
+<!--			<input class="layui-input" value="{{Edit.params.bordercolor}}" ng-model="Edit.params.bordercolor"/>-->
+<!--    </div>-->
+<!--		<span class="colorpicker" ng-model="Edit.params.bordercolor"></span>-->
+<!--	</div>-->
+	<div class="layui-form-item">
+		<div class="layui-form-label">背景颜色</div>
+		<div class="layui-input-inline">
+				<input class="layui-input" value="{{Edit.params.bgcolor}}" ng-model="Edit.params.bgcolor"/>
+		</div>
+		<span class="colorpicker" ng-model="Edit.params.bgcolor"></span>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">圆角度</div>
+		<div class="slider" min="0" max="50" ng-model="Edit.params.borderradius"></div>
+		<span class="slider-span"><input ng-model="Edit.params.borderradius"/> px</span>
+	</div>
+	<hr>
+	<div class="layui-form-item">
+		<div class="layui-form-label">左右外边距</div>
+		<div class="slider" min="0" max="40" ng-model="Edit.params.margin_x"></div>
+		<span class="slider-span"><input ng-model="Edit.params.margin_x"/> px</span>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">上下外边距</div>
+		<div class="slider" min="0" max="40" ng-model="Edit.params.margin_y"></div>
+		<span class="slider-span"><input ng-model="Edit.params.margin_y"/> px</span>
+	</div>
+	{if !$type}
+	{if !$noshow_modules || !in_array('ModulePlatform',$noshow_modules)}
+	<div class="layui-form-item">
+		<div class="layui-form-label">显示平台</div>
+		<div class="layui-input-inline" style="width:500px">
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="所有平台" name="{{Edit.id}}_platform['all']" ng-model="Edit.params.platform['all']"/>
+			{foreach $platform as $pl}
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="{:getplatformname($pl)}" name="{{Edit.id}}_platform['{$pl}']" ng-model="Edit.params.platform['{$pl}']"/>
+			{/foreach}
+
+		</div>
+	</div>
+	{/if}
+	{if !$noshow_modules || !in_array('ModuleQuanxian',$noshow_modules)}
+	<div class="layui-form-item">
+		<div class="layui-form-label">显示范围</div>
+		<div class="layui-input-inline" style="width:500px">
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="所有人" name="{{Edit.id}}_quanxian['all']" ng-model="Edit.params.quanxian['all']"/>
+			{foreach $memberlevelList as $lv}
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="{$lv.name}" name="{{Edit.id}}_quanxian[{$lv.id}]" ng-model="Edit.params.quanxian[{$lv.id}]"/>
+			{/foreach}
+		</div>
+	</div>
+	{/if}
+	{include file="designer_page/temp/edit-plugin-mendian" /}
+	<div class="layui-form-item" ng-show="!Edit.params.quanxian['all']">
+		<div class="layui-form-label">显示用户</div>
+		<div class="layui-input-inline">
+				<input class="layui-input" ng-model="Edit.params.showmids"/>
+		</div>
+		<div class="layui-form-mid layui-word-aux">填写用户ID，多个用英文标点逗号(,)分割
+	</div>
+	{else}
+		<input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有平台" name="{{Edit.id}}_platform['all']" ng-model="Edit.params.platform['all']"/>
+		<input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有人" name="{{Edit.id}}_quanxian['all']" ng-model="Edit.params.quanxian['all']"/>
+		<input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有门店" name="{{Edit.id}}_mendian['all']" ng-model="Edit.params.mendian['all']"/>
+	{/if}
+</div>

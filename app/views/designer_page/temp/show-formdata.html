@@ -1,0 +1,21 @@
+{if getcustom('form_data')}
+<!-- <link rel="stylesheet" href="../../../../static/admin/css/designer.css"> -->
+<div class="dsn-mod dsn-business" ng-class="{'dsn-mod-select':Item.id == focus}" ng-style="{'background-color':Item.params.bgcolor,'margin':Item.params.margin_y+'px '+Item.params.margin_x+'px 0','padding':Item.params.padding_y+'px '+Item.params.padding_x+'px'}">
+    <div style="line-height: 170px; text-align: center; color: #999; font-size: 16px;width:100%" ng-show="Item.data == ''">一条数据都没有...</div>
+    <div class="buslist">
+        <div ng-repeat="item in Item.data" ng-init="idx = $index" class="busbox">
+            <div class="businfo">
+                <div class="f1" style="width: 70px;height: 70px;"><img ng-src="{{item.logo}}" style="border-radius:6px" /></div>
+                <div class="f2">
+                     <div class="title">{{item.name}}</div>
+                     <div class="address">
+                        <img src="__STATIC__/admin/img/b_addr.png" style="width:13px;height: 13px;margin-right: 10px;">{{item.address}}
+                    </div>
+                     <div class="address">
+                        <img src="__STATIC__/admin/img/b_tel.png" style="width:13px;height: 13px;margin-right: 10px;">{{item.tel}}
+                    </div>
+                </div>
+            </div>
+    </div>
+</div>
+{/if}

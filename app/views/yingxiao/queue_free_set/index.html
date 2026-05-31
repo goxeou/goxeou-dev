@@ -1,0 +1,694 @@
+<!DOCTYPE html><!--custom_file(yx_queue_free)-->
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{:t('排队免单')}设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style type="text/css">
+		.object_table .layui-input {width: 80px;}
+		.object_table .xuhao .layui-input {width: 146px;}
+		.object_table .layui-input:nth-child(2){ margin-top: 10px;}
+		.object_table .w150 {width: 150px;}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					<i class="fa fa-cog"></i> {:t('排队免单')}设置
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w8" lay-filter="">
+						{if $bid == 0}
+						<div class="layui-form-item">
+							<label class="layui-form-label">状态：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[status]" value="1" title="开启" {if !$info['id'] || $info['status']==1}checked{/if}>
+								<input type="radio" name="info[status]" value="0" title="关闭" {if $info['status']==0}checked{/if}>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">免单比例：</label>
+							<div class="layui-module-itemR">
+								<input type="number" name="info[rate]" value="{$info['rate']}" class="layui-input">
+								<div>%</div>
+							</div>
+							<div class="layui-form-mid layui-word-aux layui-clear">
+								免单金额=订单金额*免单比例
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">单笔免单金额上限：</label>
+							<div class="layui-module-itemR">
+								<input type="number" name="info[money_max]" value="{$info['money_max']}" class="layui-input">
+								<div>元</div>
+							</div>
+							<div class="layui-form-mid layui-word-aux layui-clear">单笔免单金额上限，0为不限制，固定数值</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">{:t('返利比例')}：</label>
+							<div class="layui-module-itemR">
+								<input type="number" name="info[rate_back]" value="{$info['rate_back']}" class="layui-input">
+								<div>%</div>
+							</div>
+							<div class="layui-form-mid layui-word-aux layui-clear">下单订单给排队订单的{:t('返利比例')}，比如下单100，{:t('返利比例')}为10%，则给排队中的订单返10元，免单比例和返利比例不可相等，否则买完就返完了</div>
+						</div>
+						{if $mode_show}
+						<div class="layui-form-item">
+							<label class="layui-form-label">模式：</label>
+							<div class="layui-input-inline" style="width: 80%">
+								{if getcustom('yx_queue_free_other_mode')}
+								<div style="display: flex">
+									<input type="radio" name="info[mode]" value="0" title="固定分配" {if !$info['id'] || $info['mode']==0}checked{/if} lay-filter="mode">
+									<div style="line-height: 28px;margin: 6px 10px 0;color: #999">按照固定比例，按排队顺序进行发放</div>
+								</div>
+
+								<div style="display: flex">
+									<input type="radio" name="info[mode]" value="1" title="平均分配" {if $info['mode']==1}checked{/if} lay-filter="mode">
+									<div style="line-height: 28px;margin: 6px 10px 0;color: #999">所有未出局排队平均分配，且不低于最低金额</div>
+								</div>
+								<div style="display: flex">
+									<input type="radio" name="info[mode]" value="2" title="金额分配" {if $info['mode']==2}checked{/if} lay-filter="mode">
+									<div style="line-height: 28px;margin: 6px 10px 0;color: #999">根据自己的订单消费金额在整个订单当中的总金额占比进行分配</div>
+								</div>
+								<div style="display: flex">
+									<input type="radio" name="info[mode]" value="3" title="平均+金额分配" {if $info['mode']==3}checked{/if} lay-filter="mode">
+									<div style="line-height: 28px;margin: 6px 10px 0;color: #999">一部分平均分配，一部分按订单的金额占比分配</div>
+								</div>
+								<div style="display: flex">
+									<input type="radio" name="info[mode]" value="4" title="平均+固定分配" {if $info['mode']==4}checked{/if} lay-filter="mode">
+									<div style="line-height: 28px;margin: 6px 10px 0;color: #999">一部分平均分配，一部分按照固定比例，按排队顺序进行发放</div>
+								</div>
+								{/if}
+								{if getcustom('yx_queue_free_today_average')}
+								<div style="display: flex">
+									<input type="radio" name="info[mode]" value="5" title="固定+今日平均+非今日平均" {if $info['mode']==5}checked{/if} lay-filter="mode">
+									<div style="line-height: 28px;margin: 6px 10px 0;color: #999">一部分固定，按排队顺序进行发放，一部分平均今日消费，一部分平均非当日消费(次日凌晨发放)，超出订单结余到平台，下次发放</div>
+								</div>
+								{/if}
+							</div>
+						</div>
+						{/if}
+						{if getcustom('yx_queue_free_other_mode')}	
+						<div class="layui-form-item" id="mode1" style="display: flex">
+							<label class="layui-form-label">平均返最低金额：</label>
+							<div class="layui-module-itemR">
+								<input type="number" name="info[pj_min_money]" value="{$info['pj_min_money']}" min="0.01" class="layui-input">
+								<div>元</div>
+							</div>
+							<div class="layui-form-mid layui-word-aux layui-clear" style="margin-left: 10px">平均每人最低分配金额，0不限制，最低0.01元</div>
+						</div>
+						<div class="layui-form-item" id="mode2" style="display: flex">
+							<label class="layui-form-label" >金额分配设置：</label>
+							<label class="layui-form-label" style="width: 110px">最新下单比例：</label>
+							<div class="layui-module-itemR">
+								<input type="number" name="info[new_order_ratio]" value="{$info['new_order_ratio']}" min="0.01" class="layui-input">
+								<div>%</div>
+							</div>
+							<label class="layui-form-label" style="width: 110px">最早下单比例：</label>
+							<div class="layui-module-itemR">
+								<input type="number" name="info[old_order_ratio]" value="{$info['old_order_ratio']}" min="0.01" class="layui-input">
+								<div>%</div>
+							</div>
+							<div class="layui-form-mid layui-word-aux layui-clear" style="margin-left: 10px">根据自己的订单消费金额在整个订单当中的总金额占比，来进行分配,最新下单+最早下单不超过50%</div>
+						</div>
+						<div class="layui-form-item" id="mode3" >
+							<label class="layui-form-label" >平均+金额设置：</label>
+							<div class="layui-input-inline" style="display: flex;width: 60%;margin-bottom: 20px">	
+								<label class="layui-form-label" style="width: 110px">平均补贴比例：</label>
+								<div class="layui-module-itemR">
+									<input type="number" name="info[pjmoney_pj_ratio]" value="{$info['pjmoney_pj_ratio']}" min="0.01" class="layui-input">
+									<div>%</div>
+								</div>
+								<label class="layui-form-label" style="width: 120px">平均返最低金额：</label>
+								<div class="layui-module-itemR">
+									<input type="number" name="info[pjmoney_pj_min_money]" value="{$info['pjmoney_pj_min_money']}" min="0.01" class="layui-input">
+									<div>元</div>
+								</div>
+							</div>
+							<div class="layui-form-item" style="display: flex;margin-left: 150px;">
+								<label class="layui-form-label" style="width: 120px">金额补贴比例：</label>
+								<div class="layui-module-itemR">
+									<input type="number" name="info[pjmoney_money_ratio]" value="{$info['pjmoney_money_ratio']}" min="0.01" class="layui-input">
+									<div>%</div>
+								</div>
+								
+								<label class="layui-form-label" style="width: 120px">最新下单比例：</label>
+								<div class="layui-module-itemR">
+									<input type="number" name="info[pjmoney_new_order_ratio]" value="{$info['pjmoney_new_order_ratio']}" min="0.01" class="layui-input">
+									<div>%</div>
+								</div>
+								<label class="layui-form-label" style="width: 120px">最早下单比例：</label>
+								<div class="layui-module-itemR">
+									<input type="number" name="info[pjmoney_old_order_ratio]" value="{$info['pjmoney_old_order_ratio']}" min="0.01" class="layui-input">
+									<div>%</div>
+								</div>
+								<div class="layui-form-mid layui-word-aux layui-clear" style="margin-left: 10px">平均补贴+金额补贴必须等于 100%，最新下单+最早下单不超过50%</div>
+							</div>
+						</div>
+						<div class="layui-form-item" id="mode4" style="display: flex">
+							<label class="layui-form-label" >平均+固定比例：</label>
+							<label class="layui-form-label" style="width: 70px">固定比例：</label>
+							<div class="layui-module-itemR">
+								<input type="number" name="info[pjfixed_fixed_ratio]" value="{$info['pjfixed_fixed_ratio']}" min="0.01" class="layui-input">
+								<div>%</div>
+							</div>
+							<label class="layui-form-label" style="width: 120px">平均返最低金额：</label>
+							<div class="layui-module-itemR">
+								<input type="number" name="info[pjfixed_pj_min_money]" value="{$info['pjfixed_pj_min_money']}" min="0.01" class="layui-input">
+								<div>元</div>
+							</div>
+							<div class="layui-form-mid layui-word-aux layui-clear" style="margin-left: 10px">平均比例 = 总{:t('返利比例')}(%) - 固定比例(%)</div>
+						</div>
+						{/if}
+						{if getcustom('yx_queue_free_today_average')}
+						<div class="layui-form-item" id="mode5" style="display: flex">
+							<label class="layui-form-label" >固定+今日平均：</label>
+							<label class="layui-form-label" style="width: 70px">固定比例：</label>
+							<div class="layui-module-itemR">
+								<input type="number" name="info[today_fixed_ratio]" value="{$info['today_fixed_ratio']}" min="0.01" class="layui-input">
+								<div>%</div>
+							</div>
+							<label class="layui-form-label" style="width: 120px">今日平均比例：</label>
+							<div class="layui-module-itemR">
+								<input type="number" name="info[today_pj_ratio]" value="{$info['today_pj_ratio']}" min="0.01" class="layui-input">
+								<div>%</div>
+							</div> 
+							<label class="layui-form-label" style="width: 120px">非今日平均：</label>
+							<div class="layui-module-itemR">
+								<input type="number" name="info[today_other_ratio]" value="{$info['today_other_ratio']}" min="0.01" class="layui-input">
+								<div>%</div>
+							</div>
+							
+							<div class="layui-form-mid layui-word-aux layui-clear" style="margin-left: 10px">固定比例(%)+ 今日平均比例(%) + 非今日平均(%) <= 100%</div>
+						</div>
+						{/if}
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">返现账户：</label>
+							<div class="layui-input-inline" style="width: 30%">
+								<input type="radio" name="info[receive_account]" value="money" title="{:t('余额')}" {if !$info['id'] || $info['receive_account']=='money'}checked{/if}>
+								{if getcustom('yx_queue_free_freeze_account')}
+								<input type="radio" name="info[receive_account]" value="freeze_credit" title="{:t('冻结账户')}" {if !$info['id'] || $info['receive_account']=='freeze_credit'}checked{/if}>
+								{/if}
+								{if getcustom('yx_queue_free_fenzhang_wxpay')}
+								{if $auth_data=='all' || in_array('QueueFreeSetFenzhangWxpay',$auth_data)}
+								<input type="radio" name="info[receive_account]" value="fenzhang_wxpay" title="微信分账" {if $info['receive_account']=='fenzhang_wxpay'}checked{/if}>
+								{/if}
+								{/if}
+								{if getcustom('yx_queue_free_receive_scoreaccount')}
+								<input type="radio" name="info[receive_account]" value="score" title="{:t('积分')}" {if !$info['id'] || $info['receive_account']=='score'}checked{/if}>
+								{/if}
+							</div>
+							<div class="layui-form-mid layui-word-aux">
+						{if getcustom('yx_queue_free_fenzhang_wxpay')}
+						{if $auth_data=='all' || in_array('QueueFreeSetFenzhangWxpay',$auth_data)}
+						微信分账时{:t('返利比例')}+分销等不能超过30%，非微信支付时依然通过余额返现
+						{/if}{/if}
+							</div>
+						</div>
+						{if getcustom('yx_queue_free_fenzhang_wxpay')}
+						{if $auth_data=='all' || in_array('QueueFreeSetFenzhangWxpay',$auth_data)}
+							<div class="layui-form-item">
+								<label class="layui-form-label">微信分账手续费：</label>
+								<div class="layui-module-itemR">
+									<input type="number" name="info[fenzhang_wxpay_rate]" value="{$info['fenzhang_wxpay_rate']}" class="layui-input">
+									<div>%</div>
+								</div>
+							</div>
+						{/if}
+						{/if}
+
+						{if getcustom('yx_queue_free_freeze_account')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">{:t('冻结账户')}兑换：</label>
+							<div class="layui-input-inline">
+								<input type="checkbox" name="info[freeze_exchange_wallet][]" value="1" title="余额" {if in_array(1, $info['freeze_exchange_wallet'])}checked{/if}>
+								<input type="checkbox" name="info[freeze_exchange_wallet][]" value="2" title="佣金" {if in_array(2, $info['freeze_exchange_wallet'])}checked{/if}>
+							</div>
+							<div class="layui-word-aux layui-form-mid">
+								冻结账户的钱通过积分可兑换到的钱包，选中两个则会员可选择，不选中则不能兑换
+							</div>
+						</div>
+						{/if}
+
+						{if getcustom('yx_queue_free_parent')}
+						{if $auth_data=='all' || in_array('QueueFreeSetParent',$auth_data)}
+						<div class="layui-form-item">
+							<label class="layui-form-label">分享速返：</label>
+							<div class="layui-input-inline" style="width: 160px">
+								<input type="radio" name="info[parent_fast]" value="0" title="关闭" {if !$info['id'] || $info['parent_fast']=='0'}checked{/if}>
+								<input type="radio" name="info[parent_fast]" value="1" title="开启" {if $info['parent_fast']=='1'}checked{/if}>
+							</div>
+							<label class="layui-form-label" style="width:auto;">比例：</label>
+							<div class="layui-module-itemR">
+								<input type="number" name="info[parent_fast_rate]" value="{$info['parent_fast_rate']}" class="layui-input">
+								<div>%</div>
+							</div>
+							<div class="layui-form-mid layui-word-aux layui-clear">会员消费优先按比例返给直推人，其余按排队顺序正常发放</div>
+						</div>
+						{/if}
+						{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label">参与订单：</label>
+							<div class="layui-input-inline" style="width:500px">
+								<input type="checkbox" name="info[order_types][]" value="all" title="全部" {if in_array('all',explode(',',$info['order_types']))}checked{/if}/>
+								<input type="checkbox" name="info[order_types][]" value="maidan" title="买单" {if in_array('maidan',explode(',',$info['order_types']))}checked{/if}/>
+								<input type="checkbox" name="info[order_types][]" value="shop" title="商城" {if in_array('shop',explode(',',$info['order_types']))}checked{/if}/>
+								{if getcustom('yx_queue_free_collage')}
+								<input type="checkbox" name="info[order_types][]" value="collage" title="多人拼团" {if in_array('collage',explode(',',$info['order_types']))}checked{/if}/>
+								{/if}
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">排队时间：</label>
+							<div class="layui-input-inline" style="width: 250px">
+								<input type="radio" name="info[time_type]" value="0" title="确认收货后" {if !$info['id'] || $info['time_type']==0}checked{/if}>
+								<input type="radio" name="info[time_type]" value="1" title="支付后" {if $info['time_type']==1}checked{/if}>
+							</div>
+							<div class="layui-form-mid layui-word-aux">买单付款订单固定为支付后排队</div>
+						</div>
+						{if getcustom('yx_queue_free_quit_wxhb')}
+						{if $auth_data=='all' || in_array('QueueFreeSetQuitWxhb',$auth_data)}
+							<div class="layui-form-item">
+								<label class="layui-form-label">退出返红包：</label>
+								<div class="layui-input-inline" style="width: 250px">
+									<input type="radio" name="info[quit_wxhb]" value="0" title="关闭" {if !$info['id'] || $info['quit_wxhb']=='0'}checked{/if}>
+									<input type="radio" name="info[quit_wxhb]" value="1" title="开启" {if $info['quit_wxhb']=='1'}checked{/if}>
+								</div>
+								<div class="layui-form-mid layui-word-aux">退出排队返微信零钱红包，三选一直接打款到微信零钱，如果其他平台直接返到余额</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">红包金额范围：</label>
+								<div class="layui-input-inline" style="width:150px">
+									<input type="number" name="info[quit_wxhb_min]" value="{$info['quit_wxhb_min']}" class="layui-input">
+								</div>
+								<div class="layui-form-mid">-</div>
+								<div class="layui-input-inline" style="width:150px">
+									<input type="number" name="info[quit_wxhb_max]" value="{$info['quit_wxhb_max']}" class="layui-input">
+								</div>
+
+								<div class="layui-form-mid layui-word-aux">红包金额=排队金额*范围内随机比例</div>
+							</div>
+						{/if}
+						{/if}
+						{if getcustom('yx_queue_free_fanli_commission')}
+						<div class="layui-form-item" >
+							<label class="layui-form-label">{:t('排队返利')}佣金比例：</label>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>佣金比例(%) </div>
+								<input type="text" name="info[queue_free_commission_ratio]" class="layui-input" value="{$info.queue_free_commission_ratio|default=0}">
+							</div>
+							<div class="layui-form-mid layui-word-aux">推荐商家{:t('消费返利')}的佣金，例如：消费100元，20%的{:t('消费返利')}是20元，佣金为20%的10%是2元</div>
+						</div>
+
+						<div class="layui-form-item" >
+							<label class="layui-form-label">{:t('排队返利')}分成比例：</label>
+							<div style="margin-left: 150px">
+							
+								{foreach $queuelevel_list as $level}
+								<div class="layui-input-inline layui-module-itemL" style=";margin-bottom: 10px">
+									<div>{$level.name}(%)：</div>
+									<input type="hidden" name="queue_free_commission[levelid][]" value="{$level.id}">
+									<input type="text" name="queue_free_commission[ratio][]" class="layui-input" value="{$level.ratio}">
+								</div>
+								{/foreach}
+								<div class="layui-input-inline" style="width: 100px;margin-bottom: 10px">
+									<div class="layui-form-mid">级差</div>
+									<input type="checkbox" lay-skin="switch" lay-text="开启|关闭" name="info[queue_free_commission_jicha_status]" value="1" {if $info['queue_free_commission_jicha_status']==1}checked{/if} title="级差" lay-skin="primary">
+								</div>
+							</div>
+							<div class="layui-form-mid layui-word-aux"></div>
+						</div>
+						<div class="layui-form-item" >
+							<label class="layui-form-label">佣金平级奖：</label>
+							<div class="layui-input-inline layui-module-itemL">
+								<div>比例(%) </div>
+								<input type="text" name="info[queue_free_commission_pj]" class="layui-input" value="{$info.queue_free_commission_pj|default=0}">
+							</div>
+							<div class="layui-form-mid layui-word-aux">如果直推和间推平级，那么间推拿直推人所有收入的平级奖，平级只拿一级</div>
+						</div>
+						 {/if}
+						{if getcustom('yx_queue_duli_queue')}	
+						<div class="layui-form-item">
+							<label class="layui-form-label">团队独立排队：</label>
+							<div class="layui-input-inline" style="width:800px">
+								{foreach $duli_levellist as $v}
+								<input type="checkbox" name="info[duli_queue_levelid][]" value="{$v.id}" title="{$v.name}" lay-skin="primary" {if in_array($v['id'],$info['duli_queue_levelid'])}checked{/if}/>
+								{/foreach}
+							</div>
+							<div class="layui-form-mid layui-word-aux">选中后的等级，伞下的人独立排队，脱离平台排队，排队号更新；伞下的人消费，返给自己队伍排第一的人；非伞下的人消费，返给平台排队的人，只支持固定分配模式；</div>
+						</div>
+						 {/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label">商品默认参与：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[product_join]" value="1" title="开启" {if  $info['product_join']==1}checked{/if}>
+								<input type="radio" name="info[product_join]" value="0" title="关闭" {if	 !$info['id'] ||$info['product_join']==0}checked{/if}>
+							</div>
+							<div class="layui-form-mid layui-word-aux">添加商品时，控制参与{:t('排队免单')}的开关默认参与或者不参与（仅影响添加时后台的按钮状态）</div>
+						</div>
+						<fieldset class="layui-elem-field">
+							<legend>多商户</legend>
+							<div class="layui-form-item">
+								<label class="layui-form-label">多商户排队：</label>
+								<div class="layui-input-inline" style="width: 250px">
+									<input type="radio" name="info[queue_type_business]" value="1" title="参与平台排队"  {if $info['queue_type_business']==1}checked{/if} class="queue_type_business">
+									
+									<input type="radio" name="info[queue_type_business]" value="0" title="独立排队" {if !$info['id'] || $info['queue_type_business']==0}checked {/if} class="queue_type_business">
+								</div>                                                                     
+								<div class="layui-form-mid layui-word-aux" style="color: red!important;">设置后不可变动，影响排队顺序</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">多商户修改免单比例：</label>
+								<div class="layui-input-inline">
+									<input type="radio" name="info[rate_status_business]" value="1" title="开启" {if $info['rate_status_business']==1}checked{/if}>
+									<input type="radio" name="info[rate_status_business]" value="0" title="关闭" {if !$info['id'] || $info['rate_status_business']==0}checked{/if}>
+								</div>
+								<div class="layui-form-mid layui-word-aux">商户-编辑 可独立开关，独立开关优先级高于此处</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">多商户免单比例：</label>
+								<div class="layui-input-inline" style="width:150px">
+									<input type="number" name="info[rate_min]" value="{$info['rate_min']}" class="layui-input">
+								</div>
+								<div class="layui-form-mid">-</div>
+								<div class="layui-input-inline" style="width:150px">
+									<input type="number" name="info[rate_max]" value="{$info['rate_max']}" class="layui-input">
+								</div>
+
+								<div class="layui-form-mid layui-word-aux">开启多商户修改时，多商户可输入的比例范围</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">多商户抽成方式：</label>
+								<div class="layui-input-inline" style="width: auto;">
+									<input type="radio" name="info[feepercent_type]" value="0" title="人工增加抽成比例" {if !$info['id'] || $info['feepercent_type']==0}checked{/if} >
+									<input type="radio" name="info[feepercent_type]" value="1" title="自动增加抽成比例" {if $info['feepercent_type']==1}checked{/if}>
+								</div>
+								<div class="layui-form-mid layui-word-aux">人工增加抽成比例原有模式，自动增加抽成比例：商家抽成费率+返利费率</div>
+							</div>
+						</fieldset>
+
+						{if getcustom('yx_queue_free_moneypayjoin')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">{:t('余额')}支付参与排队：</label>
+							<div class="layui-input-inline" >
+								<input type="radio" name="info[moneypayjoin]" value="0" title="不参与" {if $info['id'] && $info['moneypayjoin']==0}checked{/if}>
+								<input type="radio" name="info[moneypayjoin]" value="1" title="参与" {if !$info['id'] || $info['moneypayjoin']==1}checked{/if}>
+							</div>
+							<div class="layui-form-mid layui-word-aux">{:t('余额')}支付订单是否参与排队</div>
+						</div>
+						{/if}
+
+						 {if getcustom('yx_queue_free_money_range')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">队列金额范围状态：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[queue_money_range_status]" value="1" title="开启" {if $info['queue_money_range_status']==1}checked{/if}>
+								<input type="radio" name="info[queue_money_range_status]" value="0" title="关闭" {if !$info['id'] || $info['queue_money_range_status']==0}checked{/if}>
+							</div>
+							<div class="layui-form-mid layui-word-aux">开启后，新进排队将按照队列金额范围设置进行排队，以前未加入队列的排队需在排队记录列表点击重新排队进行更新队列，如果队列金额范围不设置或订单金额不在范围内都不再加入排队</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">队列金额范围：</label>
+							<div class="layui-input-inline" style="width:850px">
+								<table id="money_range"  class="layui-table" style="width:850px">
+									<thead>
+									<tr>
+										<th>编号</th>
+										<th>标题</th>
+										<th>金额范围值</th>
+										<th>免单比例</th>
+										<th>免单金额上限</th>
+										<th>{:t('返利比例')}</th>
+										<th>操作</th>
+									</tr>
+									</thead>
+									<tbody >
+									{php} $queue_money_range = json_decode($info['queue_money_range']);{/php}
+									{foreach $queue_money_range as $k=>$range}
+									<tr>
+										<td width="150">
+											<input type="text" readonly class="layui-input" name="range[no][]" value="{$range->no}" style="border: none">
+										</td>
+										<td width="150">
+											<input type="text"  class="layui-input" name="range[title][]" value="{$range->title}" >
+										</td>
+										<td width="350">
+											<input type="number" class="layui-input" name="range[start][]" value="{$range->start}" placeholder="起"  style="width:80px;display:inline;"> ~
+											<input type="number" class="layui-input" name="range[end][]" value="{$range->end}" style="width:80px;display:inline;" placeholder="止" />
+										</td>
+										<td width="180">
+											<input type="number"  class="layui-input" name="range[rate][]" value="{$range->rate}">
+										</td>
+										<td width="190">
+											<input type="number"  class="layui-input" name="range[money_max][]" value="{$range->money_max}">
+										</td>
+										<td width="180">
+											<input type="number"  class="layui-input" name="range[rate_back][]" value="{$range->rate_back}" >
+										</td>
+										<td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="$(this).parent().parent().remove()">删除</button></td>
+									</tr>
+									{/foreach}
+									</tbody>
+									<tr><td colspan="7" style="text-align:center;"><button type="button" class="layui-btn  " onclick="addjl()">添加</button></td></tr>
+								</table>
+							</div>
+							<script>
+								function addjl(){
+									var num	= $('#money_range').find('tr').length;
+									// if(num >= 4){
+									// 	layer.alert('最多添加4个');
+									// 	return;
+									// }
+									var gghtml = '<tr>';
+									gghtml +='<td width="100"></td><td width="150"><input type="text" class="layui-input" name="range[title][]" value=""></td>';
+									gghtml +='<td width="350"><input type="number" class="layui-input" name="range[start][]" value="" placeholder="起" style="width:80px;display:inline;" min="1"> ~ <input type="number" class="layui-input" name="range[end][]" value="" style="width:80px;display:inline;" placeholder="止" min="1"/></td>';
+									gghtml +='<td width="180"><input type="number"  class="layui-input" name="range[rate][]" value="" ></td>';
+									gghtml +='<td width="190"><input type="number"  class="layui-input" name="range[money_max][]" value=""></td>';
+									gghtml +='<td width="180"><input type="number"  class="layui-input" name="range[rate_back][]" value=""></td>';
+									
+									gghtml += '<td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="$(this).parent().parent().remove()">删除</button></td>';
+									gghtml += '</tr>';
+
+									$('#money_range').append(gghtml);
+								}
+							</script>
+							<div class="layui-form-mid layui-word-aux  layui-clear">根据订单金额划分队列，比如：1~50 表示订单金额>1且≤50的排一队。未设置或不在范围内的订单排一队。</div>
+						</div>
+						{/if}
+						{if getcustom('yx_queue_free_multi_team')}
+						<fieldset class="layui-elem-field">
+							<legend>多队伍</legend>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">多队伍排队：</label>
+								<div class="layui-input-inline">
+									<input type="radio" name="info[queue_multi_team_status]" value="1" title="开启" {if $info['queue_multi_team_status']==1}checked{/if} lay-filter="multi_team_radio">
+									<input type="radio" name="info[queue_multi_team_status]" value="0" title="关闭" {if !$info['id'] || $info['queue_multi_team_status']==0}checked{/if} lay-filter="multi_team_radio">
+								</div>
+								<div class="layui-form-mid layui-word-aux">开启后，新进排队将按照队伍人数进行排队，返利时按照所属队伍顺序进行返利</div>
+							</div>
+							<div id="multi_team" {if $info['queue_multi_team_status'] ==0}style="display:none"{/if}>
+								<div class="layui-form-item" >
+									<label class="layui-form-label">队伍人数：</label>
+									<div class="layui-input-inline layui-module-itemR">
+										<input type="text" name="info[queue_multi_team_people_num]" class="layui-input" value="{$info.queue_multi_team_people_num}">
+										<div>人</div>
+									</div>
+									<div class="layui-form-mid layui-word-aux">按照设置的人数进行参与排队，例如设置10人，则10个人为一个队伍</div>
+								</div>
+								<div class="layui-form-item" >
+									<label class="layui-form-label">参与排队最低金额：</label>
+									<div class="layui-input-inline layui-module-itemR">
+										<input type="text" name="info[queue_multi_team_min_money]" class="layui-input" value="{$info.queue_multi_team_min_money}">
+										<div>元</div>
+									</div>
+									<div class="layui-form-mid layui-word-aux">参与队伍排队最低金额，低于该金额不参与排队，0为不限制</div>
+								</div>
+								<div class="layui-form-item" >
+									<label class="layui-form-label">复购金额：</label>
+									<div class="layui-input-inline layui-module-itemR">
+										<input type="text" name="info[queue_multi_team_repeat_money]" class="layui-input" value="{$info.queue_multi_team_repeat_money}">
+										<div>元</div>
+									</div>
+									<div class="layui-form-mid layui-word-aux">本月必须复购累计x元以上才能继续参与免单,否则自动出局，不再参与排号（所有排队中的退出无奖励），0不生效</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label">复购统计时间：</label>
+									<div class="layui-input-inline">
+										<input type="radio" name="info[queue_multi_team_repeat_datetype]" value="1" title="月初" {if !$info['id'] || $info['queue_multi_team_repeat_datetype']==1}checked{/if} >
+										<input type="radio" name="info[queue_multi_team_repeat_datetype]" value="2" title="月底" {if  $info['queue_multi_team_repeat_datetype']==2}checked{/if} >
+									</div>
+									<div class="layui-form-mid layui-word-aux">月初计算上个月复购金额，月底计算本月复购金额，不符合复购金额，当前会员所有排队出局</div>
+								</div>
+								<div class="layui-form-item" >
+									<label class="layui-form-label">出局前提醒：</label>
+									<div class="layui-input-inline layui-module-itemR">
+										<input type="text" name="info[queue_multi_team_remind_days]" class="layui-input" value="{$info.queue_multi_team_remind_days}">
+										<div>天</div>
+									</div>
+
+									<div class="layui-form-mid layui-word-aux">出局前N天提醒</div>
+								</div>
+							</div>
+						</fieldset>
+						{/if}
+						<!--以上是平台设置，以下是多商户设置-->
+						{else}
+						<!--独立设置优先级大于系统设置-->
+						<!--rate_status_business 多商户修改免单比例 -1跟随系统，1开启，0关闭-->
+						{if ($info['rate_status_business'] == -1 && $setPlatform['rate_status_business'] == 1) || $info['rate_status_business'] == 1}
+						<!--商户可修改-->
+						<div class="layui-form-item">
+							<label class="layui-form-label">免单比例：</label>
+							<div class="layui-module-itemR">
+								<input type="number" name="info[rate]" value="{$info['rate']}" class="layui-input">
+								<div>%</div>
+								免单金额=订单金额*免单比例，比例范围为{$setPlatform['rate_min']}~{$setPlatform['rate_max']}
+							</div>
+						</div>
+						{else}
+						<!--商户不可修改-->
+						<div class="layui-form-item">
+							<label class="layui-form-label">免单比例：</label>
+							<div class="layui-module-itemR">
+								<input type="number" value="{$setPlatform.rate}"  readonly disabled class="layui-input">
+								<div>%</div>
+								免单金额=订单金额*免单比例，请联系运营经理修改
+							</div>
+						</div>
+						{/if}
+						{if getcustom('business_apply_queue_free_rate_back')}
+						<div class="layui-form-item">
+							<label class="layui-form-label">{:t('返利比例')}：</label>
+							<div class="layui-module-itemR">
+								<input type="number" name="info[rate_back]" value="{$info['rate_back']}" class="layui-input">
+								<div>%</div>
+							</div>
+							<div class="layui-form-mid layui-word-aux layui-clear">下单订单给排队订单的{:t('返利比例')}，比如下单100，{:t('返利比例')}为10%，则给排队中的订单返10元，免单比例和返利比例不可相等，否则买完就返完了</div>
+						</div>
+						{else}
+						<div class="layui-form-item">
+							<label class="layui-form-label">{:t('返利比例')}：</label>
+							<div class="layui-module-itemR">
+								<input type="number" value="{$info.rate_back > 0 ? $info.rate_back : $setPlatform.rate_back}"  readonly disabled class="layui-input">
+								<div>%</div>
+							</div><!--平台设置0或空跟随系统设置-->
+							<div class="layui-form-mid layui-word-aux layui-clear">下单订单给排队订单的{:t('返利比例')}，比如下单100，{:t('返利比例')}为10%，则给排队中的订单返10元，免单比例和返利比例不可相等，否则买完就返完了</div>
+						</div>
+						{/if}
+						<div class="layui-form-item">
+							<label class="layui-form-label">单笔免单金额上限：</label>
+							<div class="layui-input-inline" style="width:100px">
+								<input type="number" value="{$info.money_max >= 0 && $info.money_max != '' ? $info.money_max : $setPlatform.money_max}" readonly disabled class="layui-input">
+							</div><!--平台设置0为不限制，留空跟随系统设置 {$info.money_max}-{$setPlatform.money_max}-->
+							<div class="layui-form-mid layui-word-aux">单笔免单金额上限，0为不限制，固定数值（平台设置，无权限修改）</div>
+						</div>
+						<!--多商户独立设置结束-->
+						{/if}
+						
+						<!--						<div class="layui-form-item">-->
+<!--							<label class="layui-form-label">下级等级范围：</label>-->
+<!--							<div class="layui-input-inline" style="width:800px">-->
+<!--								<input type="checkbox" name="info[gettj_children][]" value="-1" title="所有等级" lay-skin="primary" {if !$info['id'] || in_array('-1',explode(',',$info['gettj_children']))}checked{/if}/>-->
+<!--								{foreach $memberlevel as $v}-->
+<!--								<input type="checkbox" name="info[gettj_children][]" value="{$v.id}" title="{$v.name}" lay-skin="primary" {if in_array($v['id'],explode(',',$info['gettj_children']))}checked{/if}/>-->
+<!--								{/foreach}-->
+<!--							</div>-->
+<!--						</div>-->
+
+
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<div class="layui-form-mid layui-word-aux">
+									规则如下：<br>
+									1.商城{if getcustom('yx_queue_free_collage')}、多人拼团{/if}订单付款/确认收货后才会进入排队，买单付款订单支付后进入排队<br>
+									2.{:t('排队返利')}后可能存在退款的情况，请知悉<br>
+									3.免单比例和{:t('返利比例')}不可相等，否则买完就返完了，无排队效果<br>
+									4.商品编辑有是否参与免单活动开关设置，开启的商品才会参与活动<br>
+									5.返现到{:t('余额')}账户
+								</div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+					
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	$(function () {
+		var mode = "{$info['mode']}";
+		var type = [1,2,3,4,5];
+		type = $.grep(type,function (value) {
+			return value != mode;
+		})
+		for(var i=0;i<type.length;i++){
+			$('#mode'+type[i]).hide();
+		}
+		// var queue_type_business = "{$info['queue_type_business']}";
+		// if(queue_type_business !='-1'){
+		// 	$(".queue_type_business").prop('disabled',true);
+		// 	layui.form.render();
+		// }
+	})
+	layui.form.on('radio(mode)',function(data){
+		var type = [1,2,3,4,5];
+		for(var i=0;i<type.length;i++){
+			$('#mode'+type[i]).hide();
+		}
+		if(data.value == '0'){
+		
+		}else if(data.value == '1'){
+			$('#mode1').show();
+		}else if(data.value == '2'){
+			$('#mode2').show();
+		}   else if(data.value == '3'){
+			$('#mode3').show();
+		}else if(data.value == '4'){
+			$('#mode4').show();
+		}else if(data.value == '5'){
+			$('#mode5').show();
+		}
+	})
+	layui.form.on('radio(multi_team_radio)',function(data){
+		if(data.value =='0'){
+			  $('#multi_team').hide();
+		} else{
+			$('#multi_team').show();
+		}
+	})
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		var index = layer.load();
+		if(field['info[queue_type_business]'] ==undefined){
+			layer.close(index);
+			layer.msg('请选择多商户排队');return;
+		}
+		$.post('',field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status==1){
+				setTimeout(function(){
+					location.href = location.href
+				},1000)
+			}
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

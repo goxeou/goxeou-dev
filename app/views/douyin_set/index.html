@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>抖音融合方案设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header"><i class="fa fa-cog"></i> 抖音融合方案设置</div>
+				<div class="layui-card-body" pad15>
+					<blockquote class="layui-elem-quote">该功能用于抖音端小程序接入，首先配置好接入信息，然后在商品管理中将抖店中的商品同步过来，抖音端小程序商城中即可显示抖店中的商品，点击商品时会跳转到抖店进行进一步操作<br>使用前请联系抖音开通商品跳转接口权限，请下载飞书，搜索添加产品联系人<a href="https://www.feishu.cn/invitation/page/add_contact/?token=3ffi2ec8-f8c4-471e-922f-3126a2ca5960&unique_id=rDzZQHIR6pJ95lOkUTeqVw==" target="_blank">赵邦</a>申请使用该功能的权限<br>
+					具体融合方案请参照<a href="https://forum.microapp.bytedance.com/mini-app/posts/5f8ecc1f010ef1022e4cf827" target="_blank">抖店融合方案介绍</a>
+					</blockquote>
+					<div class="layui-form form-label-w8" lay-filter="">
+						<div class="layui-form-item">
+							<label class="layui-form-label">App Key：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[app_id]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.app_id}">
+							</div>
+							<div class="layui-form-mid">自用型应用key，在应用概览-证书信息中查找</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">App Secret：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[app_secret]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.app_secret}">
+							</div>
+							<div class="layui-form-mid">自用型应用密钥，在应用概览-证书信息中查找</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">店铺ID：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[shop_id]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.shop_id}">
+							</div>
+							<div class="layui-form-mid">授权绑定的店铺ID，在对应应用的授权管理中查找</div>
+						</div>
+						
+						<!-- <div class="layui-form-item">
+							<label class="layui-form-label">客服电话：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[mobile]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.mobile}">
+							</div>
+							<div class="layui-form-mid"></div>
+						</div>
+
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">消息推送地址：</label>
+							<div class="layui-form-mid">{$Think.const.PRE_URL2}/?s=/ApiDouyin/notify/aid/{$aid}</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">消息体签名算法: MD5算法</div>
+						</div> -->
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">接入状态：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[status]" value="1" {if $info['status']==1}checked{/if} title="开启"/>
+								<input type="radio" name="info[status]" value="0" {if $info['status']==0}checked{/if} title="关闭"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;"></div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		$.post("{:url('save')}",field,function(data){
+			dialog(data.msg,data.status,data.url);
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

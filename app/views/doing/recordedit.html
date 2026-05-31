@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>编辑数据</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<script src="/static/admin/js/address3.js?v=1"></script>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加数据{else}<i class="fa fa-pencil"></i> 编辑数据{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form" lay-filter="">
+						<input type="hidden" name="formid" value="{$form['id']}">
+						<input type="hidden" name="info[id]" value="{$info['id']}">
+						<div class="layui-form-item">
+							<label class="layui-form-label" style="width:100px">用户ID：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[mid]" value="{$info.mid}" lay-verify="required" lay-verType="tips" autocomplete="off" class="layui-input">
+							</div>
+							<div class="layui-form-mid layui-word-aux">{if $bid==0}<a href="javascript:vodi(0)" onclick="openmax('{:url('Member/index')}/isopen/1')">查找{:t('会员')}ID</a>{/if}</div>
+						</div>
+						{foreach $formcontent as $k=>$field}
+						<div class="layui-form-item">
+							{if $field.key=='separate'}
+							<label class="layui-form-label" style="width:100px;font-size: 16px;font-weight: bold">{$field.val1}</label>
+							{else/}
+							<label class="layui-form-label" style="width:100px">{if $field['val3']==1}<span class="redstar">*</span>{/if}{$field.val1}：</label>
+							{/if}
+							{if $field['key'] == 'input'}
+							<div class="layui-input-inline">
+								<input type="text" name="info[form{$k}]" value="{$info['form'.$k]}" class="layui-input">
+							</div>
+							{/if}
+							{if $field['key'] == 'textarea'}
+							<div class="layui-input-inline">
+								<textarea type="text" name="info[form{$k}]" class="layui-textarea">{$info['form'.$k]}</textarea>
+							</div>
+							{/if}
+							{if $field['key'] == 'radio'}
+							<div class="layui-input-inline" style="width:500px">
+								{foreach $field['val2'] as $k2=>$v2}
+								<input type="radio" name="info[form{$k}]" value="{$v2}" title="{$v2}" {if $info['form'.$k] && $info['form'.$k] == $v2}checked{/if} />
+								{/foreach}
+							</div>
+							{/if}
+							{if $field['key'] == 'checkbox'}
+							<div class="layui-input-inline" style="width:500px">
+								{foreach $field['val2'] as $k2=>$v2}
+								<input type="checkbox" name="info[form{$k}]" value="{$v2}" title="{$v2}" {if $info['form'.$k] && in_array($v2,explode(',',$info['form'.$k]))}checked{/if} />
+								{/foreach}
+							</div>
+							{/if}
+							{if $field['key'] == 'selector'}
+							<div class="layui-input-inline">
+								<select name="info[form{$k}]">
+									<option value="">请选择</option>
+									{foreach $field['val2'] as $k2=>$v2}
+									<option value="{$v2}" {if $info['form'.$k] && $info['form'.$k] == $v2}selected{/if}>{$v2}</option>
+									{/foreach}
+								</select>
+							</div>
+							{/if}
+							{if $field['key'] == 'time'}
+							<div class="layui-input-inline">
+								<input type="text" name="info[form{$k}]" value="{$info['form'.$k]}" class="layui-input" id="form{$k}"/>
+							</div>
+							{/if}
+							{if $field['key'] == 'date'}
+							<div class="layui-input-inline">
+								<input type="text" name="info[form{$k}]" value="{$info['form'.$k]}" class="layui-input" id="form{$k}"/>
+							</div>
+							{/if}
+							{if $field['key'] == 'region'}
+							<div class="layui-input-inline">
+								<select name="info[form{$k}][]" id="form{$k}_province" lay-filter="form{$k}_province"></select>
+							</div>
+							<div class="layui-input-inline">
+								<select name="info[form{$k}][]" id="form{$k}_city" lay-filter="form{$k}_city"></select>
+							</div>
+							<div class="layui-input-inline">
+								<select name="info[form{$k}][]" id="form{$k}_area" ></select>
+							</div>
+							{/if}
+							{if $field['key'] == 'upload'}
+							<input type="hidden" name="info[form{$k}]" id="form{$k}" class="layui-input" value="{$info['form'.$k]}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" upload-input="form{$k}" upload-preview="form{$k}Preview" onclick="uploader(this)">上传图片</button>
+							<div id="form{$k}Preview" style="float:left;padding-top:10px;margin-left:130px;clear: both;">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info['form'.$k]}"/></div></div>
+							</div>
+							{/if}
+							
+							
+							
+						</div>
+						
+						
+						{/foreach}
+						
+						{if $form['payset'] == 1}
+						<div class="layui-form-item">
+							<label class="layui-form-label" style="width:100px">支付金额：</label>
+							<div class="layui-input-inline">
+								
+								{if !$info.fee_items}
+								<input type="text" name="price" value="{$info['id'] ? $info['money'] : $form['price']}" class="layui-input"/>
+								{/if}
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label" style="width:100px">支付状态：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[paystatus]" value="1" title="已支付" {if $info['id'] && $info['paystatus']==1}checked{/if}>
+								<input type="radio" name="info[paystatus]" value="0" title="未支付" {if !$info['id'] || $info['paystatus']==0}checked{/if}>
+							</div>
+						</div>
+						{/if}
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label" style="width:100px">状态：</label>
+							<div class="layui-input-inline" style="width:500px">
+								<input type="radio" name="info[status]" value="0" title="待处理" {if !$info['id'] || $info['status']==0}checked{/if}>
+								<input type="radio" name="info[status]" value="1" title="已确认" {if $info['status']==1}checked{/if}>
+								<input type="radio" name="info[status]" value="2" title="已驳回" {if $info['status']==2}checked{/if}>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<div class="layui-input-block" style="margin-left:130px;">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+
+  <script charset="utf-8" src="https://map.qq.com/api/js?v=2.exp&key=ABLBZ-4BIKU-GFTVB-BK7IK-OLQ35-QCBFF"></script>
+  <script>
+
+	  var searchService, map,markers = [],marker = null;
+	  var jd = $('#mapjd').val();
+	  var wd = $('#mapwd').val();
+	  window.onload=function(){
+		  function init(){
+			  var center = new qq.maps.LatLng(wd,jd);
+			  var map = new qq.maps.Map(document.getElementById("l-map"), {
+				  center: center,      // 地图的中心地理坐标。
+				  zoom:15              // 地图的中心地理坐标。
+			  });
+			  var marker = new qq.maps.Marker({ position:center, map: map});
+			  markers.push(marker);
+			  //绑定单击事件添加参数
+			  qq.maps.event.addListener(map, 'click', function(event) {
+			  	console.log(event);
+				  clearOverlays(markers);
+				  $("#mapjd").val(event.latLng.getLng());
+				  $("#mapwd").val(event.latLng.getLat());
+				  var marker = new qq.maps.Marker({ position: new qq.maps.LatLng(event.latLng.getLat(), event.latLng.getLng()) , map: map
+				  });
+				  markers.push(marker);
+			  });
+			  //设置Poi检索服务，用于本地检索、周边检索
+			  searchService = new qq.maps.SearchService({
+				  //设置搜索范围为北京
+				  location: center.lat+"," +center.lng,
+				  //设置搜索页码为1
+				  pageIndex: 1,
+				  //设置每页的结果数为5
+				  pageCapacity: 5,
+				  //设置展现查询结构到infoDIV上
+				  // panel: document.getElementById('infoDiv'),
+				  //设置动扩大检索区域。默认值true，会自动检索指定城市以外区域。
+				  autoExtend: true,
+				  //检索成功的回调函数
+				  complete: function(results) {
+					  //设置回调函数参数
+					  var pois = results.detail.pois;
+					  var infoWin = new qq.maps.InfoWindow({
+						  map: map
+					  });
+					  var latlngBounds = new qq.maps.LatLngBounds();
+					  for (var i = 0, l = pois.length; i < l; i++) {
+						  var poi = pois[i];
+						  //扩展边界范围，用来包含搜索到的Poi点
+						  latlngBounds.extend(poi.latLng);
+						  (function(n) {
+							  var marker = new qq.maps.Marker({
+								  map: map
+							  });
+							  marker.setPosition(pois[n].latLng);
+							  marker.setTitle(i + 1);
+							  markers.push(marker);
+							  qq.maps.event.addListener(marker, 'click', function() {
+								  $("#mapjd").val(pois[n].latLng.lng);
+								  $("#mapwd").val(pois[n].latLng.lat);
+								  infoWin.setPosition(pois[n].latLng);
+							  });
+						  })(i);
+					  }
+					  //调整地图视野
+					  map.fitBounds(latlngBounds);
+				  },
+				  //若服务请求失败，则运行以下函数
+				  error: function(err) {
+				  	console.log(err);
+					  dialog("请输入详细地址");
+				  }
+			  });
+		  }
+		  init();
+	  }
+	  //清除地图上的marker
+	  function clearOverlays(overlays) {
+		  var overlay;
+		  while (overlay = overlays.pop()) {
+			  overlay.setMap(null);
+		  }
+	  }
+	  $("#searchbtn").click(function(){
+		  var address = $("#address").val();
+		  if(address == ""){
+			  dialog("请输地址！");
+			  return ;
+		  }
+		  clearOverlays(markers);
+		  //根据输入的关键字在搜索范围内检索
+		  searchService.search(address);
+	  });
+  </script>
+	<script>
+
+	{foreach $formcontent as $k=>$field}
+	{if $field['key'] == 'time'}
+	layui.laydate.render({ 
+		elem: '#form{$k}'
+		,type: 'time'
+		,format:'HH:mm'
+		,range: false,
+		trigger: 'click'
+	});
+	{/if}
+	{if $field['key'] == 'date'}
+	layui.laydate.render({ 
+		elem: '#form{$k}'
+		,type: 'date'
+		,range: false,
+		trigger: 'click'
+	});
+	{/if}
+	{if $field['key'] == 'region'}
+	{php}$formdata = $info['form'.$k] ? explode(',',$info['form'.$k]) : [];{/php}
+	address3('form{$k}_province','form{$k}_city','form{$k}_area',"{$formdata[0]}","{$formdata[1]}","{$formdata[2]}");
+	{/if}
+	{/foreach}
+
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		var index = layer.load();
+		$.post("{:url('recordsave')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.closeAll();
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

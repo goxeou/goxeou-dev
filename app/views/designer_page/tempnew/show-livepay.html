@@ -1,0 +1,16 @@
+<style>
+	.dsn-menu-title{display:flex;align-items:center;justify-content: space-between;padding: 0 12px 16px 12px;}
+	.positioning-class{font-weight:none;color: #666;font-size: 13px;display:flex;align-items:center;}
+	.dsn-menu-nav6{width: 31%;display: flex;align-items: center;justify-content: center;flex-direction: column;padding:30px 0px 24px;margin: 1.1%;}
+	.dsn-menu-text{margin-top: 0px !important;}
+</style>
+<div class="dsn-mod dsn-menu" ng-class="{'dsn-mod-select':Item.id == focus}" ng-style="{'font-size':Item.params.fontsize+'px','background-color':Item.params.bgcolor,'margin':Item.params.margin_y+'px '+Item.params.margin_x+'px 0','padding':(Item.params.padding_y*1+8)+'px '+Item.params.padding_x+'px '+Item.params.padding_y+'px '+Item.params.padding_x+'px','border-radius':Item.params.boxradius + 'px'}">
+	<div class="dsn-menu-title">
+		<div style="color:{{Item.params.titlecolor}};font-size:{{Item.params.titlesize}}px">{{Item.params.title}}</div>
+		<div class='positioning-class'>北京市<img style='width: 12px;height: 12px;margin-left: 3px;' src='__STATIC__/admin/img/down-icon.png' /></div>
+	</div>
+	<div class="dsn-menu-nav6" ng-repeat="menu in Item.data" ng-style="{'backgroundColor':'#fafafa','border-radius':Item.params.radius + 'px'}">
+		<img ng-show="Item.params.showicon==1" ng-src="{{menu.imgurl|| '__STATIC__/imgsrc/picture-1.jpg'}}" style="border-radius:{{Item.params.radius/2}}%;width:{{Item.params.iconsize}}px;height:{{Item.params.iconsize}}px"/>
+		<div class="dsn-menu-text" ng-style="{'color':menu.color,'height':Item.params.fontheight+'px','line-height':Item.params.fontheight+'px'}">{{menu.text|| '按钮文字'}}</div>
+	</div>
+</div>

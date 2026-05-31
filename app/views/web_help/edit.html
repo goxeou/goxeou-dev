@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>文章编辑</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加文章{else}<i class="fa fa-pencil"></i> 编辑文章{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form">
+									<input type="hidden" name="info[id]" value="{$info.id}"/>
+									{if getcustom('system_webhelp_lookrange')}
+									<div class="layui-form-item">
+										<label class="layui-form-label">查看范围：</label>
+										<div class="layui-input-inline" style="width:500px">
+											<input type="radio" name="info[lookrange]" value="0" title="所有账号" {if !$info['lookrange']}checked{/if} lay-filter="lookrange">
+											<input type="radio" name="info[lookrange]" value="1" title="仅平台主账号" {if $info['lookrange']==1}checked{/if} lay-filter="lookrange">
+											<input type="radio" name="info[lookrange]" value="2" title="平台主账号+分账号" {if $info['lookrange']==2}checked{/if} lay-filter="lookrange">
+											<input type="radio" name="info[lookrange]" value="3" title="仅商家主账号" {if $info['lookrange']==3}checked{/if} lay-filter="lookrange">
+											<input type="radio" name="info[lookrange]" value="4" title="商家主账号+分账号" {if $info['lookrange']==4}checked{/if} lay-filter="lookrange">
+										</div>
+									</div>
+									<div class="layui-form-item lookrangeset" id="lookrange0" {if $info['lookrange']}style="display:none"{/if}>
+										<label class="layui-form-label">查看账号：</label>
+										<div class="layui-input-inline" style="width:400px">
+											<select name="lookuids" id="lookuids" xm-select="selectLookuid" xm-select-max="" xm-select-search >
+												<option value="">--请选择--</option>
+												{foreach $users as $cv}
+												<option value="{$cv['id']}" {if in_array($cv['id'],$info['lookuids'])}selected{/if}>{$cv['un']}</option>
+												{/foreach}
+											</select>
+										</div>
+										<div class="layui-form-mid layui-word-aux"></div>
+									</div>
+									<div class="layui-form-item lookrangeset" id="lookrange1" {if $info['lookrange'] !=1}style="display:none"{/if}>
+										<label class="layui-form-label">查看账号：</label>
+										<div class="layui-input-inline" style="width:400px">
+											<select name="lookuids1" id="lookuids1" xm-select="selectLookuid1" xm-select-max="" xm-select-search >
+												<option value="">--请选择--</option>
+												{foreach $users1 as $cv}
+												<option value="{$cv['id']}" {if in_array($cv['id'],$info['lookuids'])}selected{/if}>{$cv['un']}</option>
+												{/foreach}
+											</select>
+										</div>
+										<div class="layui-form-mid layui-word-aux"></div>
+									</div>
+									<div class="layui-form-item lookrangeset" id="lookrange2" {if $info['lookrange']!=2}style="display:none"{/if}>
+										<label class="layui-form-label">查看账号：</label>
+										<div class="layui-input-inline" style="width:400px">
+											<select name="lookuids2" id="lookuids2" xm-select="selectLookuid2" xm-select-max="" xm-select-search >
+												<option value="">--请选择--</option>
+												{foreach $users2 as $cv}
+												<option value="{$cv['id']}" {if in_array($cv['id'],$info['lookuids'])}selected{/if}>{$cv['un']}</option>
+												{/foreach}
+											</select>
+										</div>
+										<div class="layui-form-mid layui-word-aux"></div>
+									</div>
+									<div class="layui-form-item lookrangeset" id="lookrange3" {if $info['lookrange']!=3}style="display:none"{/if}>
+										<label class="layui-form-label">查看账号：</label>
+										<div class="layui-input-inline" style="width:400px">
+											<select name="lookuids3" id="lookuids3" xm-select="selectLookuid3" xm-select-max="" xm-select-search >
+												<option value="">--请选择--</option>
+												{foreach $users3 as $cv}
+												<option value="{$cv['id']}" {if in_array($cv['id'],$info['lookuids'])}selected{/if}>{$cv['un']}</option>
+												{/foreach}
+											</select>
+										</div>
+										<div class="layui-form-mid layui-word-aux"></div>
+									</div>
+									<div class="layui-form-item lookrangeset" id="lookrange4" {if $info['lookrange']!=4}style="display:none"{/if}>
+										<label class="layui-form-label">查看账号：</label>
+										<div class="layui-input-inline" style="width:400px">
+											<select name="lookuids4" id="lookuids4" xm-select="selectLookuid4" xm-select-max="" xm-select-search >
+												<option value="">--请选择--</option>
+												{foreach $users4 as $cv}
+												<option value="{$cv['id']}" {if in_array($cv['id'],$info['lookuids'])}selected{/if}>{$cv['un']}</option>
+												{/foreach}
+											</select>
+										</div>
+										<div class="layui-form-mid layui-word-aux"></div>
+									</div>
+									{/if}
+									<div class="layui-form-item">
+										<label class="layui-form-label">标题：</label>
+										<div class="layui-input-inline" style="width:500px">
+											<input type="text" name="info[name]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.name}">
+										</div>
+									</div>
+									<!-- <div class="layui-form-item">
+										<label class="layui-form-label">作者：</label>
+										<div class="layui-input-inline" style="width:200px">
+											<input type="text" name="info[author]" class="layui-input" value="{$info.author}">
+										</div>
+									</div>
+									
+									<div class="layui-form-item">
+										<label class="layui-form-label">发布时间：</label>
+										<div class="layui-input-inline">
+											<input type="text" name="info[sendtime]" value="{:date('Y-m-d',$info['sendtime'])}" id="sendtime" class="layui-input">
+										</div>
+									</div> -->
+									<div class="layui-form-item">
+										<label class="layui-form-label">阅读量：</label>
+										<div class="layui-input-inline" style="width:200px">
+											<input type="text" name="info[readcount]" class="layui-input" value="{$info.readcount}">
+										</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label">序号：</label>
+										<div class="layui-input-inline">
+											<input type="text" name="info[sort]" value="{$info.sort|default=0}" class="layui-input">
+										</div>
+										<div class="layui-form-mid layui-word-aux">用于排序,越大越靠前</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label">状态：</label>
+										<div class="layui-input-inline">
+											<input type="radio" name="ainfo[status]" value="1" title="开启" {if $info['status']==1}checked{/if}>
+											<input type="radio" name="ainfo[status]" value="0" title="关闭" {if $info['status']==0}checked{/if}>
+										</div>
+									</div>
+									<div class="layui-form-item">
+										<label class="layui-form-label">详情：</label>
+										<div class="layui-input-inline" style="width:900px">
+											<script id="content" name="info[content]" type="text/plain" style="width:100%;height:500px">{$info['content']}</script>
+										</div>
+									</div>
+
+									<div class="layui-form-item">
+										<div class="layui-input-block">
+											<button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	var ueditor = UE.getEditor('content');
+	//日期时间范围选择
+	layui.laydate.render({ 
+		elem: '#sendtime'
+		,type: 'date'
+		,range: false
+	});
+
+	function gonext(layid){
+		$(window).scrollTop(0);
+		layui.element.tabChange('mytab', layid);
+	}
+	{if getcustom('system_webhelp_lookrange')}
+	layui.form.on('radio(lookrange)', function(data){
+		var value = data.value;
+		$('.lookrangeset').hide();
+		$('#lookrange'+value).show();
+	})
+	{/if}
+	</script>
+
+	<script>
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		field['info[content]'] = ueditor.getContent();
+		//field['info[content]'] = geteditordata();
+		//console.log(field);return;
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.close(parent.layer.getFrameIndex(window.name));
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+  </script>
+</body>
+</html>

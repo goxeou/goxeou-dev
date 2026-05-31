@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>多商户系统设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header"><i class="fa fa-cog"></i> 多商户系统设置</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w12" lay-filter="">
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">多商户开关：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="radio" name="info[status]" value="1" title="开启" {if $info['status']==1}checked{/if}/>
+								<input type="radio" name="info[status]" value="0" title="关闭" {if $info['status']==0}checked{/if}/>
+							</div>
+						</div>
+						
+						
+						
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">商家默认费率：</label>
+							<div class="layui-input-inline" style="width:120px">
+								<input type="text" name="info[default_rate]" value="{$info['default_rate']}" class="layui-input"/>
+							</div>
+							<div class="layui-form-mid">%</div>
+							
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">主商城显示商家的商品：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="radio" name="info[product_isshow]" value="0" title="隐藏" {if !$info['id'] || $info['product_isshow']==0}checked{/if}/>
+								<input type="radio" name="info[product_isshow]" value="1" title="显示" {if $info['product_isshow']==1}checked{/if}/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">主商城中的商品列表及分类商品页面是否显示商家的商品</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">商家可设置商品分销：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="radio" name="info[commission_canset]" value="0" title="关闭" {if !$info['id'] || $info['commission_canset']==0}checked{/if}/>
+								<input type="radio" name="info[commission_canset]" value="1" title="开启" {if $info['commission_canset']==1}checked{/if}/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">商家编辑商品时是否可以设置分销，关闭后商家的商品不参与分销，并清除所有商家商品分销设置</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">商家返款扣除分销{:t('佣金')}：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="radio" name="info[commission_kouchu]" value="0" title="不扣" {if !$info['id'] || $info['commission_kouchu']==0}checked{/if}/>
+								<input type="radio" name="info[commission_kouchu]" value="1" title="扣除" {if $info['commission_kouchu']==1}checked{/if}/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">商家收到的货款是否要扣除分销{:t('佣金')}</div>
+						</div>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">商家返款扣除{:t('积分')}抵扣：</label>
+							<div class="layui-input-inline" style="width:500px">
+								{volist name="scoredk_kouchu_list" id="kouchutype"}
+								<input type="radio" name="info[scoredk_kouchu]" value="{$key}" title="{$kouchutype}" {if (!$info['id'] && $key==0) || $info['scoredk_kouchu']==$key}checked{/if}/>
+								{/volist}
+							</div>
+							<div class="layui-form-mid layui-word-aux layui-clear">商家收到的货款是否要扣除{:t('积分')}抵扣</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">商家返款扣除会员折扣：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="radio" name="info[leveldk_kouchu]" value="0" title="不扣" {if !$info['id'] || $info['leveldk_kouchu']==0}checked{/if}/>
+								<input type="radio" name="info[leveldk_kouchu]" value="1" title="扣除" {if $info['leveldk_kouchu']==1}checked{/if}/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">商家收到的货款是否要扣除会员折扣的优惠金额</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">商家商品会员价及显示条件：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="radio" name="info[product_showset]" value="0" title="关闭" {if !$info['id'] || $info['product_showset']==0}checked{/if}/>
+								<input type="radio" name="info[product_showset]" value="1" title="开启" {if $info['product_showset']==1}checked{/if}/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">商家的商品编辑是否可以设置会员价及显示条件</div>
+						</div>
+
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">商家商品审核：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="radio" name="info[product_check]" value="0" title="关闭" {if !$info['id'] || $info['product_check']==0}checked{/if}/>
+								<input type="radio" name="info[product_check]" value="1" title="开启" {if $info['product_check']==1}checked{/if}/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">开启后商家上传商品需要审核</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">商家文章审核：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="radio" name="info[article_check]" value="0" title="关闭" {if !$info['id'] || $info['article_check']==0}checked{/if}/>
+								<input type="radio" name="info[article_check]" value="1" title="开启" {if $info['article_check']==1}checked{/if}/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">开启后商家上传文章需要审核</div>
+						</div>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">商家短视频审核：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="radio" name="info[shortvideo_check]" value="0" title="关闭" {if !$info['id'] || $info['shortvideo_check']==0}checked{/if}/>
+								<input type="radio" name="info[shortvideo_check]" value="1" title="开启" {if $info['shortvideo_check']==1}checked{/if}/>
+							</div>
+							<div class="layui-form-mid layui-word-aux">开启后商家上传短视频需要审核</div>
+						</div>
+							
+						
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">微信服务商：</label>
+							<div class="layui-input-inline" style="width:330px">
+								<input type="radio" name="info[wxfw_status]" value="0" title="关闭" {if !$info['id'] || $info['wxfw_status']==0}checked{/if} lay-filter="wxfw_status"/>
+								<input type="radio" name="info[wxfw_status]" value="1" title="开启" {if $info['wxfw_status']==1}checked{/if} lay-filter="wxfw_status"/>
+								
+							</div>
+							<div class="layui-form-mid layui-word-aux">开启后可设置微信支付服务商，给商户配置子商户号独立收款结算</div>
+						</div>
+						<div id="wxfw_div" {if !$info['id'] || $info['wxfw_status']!=1}style="display:none"{/if}>
+						<div class="layui-form-item">
+							<label class="layui-form-label">服务商名称：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[wxfw_mchname]" class="layui-input" value="{$info['wxfw_mchname']}">
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">服务商的商户名称，在服务商后台[账户中心]-[商户信息]中查找</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px"><span style="color:red">需要开通服务商分账功能用于抽成</span></div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">服务商AppID：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[wxfw_appid]" class="layui-input" value="{$info['wxfw_appid']}">
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">服务商公众号开发者ID，请在微信公众平台[开发>基本配置]中查找</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">支付商户号：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[wxfw_mchid]" value="{$info['wxfw_mchid']}" class="layui-input"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">服务商微信支付商户号</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">支付密钥：</label>
+							<div class="layui-input-inline" style="width:280px">
+								<input type="text" name="info[wxfw_mchkey]" value="{$info['wxfw_mchkey']}" class="layui-input"/>
+								{if $info['mchkey']}<div style="position: absolute;left: 0;top: 0;right: 0;bottom: 0; background: #fff;padding: .35rem .7rem;border: 1px solid rgba(0, 0, 0, .15);border-radius: .15rem;color: #636c72;" onclick="$(this).hide()">已隐藏内容，点击查看或编辑</div>{/if}
+							</div>
+							<div class="layui-form-mid layui-word-aux">请在 <a href="https://pay.weixin.qq.com" target="_blank">微信支付商户平台</a> [账户中心]-[API安全]中设置[APIv2密钥]</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">PEM证书：</label>
+							<div class="layui-input-inline" style="width:450px">
+								<input style="float:left;" readonly="readonly" class="layui-input" type="text" name="info[wxfw_apiclient_cert]" value="{$info['wxfw_apiclient_cert']}" id="wxfw_apiclient_cert"/>
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary uploadfile" upload-input="wxfw_apiclient_cert" upload-preview="certPreview">上传</button>
+							<div id="certPreview" class="layui-form-mid" style="margin-left:20px;">{if $info['wxfw_apiclient_cert']}已上传{/if}</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">apiclient_cert.pem 请在 <a href="https://pay.weixin.qq.com" target="_blank">微信支付商户平台</a> [账户中心]-[API安全]中设置[API证书]</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">证书密钥：</label>
+							<div class="layui-input-inline" style="width:450px">
+								<input style="float:left;" readonly="readonly" class="layui-input" type="text" name="info[wxfw_apiclient_key]" value="{$info['wxfw_apiclient_key']}" id="wxfw_apiclient_key"/>
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary uploadfile" upload-input="wxfw_apiclient_key" upload-preview="keyPreview">上传</button>
+							<div id="keyPreview" class="layui-form-mid" style="margin-left:20px;">{if $info['wxfw_apiclient_key']}已上传{/if}</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">apiclient_key.pem 请在 <a href="https://pay.weixin.qq.com" target="_blank">微信支付商户平台</a> [账户中心]-[API安全]中设置[API证书]</div>
+						</div>
+					</div>
+					<div id="wxfw2_div" {if !$info['id'] || $info['wxfw_status']!=2}style="display:none"{/if}>
+					<div class="layui-form-item">
+						<label class="layui-form-label">接收分账的商户全称：</label>
+						<div class="layui-input-inline">
+							<input type="text" name="info[wxfw2_mchname]" class="layui-input" value="{$info['wxfw2_mchname']}">
+						</div>
+						<div class="layui-form-mid layui-word-aux" style="margin-left:10px">商家的费率将以服务商分账的方式分账到该商户内</div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label">接收分账的商户号：</label>
+						<div class="layui-input-inline">
+							<input type="text" name="info[wxfw2_mchid]" class="layui-input" value="{$info['wxfw2_mchid']}">
+						</div>
+						<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">商家的费率将以服务商分账的方式分账到该商户内</div>
+					</div>
+				</div>
+			  <!-- <div class="layui-form-item">
+				  <label class="layui-form-label" style="width:130px">商品是否需要审核：</label>
+				  <div class="layui-input-inline" style="width:500px">
+					  <input type="radio" name="info[product_check]" value="0" title="不需要" {if !$info['id'] || $info['product_check']==0}checked{/if}/>
+					  <input type="radio" name="info[product_check]" value="1" title="需要" {if $info['product_check']==1}checked{/if}/>
+				  </div>
+			  </div> -->
+
+		  <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+			  <legend>提现设置</legend>
+		  </fieldset>
+		  <div class="layui-form-item">
+			  <label class="layui-form-label">商家提现方式：</label>
+			  <div class="layui-input-inline" style="width:400px">
+				  <input type="checkbox" name="info[withdraw_weixin]" title="微信钱包" value="1" {if $info['withdraw_weixin']==1}checked{/if} lay-skin="primary">
+				  <input type="checkbox" name="info[withdraw_aliaccount]" title="支付宝" value="1" {if $info['withdraw_aliaccount']==1}checked{/if} lay-skin="primary"/>
+				  <input type="checkbox" name="info[withdraw_bankcard]" title="银行卡" value="1" {if $info['withdraw_bankcard']==1}checked{/if} lay-skin="primary"/>
+				  
+			  </div>
+			  <div class="layui-form-mid layui-word-aux"></div>
+		  </div>
+		  <div class="layui-form-item">
+			  <label class="layui-form-label">自动打款：</label>
+			  <div class="layui-input-inline" style="width:200px">
+				  <input type="radio" name="info[commission_autotransfer]" value="0" title="关闭" {if !$info['id'] || $info['commission_autotransfer']==0}checked{/if}/>
+				  <input type="radio" name="info[commission_autotransfer]" value="1" title="开启" {if $info['commission_autotransfer']==1}checked{/if}/>
+			  </div>
+			  <div class="layui-form-mid layui-word-aux">开启后提现到微信钱包时不需要审核，自动用企业付款打款，需开通企业付款到零钱功能，支付宝提现不需要审核，自动用转账到支付宝账户，需开通转账到支付宝账户并在系统-系统设置-财务设置-支付宝打款中配置</div>
+		  </div>
+		  <div class="layui-form-item">
+			  <label class="layui-form-label">提现最小金额：</label>
+			  <div class="layui-input-inline" style="width:120px">
+				  <input type="text" name="info[withdrawmin]" value="{$info['withdrawmin']}" class="layui-input"/>
+			  </div>
+			  <div class="layui-form-mid">元</div>
+		  </div>
+		  <div class="layui-form-item">
+			  <label class="layui-form-label">提现手续费：</label>
+			  <div class="layui-input-inline" style="width:120px">
+				  <input type="text" name="info[withdrawfee]" value="{$info['withdrawfee']}" class="layui-input"/>
+			  </div>
+			  <div class="layui-form-mid">%</div>
+		  </div>
+		  
+		  <!--提现设置end-->
+		  <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+			  <legend>显示设置</legend>
+		  </fieldset>
+		  <div class="layui-form-item">
+			  <label class="layui-form-label">首页是否显示联系商家：</label>
+			  <div class="layui-input-inline" style="width:300px">
+				  <input type="radio" name="info[show_link]" value="0" title="关闭" {if $info['id'] && $info['show_link']==0}checked{/if}/>
+				  <input type="radio" name="info[show_link]" value="1" title="开启" {if !$info['id'] ||  $info['show_link']==1}checked{/if}/>
+				  <input type="text"  name="info[show_linktext]" value="{$info.show_linktext?$info.show_linktext:'联系商家'}" class="layui-input" style="width: 100px;display: inline-block;">
+			  </div>
+		  </div>
+		  <div class="layui-form-item">
+			  <label class="layui-form-label">首页是否显示本店商品：</label>
+			  <div class="layui-input-inline" style="width:300px">
+				  <input type="radio" name="info[show_product]" value="0" title="关闭" {if $info['id'] && $info['show_product']==0}checked{/if}/>
+				  <input type="radio" name="info[show_product]" value="1" title="开启" {if !$info['id'] ||  $info['show_product']==1}checked{/if}/>
+				  <input type="text"  name="info[show_producttext]" value="{$info.show_producttext?$info.show_producttext:'本店商品'}" class="layui-input" style="width: 100px;display: inline-block;">
+			  </div>
+		  </div>
+		  <div class="layui-form-item">
+			  <label class="layui-form-label">首页是否显示店铺评价：</label>
+			  <div class="layui-input-inline" style="width:300px">
+				  <input type="radio" name="info[show_comment]" value="0" title="关闭" {if $info['id'] && $info['show_comment']==0}checked{/if}/>
+				  <input type="radio" name="info[show_comment]" value="1" title="开启" {if !$info['id'] ||  $info['show_comment']==1}checked{/if}/>
+				  <input type="text"  name="info[show_commenttext]" value="{$info.show_commenttext?$info.show_commenttext:'店铺评价'}" class="layui-input" style="width: 100px;display: inline-block;">
+			  </div>
+		  </div>
+		  <div class="layui-form-item">
+			  <label class="layui-form-label">首页是否显示商家详情：</label>
+			  <div class="layui-input-inline" style="width:300px">
+				  <input type="radio" name="info[show_detail]" value="0" title="关闭" {if $info['id'] && $info['show_detail']==0}checked{/if}/>
+				  <input type="radio" name="info[show_detail]" value="1" title="开启" {if !$info['id'] ||  $info['show_detail']==1}checked{/if}/>
+				  <input type="text"  name="info[show_detailtext]" value="{$info.show_detailtext?$info.show_detailtext:'商家详情'}" class="layui-input" style="width: 100px;display: inline-block;">
+			  </div>
+		  </div>
+		  <div class="layui-form-item">
+			  <label class="layui-form-label">自定义商品详情导航：</label>
+			  <div class="layui-input-inline">
+				  <input type="radio" name="info[show_shopdetail_menu]" value="0" title="关闭" {if !$info['id'] || $info['show_shopdetail_menu']==0}checked{/if}/>
+				  <input type="radio" name="info[show_shopdetail_menu]" value="1" title="开启" {if $info['show_shopdetail_menu']==1}checked{/if}/>
+			  </div>
+			  <div class="layui-form-mid layui-word-aux">开启后商家可自定义商品详情导航</div>
+		  </div>
+		  <!--显示设置 end-->
+						{if getcustom('business_selfscore') || getcustom('business_score_withdraw') || getcustom('business_score_jiesuan')}
+		  <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+			  <legend>商户{:t('积分')}</legend>
+		  </fieldset>
+						<div class="layui-form-item">
+							<label class="layui-form-label">商户使用独立{:t('积分')}：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="radio" name="info[business_selfscore]" value="0" title="关闭" {if !$info['id'] || $info['business_selfscore']==0}checked{/if} lay-filter="business_selfscore"/>
+								<input type="radio" name="info[business_selfscore]" value="1" title="开启" {if $info['business_selfscore']==1}checked{/if} lay-filter="business_selfscore"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux"></div>
+						</div>
+						{/if}
+						
+						
+		
+
+		
+		
+		{if $info['business_auth']}
+		<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+			<legend>多商户收银台设置</legend>
+		</fieldset>
+		<div class="layui-form-item">
+			<label class="layui-form-label">多商户微信收款：</label>
+			<div class="layui-input-inline" style="width: 400px">
+				<input type="radio" {if $info['duli_disabled']}disabled{/if} name="info[business_cashdesk_wxpay_type]" value="1" {if $info['business_cashdesk_wxpay_type']==1}checked{/if} title="服务商"/>
+				<input type="radio" name="info[business_cashdesk_wxpay_type]" value="2" {if $info['business_cashdesk_wxpay_type']==2}checked{/if} title="平台收款"/>
+				<input type="radio" {if $info['duli_disabled']}disabled{/if} name="info[business_cashdesk_wxpay_type]" value="3" {if $info['business_cashdesk_wxpay_type']==3}checked{/if} title="独立收款"/>
+				<input type="radio" name="info[business_cashdesk_wxpay_type]" value="0" {if $info['business_cashdesk_wxpay_type']==0}checked{/if} title="关闭"/>
+			</div>
+			<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">1、开启平台收款前，请先在[扩展]-[收银台]-[收银台设置]中配置微信支付。2、开启独立收款后平台不抽成，佣金不发放。3、切换类型影响订单退款</div>
+		</div>
+		{if getcustom('cashdesk_sxpay')}
+		<div class="layui-form-item">
+			<label class="layui-form-label">多商户随行付收款：</label>
+			<div class="layui-input-inline" style="width: 400px">
+				<input type="radio" name="info[business_cashdesk_sxpay_type]" value="1" {if $info['business_cashdesk_sxpay_type']==1}checked{/if} title="服务商"/>
+				<input type="radio" name="info[business_cashdesk_sxpay_type]" value="2" {if $info['business_cashdesk_sxpay_type']==2}checked{/if} title="平台收款"/>
+				<input type="radio" name="info[business_cashdesk_sxpay_type]" value="3" {if $info['business_cashdesk_sxpay_type']==3}checked{/if} title="独立收款"/>
+				<input type="radio" name="info[business_cashdesk_sxpay_type]" value="0" {if $info['business_cashdesk_sxpay_type']==0}checked{/if} title="关闭"/>
+			</div>
+			<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">1、开启平台收款前，请先在[扩展]-[收银台]-[收银台设置]中配置微信支付。2、开启独立收款后平台不抽成，佣金不发放。3、切换类型影响订单退款</div>
+		</div>
+		{/if}
+		{if getcustom('cashdesk_alipay')}
+		<div class="layui-form-item">
+			<label class="layui-form-label">多商户支付宝收款：</label>
+			<div class="layui-input-inline" style="width: 400px">
+				<input type="radio" name="info[business_cashdesk_alipay_type]" value="2" {if $info['business_cashdesk_alipay_type']==2}checked{/if} title="平台收款"/>
+				<input type="radio" name="info[business_cashdesk_alipay_type]" value="3" {if $info['business_cashdesk_alipay_type']==3}checked{/if} title="独立收款"/>
+				<input type="radio" name="info[business_cashdesk_alipay_type]" value="0" {if $info['business_cashdesk_alipay_type']==0}checked{/if} title="关闭"/>
+			</div>
+			<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">1、开启平台收款前，请先在[扩展]-[收银台]-[收银台设置]中配置微信支付。2、开启独立收款后平台不抽成，佣金不发放。3、切换类型影响订单退款</div>
+		</div>
+		{/if}
+		
+		
+		<div class="layui-form-item">
+			<label class="layui-form-label">多商户{:t('余额')}收款：</label>
+			<div class="layui-input-inline" style="width: 400px">
+				<input type="radio" name="info[business_cashdesk_yue]" value="1" {if $info['business_cashdesk_yue']==1}checked{/if} title="开启"/>
+				<input type="radio" name="info[business_cashdesk_yue]" value="0" {if $info['business_cashdesk_yue']==0}checked{/if} title="关闭"/>
+			</div>
+			<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">开启后商户可使用该方式收款</div>
+		</div>
+
+		<div class="layui-form-item">
+			<label class="layui-form-label">多商户{:t('现金')}收款：</label>
+			<div class="layui-input-inline" style="width: 400px">
+				<input type="radio" name="info[business_cashdesk_cashpay]" value="1" {if $info['business_cashdesk_cashpay']==1}checked{/if} title="开启"/>
+				<input type="radio" name="info[business_cashdesk_cashpay]" value="0" {if $info['business_cashdesk_cashpay']==0}checked{/if} title="关闭"/>
+			</div>
+			<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">开启后商户可使用该方式收款</div>
+		</div>
+		{/if}
+		<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+			<legend>入驻协议</legend>
+		</fieldset>
+		<div class="layui-form-item">
+			<label class="layui-form-label">商户入驻协议：</label>
+			<div class="layui-input-inline" style="width:500px">
+				<input type="radio" name="info[xieyi_show]" value="0" title="关闭" {if !$info['id'] || $info['xieyi_show']==0}checked{/if}/>
+				<input type="radio" name="info[xieyi_show]" value="1" title="开启" {if $info['xieyi_show']==1}checked{/if}/>
+			</div>
+		</div>
+		<!-- 详情编辑器 -->
+		<div class="layui-form-item">
+			<label class="layui-form-label">入驻协议内容：</label>
+			<div class="layui-input-inline" style="width:500px">
+				<script id="xieyi" name="info[xieyi]" type="text/plain" style="width:100%;height:500px">{$info.xieyi}</script>
+			</div>
+		</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+      </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	var xieyi = UE.getEditor('xieyi');
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		if(!field['info[withdraw_weixin]'])  field['info[withdraw_weixin]'] = 0
+		if(!field['info[withdraw_bankcard]'])  field['info[withdraw_bankcard]'] = 0
+		if(!field['info[withdraw_aliaccount]'])  field['info[withdraw_aliaccount]'] = 0
+		field['info[xieyi]'] = xieyi.getContent();
+		$.post('',field,function(data){
+			dialog(data.msg,data.status,data.url);
+		})
+	})
+
+	layui.form.on('radio(wxfw_status)',function(data){
+		$('#wxfw_div').hide();
+		$('#wxfw2_div').hide();
+		if(data.value == '1'){
+			$('#wxfw_div').show();
+		}else if(data.value == '2'){
+			$('#wxfw2_div').show();
+		}
+	})
+	layui.form.on('radio(scoreWithdraw)',function(data){
+		if(data.value == '1'){
+			$('#business_withdraw1').show();
+		}else{
+			$('#business_withdraw1').hide();
+		}
+	})
+
+	layui.form.on('radio(business_selfscore)',function(data){
+		if(data.value == 1){
+			$('#business_selfscoreset').show();
+		}else{
+			$('#business_selfscoreset').hide();
+		}
+	})
+  </script>
+
+	
+	{include file="public/copyright"/}
+</body>
+</html>

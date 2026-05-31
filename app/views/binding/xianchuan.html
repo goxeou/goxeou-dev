@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>扫码上传</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<style>
+	.radio-label-class{display: inline-block;}
+	.radio-label-class .layui-popover{margin:6px 10px 0px 0px;}
+</style>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">扫码上传<!--手动绑定-->
+					{if input('param.isopen')==1}<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>{/if}</div>
+				<div class="layui-card-body" pad15>
+					<blockquote class="layui-elem-quote">小程序上传审核前需要在小程序后台[开发]-[开发管理]-[接口设置]中开通以下接<br>
+					1、获取用户收货地址(wx.chooseAddress接口) 用于用户下单时获取用户的收货地址<br>
+					2、打开地图选择位置（wx.chooseLocation接口）用于同城配送时获取用户的坐标位置<br>
+					3、获取当前的地理位置、速度（wx.getLocation接口）用于配送端实时展示配送员的地理位置及展示门店和商户的距离 <br>
+					注：如wx.getLocation接口审核无法通过可在下方开启getLocation替换<br>
+					订单中心path：小程序后台 -> 设置 -> 功能设置 -> 小程序订单中心path设置，pagesExt/order/orderlist，仅需设置一次<br>
+					微信小程序隐私保护设置：小程序后台 -> 设置 -> 用户隐私保护指引 -> 更新/新建（需要审核）-> 增加信息类型(用户信息、位置信息、选中的照片、选择的位置、剪切板)<br>
+					</blockquote>
+					<div class="layui-form form-label-w10" lay-filter="">
+						<!-- <div class="layui-form-item">
+							<label class="layui-form-label">服务器域名：</label>
+							<div class="layui-form-mid">{$Request.domain}</div>
+							<div class="layui-form-mid layui-word-aux" style="clear:both;margin-left:130px">请在mp.weixin.qq.com后台[开发]-[开发配置中]设置服务器域名</div>
+						</div> -->
+						<div class="layui-form-item">
+							<label class="layui-form-label">顶部导航背景颜色：</label>
+							<div class="layui-input-inline" style="width:100px">
+								<input type="text" name="navigationBarBackgroundColor" value="{:t('color1')}" autocomplete="off" class="layui-input">
+							</div>
+							<div class="_colorpicker"></div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">顶部导航标题颜色：</label>
+							<div class="layui-input-inline" style="width:170px">
+								<label class="radio-label-class">
+									<input type="radio" name="navigationBarTextStyle" value="black" title="黑色"/>
+								</label>
+								<label><input type="radio" name="navigationBarTextStyle" value="white" title="白色" checked/></label>
+							</div>
+						</div>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">首页导航栏样式：</label>
+							<div class="layui-input-inline" style="width: 65%">
+								<label class="radio-label-class">
+									<input type="radio" name="homeNavigationCustom" value="0" title="默认" checked/>
+									<div class="layui-popover layui-default-link layui-inline">
+										示例
+										<div class="layui-popover-div">
+											<img src="__STATIC__/admin/img/dianda_mp_business.png"   />
+										</div>
+									</div>
+								</label>
+								<label class="radio-label-class">
+									<input type="radio" name="homeNavigationCustom" value="1" title="不显示"/>
+									<div class="layui-popover layui-default-link layui-inline">
+										示例
+										<div class="layui-popover-div">
+											<img src="__STATIC__/admin/img/dianda_mp_business2.png"   />
+										</div>
+									</div>
+								</label>
+								<label class="radio-label-class">
+									<input type="radio" name="homeNavigationCustom" value="2" title="标题+搜索框"/>
+									<div class="layui-popover layui-default-link layui-inline">
+										示例
+										<div class="layui-popover-div">
+											<img src="__STATIC__/admin/img/dianda_mp_binding3.png"   />
+										</div>
+									</div>
+								</label>
+								{if getcustom('show_location')}
+									{if $mode==2}
+									<label class="radio-label-class">
+										<input type="radio" name="homeNavigationCustom" value="3" title="显示定位"/>
+										<div class="layui-popover layui-default-link layui-inline">
+											示例
+											<div class="layui-popover-div">
+												<img src="__STATIC__/admin/img/dianda_mp_binding4.png"   />
+											</div>
+										</div>
+									</label>
+									<label class="radio-label-class">
+										<input type="radio" name="homeNavigationCustom" value="5" title="显示定位+标题"/>
+										<div class="layui-popover layui-default-link layui-inline">
+											示例
+											<div class="layui-popover-div">
+												<img src="__STATIC__/admin/img/dianda_mp_binding5.png"   />
+											</div>
+										</div>
+									</label>
+									<label class="radio-label-class">
+										<input type="radio" name="homeNavigationCustom" value="7" title="显示定位+搜索框"/>
+										<div class="layui-popover layui-default-link layui-inline">
+											示例
+											<div class="layui-popover-div">
+												<img src="__STATIC__/admin/img/dianda_mp_binding6.png"   />
+											</div>
+										</div>
+									</label>
+									{elseif $mode==3 /}
+									<label class="radio-label-class">
+										<input type="radio" name="homeNavigationCustom" value="4" title="显示门店"/>
+										<div class="layui-popover layui-default-link layui-inline">
+											示例
+											<div class="layui-popover-div">
+												<img src="__STATIC__/admin/img/dianda_mp_binding7.png"   />
+											</div>
+										</div>
+									</label>
+									<label class="radio-label-class">
+										<input type="radio" name="homeNavigationCustom" value="6" title="显示门店+标题"/>
+										<div class="layui-popover layui-default-link layui-inline">
+											示例
+											<div class="layui-popover-div">
+												<img src="__STATIC__/admin/img/dianda_mp_binding9.png"   />
+											</div>
+										</div>
+									</label>
+									<label class="radio-label-class">
+										<input type="radio" name="homeNavigationCustom" value="8" title="显示门店+搜索框"/>
+										<div class="layui-popover layui-default-link layui-inline">
+											示例
+											<div class="layui-popover-div">
+												<img src="__STATIC__/admin/img/dianda_mp_bindingx.png"   />
+											</div>
+										</div>
+									</label>
+									{/if}
+								{/if}
+							</div>
+						</div>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">{:t('会员')}中心导航栏样式：</label>
+							<div class="layui-input-inline" style="width:400px">
+								<label class="radio-label-class">
+									<input type="radio" name="usercenterNavigationCustom" value="0" title="默认" checked/>
+									<div class="layui-popover layui-default-link layui-inline">
+										示例
+										<div class="layui-popover-div">
+											<img src="__STATIC__/admin/img/dianda_mp_main22.png"   />
+										</div>
+									</div>
+								</label>
+								<label class="radio-label-class">
+									<input type="radio" name="usercenterNavigationCustom" value="1" title="不显示"/>
+									<div class="layui-popover layui-default-link layui-inline">
+										示例
+										<div class="layui-popover-div">
+											<img src="__STATIC__/admin/img/dianda_mp_main1.png"   />
+										</div>
+									</div>
+								</label>
+							</div>
+						</div>
+						
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">getLocation替换：</label>
+							<div class="layui-input-inline" style="width:400px">
+								<label><input type="radio" name="getLocationReplace" value="0" title="关闭" checked lay-filter="getLocationReplace"/></label>
+								<label><input type="radio" name="getLocationReplace" value="1" title="开启" lay-filter="getLocationReplace"/></label>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="clear:both;margin-left:160px;display:none" id="getLocationReplaceTips">wx.getLocation接口无法申请通过时可以开启此项将wx.getLocation接口替换成wx.chooseLocation接口，注意开启后将弹出地图选择位置，影响部分功能的体验度，请谨慎开启</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">左上角主页导航：</label>
+							<div class="layui-input-inline" style="width:400px">
+								<label class="radio-label-class">
+									<input type="radio" name="hideHomeButton" value="0" title="显示" checked />
+									<div class="layui-popover layui-default-link layui-inline">
+										示例
+										<div class="layui-popover-div">
+											<img src="__STATIC__/admin/img/dianda_mp_main2.png"   />
+										</div>
+									</div>
+								</label>
+								<label class="radio-label-class">
+									<input type="radio" name="hideHomeButton" value="1" title="隐藏" />
+								</label>
+							</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">版本号：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="version" value="{$version}" class="layui-input">
+							</div>
+							<div class="layui-form-mid layui-word-aux">版本号仅限数字</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">版本描述：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="desc" value="{$desc}" class="layui-input">
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:130px"></div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">确 定</button>
+							</div>
+						</div>
+					</div>
+					
+				</div>
+			</div>
+		</div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.form.on('radio(getLocationReplace)', function(data){
+		if(data.value == '1'){
+			$('#getLocationReplaceTips').show();
+		}else{
+			$('#getLocationReplaceTips').hide();
+		}
+	});
+
+	var timer = null;
+	var field = {};
+	var loginlayer = null;
+	var successlayer = null;
+	var secondtimeintervel = null
+	var cando = 1;
+	layui.form.on('submit(formsubmit)', function(obj){
+		field = obj.field
+		field.op = 'getloginqr';
+		var index = layer.load();
+		$.post('',field,function(res){
+			layer.close(index);
+			if(res.status == 1){
+				var html = '';
+				html += '<div style="margin:auto auto;text-align:center">';
+				html += '<img src="'+res.qrdata+'" style="margin-top:20px;max-width:280px;max-height:280px"/>';
+				html += '<div style="height:25px;line-height:25px;">请扫描二维码，确认后将自动上传代码<br>上传需要一分钟左右时间，扫码后请等待<br>已用时：<span id="secondtime" style="color:red;font-size:20px"></span> 秒</div>';
+				html += '</div>';
+				loginlayer = layer.open({type:1,area:['300px','380px'],content:html,title:false,shadeClose:false,cancel:function(){
+					reload();
+				}});
+				xcxupload();
+				clearInterval(secondtimeintervel);
+				var secondtime = 0
+				secondtimeintervel = setInterval(function(){
+					secondtime++;
+					if(secondtime > 120){
+						clearInterval(secondtimeintervel);
+						dialog('上传失败,请重新操作');cando = 0;
+					}
+					$('#secondtime').html(secondtime);
+				},1000);
+			}else{
+				dialog(res.msg,res.status);
+			}
+		})
+	})
+	function xcxupload(){
+		if(cando == 0) return;
+		setTimeout(function(){
+			field.op = 'upload';
+			$.post('',field,function(res){
+				if(res.status == 1){
+					clearInterval(secondtimeintervel);
+					layer.close(loginlayer);
+					layer.confirm('上传成功，请前往微信公众平台发布', {icon: 1, title:'提示',btn:['预览','去发布']}, function(index){
+						//layer.close(index);
+						field.op = 'preview';
+						var index2 = layer.load();
+						$.post('',field,function(res){
+							layer.close(index2);
+							if(res.status == 1){
+								var html = '';
+								html += '<div style="margin:auto auto;text-align:center">';
+								html += '<img src="'+res.qrdata+'" style="margin-top:20px;max-width:280px;max-height:280px"/>';
+								html += '<div style="height:25px;line-height:25px;">请扫描二维码预览</div>';
+								html += '</div>';
+								loginlayer = layer.open({type:1,area:['300px','350px'],content:html,title:false,shadeClose:false,cancel:function(){
+									//clearInterval(timer);
+								}});
+							}else{
+								dialog(res.msg,res.status);
+							}
+						})
+						return false;
+					},function(index){
+						//layer.close(index);
+						//location.href = location.href;
+						window.open('https://mp.weixin.qq.com');
+						return false;
+					});
+				}else{
+					if(res.status == 2){
+						xcxupload();
+					}else{
+						clearInterval(secondtimeintervel);
+						layer.close(loginlayer);
+						dialog(res.msg,res.status);
+					}
+				}
+			})
+		},5000)
+	}
+  </script>
+</body>
+</html>

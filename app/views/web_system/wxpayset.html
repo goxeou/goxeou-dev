@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>服务商配置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header"><i class="fa fa-cog"></i> 微信支付服务商配置
+					<button class="layui-btn layui-btn-primary layui-btn-sm" onclick="openmax('{:url('sxpayset')}')" style="float: right;margin-left:10px;margin-top: 6px;">随行付服务商</button>
+					
+				</div>
+				<div class="layui-card-body" pad15>
+					<blockquote class="layui-elem-quote">用于服务商模式下的微信支付商户号支付，未开通微信支付服务商无须配置</blockquote>
+					<div class="layui-form form-label-w8" lay-filter="">
+						<div class="layui-form-item">
+							<label class="layui-form-label">服务商名称：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[mchname]" class="layui-input" value="{$info['mchname']}">
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">服务商的商户名称，在服务商后台[账户中心]-[商户信息]中查找</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">服务商AppID：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[appid]" class="layui-input" value="{$info['appid']}">
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">服务商公众号开发者ID，请在微信公众平台[开发>基本配置]中查找</div>
+						</div>
+						<!-- <div class="layui-form-item">
+							<label class="layui-form-label">公众号AppSecret：</label>
+							<div class="layui-input-inline" style="width:320px">
+								<input type="text" name="info[mpappsecret]" class="layui-input" value="{$info['mpappsecret']}">
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">开发者密码，请在微信公众平台[开发>基本配置]中查找</div>
+						</div> -->
+						<div id="wxpaytype0set">
+						<div class="layui-form-item">
+							<label class="layui-form-label">支付商户号：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[mchid]" value="{$info['mchid']}" class="layui-input"/>
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">服务商微信支付商户号</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">支付密钥：</label>
+							<div class="layui-input-inline" style="width:280px">
+								<input type="text" name="info[mchkey]" value="{$info['mchkey']}" class="layui-input"/>
+								{if $info['mchkey']}<div style="position: absolute;left: 0;top: 0;right: 0;bottom: 0; background: #fff;padding: .35rem .7rem;border: 1px solid rgba(0, 0, 0, .15);border-radius: .15rem;color: #636c72;" onclick="$(this).hide()">已隐藏内容，点击查看或编辑</div>{/if}
+							</div>
+							<div class="layui-form-mid layui-word-aux">请在 <a href="https://pay.weixin.qq.com" target="_blank">微信支付商户平台</a> [账户中心]-[API安全]中设置[APIv2密钥]</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">PEM证书：</label>
+							<div class="layui-input-inline" style="width:450px">
+								<input style="float:left;" readonly="readonly" class="layui-input" type="text" name="info[apiclient_cert]" value="{$info['apiclient_cert']}" id="apiclient_cert"/>
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary uploadfile" upload-input="apiclient_cert" upload-preview="certPreview">上传</button>
+							<div id="certPreview" class="layui-form-mid" style="margin-left:20px;">{if $info['apiclient_cert']}已上传{/if}</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">apiclient_cert.pem 请在 <a href="https://pay.weixin.qq.com" target="_blank">微信支付商户平台</a> [账户中心]-[API安全]中设置[API证书]</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">证书密钥：</label>
+							<div class="layui-input-inline" style="width:450px">
+								<input style="float:left;" readonly="readonly" class="layui-input" type="text" name="info[apiclient_key]" value="{$info['apiclient_key']}" id="apiclient_key"/>
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary uploadfile" upload-input="apiclient_key" upload-preview="keyPreview">上传</button>
+							<div id="keyPreview" class="layui-form-mid" style="margin-left:20px;">{if $info['apiclient_key']}已上传{/if}</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">apiclient_key.pem 请在 <a href="https://pay.weixin.qq.com" target="_blank">微信支付商户平台</a> [账户中心]-[API安全]中设置[API证书]</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">默认抽成：</label>
+							<div class="layui-input-inline" style="width:400px">
+								<input type="radio" name="info[chouchengset]" value="0" {if !$info['chouchengset'] || $info['chouchengset']==0}checked{/if} title="不抽成" lay-filter="chouchengset">
+								<input type="radio" name="info[chouchengset]" value="1" {if $info['chouchengset']==1}checked{/if} title="按百分百抽成" lay-filter="chouchengset">
+								<input type="radio" name="info[chouchengset]" value="2" {if $info['chouchengset']==2}checked{/if} title="固定抽成" lay-filter="chouchengset">
+							</div>
+							<div class="layui-form-mid layui-word-aux"><span style="color:red">设置抽成需开通服务商分账功能，实际分账金额必须小于（订单金额-手续费）*允许分账的最大比例，并且配置计划任务</span></div>
+						</div>
+						<div class="layui-form-item" id="chouchengset1" {if $info['chouchengset']!=1}style="display:none"{/if}>
+							<label class="layui-form-label"></label>
+							<div class="layui-input-inline layui-module-itemL">
+								<div> 抽成比例(%) </div>
+								<input type="text" name="info[chouchengrate]" class="layui-input" value="{$info.chouchengrate}">
+							</div>
+							<div class="layui-input-inline layui-module-itemL">
+								<div> 最低抽成金额(元) </div>
+								<input type="text" name="info[chouchengmin]" class="layui-input" value="{$info.chouchengmin}">
+							</div>
+						</div>
+						<div class="layui-form-item" id="chouchengset2" {if $info['chouchengset']!=2}style="display:none"{/if}>
+							<label class="layui-form-label"></label>
+							<div class="layui-input-inline layui-module-itemL">
+								<div> 抽成金额(元) </div>
+								<input type="text" name="info[chouchengmoney]" class="layui-input" value="{$info.chouchengmoney}">
+							</div>
+						</div>
+						
+
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	
+	layui.form.on('radio(chouchengset)', function(data){
+		if(data.value == '1'){
+			$('#chouchengset1').show();
+			$('#chouchengset2').hide();
+		}else if(data.value == '2'){
+			$('#chouchengset1').hide();
+			$('#chouchengset2').show();
+		}else{
+			$('#chouchengset1').hide();
+			$('#chouchengset2').hide();
+		}
+	})
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		$.post('',field,function(data){
+			dialog(data.msg,data.status,data.url);
+		})
+	})
+  </script>
+</body>
+</html>

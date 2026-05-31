@@ -1,0 +1,128 @@
+<style type="text/css">
+.fuwu:before {
+	content: "";
+    display: inline-block;
+    vertical-align: middle;
+    margin-top: -3px;
+    margin-right: 3px;
+    width:12px;
+    height: 12px;
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYBAMAAAASWSDLAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAwUExURUdwTOU5O+Q5POU5POQ4O+U4PN80P+M4O+Q4O+Q4POQ5POQ4OuQ4O+Q4O+I4PuQ5PJxkAycAAAAPdFJOUwAf+VSoeAvzws7ka7miLboUzckAAADJSURBVBjTY2BgYGCMWVR5VIABDBid/gPBFwjP/JOzQKKtfjGIzf3fEUSJ/N8AJO21Iao3fQbqqA+AcLi/CzCwfGGAAn8HBnlFMIttBoP4R4b4C2BOzk8G3q8M5w3AnPsLGZj/MKwHW8b6/QED4y8G/QQQx14ZSHwCcWYkMOtvAHOAyvqnPf8KcuMvkAGZP9eDjAQaEO/AwDb/D0gj0GiQpRnTQIYIfUR1DopDGexVIZygz8ieC4B6WyzRBOJtBkZ/pAABBZUWOKgAispF5e7ibycAAAAASUVORK5CYII=) no-repeat;
+    background-size: 12px auto;
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYBAMAAAASWSDLAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAwUExURUdwTOU5O+Q5POU5POQ4O+U4PN80P+M4O+Q4O+Q4POQ5POQ4OuQ4O+Q4O+I4PuQ5PJxkAycAAAAPdFJOUwAf+VSoeAvzws7ka7miLboUzckAAADJSURBVBjTY2BgYGCMWVR5VIABDBid/gPBFwjP/JOzQKKtfjGIzf3fEUSJ/N8AJO21Iao3fQbqqA+AcLi/CzCwfGGAAn8HBnlFMIttBoP4R4b4C2BOzk8G3q8M5w3AnPsLGZj/MKwHW8b6/QED4y8G/QQQx14ZSHwCcWYkMOtvAHOAyvqnPf8KcuMvkAGZP9eDjAQaEO/AwDb/D0gj0GiQpRnTQIYIfUR1DopDGexVIZygz8ieC4B6WyzRBOJtBkZ/pAABBZUWOKgAispF5e7ibycAAAAASUVORK5CYII=);
+    background-repeat-x: no-repeat;
+    background-repeat-y: no-repeat;
+}
+</style>
+<div class="dsn-mod dp-yuyue" ng-class="{'dsn-mod-select':Item.id == focus}" ng-style="{'background-color':Item.params.bgcolor,'margin':Item.params.margin_y+'px '+Item.params.margin_x+'px 0','padding':Item.params.padding_y+'px '+Item.params.padding_x+'px'}">
+	<div style="line-height: 170px; text-align: center; color: #999; font-size: 14px;width:100%" ng-show="Item.data == ''">一个商品都没有...</div>
+	<!--123排-->
+	<div class="dp-yuyue-item" ng-show="Item.params.style=='1' || Item.params.style=='2' || Item.params.style=='3'">
+		<div class="item" ng-repeat="item in Item.data" ng-init="index = $index" style="{{Item.params.style==2 ? 'width:49%;margin-right:'+(index%2==0?'2%':0) : (Item.params.style==3 ? 'width:32%;margin-right:'+(index%3!=2?'2%':0) :'width:100%')}}">
+			<div class="product-pic" style="position: relative;">
+				<img class="image" ng-src="{{item.pic}}"/>
+				<div ng-if="Item.params.showisopen == 1" style="position: absolute;width: 100%;bottom: 0; left:0;background: {{item.is_open?item.color1:'#CCC'}};color: #fff;text-align: center;line-height: 20px;font-size: 12px;">
+					{{item.is_open?item.opentip:item.noopentip}}
+				</div>
+				<div ng-if="Item.params.showfwtype == 1" >
+					<div ng-if="item.fwtype.indexOf('1')>=0" style="position: absolute;width: auto;top: 0; right:0px;background: #EC9100;color: #fff;text-align: center;line-height: 18px;font-size: 12px;padding:0 10px;border-radius: 2px;margin-bottom: 5px;opacity: 0.7">
+						到店服务
+					</div>
+					<div ng-if="item.fwtype.indexOf('2')>=0" style="position: absolute;width: auto;top: {{item.fwtypetop2}}px; right:0px;background: #EC9100;color: #fff;text-align: center;line-height: 18px;font-size: 12px;padding:0 10px;border-radius: 2px;margin-bottom: 5px;opacity: 0.7">
+						上门服务
+					</div>
+					<div ng-if="item.fwtype.indexOf('3')>=0" style="position: absolute;width: auto;top: {{item.fwtypetop3}}px; right:0px;background: #EC9100;color: #fff;text-align: center;line-height: 18px;font-size: 12px;padding:0 10px;border-radius: 2px;opacity: 0.7">
+						到商家服务
+					</div>
+				</div>
+			</div>
+			<div class="product-info">
+				<div class="p1" ng-if="Item.params.showname == 1 || Item.params.showcat"><span ng-if="params.showcat" style="font-size:14px;color:red">{{item.catnames}}</span><span ng-if="params.showname == 1">{{item.name}}</span></div>
+				<div ng-if="Item.params.showsellpoint == 1" style="line-height: 18px;word-break: break-all;white-space: pre-wrap;">{{item.sellpoint}}</div>
+				<div ng-if="Item.params.showfuwu== 1" style="line-height: 18px;display: flex;overflow: hidden;flex-wrap:wrap;font-size: 13px;">
+					<div ng-repeat="item2 in item.fuwulist" style="margin-right: 5px;">
+						<div class="fuwu">{{item2}}</div>
+					</div>
+				</div>
+				<div class="p2">
+					<div class="p2-1" ng-if="Item.params.showprice != '0'">
+							<span class="t1" style="color:{:t('color1')}">{{item.sell_price}}<span style="font-size:12px;padding-left:2px">元/{{item.danwei}}</span></span>
+					</div>
+				</div>
+				<div class="p3" ng-if="Item.params.showsales != '0'">已售{{item.sales}}</div>
+				
+			</div>
+		</div>
+	</div>
+	<div class="dp-yuyue-itemlist" ng-show="Item.params.style=='list'">
+		<div class="item" ng-repeat="item in Item.data">
+			<div class="product-pic" style="position: relative;">
+				<img class="image" ng-src="{{item.pic}}" mode="widthFix"/>
+				<div ng-if="Item.params.showisopen == 1" style="position: absolute;width: 100%;bottom: 0; left:0;background: {{item.is_open?item.color1:'#CCC'}};color: #fff;text-align: center;line-height: 20px;font-size: 12px;">
+					{{item.is_open?item.opentip:item.noopentip}}
+				</div>
+			</div>
+			<div class="product-info">
+				<div class="p1" ng-if="Item.params.showname == 1 || Item.params.showcat"><span ng-if="params.showcat" style="font-size:14px;color:red">{{item.catnames}}</span><span ng-if="params.showname == 1">{{item.name}}</span></div>
+				<div ng-if="Item.params.showsellpoint == 1" style="line-height: 18px;word-break: break-all;white-space: pre-wrap;">{{item.sellpoint}}</div>
+				<div ng-if="Item.params.showfuwu== 1" style="line-height: 18px;display: flex;overflow: hidden;flex-wrap:wrap;font-size: 13px;">
+					<div ng-repeat="item2 in item.fuwulist" style="margin-right: 5px;">
+						<div class="fuwu">{{item2}}</div>
+					</div>
+				</div>
+				<div class="p2" ng-if="Item.params.showprice != '0'">
+					<span class="t1" style="color:{:t('color1')}">{{item.sell_price}}<span style="font-size:12px;padding-left:2px">元/{{item.danwei}}</span></span>
+				</div>
+				<div class="p3" ng-if="Item.params.showsales != '0'">已售{{item.sales}}</div>
+				<div ng-if="Item.params.showfwtype == 1" >
+					<div ng-if="item.fwtype.indexOf('1')>=0" style="position: absolute;width: auto;top: 0; right:0px;background: #EC9100;color: #fff;text-align: center;line-height: 18px;font-size: 12px;padding:0 10px;border-radius: 2px;margin-bottom: 5px;opacity: 0.7">
+						到店服务
+					</div>
+					<div ng-if="item.fwtype.indexOf('2')>=0" style="position: absolute;width: auto;top:{{item.fwtypetop2}}px; right:0px;background: #EC9100;color: #fff;text-align: center;line-height: 18px;font-size: 12px;padding:0 10px;border-radius: 2px;margin-bottom: 5px;opacity: 0.7">
+						上门服务
+					</div>
+					<div ng-if="item.fwtype.indexOf('3')>=0" style="position: absolute;width: auto;top: {{item.fwtypetop3}}px; right:0px;background: #EC9100;color: #fff;text-align: center;line-height: 18px;font-size: 12px;padding:0 10px;border-radius: 2px;opacity: 0.7">
+						到商家服务
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="dp-yuyue-itemline" ng-show="Item.params.style=='line'">
+		<div class="item" ng-repeat="item in Item.data">
+			<div class="product-pic" style="position: relative;">
+				<img class="image" ng-src="{{item.pic}}"/>
+				<div ng-if="Item.params.showisopen == 1" style="position: absolute;width: 100%;bottom: 0; left:0;background: {{item.is_open?item.color1:'#CCC'}};color: #fff;text-align: center;line-height: 20px;font-size: 12px;">
+					{{item.is_open?item.opentip:item.noopentip}}
+				</div>
+				<div ng-if="Item.params.showfwtype == 1" >
+					<div ng-if="item.fwtype.indexOf('1')>=0" style="position: absolute;width: auto;top: 0; right:0px;background: #EC9100;color: #fff;text-align: center;line-height: 18px;font-size: 12px;padding:0 10px;border-radius: 2px;margin-bottom: 5px;opacity: 0.7">
+						到店服务
+					</div>
+					<div ng-if="item.fwtype.indexOf('2')>=0" style="position: absolute;width: auto;top: {{item.fwtypetop2}}px; right:0px;background: #EC9100;color: #fff;text-align: center;line-height: 18px;font-size: 12px;padding:0 10px;border-radius: 2px;margin-bottom: 5px;opacity: 0.7">
+						上门服务
+					</div>
+					<div ng-if="item.fwtype.indexOf('3')>=0" style="position: absolute;width: auto;top: {{item.fwtypetop3}}px; right:0px;background: #EC9100;color: #fff;text-align: center;line-height: 18px;font-size: 12px;padding:0 10px;border-radius: 2px;opacity: 0.7">
+						到商家服务
+					</div>
+				</div>
+			</div>
+			<div class="product-info">
+				<div class="p1" ng-if="Item.params.showname == 1 || Item.params.showcat"><span ng-if="params.showcat" style="font-size:14px;color:red">{{item.catnames}}</span><span ng-if="params.showname == 1">{{item.name}}</span></div>
+				<div ng-if="Item.params.showsellpoint == 1" style="line-height: 18px;word-break: break-all;white-space: pre-wrap;">{{item.sellpoint}}</div>
+				<div ng-if="Item.params.showfuwu== 1" style="line-height: 18px;display: flex;overflow: hidden;flex-wrap:wrap;font-size: 13px;">
+					<div ng-repeat="item2 in item.fuwulist" style="margin-right: 5px;">
+						<div class="fuwu">{{item2}}</div>
+					</div>
+				</div>
+				<div class="p2">
+					<div class="p2-1" ng-if="Item.params.showprice != '0'">
+						<span class="t1" style="color:{:t('color1')}">{{item.sell_price}}<span style="font-size:12px;padding-left:2px">元/{{item.danwei}}</span></span>
+					</div>
+				</div>
+				<div class="p3" ng-if="Item.params.showsales != '0'">已售{{item.sales}}</div>
+				
+			</div>
+		</div>
+	</div>
+</div>

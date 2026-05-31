@@ -1,0 +1,158 @@
+<div class="dsn-panel-editor-title">商品组设置</div>
+
+<div class="dsn-panel-editor-content">
+	<div class="layui-form-item" ng-hide="Edit.params.showname=='0'">
+		<div class="layui-form-label">标题颜色</div>
+		<div class="layui-input-inline">
+			<input class="layui-input" value="{{Edit.params.titlecolor}}" ng-model="Edit.params.titlecolor"/>
+		</div>
+		<span class="colorpicker" ng-model="Edit.params.titlecolor"></span>
+	</div>
+	<div class="layui-form-item" ng-hide="Edit.params.showname=='0'">
+		<div class="layui-form-label">备注颜色</div>
+		<div class="layui-input-inline">
+			<input class="layui-input" value="{{Edit.params.remarkcolor}}" ng-model="Edit.params.remarkcolor"/>
+		</div>
+		<span class="colorpicker" ng-model="Edit.params.remarkcolor"></span>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">背景样式</div>
+		<div class="layui-input-inline" style="width:500px">
+			<input class="radio" type="radio" name="{{Edit.id}}_bgpic" value="{$Think.const.PRE_URL}/static/imgsrc/coupon1.png" ng-model="Edit.params.bgpic" title="样式一"/>
+			<input class="radio" type="radio" name="{{Edit.id}}_bgpic" value="{$Think.const.PRE_URL}/static/imgsrc/coupon2.png" ng-model="Edit.params.bgpic" title="样式二"/>
+			<input class="radio" type="radio" name="{{Edit.id}}_bgpic" value="{$Think.const.PRE_URL}/static/imgsrc/coupon3.png" ng-model="Edit.params.bgpic" title="样式三"/>
+			<input class="radio" type="radio" name="{{Edit.id}}_bgpic" value="{$Think.const.PRE_URL}/static/imgsrc/coupon4.png" ng-model="Edit.params.bgpic" title="样式四"/>
+			<span class="dsn-panel-editor-btn" ng-click="uploadImg(Edit.id,'bgpic')">自己上传</span>
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">背景颜色</div>
+		<div class="layui-input-inline">
+			<input class="layui-input" value="{{Edit.params.bgcolor}}" ng-model="Edit.params.bgcolor"/>
+		</div>
+		<span class="colorpicker" ng-model="Edit.params.bgcolor"></span>
+	</div>
+
+
+	<div class="layui-form-item">
+		<div class="layui-form-label">来源</div>
+		<div class="layui-input-inline" style="width:500px">
+			{if !$type}
+			<input class="radio" type="radio" name="{{Edit.id}}_couponfrom" value="0" ng-model="Edit.params.couponfrom" title="手动选择"/>
+			{/if}
+			<input class="radio" type="radio" name="{{Edit.id}}_couponfrom" value="1" ng-model="Edit.params.couponfrom" ng-change="getcoupon(Edit.id)" title="自动获取"/>
+		</div>
+	</div>
+	<div ng-show="Edit.params.couponfrom == '0'">
+		<div ng-repeat="good in Edit.data" class="dsn-panel-editor-relative">
+			<div class="dsn-panel-editor-line flex">
+				<div class="dsn-panel-editor-del" style="right:30px;font-size:12px" title="上移" ng-click="upItemChild(Edit.id,good.id)"><i class="fa fa-arrow-up"></i></div>
+				<div class="dsn-panel-editor-del" title="移除" ng-click="delcoupon(Edit.id, good.couponid)">×</div>
+				<div class="dsn-panel-editor-line-right">
+					<div class="layui-form-item" style="margin-bottom:0px">
+							<div class="layui-form-label">{:t('优惠券')}名称</div>
+							<div class="layui-form-mid">{{good.name}}</div>
+					</div>
+					<div class="layui-form-item" style="margin-bottom:0px" ng-show="good.type==1">
+						<div class="layui-form-label">优惠金额</div>
+						<div class="layui-form-mid"><span style="font-size: 16px;">￥{{good.money}}</span></div>
+					</div>
+					<div class="layui-form-item" style="margin-bottom:0px" ng-show="good.type==1">
+						<div class="layui-form-label">使用条件</div>
+						<div class="layui-form-mid">满{{good.minprice}}元可用</div>
+					</div>
+					<div class="layui-form-item" style="margin-bottom:0px" ng-show="good.type!=1">
+						<div class="layui-form-label">类型</div>
+						<div class="layui-form-mid" ng-show="good.type==2">礼品券</div>
+						<div class="layui-form-mid" ng-show="good.type==3">计次券</div>
+						<div class="layui-form-mid" ng-show="good.type==4">运费抵扣券</div>
+					</div>
+					<div class="layui-form-item" style="margin-bottom:0px" ng-show="good.type==3">
+						<div class="layui-form-label">可用次数</div>
+						<div class="layui-form-mid"><span style="font-size: 16px;">￥{{good.limit_count}}</span></div>
+					</div>
+					<!-- <div class="layui-form-item">
+						<div class="layui-form-label"></div>
+						<div class="layui-btn layui-btn-sm layui-btn-primary" ng-click="addcoupon('replace', Edit.id, good.id)">重新选择</div>
+					</div> -->
+				</div>
+			</div>
+		</div>
+		<div class="layui-btn layui-btn-primary" style="width:500px;margin-top:10px" ng-click="addcoupon('',Edit.id,'')"><i class="fa fa-plus-circle"></i> 添加一个{:t('优惠券')}</div>
+	</div>
+	<div ng-show="Edit.params.couponfrom == '1'">
+		<div class="layui-form-item">
+			<div class="layui-form-label">排序方式</div>
+			<div class="layui-input-inline" style="width:500px">
+					<input class="radio" type="radio" name="{{Edit.id}}_sortby" value="sort" ng-model="Edit.params.sortby" ng-change="getcoupon(Edit.id)" title="按排序"/>
+					<input class="radio" type="radio" name="{{Edit.id}}_sortby" value="createtimedesc" ng-model="Edit.params.sortby" ng-change="getcoupon(Edit.id)" title="创建时间↓"/></i>
+					<input class="radio" type="radio" name="{{Edit.id}}_sortby" value="createtime" ng-model="Edit.params.sortby" ng-change="getcoupon(Edit.id)" title="创建时间↑"/></i>
+					<input class="radio" type="radio" name="{{Edit.id}}_sortby" value="stock" ng-model="Edit.params.sortby" ng-change="getcoupon(Edit.id)" title="库存"/>
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<div class="layui-form-label">显示数量</div>
+			<div class="layui-input-inline">
+				<input class="layui-input" ng-model="Edit.params.shownum" ng-blur="getcoupon(Edit.id)"/>
+			</div>
+		</div>
+	</div>
+	<hr>
+	<div class="layui-form-item">
+		<div class="layui-form-label">左右外边距</div>
+		<div class="slider" min="0" max="40" ng-model="Edit.params.margin_x"></div>
+		<span class="slider-span"><input ng-model="Edit.params.margin_x"/> px</span>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">上下外边距</div>
+		<div class="slider" min="0" max="40" ng-model="Edit.params.margin_y"></div>
+		<span class="slider-span"><input ng-model="Edit.params.margin_y"/> px</span>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">左右内边距</div>
+		<div class="slider" min="0" max="40" ng-model="Edit.params.padding_x"></div>
+		<span class="slider-span"><input ng-model="Edit.params.padding_x"/> px</span>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-label">上下内边距</div>
+		<div class="slider" min="0" max="40" ng-model="Edit.params.padding_y"></div>
+		<span class="slider-span"><input ng-model="Edit.params.padding_y"/> px</span>
+	</div>
+	{if !$type}
+	{if !$noshow_modules || !in_array('ModulePlatform',$noshow_modules)}
+	<div class="layui-form-item">
+		<div class="layui-form-label">显示平台</div>
+		<div class="layui-input-inline" style="width:500px">
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="所有平台" name="{{Edit.id}}_platform['all']" ng-model="Edit.params.platform['all']"/>
+			{foreach $platform as $pl}
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="{:getplatformname($pl)}" name="{{Edit.id}}_platform['{$pl}']" ng-model="Edit.params.platform['{$pl}']"/>
+			{/foreach}
+
+		</div>
+	</div>
+	{/if}
+	{if !$noshow_modules || !in_array('ModuleQuanxian',$noshow_modules)}
+	<div class="layui-form-item">
+		<div class="layui-form-label">显示范围</div>
+		<div class="layui-input-inline" style="width:500px">
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="所有人" name="{{Edit.id}}_quanxian['all']" ng-model="Edit.params.quanxian['all']"/>
+			{foreach $memberlevelList as $lv}
+			<input class="checkbox" type="checkbox" lay-skin="primary" title="{$lv.name}" name="{{Edit.id}}_quanxian[{$lv.id}]" ng-model="Edit.params.quanxian[{$lv.id}]"/>
+			{/foreach}
+		</div>
+	</div>
+	{/if}
+	{include file="designer_page/temp/edit-plugin-mendian" /}
+	<div class="layui-form-item" ng-show="!Edit.params.quanxian['all']">
+    <div class="layui-form-label">显示用户</div>
+    <div class="layui-input-inline">
+			<input class="layui-input" ng-model="Edit.params.showmids"/>
+    </div>
+		<div class="layui-form-mid layui-word-aux">填写用户ID，多个用英文标点逗号(,)分割
+	</div>
+	{else}
+		<input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有平台" name="{{Edit.id}}_platform['all']" ng-model="Edit.params.platform['all']"/>
+		<input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有人" name="{{Edit.id}}_quanxian['all']" ng-model="Edit.params.quanxian['all']"/>
+		<input class="checkbox" type="hidden" checked='true' lay-skin="primary" title="所有门店" name="{{Edit.id}}_mendian['all']" ng-model="Edit.params.mendian['all']"/>
+	{/if}
+</div>

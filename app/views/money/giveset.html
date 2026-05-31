@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>充值赠送</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					<i class="fa fa-cog"></i> 充值赠送设置
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w6" lay-filter="">
+						<div id="giveset_div">
+							{php} $givedata = json_decode($info['givedata'],true);{/php}
+							{if $givedata}
+							{foreach $givedata as $k=>$give}
+							<div class="layui-form-item">
+								<label class="layui-form-label">{if $k==0}赠送设置：{/if}</label>
+								<div class="layui-form-mid">充值满</div>
+								<div class="layui-input-inline" style="width:70px"><input type="text" name="money[]" value="{$give.money}" class="layui-input"></div>
+								<div class="layui-form-mid">元，赠送</div>
+								<div class="layui-input-inline" style="width:70px"><input type="text" name="give[]" value="{$give.give}" class="layui-input"></div>
+								<div class="layui-form-mid">元，赠送</div>
+								<div class="layui-input-inline" style="width:70px"><input type="text" name="give_score[]" value="{$give.give_score}" class="layui-input"></div>
+								<div class="layui-form-mid">{:t('积分')}</div>
+								
+								{if $k==0}
+								<button type="button" class="layui-btn layui-btn-primary" onclick="adddata()">新增</button>
+								{else}
+								<button type="button" class="layui-btn layui-btn-primary" onclick="deldata(this)">删除</button>
+								{/if}
+							</div>
+							{/foreach}
+							{else}
+							<div class="layui-form-item">
+								<label class="layui-form-label">赠送设置：</label>
+								<div class="layui-form-mid">充值满</div>
+								<div class="layui-input-inline" style="width:70px"><input type="text" name="money[]" value="" class="layui-input"></div>
+								<div class="layui-form-mid">元，赠送</div>
+								<div class="layui-input-inline" style="width:70px"><input type="text" name="give[]" value="" class="layui-input"></div>
+								<div class="layui-form-mid">元，赠送</div>
+								<div class="layui-input-inline" style="width:70px"><input type="text" name="give_score[]" value="" class="layui-input"></div>
+								<div class="layui-form-mid">{:t('积分')}</div>
+								
+								<button type="button" class="layui-btn layui-btn-primary" onclick="adddata()">新增</button>
+							</div>
+							{/if}
+						</div>
+						
+						<script>
+						function adddata(){
+							var html = '';
+							html+='<div class="layui-form-item">';
+							html+='	<label class="layui-form-label"></label>';
+							html+='	<div class="layui-form-mid">充值满</div>';
+							html+='	<div class="layui-input-inline" style="width:70px"><input type="text" name="money[]" value="" class="layui-input"></div>';
+							html+='	<div class="layui-form-mid">元，赠送</div>';
+							html+='	<div class="layui-input-inline" style="width:70px"><input type="text" name="give[]" value="" class="layui-input"></div>';
+							html+='	<div class="layui-form-mid">元，赠送</div>';
+							html+='	<div class="layui-input-inline" style="width:70px"><input type="text" name="give_score[]" value="" class="layui-input"></div>';
+							html+='	<div class="layui-form-mid">{:t('积分')}</div>';
+							
+							html+='	<button type="button" class="layui-btn layui-btn-primary" onclick="deldata(this)">删除</button>';
+							html+='</div>';
+							$('#giveset_div').append(html);
+						}
+						function deldata(obj){
+							$(obj).parent().remove();
+						}
+						</script>
+						<div class="layui-form-item">
+							<label class="layui-form-label">用户输入金额：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[caninput]" value="1" title="开启" {if !$info['id'] || $info['caninput']==1}checked{/if}>
+								<input type="radio" name="info[caninput]" value="0" title="关闭" {if $info['caninput']==0}checked{/if}>
+							</div>
+							<div class="layui-form-mid layui-word-aux">关闭后用户不能输入金额，只能选择设置的充值赠送金额</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">赠送状态：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[status]" value="1" title="开启" {if !$info['id'] || $info['status']==1}checked{/if}>
+								<input type="radio" name="info[status]" value="0" title="关闭" {if $info['status']==0}checked{/if}>
+							</div>
+							<div class="layui-form-mid layui-word-aux">关闭后不再赠送</div>
+						</div>
+						<!-- 详情编辑器 -->
+						<div class="layui-form-item">
+							<label class="layui-form-label">充值说明：</label>
+							<div class="layui-input-inline" style="width:500px">
+								<script id="shuoming" name="info[shuoming]" type="text/plain" style="width:100%;height:300px">{$info.shuoming}</script>
+							</div>
+							<div class="layui-form-mid layui-word-aux layui-clear">* 赠送{:t('优惠券')}：打开营销-{:t('优惠券')}-添加-支付后赠送-开启-支付赠送场景-充值-设置金额</div>
+						</div>
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+					
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	var ueditor = UE.getEditor('shuoming');
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		field['info[shuoming]'] = ueditor.getContent();
+		var index = layer.load();
+		$.post('',field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status==1){
+				setTimeout(function(){
+					location.href = location.href
+				},1000)
+			}
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

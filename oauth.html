@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>微信授权中转</title>
+    <style>
+        body {
+            text-align: center;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        .container {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            padding: 24px 20px 32px;
+            width: 90%;
+            max-width: 320px;
+        }
+        .message {
+            font-size: 16px;
+            color: #333;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+        .error {
+            color: #e64340;
+        }
+        .info {
+            font-size: 14px;
+            color: #888;
+            margin-top: 16px;
+        }
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ccc;
+            border-top-color: #07c160;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="message" id="message">
+        <span class="spinner"></span> 正在处理授权，请稍候...
+    </div>
+    <div class="info" id="info"></div>
+</div>
+<script>
+    (function() {
+        // ---------- 公众号配置 ----------
+        const APPID = 'wxb0c13fbc512b6eb7';   // 请替换为实际 AppID
+
+        // ---------- 获取 URL 参数 ----------
+        function getQueryParam(name) {
+            const params = new URLSearchParams(window.location.search);
+            return params.get(name);
+        }
+
+        // ---------- 显示错误信息 ----------
+        function showError(msg, detail = '') {
+            document.getElementById('message').innerHTML = '<span class="error">⚠️ ' + msg + '</span>';
+            if (detail) {
+                document.getElementById('info').innerHTML = detail;
+            }
+            console.error('微信授权中转页错误:', msg, detail);
+        }
+
+        // ---------- 显示普通信息（可选）----------
+        function showMessage(msg, isError = false) {
+            if (isError) {
+                document.getElementById('message').innerHTML = '<span class="error">' + msg + '</span>';
+            } else {
+                document.getElementById('message').innerHTML = msg;
+            }
+        }
+
+        // 主流程
+        const redirectUri = getQueryParam('redirect_uri');
+        const code = getQueryParam('code');
+        const state = getQueryParam('state');
+
+        // 1. 没有 code -> 跳转到微信授权
+        if (!code) {
+            if (!redirectUri) {
+                showError('缺少 redirect_uri 参数', '请在跳转链接中携带 redirect_uri，例如：oauth.html?redirect_uri=http://yourdomain.com/callback');
+                return;
+            }
+
+            // 生成随机 state（防 CSRF）
+            const randomState = Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+            // 保存 state 到 sessionStorage（可选，用于回调验证）
+            try {
+                sessionStorage.setItem('oauth_state', randomState);
+            } catch(e) { /* 忽略无 sessionStorage 的情况 */ }
+
+            // 当前页面地址（不含参数）
+            const currentPage = window.location.href.split('?')[0];
+            // 将业务 redirect_uri 作为参数带给回调页面
+            const redirectFull = currentPage + '?redirect_uri=' + encodeURIComponent(redirectUri);
+
+            // 构造微信 OAuth2 授权 URL
+            const authUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize' +
+                '?appid=' + APPID +
+                '&redirect_uri=' + encodeURIComponent(redirectFull) +
+                '&response_type=code' +
+                '&scope=snsapi_base' +                 // 静默授权，只获取 openid；如需用户信息改为 snsapi_userinfo
+                '&state=' + randomState +
+                '#wechat_redirect';
+
+            // 跳转到微信
+            window.location.href = authUrl;
+            return;
+        }
+
+        // 2. 已有 code -> 验证 state 并跳转回业务回调地址
+        if (!redirectUri) {
+            showError('回调缺少 redirect_uri 参数', '微信授权回调时未能正确传递 redirect_uri，请检查中转页地址是否被篡改。');
+            return;
+        }
+
+        // 验证 state（防 CSRF）
+        let savedState = null;
+        try {
+            savedState = sessionStorage.getItem('oauth_state');
+            sessionStorage.removeItem('oauth_state'); // 使用后清除
+        } catch(e) { /* 无 sessionStorage 则跳过验证 */ }
+
+        if (savedState && state !== savedState) {
+            showError('安全验证失败，请重新发起授权', 'state 不匹配，可能遭受 CSRF 攻击或页面被刷新。');
+            return;
+        }
+
+        // 拼接最终业务回调地址，加上 code 和 state（如有）
+        const separator = redirectUri.includes('?') ? '&' : '?';
+        let finalUrl = redirectUri + separator + 'code=' + encodeURIComponent(code);
+        if (state) {
+            finalUrl += '&state=' + encodeURIComponent(state);
+        }
+
+        // 跳回业务系统
+        window.location.href = finalUrl;
+    })();
+</script>
+</body>
+</html>

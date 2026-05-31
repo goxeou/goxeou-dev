@@ -1,0 +1,405 @@
+<!-- 需同步修改 web_user\edit.html -->
+<div class="layui-form-item">
+    <label class="layui-form-label">权限设置：</label>
+    <div class="layui-input-block">
+        <div style="margin-top:10px;color:#303030; font-size:14px; font-weight:600; ">
+            <input type="checkbox" title="全部选择" lay-skin="primary" lay-filter="checkall_all"/>
+        </div>
+        {php}$i=0;{/php}
+        {foreach $menudata as $k=>$v}
+        {php}$i++;{/php}
+        <div>
+            <div style="clear:left;margin-top:10px;color:#303030; font-size:14px; font-weight:600; ">
+                <input type="checkbox" title="{$v['name']}" lay-skin="primary" lay-filter="checkall"/>
+            </div>
+            <div style="margin-left:20px">
+                {foreach $v['child'] as $k1=>$v1}
+                {php}
+                if(!$v1['authdata'] && $v1['child']){
+                $path = array();
+                echo '<div style="width: 100px;float:left;margin-top:8px;clear:left">'.$v1['name'].'</div>';
+                foreach($v1['child'] as $v2){
+                echo '<div style="min-width: 120px;float: left;">';
+                echo '	<input type="checkbox" value="'.$v2['path'].','.str_replace('/*','^_^',$v2['authdata']).'" name="auth_data[]" '.(in_array($v2['path'].','.$v2['authdata'],$auth_data)?'checked':'').' title="'.$v2['name'].'" lay-skin="primary"/>';
+                echo '</div>';
+                }
+                echo '<div style="clear:both;float: left;"></div>';
+                }
+                {/php}
+                {if !$v1['child'] || $v1['authdata']}
+                <div style="min-width: 120px;float: left;">
+                    <input type="checkbox" value="{$v1.path},{:str_replace('/*','^_^',$v1['authdata'])}" name="auth_data[]" {if in_array($v1['path'].','.$v1['authdata'],$auth_data)}checked{/if} title="{$v1['name']}" lay-skin="primary"/>
+                </div>
+                {/if}
+                {/foreach}
+            </div>
+            <div style="clear:both;float: left;margin-bottom:10px"></div>
+        </div>
+        {/foreach}
+    </div>
+</div>
+<div class="layui-form-item">
+    <label class="layui-form-label">手机端权限：</label>
+    <div class="layui-input-block">
+        <div style="margin-top:10px;color:#303030; font-size:14px; font-weight:600; ">
+            <input type="checkbox" title="全部选择" lay-skin="primary" lay-filter="checkall_all"/>
+        </div>
+        {if $thisuser_wxauth}
+        <div>
+            <div style="margin-top:10px;color:#303030; font-size:14px; font-weight:600; ">
+                <input type="checkbox" title="查看权限" lay-skin="primary" lay-filter="checkall"/>
+            </div>
+            <div style="margin-left:20px">
+                {if $bid==0 && ($thisuser['auth_type'] == 1 || in_array('member',$thisuser_wxauth))}
+                <div style="min-width: 120px;float: left;">
+                    <input type="checkbox" value="member" name="wxauth_data[]" {if in_array('member',$wxauth_data)}checked{/if} title="{:t('会员')}" lay-skin="primary"/>
+                </div>
+                {/if}
+                {if $thisuser['auth_type'] == 1 || in_array('product',$thisuser_wxauth)}
+                <div style="min-width: 120px;float: left;">
+                    <input type="checkbox" value="product" name="wxauth_data[]" {if in_array('product',$wxauth_data)}checked{/if} title="商品" lay-skin="primary"/>
+                </div>
+                {/if}
+                {if $thisuser['auth_type'] == 1 || in_array('order',$thisuser_wxauth)}
+                <div style="min-width: 120px;float: left;">
+                    <input type="checkbox" value="order" name="wxauth_data[]" {if in_array('order',$wxauth_data)}checked{/if} title="订单" lay-skin="primary"/>
+                </div>
+                {/if}
+                {if $thisuser['auth_type'] == 1 || in_array('finance',$thisuser_wxauth)}
+                <div style="min-width: 120px;float: left;">
+                    <input type="checkbox" value="finance" name="wxauth_data[]" {if in_array('finance',$wxauth_data)}checked{/if} title="财务" lay-skin="primary"/>
+                </div>
+                {/if}
+                {if $thisuser['auth_type'] == 1 || in_array('zixun',$thisuser_wxauth)}
+                <div style="min-width: 120px;float: left;">
+                    <input type="checkbox" value="zixun" name="wxauth_data[]" {if in_array('zixun',$wxauth_data)}checked{/if} title="咨询" lay-skin="primary"/>
+                </div>
+                {/if}
+                {if getcustom('expend') && ($thisuser['auth_type'] == 1 || in_array('expend',$thisuser_wxauth))}
+                <div style="min-width: 120px;float: left;">
+                    <input type="checkbox" value="expend" name="wxauth_data[]" {if in_array('expend',$wxauth_data)}checked{/if} title="财务-支出" lay-skin="primary"/>
+                </div>
+                {/if}
+                <div style="clear:both;float: left;margin-bottom:10px"></div>
+            </div>
+        </div>
+        {/if}
+        {if $thisuser_notice_auth}
+        <div>
+            <div style="clear:left;margin-top:10px;color:#303030; font-size:14px; font-weight:600; ">
+                <input type="checkbox" title="接收通知权限" lay-skin="primary" lay-filter="checkall"/>
+            </div>
+            <div style="margin-left:20px">
+                {if $thisuser['auth_type'] == 1 || in_array('tmpl_orderconfirm',$thisuser_notice_auth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="订单提交通知" name="notice_auth_data[]" {if in_array('tmpl_orderconfirm',$notice_auth_data)}checked{/if} value="tmpl_orderconfirm" lay-skin="primary"/>
+                </div>
+                {/if}
+                {if $thisuser['auth_type'] == 1 || in_array('tmpl_orderpay',$thisuser_notice_auth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="订单支付通知" name="notice_auth_data[]" {if in_array('tmpl_orderpay',$notice_auth_data)}checked{/if} value="tmpl_orderpay" lay-skin="primary"/>
+                </div>
+                {/if}
+                {if $thisuser['auth_type'] == 1 || in_array('tmpl_ordershouhuo',$thisuser_notice_auth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="订单收货通知" name="notice_auth_data[]" {if in_array('tmpl_ordershouhuo',$notice_auth_data)}checked{/if} value="tmpl_ordershouhuo" lay-skin="primary"/>
+                </div>
+                {/if}
+                {if $thisuser['auth_type'] == 1 || in_array('tmpl_ordertui',$thisuser_notice_auth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="退款申请通知" name="notice_auth_data[]" {if in_array('tmpl_ordertui',$notice_auth_data)}checked{/if} value="tmpl_ordertui" lay-skin="primary"/>
+                </div>
+                {/if}
+                {if $thisuser['auth_type'] == 1 || in_array('tmpl_withdraw',$thisuser_notice_auth)}
+                {if $bid==0}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="提现申请通知" name="notice_auth_data[]" {if in_array('tmpl_withdraw',$notice_auth_data)}checked{/if} value="tmpl_withdraw" lay-skin="primary"/>
+                </div>
+                {/if}
+                {/if}
+                {if $thisuser['auth_type'] == 1 || in_array('tmpl_uplv',$thisuser_notice_auth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="升级申请通知" name="notice_auth_data[]" {if in_array('tmpl_uplv',$notice_auth_data)}checked{/if} value="tmpl_uplv" lay-skin="primary"/>
+                </div>
+                {/if}
+                {if $thisuser['auth_type'] == 1 || in_array('tmpl_formsub',$thisuser_notice_auth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="表单提交通知" name="notice_auth_data[]" {if in_array('tmpl_formsub',$notice_auth_data)}checked{/if} value="tmpl_formsub" lay-skin="primary"/>
+                </div>
+                {/if}
+                {if $thisuser['auth_type'] == 1 || in_array('tmpl_kehuzixun',$thisuser_notice_auth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="用户咨询通知" name="notice_auth_data[]" {if in_array('tmpl_kehuzixun',$notice_auth_data)}checked{/if} value="tmpl_kehuzixun" lay-skin="primary"/>
+                </div>
+                {/if}
+                {if $thisuser['auth_type'] == 1 || in_array('tmpl_maidanpay',$thisuser_notice_auth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="买单付款通知" name="notice_auth_data[]" {if in_array('tmpl_maidanpay',$notice_auth_data)}checked{/if} value="tmpl_maidanpay" lay-skin="primary"/>
+                </div>
+                {/if}
+                {if getcustom('shop_stock_warning_notice')}
+                {if $thisuser['auth_type'] == 1 || in_array('tmpl_stockwarning',$thisuser_notice_auth)}
+				  <div style="width: 120px;float: left;">
+					  <input type="checkbox" title="库存不足通知" name="notice_auth_data[]" {if in_array('tmpl_stockwarning',$notice_auth_data)}checked{/if} value="tmpl_stockwarning" lay-skin="primary"/>
+				  </div>
+				  {/if}
+				  {/if}
+                {if getcustom('product_pickup_device')}
+                {if $thisuser['auth_type'] == 1 || in_array('tmpl_device_addstock_remind',$thisuser_notice_auth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="商品柜设备缺货通知" name="notice_auth_data[]" {if in_array('tmpl_device_addstock_remind',$notice_auth_data)}checked{/if} value="tmpl_device_addstock_remind" lay-skin="primary"/>
+                </div>
+                {/if}
+                {/if}
+
+			    {if getcustom('hotel')}
+                {if $thisuser['auth_type'] == 1 || in_array('tmpl_hotelbooking_success',$thisuser_notice_auth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="客户预定成功通知" name="notice_auth_data[]" {if in_array('tmpl_hotelbooking_success',$notice_auth_data)}checked{/if} value="tmpl_hotelbooking_success" lay-skin="primary"/>
+                </div>
+                {/if}
+                {/if}
+                <div style="clear:both;float: left;margin-bottom:10px"></div>
+            </div>
+        </div>
+        {/if}
+        {if $thisuser_hexiao_auth}
+        <div>
+            <div style="clear:left;margin-top:10px;color:#303030; font-size:14px; font-weight:600; ">
+                <input type="checkbox" title="核销权限" lay-skin="primary" lay-filter="checkall"/>
+            </div>
+            <div style="margin-left:20px">
+                {if getcustom('member_code') && getcustom('business_update_member_score')}
+                {if $thisuser['auth_type'] == 1 || in_array('member_code_buy',$thisuser_hexiao_auth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="会员消费" name="hexiao_auth_data[]" {if in_array('member_code_buy',$hexiao_auth_data)}checked{/if} value="member_code_buy" lay-skin="primary"/>
+                </div>
+                {/if}
+                {/if}
+                {if $thisuser['auth_type'] == 1 || in_array('shop',$thisuser_hexiao_auth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="商城订单" name="hexiao_auth_data[]" {if in_array('shop',$hexiao_auth_data)}checked{/if} value="shop" lay-skin="primary"/>
+                </div>
+                {/if}
+                {if $thisuser['auth_type'] == 1 || in_array('collage',$thisuser_hexiao_auth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="拼团订单" name="hexiao_auth_data[]" {if in_array('collage',$hexiao_auth_data)}checked{/if} value="collage" lay-skin="primary"/>
+                </div>
+                {/if}
+                {if $thisuser['auth_type'] == 1 || in_array('lucky_collage',$thisuser_hexiao_auth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="幸运拼团订单" name="hexiao_auth_data[]" {if in_array('lucky_collage',$hexiao_auth_data)}checked{/if} value="lucky_collage" lay-skin="primary"/>
+                </div>
+                {/if}
+                {if $thisuser['auth_type'] == 1 || in_array('cycle',$thisuser_hexiao_auth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="周期购" name="hexiao_auth_data[]" {if in_array('cycle',$hexiao_auth_data)}checked{/if} value="cycle" lay-skin="primary"/>
+                </div>
+                {/if}
+                {if $thisuser['auth_type'] == 1 || in_array('kanjia',$thisuser_hexiao_auth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="砍价订单" name="hexiao_auth_data[]" {if in_array('kanjia',$hexiao_auth_data)}checked{/if} value="kanjia" lay-skin="primary"/>
+                </div>
+                {/if}
+                {if $thisuser['auth_type'] == 1 || in_array('seckill',$thisuser_hexiao_auth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="秒杀订单" name="hexiao_auth_data[]" {if in_array('seckill',$hexiao_auth_data)}checked{/if} value="seckill" lay-skin="primary"/>
+                </div>
+                {/if}
+                {if $thisuser['auth_type'] == 1 || in_array('yuyue',$thisuser_hexiao_auth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="预约订单" name="hexiao_auth_data[]" {if in_array('yuyue',$hexiao_auth_data)}checked{/if} value="yuyue" lay-skin="primary"/>
+                </div>
+                {/if}
+                {if $thisuser['auth_type'] == 1 || in_array('scoreshop',$thisuser_hexiao_auth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="{:t('积分')}兑换" name="hexiao_auth_data[]" {if in_array('scoreshop',$hexiao_auth_data)}checked{/if} value="scoreshop" lay-skin="primary"/>
+                </div>
+                {/if}
+                {if $thisuser['auth_type'] == 1 || in_array('coupon',$thisuser_hexiao_auth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="{:t('优惠券')}" name="hexiao_auth_data[]" {if in_array('coupon',$hexiao_auth_data)}checked{/if} value="coupon" lay-skin="primary"/>
+                </div>
+                {/if}
+				{if getcustom('hotel')}
+					{if $thisuser['auth_type'] == 1 || in_array('hotel',$thisuser_hexiao_auth)}
+					<div style="width: 120px;float: left;">
+						<input type="checkbox" title="{$text['酒店']}订单" name="hexiao_auth_data[]" {if in_array('hotel',$hexiao_auth_data)}checked{/if} value="hotel" lay-skin="primary"/>
+					</div>
+					{/if}
+				{/if}
+                <!-- 过滤掉商户权限选择 -->
+                {php}
+                $request = request();
+                $controller = $request->controller();
+                {/php}
+                {if $controller != 'Business'}
+                {if $thisuser['auth_type'] == 1 || in_array('choujiang',$thisuser_hexiao_auth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="抽奖活动" name="hexiao_auth_data[]" {if in_array('choujiang',$hexiao_auth_data)}checked{/if} value="choujiang" lay-skin="primary"/>
+                </div>
+                {/if}
+                {/if}
+                {if $thisuser['auth_type'] == 1 || in_array('restaurant_shop',$thisuser_hexiao_auth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="点餐订单" name="hexiao_auth_data[]" {if in_array('restaurant_shop',$hexiao_auth_data)}checked{/if} value="restaurant_shop" lay-skin="primary"/>
+                </div>
+                {/if}
+                {if $thisuser['auth_type'] == 1 || in_array('restaurant_takeaway',$thisuser_hexiao_auth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="外卖订单" name="hexiao_auth_data[]" {if in_array('restaurant_takeaway',$hexiao_auth_data)}checked{/if} value="restaurant_takeaway" lay-skin="primary"/>
+                </div>
+                {/if}
+                {if $thisuser['auth_type'] == 1 || in_array('tuangou',$thisuser_hexiao_auth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="团购订单" name="hexiao_auth_data[]" {if in_array('tuangou',$hexiao_auth_data)}checked{/if} value="tuangou" lay-skin="primary"/>
+                </div>
+                {/if}
+                {if getcustom('freight_selecthxbids')}
+                {if $thisuser['auth_type'] == 1 || in_array('shopproduct',$thisuser_hexiao_auth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="计次商品" name="hexiao_auth_data[]" {if in_array('shopproduct',$hexiao_auth_data)}checked{/if} value="shopproduct" lay-skin="primary"/>
+                </div>
+                {/if}
+                {/if}
+                {if getcustom('goods_hexiao')}
+                {if $thisuser['auth_type'] == 1 || in_array('takeaway_order_product',$thisuser_hexiao_auth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="外卖订单商品" name="hexiao_auth_data[]" {if in_array('takeaway_order_product',$hexiao_auth_data)}checked{/if} value="takeaway_order_product" lay-skin="primary"/>
+                </div>
+                {/if}
+                {/if}
+                {if getcustom('yx_hbtk')}
+                {if $thisuser['auth_type'] == 1 || in_array('hbtk',$thisuser_hexiao_auth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="拓客活动" name="hexiao_auth_data[]" {if in_array('hbtk',$hexiao_auth_data)}checked{/if} value="hbtk" lay-skin="primary"/>
+                </div>
+                {/if}
+                {/if}
+                {if getcustom('huodong_baoming')}
+                {if $thisuser['auth_type'] == 1 || in_array('hbtk',$thisuser_hexiao_auth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="活动报名" name="hexiao_auth_data[]" {if in_array('huodong_baoming',$hexiao_auth_data)}checked{/if} value="huodong_baoming" lay-skin="primary"/>
+                </div>
+                {/if}
+                {/if}
+                {if getcustom('extend_gift_bag')}
+                    {if $thisuser['auth_type'] == 1 || in_array('gift_bag',$thisuser_hexiao_auth)}
+                    <div style="width: 120px;float: left;">
+                        <input type="checkbox" title="礼包订单" name="hexiao_auth_data[]" {if in_array('gift_bag',$hexiao_auth_data)}checked{/if} value="gift_bag" lay-skin="primary"/>
+                    </div>
+                    {/if}
+                    {if $thisuser['auth_type'] == 1 || in_array('gift_bag_goods',$thisuser_hexiao_auth)}
+                    <div style="width: 120px;float: left;">
+                        <input type="checkbox" title="礼包订单项目" name="hexiao_auth_data[]" {if in_array('gift_bag_goods',$hexiao_auth_data)}checked{/if} value="gift_bag_goods" lay-skin="primary"/>
+                    </div>
+                    {/if}
+                    
+                {/if}
+				{if getcustom('restaurant_take_food')}
+					{if $thisuser['auth_type'] == 1 || in_array('outfood',$thisuser_hexiao_auth)}
+					<div style="width: 120px;float: left;">
+						<input type="checkbox" title="出餐" name="hexiao_auth_data[]" {if in_array('outfood',$thisuser_hexiao_auth)}checked{/if} value="outfood" lay-skin="primary"/>
+					</div>
+					{/if}
+				{/if}
+				
+                <div style="clear:both;float: left;margin-bottom:10px"></div>
+            </div>
+        </div>
+        {/if}
+        {if $restaurant_auth}
+        <div>
+            <div style="clear:left;margin-top:10px;color:#303030; font-size:14px; font-weight:600; ">
+                <input type="checkbox" title="餐饮权限" lay-skin="primary" lay-filter="checkall"/>
+            </div>
+            <div style="margin-left:20px">
+                {if $thisuser['auth_type'] == 1 || in_array('restaurant_product',$thisuser_wxauth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="菜品管理" name="wxauth_data[]" {if in_array('restaurant_product',$wxauth_data)}checked{/if} value="restaurant_product" lay-skin="primary"/>
+                </div>
+                {/if}
+                {if $thisuser['auth_type'] == 1 || in_array('restaurant_table',$thisuser_wxauth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="餐桌设置" name="wxauth_data[]" {if in_array('restaurant_table',$wxauth_data)}checked{/if} value="restaurant_table" lay-skin="primary"/>
+                </div>
+                {/if}
+                {if $thisuser['auth_type'] == 1 || in_array('restaurant_tableWaiter',$thisuser_wxauth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="餐桌管理" name="wxauth_data[]" {if in_array('restaurant_tableWaiter',$wxauth_data)}checked{/if} value="restaurant_tableWaiter" lay-skin="primary"/>
+                </div>
+                {/if}
+                {if $thisuser['auth_type'] == 1 || in_array('restaurant_shop',$thisuser_wxauth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="点餐订单" name="wxauth_data[]" {if in_array('restaurant_shop',$wxauth_data)}checked{/if} value="restaurant_shop" lay-skin="primary"/>
+                </div>
+                {/if}
+                {if $thisuser['auth_type'] == 1 || in_array('restaurant_takeaway',$thisuser_wxauth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="外卖订单" name="wxauth_data[]" {if in_array('restaurant_takeaway',$wxauth_data)}checked{/if} value="restaurant_takeaway" lay-skin="primary"/>
+                </div>
+                {/if}
+                {if $thisuser['auth_type'] == 1 || in_array('restaurant_booking',$thisuser_wxauth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="预定" name="wxauth_data[]" {if in_array('restaurant_booking',$wxauth_data)}checked{/if} value="restaurant_booking" lay-skin="primary"/>
+                </div>
+                {/if}
+                {if $thisuser['auth_type'] == 1 || in_array('restaurant_deposit',$thisuser_wxauth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="寄存" name="wxauth_data[]" {if in_array('restaurant_deposit',$wxauth_data)}checked{/if} value="restaurant_deposit" lay-skin="primary"/>
+                </div>
+                {/if}
+                {if $thisuser['auth_type'] == 1 || in_array('restaurant_queue',$thisuser_wxauth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="排队" name="wxauth_data[]" {if in_array('restaurant_queue',$wxauth_data)}checked{/if} value="restaurant_queue" lay-skin="primary"/>
+                </div>
+                {/if}
+                <div style="clear:both;float: left;margin-bottom:10px"></div>
+            </div>
+        </div>
+        {/if}
+        {if getcustom('hotel')}
+        <div>
+            <div style="clear:left;margin-top:10px;color:#303030; font-size:14px; font-weight:600; ">
+                <input type="checkbox" title="{$text['酒店']}权限" lay-skin="primary" lay-filter="checkall"/>
+            </div>
+            <div style="margin-left:20px">
+                {if $thisuser['auth_type'] == 1 || in_array('hotel_order',$thisuser_wxauth)}
+                <div style="width: 120px;float: left;">
+                    <input type="checkbox" title="{$text['酒店']}订单" name="wxauth_data[]" {if in_array('hotel_order',$wxauth_data)}checked{/if} value="hotel_order" lay-skin="primary"/>
+                </div>
+                {/if}
+       
+                <div style="clear:both;float: left;margin-bottom:10px"></div>
+            </div>
+        </div>
+        {/if}
+        {if getcustom('mobile_admin_user_mendian_money')}
+            {if $thisuser['auth_type'] == 1 || (in_array('mendian_mdmoneylog',$thisuser_wxauth) || in_array('mendian_mdwithdraw',$thisuser_wxauth) || in_array('mendian_mdwithdrawlog',$thisuser_wxauth))}
+            <div>
+                <div style="clear:left;margin-top:10px;color:#303030; font-size:14px; font-weight:600; ">
+                    <input type="checkbox" title="首页{:t('门店')}余额权限" lay-skin="primary" lay-filter="checkall"/>
+                </div>
+                <div style="margin-left:20px">
+                    {if $thisuser['auth_type'] == 1 || in_array('mendian_mdmoneylog',$thisuser_wxauth)}
+                    <div style="width: 120px;float: left;">
+                        <input type="checkbox" title="余额明细" name="wxauth_data[]" {if in_array('mendian_mdmoneylog',$wxauth_data)}checked{/if} value="mendian_mdmoneylog" lay-skin="primary"/>
+                    </div>
+                    {/if}
+                    {if $thisuser['auth_type'] == 1 || in_array('mendian_mdwithdraw',$thisuser_wxauth)}
+                    <div style="width: 120px;float: left;">
+                        <input type="checkbox" title="余额提现" name="wxauth_data[]" {if in_array('mendian_mdwithdraw',$wxauth_data)}checked{/if} value="mendian_mdwithdraw" lay-skin="primary"/>
+                    </div>
+                    {/if}
+                    {if $thisuser['auth_type'] == 1 || in_array('mendian_mdwithdrawlog',$thisuser_wxauth)}
+                    <div style="width: 120px;float: left;">
+                        <input type="checkbox" title="提现记录" name="wxauth_data[]" {if in_array('mendian_mdwithdrawlog',$wxauth_data)}checked{/if} value="mendian_mdwithdrawlog" lay-skin="primary"/>
+                    </div>
+                    {/if}
+                    <div style="clear:both;float: left;margin-bottom:10px"></div>
+                </div>
+            </div>
+            {/if}
+        {/if}
+    </div>
+</div>

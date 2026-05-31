@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>用户列表</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	.layui-col-sm6,.layui-col-md12{padding-left:0;padding-top:0}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+			{if input('param.type')==1}
+			{if $isauto==0}<div class="layui-col-sm12" style="color:red">提示：您尚未配置计划任务，请及时配置&nbsp;&nbsp;&nbsp;<button style="border-radius:3px;cursor:pointer;height:24px;line-height:24px;border:0;background:#FF5722;color:#fff;font-size:12px;padding:0 8px" onclick="openmax('{:url('WebSystem/set')}/isopen/1')">查看配置方法</button></div>
+			{/if}
+			{if $needupgrade==1}<div class="layui-col-sm12" style="color:red">检测到新版本可升级，您的当前版本V{$myversion}，最新版本V{$newversion}&nbsp;&nbsp;&nbsp;<button style="border-radius:3px;cursor:pointer;height:24px;line-height:24px;border:0;background:#FF5722;color:#fff;font-size:12px;padding:0 8px" onclick="openmax('{:url('WebUpgrade/index')}/isopen/1')">去升级</button></div>
+			{/if}
+			<div class="layui-col-sm6 layui-col-md3">
+				<div class="layui-card">
+					<div class="layui-card-header">平台会员总数</div>
+					<div class="layui-card-body layuiadmin-card-list">
+						<p class="layuiadmin-big-font" style="">{:number_format($memberCount)}</p>
+						<p>昨日新增 <span class="layuiadmin-span-color">{:number_format($memberLastDayCount)}</span></p>
+						<p>本月新增 <span class="layuiadmin-span-color">{:number_format($memberThisMonthCount)}</span></p>
+					</div>
+				</div>
+			</div>
+			<div class="layui-col-sm6 layui-col-md3">
+				<div class="layui-card">
+					<div class="layui-card-header">平台商品数量</div>
+					<div class="layui-card-body layuiadmin-card-list">
+						<p class="layuiadmin-big-font" style="">{:number_format($productCount)}</p>
+						<p>未上架 <span class="layuiadmin-span-color">{:number_format($product0Count)}</span></p>
+						<p>已上架 <span class="layuiadmin-span-color">{:number_format($product1Count)}</span></p>
+					</div>
+				</div>
+			</div>
+			<div class="layui-col-sm6 layui-col-md3">
+				<div class="layui-card">
+					<div class="layui-card-header">平台订单数 / 订单金额</div>
+					<div class="layui-card-body layuiadmin-card-list">
+						<p class="layuiadmin-big-font" style="">{:number_format($ordernumCount)} / {:number_format($ordermoneyCount,2)}</p>
+						<p>昨日新增 <span class="layuiadmin-span-color">{:number_format($ordernumLastDayCount)} / {:number_format($ordermoneyLastDayCount,2)}</span></p>
+						<p>本月新增 <span class="layuiadmin-span-color">{:number_format($ordernumThisMonthCount)} / {:number_format($ordermoneyThisMonthCount,2)}</span></p>
+					</div>
+				</div>
+			</div>
+			<div class="layui-col-sm6 layui-col-md3">
+				<div class="layui-card">
+					<div class="layui-card-header">平台收款金额</div>
+					<div class="layui-card-body layuiadmin-card-list">
+						<p class="layuiadmin-big-font" style="color:#558800"><span style="font-size:16px;height:20px;line-height:20px">￥</span>{:number_format($payCount,2)}</p>
+						<p>昨日新增 <span class="layuiadmin-span-color">￥{:number_format($payLastDayCount,2)}</span></p>
+						<p>本月新增 <span class="layuiadmin-span-color">￥{:number_format($payThisMonthCount,2)}</span></p>
+					</div>
+				</div>
+			</div>
+			{/if}
+			<div class="layui-col-md12">
+				<blockquote class="layui-elem-quote">每添加一个用户代表新开一个商城系统，用户用账号密码登录后即可绑定自己的公众号、小程序等进行搭建自己的商城。<br>“下载代码包”为uni-app前端代码包，需使用HBuilderX进行编译后发布。</blockquote>
+				<div class="layui-card layui-col-md12">
+					<div class="layui-card-header">用户列表{if input('param.isopen')==1}<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>{/if}</div>
+					<div class="layui-card-body" pad15>
+						<div class="layui-col-md4" style="padding-bottom:10px">
+							<a class="layui-btn layuiadmin-btn-list" href="javascript:void(0)" onclick="openmax('{:url('edit')}/isopen/1')">添加</a>
+							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="datadel(0)">删除</button>
+							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="copydata()">复制</button>
+							
+							
+						</div>
+						<div class="layui-form layui-col-md8 layui-form-search">
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">ID</label>
+								<div class="layui-input-inline" style="width: 80px">
+									<input type="text" name="aid" autocomplete="off" class="layui-input" value="">
+								</div>
+							</div>
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">账号</label>
+								<div class="layui-input-inline">
+									<input type="text" name="un" autocomplete="off" class="layui-input" value="" placeholder="账号/联系人/电话">
+								</div>
+							</div>
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">关键字</label>
+								<div class="layui-input-inline" style="width: 180px;">
+									<input type="text" name="keyword" autocomplete="off" class="layui-input" value="" placeholder="公众号名称/小程序名称">
+								</div>
+							</div>
+							
+							<div class="layui-inline">
+								<label class="layui-form-label">开启状态</label>
+								<div class="layui-input-inline">
+									<select name="status">
+										<option value="">全部</option>
+										<option value="1">开启</option>
+										<option value="0">关闭</option>
+									</select>
+								</div>
+							</div>
+							<div class="layui-inline">
+								<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+									<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+								</button>
+							</div>
+						</div>
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+	<div id="xufeiModel" style="width:500px;display:none;margin-top:30px">
+		<div class="layui-form" lay-filter="">
+			<input type="hidden" name="xufeimid" id="xufeimid"/>
+			<div class="layui-form-item">
+				<label class="layui-form-label">续费时长</label>
+				<div class="layui-input-inline">
+					<input type="text" value="一年" readonly class="layui-input">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">支付金额</label>
+				<div class="layui-input-inline">
+					<input type="text" value="{$agent.userprice}" readonly class="layui-input">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<div class="layui-input-block">
+					<button class="layui-btn layui-btn-normal" lay-submit lay-filter="formxufei">确定续费</button>
+				</div>
+			</div>
+		</div>
+	</div>
+  <div id="rechargeModel" style="width:500px;display:none;margin-top:30px">
+	  <div class="layui-form" lay-filter="">
+		  <input type="hidden" name="rechargeid" id="rechargeid"/>
+		  <div class="layui-form-item">
+			  <label class="layui-form-label">充值方式</label>
+			  <div class="layui-input-inline">
+				  <select name="rechargetype">
+					  <option value="wxpay">微信</option>
+					  <option value="alipay">支付宝</option>
+					  <option value="cash">现金</option>
+					  <option value="bank">银行卡</option>
+				  </select>
+			  </div>
+			  <div class="layui-form-mid layui-word-aux"></div>
+		  </div>
+		  <div class="layui-form-item">
+			  <label class="layui-form-label">充值金额</label>
+			  <div class="layui-input-inline">
+				  <input type="text" name="rechargemoney" required lay-verify="required" placeholder="" autocomplete="off" class="layui-input">
+			  </div>
+			  <div class="layui-form-mid layui-word-aux">输入负值表示扣除金额</div>
+		  </div>
+		  <div class="layui-form-item">
+			  <div class="layui-input-block">
+				  <button class="layui-btn layui-btn-normal" lay-submit lay-filter="formRecharge">确定充值</button>
+			  </div>
+		  </div>
+	  </div>
+  </div>
+
+	{include file="public/js"/}
+	<script>
+  var table = layui.table;
+	var datawhere = {};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{$Request.url}" //数据接口
+		,limit:20
+    ,page: true //开启分页
+    ,cols: [[ //表头
+			{type:"checkbox"},
+      {field: 'id', title: 'ID',  width:60},
+      {field: 'un', title: '账号'},
+      {field: 'logintime', title: '登录时间',templet:function(d){ return date('Y-m-d H:i',d.logintime)},sort:true},
+			{field: 'nickname', title: '绑定公众号',templet:function(d){
+				if(d.mpappinfo && d.mpappinfo['appid']){
+					return '<img src="'+d.mpappinfo.headimg+'" style="width:40px;height:40px"/><br>'+d.mpappinfo.nickname
+				}else{
+					return '';
+				}
+			}},
+			{field: 'nickname', title: '绑定小程序',templet:function(d){
+				if(d.wxappinfo && d.wxappinfo['appid']){
+					return '<img src="'+d.wxappinfo.headimg+'" style="width:40px;height:40px"/><br>'+d.wxappinfo.nickname
+				}else{
+					return '';
+				}
+			}},
+      {field: 'linkman', title: '联系人'},
+      {field: 'tel', title: '联系电话',  width:120},
+		  
+		  
+		  
+	  {field: 'remark', title: '备注',  width:120},
+		  
+      {field: 'createtime', title: '创建时间',templet:function(d){ return date('Y-m-d H:i',d.createtime)},sort:true},
+      {field: 'endtime', title: '到期时间',templet:function(d){ return date('Y-m-d H:i',d.endtime)},sort:true},
+      {field: 'status', title: '状态',templet:function(d){
+				if(d.status==0) return '<span style="color:red">已关闭</span>';
+				if(d.endtime*1 > {:time()}){
+					return '<span style="color:green">正常</span>';
+				}else{
+					return '<span style="color:orange">已到期</span>';
+				}
+			}},
+      {field: 'operation', title: '操作',templet: function(d){
+				var html = '';
+				html+='<button class="table-btn" onclick="openmax(\'{:url('edit')}/isopen/1/id/'+d.id+'\')">编辑</button>';
+				html+='<button class="table-btn" onclick="alogin('+d.uid+')">登录后台</button><br>';
+				html+='<button class="table-btn" onclick="datadel('+d.id+')">删除</button>';
+				html+='<button class="table-btn" onclick="downloadxcx('+d.id+',\''+d.color1+'\')">下载代码包</button>';
+				{if getcustom('wx_fws_liuliangzhu')}
+			  		html += '<button class="table-btn" onclick="openmax(\'{:url('fwssettle')}/isopen/1/id/'+d.id+'\')">结算数据</button>';
+				{/if}
+				
+				
+				return html;
+			},width:200}
+    ]]
+  });
+
+	  var rechargelayer
+	  function recharge(id){
+		  $('#rechargeid').val(id);
+		  rechargelayer = layer.open({type:1,area: ['500px', '280px'],title:'余额充值',content:$('#rechargeModel'),shadeClose:true})
+	  }
+	  //充值提交
+	  layui.form.on('submit(formRecharge)', function(obj){
+		  var index= layer.load();
+		  $.post("{:url('recharge')}",obj.field,function(data){
+			  layer.close(index);
+			  dialog(data.msg,data.status,data.url);
+			  if(data.status==1){
+				  tableIns.reload({
+					  where: datawhere
+				  });
+			  }
+			  layer.close(rechargelayer);
+		  })
+	  });
+	
+	var xufeilayer
+	function xufei(id){
+		$('#xufeimid').val(id);
+		xufeilayer = layer.open({type:1,area: ['500px', '300px'],title:'续费',content:$('#xufeiModel'),shadeClose:true})
+	}
+	//续费提交
+  layui.form.on('submit(formxufei)', function(obj){
+		var index= layer.load();
+    $.post("{:url('xufei')}",obj.field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status,data.url);
+			if(data.status==1){
+				tableIns.reload({
+					where: datawhere
+				});
+			}
+			layer.close(xufeilayer);
+		})
+  });
+	//充值红包
+	function czhongbao(id){
+		var html = '';
+		html ='<div style="margin:20px auto;">';
+		html+='	<div class="layui-form" lay-filter="">';
+		html+='		<input type="hidden" name="rechargemid" id="rechargemid" value="'+id+'"/>';
+		html+='		<div class="layui-form-item">';
+		html+='			<label class="layui-form-label">红包金额</label>';
+		html+='			<div class="layui-input-inline">';
+		html+='				<input type="text" name="rechargehongbao" required lay-verify="required" placeholder="" autocomplete="off" class="layui-input">';
+		html+='			</div>';
+		html+='			<div class="layui-form-mid layui-word-aux">输入负值表示扣除金额</div>';
+		html+='		</div>';
+		html+='		<div class="layui-form-item">';
+		html+='			<div class="layui-input-block">';
+		html+='				<button class="layui-btn layui-btn-normal" lay-submit lay-filter="formhbRecharge">确定充值</button>';
+		html+='			</div>';
+		html+='		</div>';
+		html+='	</div>';
+		html+='</div>';
+		var czhongbaolayer = layer.open({type:1,area:['600px','400px'],content:html,title:'充值红包余额',shadeClose:true});
+		layui.form.render();
+		layui.form.on('submit(formhbRecharge)', function(obj){
+			var field = obj.field;
+			console.log(field);
+			var index= layer.load();
+			$.post("{:url('czhongbao')}",field,function(data){
+				layer.close(index);
+				layer.close(czhongbaolayer);
+				dialog(data.msg,data.status);	
+				tableIns.reload()
+			})
+		})
+	}
+
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		if(obj.field=='bonus_pool_total'){
+			return;
+		}
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	//删除
+	function datadel(id){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			var ids = [];
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id)
+		}
+		layer.confirm('确定要删除吗？删除后无法恢复！删除后不可恢复！',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('del')}",{ids:ids},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	function alogin(uid){
+		window.open("{:url('alogin')}/uid/"+uid);
+	}
+
+	function downloadxcx(aid,color1){
+		layer.confirm('此包为uni-app代码包，下载代码包后使用HBuilderX进行编译，确定要下载吗？微信小程序代码包去“平台-微信小程序-上传代码”扫码上传或者手动上传',function(index){
+			layer.close(index);
+			var html = '<div style="margin:40px auto;">';
+			html+='<div class="layui-form form-label-w8" lay-filter="">';
+			html+='	<div class="layui-form-item">';
+			html+='		<label class="layui-form-label">顶部导航背景颜色</label>';
+			html+='		<div class="layui-input-inline" style="width:100px">';
+			html+='			<input type="text" name="navigationBarBackgroundColor" value="'+color1+'" autocomplete="off" class="layui-input">';
+			html+='		</div>';
+			html+='		<div class="_colorpicker"></div>';
+			html+='	</div>';
+			html+='	<div class="layui-form-item">';
+			html+='		<label class="layui-form-label">顶部导航标题颜色</label>';
+			html+='		<div class="layui-input-inline" style="width:170px">';
+			html+='			<label><input type="radio" name="navigationBarTextStyle" value="black" title="黑色"/></label>';
+			html+='			<label><input type="radio" name="navigationBarTextStyle" value="white" title="白色" checked/></label>';
+			html+='		</div>';
+			html+='	</div>';
+			html+='	<div class="layui-form-item" style="margin-top:30px">';
+			html+='		<label class="layui-form-label"></label>';
+			html+='		<div class="layui-input-inline">';
+			html+='			<button class="layui-btn layui-btn-normal" lay-submit lay-filter="submit_downloadxcx">打包下载</button>';
+			html+='		</div>';
+			html+='	</div>';
+			html+='</div>';
+			html+='</div>'
+			layer.open({type:1,area:['600px','460px'],content:html,title:'下载uni-app代码包',shadeClose:true});
+			layui.form.render();
+			initcolorpicker();
+			layui.form.on('submit(submit_downloadxcx)', function(obj){
+				var field = obj.field;
+				field.aid = aid;
+				var index = layer.load();
+				$.post("{:url('downloaduniapp')}",field,function(data){
+					layer.close(index);
+					dialog(data.msg,data.status,data.url)
+				});
+			})
+		})
+	}
+
+	function copydata(){
+		var html = '';
+		html ='<div style="margin:20px auto;">';
+		html+='	<blockquote class="layui-elem-quote" style="margin:10px">复制操作会对复制到的账号的数据产生较大影响，请提前做好备份</blockquote>';
+		html+='	<div class="layui-form form-label-w8" lay-filter="">';
+		html+='		<div class="layui-form-item" style="margin-top:20px">';
+		html+='			<label class="layui-form-label">数据来源账号ID：</label>';
+		html+='			<div class="layui-input-inline">';
+		html+='				<input type="text" name="info[fromid]" required lay-verify="required" placeholder="" autocomplete="off" class="layui-input">';
+		html+='			</div>';
+		html+='		</div>';
+		html+='		<div class="layui-form-item">';
+		html+='			<label class="layui-form-label">复制到的账号ID：</label>';
+		html+='			<div class="layui-input-inline">';
+		html+='				<input type="text" name="info[toid]" required lay-verify="required" placeholder="" autocomplete="off" class="layui-input">';
+		html+='			</div>';
+		html+='		</div>';
+		html+='		<div class="layui-form-item">';
+		html+='			<label class="layui-form-label">要复制的数据：</label>';
+		html+='			<div class="layui-input-block" style="margin-left:150px;">';
+		html+='				<div style="margin-top:10px;color:#303030; font-size:14px; font-weight:600; ">';
+		html+='					<input type="checkbox" title="全部选择" lay-skin="primary" lay-filter="checkall_all"/>';
+		html+='				</div>';
+		html+='				<div style="float:left;margin-left:0">';
+		html+='					<div style="margin-left:10px">';
+		html+='						<div style="min-width:100px;float: left;">';
+		html+='							<input type="checkbox" value="会员等级" name="module_data[]"  title="会员等级" lay-skin="primary"/>';
+		html+='						</div>';
+		html+='						<div style="min-width:100px;float: left;">';
+		html+='							<input type="checkbox" value="优惠券" name="module_data[]"  title="优惠券" lay-skin="primary"/>';
+		html+='						</div>';
+		html+='						<div style="min-width:100px;float: left;">';
+		html+='							<input type="checkbox" value="商城商品" name="module_data[]"  title="商城商品" lay-skin="primary"/>';
+		html+='						</div>';
+		html+='						<div style="min-width:100px;float: left;">';
+		html+='							<input type="checkbox" value="拼团商品" name="module_data[]"  title="拼团商品" lay-skin="primary"/>';
+		html+='						</div>';
+		html+='						<div style="min-width:100px;float: left;">';
+		html+='							<input type="checkbox" value="砍价商品" name="module_data[]"  title="砍价商品" lay-skin="primary"/>';
+		html+='						</div>';
+		html+='						<div style="min-width:100px;float: left;">';
+		html+='							<input type="checkbox" value="秒杀商品" name="module_data[]"  title="秒杀商品" lay-skin="primary"/>';
+		html+='						</div>';
+		html+='						<div style="min-width:100px;float: left;">';
+		html+='							<input type="checkbox" value="团购商品" name="module_data[]"  title="团购商品" lay-skin="primary"/>';
+		html+='						</div>';
+		html+='						<div style="min-width:100px;float: left;">';
+		html+='							<input type="checkbox" value="积分兑换商品" name="module_data[]"  title="积分兑换商品" lay-skin="primary"/>';
+		html+='						</div>';
+		html+='						<div style="min-width:100px;float: left;">';
+		html+='							<input type="checkbox" value="幸运拼团商品" name="module_data[]"  title="幸运拼团商品" lay-skin="primary"/>';
+		html+='						</div>';
+		html+='						<div style="min-width:100px;float: left;">';
+		html+='							<input type="checkbox" value="短视频" name="module_data[]"  title="短视频" lay-skin="primary"/>';
+		html+='						</div>';
+		html+='						<div style="min-width:100px;float: left;">';
+		html+='							<input type="checkbox" value="文章列表" name="module_data[]"  title="文章列表" lay-skin="primary"/>';
+		html+='						</div>';
+		//html+='						<div style="min-width:100px;float: left;">';
+		//html+='							<input type="checkbox" value="用户论坛" name="module_data[]"  title="用户论坛" lay-skin="primary"/>';
+		//html+='						</div>';
+		html+='						<div style="min-width:100px;float: left;">';
+		html+='							<input type="checkbox" value="预约服务商品" name="module_data[]"  title="预约服务商品" lay-skin="primary"/>';
+		html+='						</div>';
+		html+='						<div style="min-width:100px;float: left;">';
+		html+='							<input type="checkbox" value="知识付费课程" name="module_data[]"  title="知识付费课程" lay-skin="primary"/>';
+		html+='						</div>';
+		html+='						<div style="min-width:100px;float: left;">';
+		html+='							<input type="checkbox" value="餐饮菜品" name="module_data[]"  title="餐饮菜品" lay-skin="primary"/>';
+		html+='						</div>';
+		html+='						<div style="min-width:100px;float: left;">';
+		html+='							<input type="checkbox" value="设计页面" name="module_data[]"  title="设计页面" lay-skin="primary"/>';
+		html+='						</div>';
+		
+		html+='						<div style="min-width:100px;float: left;">';
+		html+='							<input type="checkbox" value="用户权限" name="module_data[]"  title="用户权限" lay-skin="primary"/>';
+		html+='						</div>';//只复制SaaS用户权限，其他管理员不在范围
+		html+='					</div>';
+		html+='				</div>';
+		html+='			</div>';
+		html+='		</div>';
+		html+='		<div class="layui-form-item">';
+		html+='			<label class="layui-form-label">删除原有数据：</label>';
+		html+='			<div class="layui-input-inline">';
+		html+='				<input type="radio" name="info[delold]" value="0" title="否" checked>';
+		html+='				<input type="radio" name="info[delold]" value="1" title="是">';
+		html+='			</div>';
+		html+='			<div class="layui-form-mid layui-word-aux">是否删除掉要复制到的账号的原来的数据</div>';
+		html+='		</div>';
+		html+='		<div class="layui-form-item" style="margin-top:40px">';
+		html+='			<label class="layui-form-label"></label>';
+		html+='			<div class="layui-input-block">';
+		html+='				<button class="layui-btn layui-btn-normal" lay-submit lay-filter="formCopydata">确定复制</button>';
+		
+		html+='			</div>';
+		html+='		</div>';
+		html+='	</div>';
+		html+='</div>';
+		var copydatalayer = layer.open({type:1,area:['800px','600px'],content:html,title:'复制账号数据',shadeClose:true});
+		layui.form.render();
+		layui.form.on('submit(formCopydata)', function(obj){
+			var field = obj.field;
+			console.log(field);
+			var index= layer.load();
+			$.post("{:url('copydata')}",field,function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				if(data.status == 1){
+					layer.close(copydatalayer);
+				}
+			})
+		})
+			
+		layui.form.on('checkbox(checkall_all)',function(data){
+			if(data.elem.checked){
+				$(data.elem).parent().parent().find('input[type=checkbox]').prop('checked',true);
+			}else{
+				$(data.elem).parent().parent().find('input[type=checkbox]').prop('checked',false);
+			}
+			layui.form.render('checkbox'); 
+		});
+		layui.form.on('checkbox(checkall)',function(data){
+			if(data.elem.checked){
+				$(data.elem).parent().parent().find('input[type=checkbox]').prop('checked',true);
+			}else{
+				$(data.elem).parent().parent().find('input[type=checkbox]').prop('checked',false);
+			}
+			layui.form.render('checkbox'); 
+		})
+	}
+	</script>
+</body>
+</html>

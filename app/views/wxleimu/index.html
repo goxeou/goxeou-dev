@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>服务类目</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header"><i class="fa fa-list"></i> 服务类目
+					{if $_GET['isopen']==1}<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>{/if}
+					</div>
+          <div class="layui-card-body" pad15>
+						<div class="layui-col-md4" style="padding-bottom:10px">
+							{if $wxappinfo['createtype']==1 || $wxappinfo['createtype']==2}<a class="layui-btn layui-btn-primary layuiadmin-btn-list" href="javascript:void(0)" onclick="addleimu()">添加类目</a>{/if}
+						</div>
+						<div class="layui-form layui-col-md8" style="text-align:right;padding-bottom:10px">
+							
+						</div>
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+  var table = layui.table;
+	var datawhere = {};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: '{$Request.url}' //数据接口
+    ,page: false //开启分页
+		,skin:'line'
+    ,cols: [[ //表头
+			//{type:"checkbox"},
+      //{field: 'id', title: 'ID',  width:80},
+      {field: 'title', title: '类目名称',templet:function(d){ return d.first_class + ' > ' + d.second_class;}},
+      {field: 'status', title: '状态',templet:function(d){ 
+				if(d.audit_status==1){
+					return '<span style="color:blue">审核中</span>';
+				}else if(d.audit_status==2){
+					return '<span style="color:red">审核未通过,'+d.audit_reason+'</span>';
+				}else if(d.audit_status==3){
+					return '已通过';
+				}
+			},width:300},
+      //{field: 'operation', title: '操作',templet: '<div><button class="table-btn" onclick="datadel({{d.first}},{{d.second}})">删除</button></div>'}
+    ]]
+  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	//删除
+	function datadel(first,second){
+		layer.confirm('确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('del')}",{first:first,second:second},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	var catelist = [];
+	function addleimu(){
+		var index = layer.load();
+		$.post("{:url('getallleimu')}",{},function(data){
+			layer.close(index);
+			//dialog(data.msg,data.status);
+			//tableIns.reload()
+			catelist = data.data
+			var ohtml = '<option value="">请选择类目</option>';
+			$.each(catelist,function(i,m){
+				//var m = catelist[i]
+				ohtml+='<option value="'+m.first+'_'+m.second+'">'+m.first_name+' &gt; '+m.second_name+'</option>';
+			})
+			var html = '<div style="margin:20px;" class="layui-form">';
+			html+='<div class="layui-form-item">';
+			html+='		<label class="layui-form-label" style="width:100px">选择类目：</label>';
+			html+='		<div class="layui-input-inline" style="width:350px">';
+			html+='			<select name="leimu1" lay-filter="leimuselect1">'+ohtml+'</select>';
+			html+='		</div>';
+			html+='	</div>';
+			html+='	<div id="exter_div1">';
+			html+='	</div>';
+			html+='	<div id="leimudiv2" style="display:none">';
+			html+='		<hr>';
+			html+='		<input type="hidden" name="isshow2" value="0"/>';
+			html+='		<div class="layui-form-item">';
+			html+='			<label class="layui-form-label" style="width:100px">选择类目：</label>';
+			html+='			<div class="layui-input-inline" style="width:350px">';
+			html+='				<select name="leimu2" lay-filter="leimuselect2">'+ohtml+'</select>';
+			html+='			</div>';
+			html+='		</div>';
+			html+='		<div id="exter_div2"></div>';
+			html+='	</div>';
+			html+='	<div id="leimudiv3" style="display:none">';
+			html+='		<hr>';
+			html+='		<input type="hidden" name="isshow3" value="0"/>';
+			html+='		<div class="layui-form-item">';
+			html+='			<label class="layui-form-label" style="width:100px">选择类目：</label>';
+			html+='			<div class="layui-input-inline" style="width:350px">';
+			html+='				<select name="leimu3" lay-filter="leimuselect3">'+ohtml+'</select>';
+			html+='			</div>';
+			html+='		</div>';
+			html+='		<div id="exter_div3"></div>';
+			html+='	</div>';
+			html+='	<div id="leimudiv4" style="display:none">';
+			html+='		<hr>';
+			html+='		<input type="hidden" name="isshow4" value="0"/>';
+			html+='		<div class="layui-form-item">';
+			html+='			<label class="layui-form-label" style="width:100px">选择类目：</label>';
+			html+='			<div class="layui-input-inline" style="width:350px">';
+			html+='				<select name="leimu4" lay-filter="leimuselect4">'+ohtml+'</select>';
+			html+='			</div>';
+			html+='		</div>';
+			html+='		<div id="exter_div4"></div>';
+			html+='	</div>';
+			html+='	<div id="leimudiv5" style="display:none">';
+			html+='		<hr>';
+			html+='		<input type="hidden" name="isshow5" value="0"/>';
+			html+='		<div class="layui-form-item">';
+			html+='			<label class="layui-form-label" style="width:100px">选择类目：</label>';
+			html+='			<div class="layui-input-inline" style="width:350px">';
+			html+='				<select name="leimu5" lay-filter="leimuselect5">'+ohtml+'</select>';
+			html+='			</div>';
+			html+='		</div>';
+			html+='		<div id="exter_div5"></div>';
+			html+='	</div>';
+			html+='	<hr>';
+			html+='	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="javascript:void(0)" onclick="addmoreleimu()">新增一个</a>&nbsp;&nbsp;&nbsp;<a href="javascript:void(0)" onclick="delleimu()">移除一个</a>';
+			html+='	<div class="layui-form-item" style="margin-top:50px">';
+			html+='		<label class="layui-form-label" style="width:100px"></label>';
+			html+='		<div class="layui-input-inline">';
+			html+='			<button class="layui-btn layui-btn-normal" lay-submit lay-filter="submit_set_leimu">确 定</button>';
+			html+='		</div>';
+			html+='	</div>';
+			html+='	</div>';
+
+			layer.open({type:1,area:['800px','600px'],content:html,title:'添加类目',shadeClose:true});
+			
+			layui.form.render('select');
+			layui.form.on('select(leimuselect1)',function(obj){
+				leimuselect(obj,'1');
+			});
+			layui.form.on('select(leimuselect2)',function(obj){
+				leimuselect(obj,'2');
+			});
+			layui.form.on('select(leimuselect3)',function(obj){
+				leimuselect(obj,'3');
+			});
+			layui.form.on('select(leimuselect4)',function(obj){
+				leimuselect(obj,'4');
+			});
+			layui.form.on('select(leimuselect5)',function(obj){
+				leimuselect(obj,'5');
+			});
+			layui.form.on('submit(submit_set_leimu)', function(obj){
+				var field = obj.field
+				var index = layer.load();
+				$.post("{:url('setleimu')}",field,function(data){
+					layer.close(index);
+					dialog(data.msg,data.status,data.url);
+				});
+			});
+		})
+	}
+	function leimuselect(obj,num){
+		$('#exter_div'+num).html('');
+		var thiscate = catelist[obj.value];
+		var exter_list = thiscate.exter_list
+		if(exter_list && exter_list.length > 0){
+			var ehtml = '';
+			$.each(exter_list,function(i,exter){
+				var etitle = [];
+				$.each(exter.inner_list,function(j,inner){
+					etitle.push(inner.name);
+				})
+				ehtml+='<input type="radio" name="exter_type'+num+'" '+(i==0?'checked':'')+' value="'+i+'" title="'+etitle.join(' 及 ')+'" lay-filter="exter_type'+num+'"/>';
+			})
+			var exterhtml = '';
+			exterhtml+='<div class="layui-form-item" '+(exter_list.length==1?'style="display:none"':'')+'>';
+			exterhtml+='	<label class="layui-form-label" style="width:100px">选择上传资质：</label>';
+			exterhtml+='	<div class="layui-input-inline" style="width:600px">';
+			exterhtml+=			ehtml;
+			exterhtml+='	</div>';
+			exterhtml+='</div>';
+			exterhtml+='<div id="exter_list'+num+'">';
+			exterhtml+='</div>';
+			$('#exter_div'+num).html(exterhtml);
+			layui.form.render('radio');
+			get_exter_list(exter_list,0,num);
+			layui.form.on('radio(exter_type'+num+')',function(obj){
+				get_exter_list(exter_list,obj.value,num);
+			})
+		}
+	}
+	function get_exter_list(exter_list,key,num){
+		console.log(key);
+		var exter = exter_list[key]
+		var exhtml = '';
+		$.each(exter.inner_list,function(j,inner){
+			exhtml+='<div class="layui-form-item">';
+			exhtml+='	<label class="layui-form-label" style="width:100px">资质文件：</label>';
+			exhtml+='		<input type="hidden" name="exter_inner'+num+'['+inner.name+']" id="exter_inner_'+num+'_'+j+'" class="layui-input" value="">';
+			exhtml+='		<button style="float:left;margin-right:10px" type="button" class="layui-btn layui-btn-primary" onclick="uploader(this)" upload-input="exter_inner_'+num+'_'+j+'" upload-preview="pexter_inner_'+num+'_'+j+'">上传图片</button>';
+			exhtml+='		<div class="layui-form-mid" style="margin-left:10px;">'+inner.name+'</div>';
+			exhtml+='		<div class="layui-form-mid layui-word-aux" style="margin-left:10px;float:left;margin-left:130px">上传原件或复印件，复印件务必加盖公司公章，图片大小不超过5M</div>';
+			exhtml+='		<div id="pexter_inner_'+num+'_'+j+'" style="float:left;padding-top:5px;margin-left:130px;clear: both;">';
+			exhtml+='			<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src=""/></div></div>';
+			exhtml+='		</div>';
+			exhtml+='</div>';
+		})
+		$('#exter_list'+num).html(exhtml);
+	}
+	function addmoreleimu(){
+		if($('#leimudiv2').is(':visible') == false){
+			$('input[name=isshow2]').val('1');
+			$('#leimudiv2').show();
+			return;
+		}else if($('#leimudiv3').is(':visible') == false){
+			$('input[name=isshow3]').val('1');
+			$('#leimudiv3').show();
+			return;
+		}else if($('#leimudiv4').is(':visible') == false){
+			$('input[name=isshow4]').val('1');
+			$('#leimudiv4').show();
+			return;
+		}else if($('#leimudiv5').is(':visible') == false){
+			$('input[name=isshow5]').val('1');
+			$('#leimudiv5').show();
+			return;
+		}
+		dialog('一次最多只能添加五个类目');
+	}
+	
+	function delleimu(){
+		if($('#leimudiv5').is(':visible') == true){
+			$('input[name=isshow5]').val('0');
+			$('#leimudiv5').hide();
+		}else if($('#leimudiv4').is(':visible') == true){
+			$('input[name=isshow4]').val('0');
+			$('#leimudiv4').hide();
+		}else if($('#leimudiv3').is(':visible') == true){
+			$('input[name=isshow3]').val('0');
+			$('#leimudiv3').hide();
+		}else if($('#leimudiv2').is(':visible') == true){
+			$('input[name=isshow2]').val('0');
+			$('#leimudiv2').hide();
+		}
+	}
+	</script>
+	{include file="public/copyright"/}
+</body>
+</html>

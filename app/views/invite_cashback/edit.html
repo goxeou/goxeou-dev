@@ -1,0 +1,506 @@
+
+<!DOCTYPE html><!--custom_file(yx_invite_cashback)-->
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>邀请返现设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+                <div class="layui-card-header">
+                    {if !$info['id']}<i class="fa fa-plus"></i> 添加邀请返现{else}<i class="fa fa-pencil"></i> 编辑邀请返现{/if}
+                    <i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+                </div>
+                <div class="layui-card-body" pad15>
+                    <div class="layui-form form-label-w8" lay-filter="">
+                        <input type="hidden" name="info[id]" value="{$info['id']}">
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">活动名称：</label>
+                            <div class="layui-input-inline" style="width:300px">
+                                <input type="text" name="info[name]" value="{$info.name}" lay-verify="required" lay-verType="tips" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">需上级购买商品：</label>
+                            <div class="layui-input-inline" style="width:240px">
+                                <input type="radio" name="info[needbuy]" value="0" {if $info['id'] && $info['needbuy']==0}checked{/if} title="关闭" lay-filter="needbuy"/>
+                                <input type="radio" name="info[needbuy]" value="1" {if !$info['id'] || $info['needbuy']==1}checked{/if} title="开启" lay-filter="needbuy"/>
+                            </div>
+                            <div class="layui-form-mid layui-word-aux">
+                                1、开启则需要按照下方选择的活动商品类型，上级购买符合要求的商品类型才可返现;关闭则可直接给上级按要求返现<br>
+                                <span style="color:red">2、此条件选择后不能随意改动，改动后会影响用户已生成的未发放的记录</span>
+                            </div>
+                        </div>
+                        {if getcustom('yx_invite_cashback_ordertj')}
+                        <div class="layui-form-item">
+                            <label class="layui-form-label" >订单返现条件：</label>
+                            <div class="layui-input-inline" style="width:240px">
+                                <input type="radio" name="info[ordertj]" value="0" {if $info['id']}disabled='disabled'{/if} {if  !$info['id'] || $info['ordertj']==0}checked{/if} title="确认收货后" lay-filter="ordertj"/>
+                                <input type="radio" name="info[ordertj]" value="1" {if $info['id']}disabled='disabled'{/if} {if  $info['id'] && $info['ordertj']==1}checked{/if} title="付款后" lay-filter="ordertj"/>
+                            </div>
+                            <div class="layui-form-mid layui-word-aux">
+                                <span style="color:red">此条件选择后不能随意改动，改动后会影响用户返现发放</span>
+                            </div>
+                        </div>
+                        {/if}
+                        <div class="layui-form-item" style="margin-bottom:0">
+                            <label class="layui-form-label">返现设置：</label>
+                            <div class="layui-input-block" style="width:800px;">
+                                <table class="layui-table product_invite_cashbak_data" style="width:700px" id="product_invite_cashbak_data">
+                                    <thead>
+                                    <tr>
+                                        <th>推N序号</th>
+                                        <th>{:t('余额')}返现</th>
+                                        <th>{:t('积分')}返现</th>
+                                        <th>{:t('佣金')}返现</th>
+                                        <th>操作</th>
+                                    </tr>
+                                    </thead>
+                                    {if $info['invite_cashbak_data']}
+                                    {foreach $info['invite_cashbak_data'] as $k=>$item}
+                                    <tr class="choose-tr-list">
+                                        <td class="xuhao">
+                                            {$item.ks}
+                                        </td>
+                                        <td>
+                                            <div style="width:120px">
+                                                <input type="text" name="invite_cashbak_data[{$item.ks}][money]" placeholder="固定{:t('余额')}" value="{$item.money}" class="layui-input" style="width:100px"/>
+                                                <div style="margin-top:10px">
+                                                    <input type="text" name="invite_cashbak_data[{$item.ks}][money2]" placeholder="百分比{:t('余额')}" value="{$item.money2}" class="layui-input" style="width:100px;display: inline-block;"/> %
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style="width:120px">
+                                                <input type="text" name="invite_cashbak_data[{$item.ks}][score]" placeholder="固定{:t('积分')}" value="{$item.score}" class="layui-input" style="width:100px"/>
+                                                <div style="margin-top:10px">
+                                                    <input type="text" name="invite_cashbak_data[{$item.ks}][score2]" placeholder="百分比{:t('积分')}" value="{$item.score2}" class="layui-input" style="width:100px;display: inline-block;"/> %
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style="width:120px">
+                                                <input type="text" name="invite_cashbak_data[{$item.ks}][commission]" placeholder="固定{:t('佣金')}" value="{$item.commission}" class="layui-input" style="width:100px"/>
+                                                <div style="margin-top:10px">
+                                                    <input type="text" name="invite_cashbak_data[{$item.ks}][commission2]" placeholder="百分比{:t('佣金')}" value="{$item.commission2}" class="layui-input" style="width:100px;display: inline-block;"/> %
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><input type="hidden" name="invite_cashbak_data[{$item.ks}][ks]" value="{$item.ks}"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delInviteCashbak(this)">删除</button></td>
+                                    </tr>
+                                    {/foreach}
+                                    {/if}
+                                    <tr class="choose-tr-add">
+                                        <td colspan="8" align="center"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="addInviteCashbak()">添加</button></td>
+                                    </tr>
+                                </table>
+                                <script>
+                                    var ic_count = "{$info['invite_cashbak_count']?$info['invite_cashbak_count']:0}";
+                                        ic_count = parseInt(ic_count)+1;
+                                    function addInviteCashbak(){
+                                        var tr = '<tr class="choose-tr-list">' +
+                                                    '<td class="xuhao">'+ic_count+'</td>'+
+                                                    '<td>'+
+                                                        '<div style="width:120px">'+
+                                                            '<input type="text" name="invite_cashbak_data['+ic_count+'][money]" placeholder="固定{:t('余额')}" value="" class="layui-input" style="width:100px"/>'+
+                                                            '<div style="margin-top:10px">'+
+                                                                '<input type="text" name="invite_cashbak_data['+ic_count+'][money2]" placeholder="百分比{:t('余额')}" value="" class="layui-input" style="width:100px;display: inline-block;"/> %'+
+                                                            '</div>'+
+                                                        '</div>'+
+                                                    '</td>'+
+                                                    '<td>'+
+                                                        '<div style="width:120px">'+
+                                                            '<input type="text" name="invite_cashbak_data['+ic_count+'][score]" placeholder="固定{:t('积分')}" value="" class="layui-input" style="width:100px"/>'+
+                                                            '<div style="margin-top:10px">'+
+                                                                '<input type="text" name="invite_cashbak_data['+ic_count+'][score2]" placeholder="百分比{:t('积分')}" value="" class="layui-input" style="width:100px;display: inline-block;"/> %'+
+                                                            '</div>'+
+                                                        '</div>'+
+                                                    '</td>'+
+                                                    '<td>'+
+                                                        '<div style="width:120px">'+
+                                                            '<input type="text" name="invite_cashbak_data['+ic_count+'][commission]" placeholder="固定{:t('佣金')}" value="" class="layui-input" style="width:100px"/>'+
+                                                            '<div style="margin-top:10px">'+
+                                                                '<input type="text" name="invite_cashbak_data['+ic_count+'][commission2]" placeholder="百分比{:t('佣金')}" value="" class="layui-input" style="width:100px;display: inline-block;"/> %'+
+                                                            '</div>'+
+                                                        '</div>'+
+                                                    '</td>'+
+                                                    '<td><input type="hidden" name="invite_cashbak_data['+ic_count+'][ks]" value="'+ic_count+'"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delInviteCashbak(this)">删除</button></td>' +
+                                                '</tr>';
+                                        ic_count +=1;
+                                        $('#product_invite_cashbak_data').find('.choose-tr-add').before(tr);
+                                    }
+                                    function delInviteCashbak(obj){
+                                        $(obj).closest('.choose-tr-list').remove();
+                                        var i = 1;
+                                        var trlen = $('.choose-tr-list').length;
+                                        if(trlen>0){
+                                            $('.choose-tr-list').each(function(){
+                                                $(this).find('td:eq(0)').html(i);
+                                                i++;
+                                                ic_count = i;
+                                            })
+                                        }else{
+                                            ic_count = 1;
+                                        }
+                                        
+                                    }
+                                </script>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label"></label>
+                            <div class="layui-input-block">
+                                <div class="layui-form-mid layui-word-aux">
+                                    此设置为推N返一，规则如下：<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;
+                                        1、若开启需上级购买商品，则需上级推荐的直属下级需要购买自己已购买过的符合邀请返现的商品<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;
+                                        2、上级推荐N个直属下级购买产品(若开启需上级购买商品,则需要购买相同商品)就发推N序号的奖励<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;
+                                        3、直到发到最后一个推荐N序号的奖励后重新回到第一个序号，循环发放<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;
+                                        4、奖励发放以下级确认收货时间为先后发放，
+                                        {if getcustom('yx_invite_cashback_ordertj')}
+                                        且需要订单符合上方选择的订单返现条件
+                                        {else}
+                                        且需要上级购买商品已确认收货
+                                        {/if}
+                                        
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">循环发放：</label>
+                            <div class="layui-input-inline">
+                                <input type="radio" name="info[iscycle]" value="0" {if !$info['id'] || $info['iscycle']==0}checked{/if} title="关闭" lay-filter="iscycle"/>
+                                <input type="radio" name="info[iscycle]" value="1" {if $info['id'] && $info['iscycle']==1}checked{/if} title="开启" lay-filter="iscycle"/>
+                            </div>
+                            <div class="layui-form-mid layui-word-aux">关闭循环发放则购买过的商品不再循环发放奖励，只按推N序号顺序发放一次</div>
+                        </div>
+                        <div id="iscycleset" style="{if $info['iscycle']!=1}display: none;{/if}">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">循环次数：</label>
+                                <div class="layui-input-inline" >
+                                    <input type="text" name="info[cyclenum]" value="{$info.cyclenum}" class="layui-input">
+                                </div>
+                                <div class="layui-form-mid layui-word-aux">次 若为0则为无限循环，发放奖励按上方返现设置循环无限发放；若大于0，则循环一定次数后走下方设置固定返额</div>
+                            </div>
+                            <div class="layui-form-item" style="margin-bottom:0">
+                                <label class="layui-form-label">循环次数后设置：</label>
+                                <div class="layui-input-block" style="width:800px;">
+                                    <table class="layui-table product_invite_cashbak_data" style="width:700px" id="product_invite_cashbak_data">
+                                        <thead>
+                                        <tr>
+                                            <th>{:t('余额')}返现</th>
+                                            <th>{:t('积分')}返现</th>
+                                            <th>{:t('佣金')}返现</th>
+                                        </tr>
+                                        </thead>
+                                        <tr class="choose-tr-list">
+                                            <td>
+                                                <div style="width:120px">
+                                                    <input type="text" name="info[cyclemoney]" placeholder="固定{:t('余额')}" value="{$info.cyclemoney}" class="layui-input" style="width:100px"/>
+                                                </div>
+                                                <div style="margin-top:10px">
+                                                    <input type="text" name="info[cyclemoney2]" placeholder="百分比{:t('余额')}" value="{$info.cyclemoney2}" class="layui-input" style="width:100px;display: inline-block;"/> %
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div style="width:120px">
+                                                    <input type="text" name="info[cyclescore]" placeholder="固定{:t('积分')}" value="{$info.cyclescore}" class="layui-input" style="width:100px"/>
+                                                </div>
+                                                <div style="margin-top:10px">
+                                                    <input type="text" name="info[cyclescore2]" placeholder="百分比{:t('积分')}" value="{$info.cyclescore2}" class="layui-input" style="width:100px;display: inline-block;"/> %
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div style="width:120px">
+                                                    <input type="text" name="info[cyclecommission]" placeholder="固定{:t('佣金')}" value="{$info.cyclecommission}" class="layui-input" style="width:100px"/>
+                                                </div>
+                                                <div style="margin-top:10px">
+                                                    <input type="text" name="info[cyclecommission2]" placeholder="百分比{:t('佣金')}" value="{$info.cyclecommission2}" class="layui-input" style="width:100px;display: inline-block;"/> %
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label"></label>
+                                <div class="layui-input-block">
+                                    <div class="layui-form-mid layui-word-aux">
+                                        循环一定次数后，不再按上方返现设置发放，按此固定比例发放奖励,都不设置则都不发放
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">是否复购：</label>
+                            <div class="layui-input-inline">
+                                <input type="radio" name="info[isagain]" value="0" {if !$info['id'] || $info['isagain']==0}checked{/if} title="关闭"/>
+                                <input type="radio" name="info[isagain]" value="1" {if $info['id'] && $info['isagain']==1}checked{/if} title="开启"/>
+                            </div>
+                            <div class="layui-form-mid layui-word-aux">注意：若开启复购则推荐人数限制失效，以下级购买商品次数为发放推N序号的奖励依据</div>
+                        </div>
+                        <div class="layui-form-item" style="margin-bottom:0">
+                            <label class="layui-form-label">选择活动商品：</label>
+                            <div class="layui-input-inline" style="width:500px">
+                                <input type="radio" name="info[fwtype]" value="0"   {if $info['fwtype']==0}checked{/if} title="所有商品" lay-filter="fwtype"/>
+                                <input type="radio" name="info[fwtype]" value="1"  {if $info['fwtype']==1}checked{/if} title="指定类目" lay-filter="fwtype"/>
+                                <input type="radio" name="info[fwtype]" value="2" {if $info['fwtype']==2}checked{/if} title="单独设置商品" lay-filter="fwtype"/>
+                            </div>
+                            <div class="fwtype1" style="clear:both;{if $info['fwtype']!=1}display:none{/if}">
+                                <label class="layui-form-label"></label>
+                                <div class="layui-input-inline" style="width:auto">
+                                    <table id="setcategorydiv"  class="layui-table" style="width:500px">
+                                        <thead>
+                                        <tr>
+                                            <th>分类ID</th>
+                                            <th>分类名称</th>
+                                            <th>操作</th>
+                                        </tr>
+                                        </thead>
+                                        {if $categorydata}
+                                        {foreach $categorydata as $k=>$ff}
+                                        <tr class="categorylisttr">
+                                            <td>{$ff.id}</td>
+                                            <td>{$ff.name}</td>
+                                            <td><!-- <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delCategory(this,{$ff.id})">删除</button> --></td>
+                                        </tr>
+                                        {/foreach}
+                                        {/if}
+                                        <tr id="categoryaddtr">
+                                            <td colspan="3"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="showChooseCategory()">添加</button></td>
+                                        </tr>
+                                    </table>
+                                    <input type="hidden" name="info[categoryids]" value="{$info.categoryids}"/>
+                                </div>
+                            </div>
+                            <script>
+                            var chooseCategoryLayer;
+                            function showChooseCategory(){
+                                chooseCategoryLayer = layer.open({type:2,title:'选择商品分类',content:"{:url('ShopCategory/choosecategory')}",area:['1000px','600px'],shadeClose:true});
+                            }
+                            function chooseCategory(fid,fname){
+                                layer.close(chooseCategoryLayer);
+                                var categoryids = [];
+                                var isadd = 0;
+                                $('.categorylisttr').each(function(){
+                                    var thisfid = $(this).find('td:eq(0)').html();
+                                    if(thisfid == fid){
+                                        isadd = 1
+                                        dialog('该分类已添加过了');
+                                    }
+                                    categoryids.push(thisfid)
+                                })
+                                if(isadd == 0){
+                                    categoryids.push(fid)
+                                    $("input[name='info[categoryids]']").val(categoryids.join(','));
+                                    $('#categoryaddtr').before('<tr class="categorylisttr"><td>'+fid+'</td><td>'+fname+'</td><td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delCategory(this,'+fid+')">删除</button></td></tr>');
+                                }
+                                console.log(categoryids)
+                            }
+                            function delCategory(obj,fid){
+                                $(obj).parent().parent().remove();
+                                var categoryids = [];
+                                $('.categorylisttr').each(function(){
+                                    categoryids.push($(this).find('td:eq(0)').html())
+                                })
+                                $("input[name='info[categoryids]']").val(categoryids.join(','));
+                            }
+                            </script>
+                            <div class="fwtype2" style="clear:both;{if $info['fwtype']!=2}display:none{/if}">
+                                <label class="layui-form-label"></label>
+                                <div class="layui-input-inline" style="width:auto">
+                                    <table id="setproductdiv"  class="layui-table" style="width:700px">
+                                        <thead>
+                                        <tr>
+                                            <th>商品ID</th>
+                                            <th>商品名称</th>
+
+                                            <th>操作</th>
+                                        </tr>
+                                        </thead>
+                                        {if $productdata}
+                                        {foreach $productdata as $k=>$ff}
+                                        <tr class="productlisttr">
+                                            <td>{$ff.id}</td>
+                                            <td>{$ff.name}</td>
+                                            <td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delProduct(this,{$ff.id})">删除</button></td>
+                                        </tr>
+                                        {/foreach}
+                                        {/if}
+                                        <tr id="productaddtr">
+                                            <td colspan="3"><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="showChooseProduct()">添加</button></td>
+                                        </tr>
+                                    </table>
+                                    <input type="hidden" name="info[productids]" value="{$info.productids}"/>
+                                </div>
+                            </div>
+                            <script>
+                            var cxtype = '{$info.type}';
+                            var chooseProductLayer;
+                            function showChooseProduct(){
+                                var url = "{:url('ShopProduct/chooseproduct')}";
+                                chooseProductLayer = layer.open({type:2,title:'选择商品',content:url,area:['1000px','600px'],shadeClose:true});
+                            }
+                            function choosepro(res){
+                                var product = res.product
+                                layer.close(chooseProductLayer);
+                                var productids = [];
+                                var isadd = 0;
+                                $('.productlisttr').each(function(){
+                                    var thisfid = $(this).find('td:eq(0)').html();
+                                    if(thisfid == product.id){
+                                        isadd = 1
+                                        dialog('该商品已添加过了');
+                                    }
+                                    productids.push(thisfid)
+                                })
+                                if(isadd == 0){
+                                    productids.push(product.id)
+                                    $("input[name='info[productids]']").val(productids.join(','));
+                                    $('#productaddtr').before('<tr class="productlisttr"><td>'+product.id+'</td><td>'+product.name+'</td><td><button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="delProduct(this,'+product.id+')">删除</button></td></tr>');
+                                }
+                                console.log(productids)
+                            }
+                            function delProduct(obj,fid){
+                                $(obj).parent().parent().remove();
+                                var productids = [];
+                                $('.productlisttr').each(function(){
+                                    productids.push($(this).find('td:eq(0)').html())
+                                })
+                                $("input[name='info[productids]']").val(productids.join(','));
+                            }
+                            </script>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label"></label>
+                            <div class="layui-input-block">
+                                <div class="layui-form-mid layui-word-aux">
+                                    注意：<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;
+                                        1、若活动商品为单独设置商品，其他设置的所有商品及指定类目活动此商品将失效，且若开启需要上级购买商品，则需下级购买过的商品需上级也购买过，否则不发放<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;
+                                        2、确定活动商品类型后不能更换类型，不同的活动可新添加一个，否则会受之前记录数量的影响<br>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">参与条件：</label>
+                            <div class="layui-input-inline" style="width:600px">
+                                <input type="checkbox" name="info[gettj][]" value="-1" title="所有人" {if in_array('-1',$info['gettj'])}checked{/if}/>
+                                <!-- <input type="checkbox" name="info[gettj][]" value="0" title="关注用户" {if in_array('0',$info['gettj'])}checked{/if}/> -->
+                                {foreach $memberlevel as $v}
+                                <input type="checkbox" name="info[gettj][]" value="{$v.id}" title="{$v.name}" {if in_array($v['id'],$info['gettj'])}checked{/if}/>
+                                {/foreach}
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">开始时间：</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="info[starttime]" autocomplete="off" value="{$info.starttime}" lay-verify="required" lay-verType="tips" class="layui-input" id="starttime">
+                            </div>
+                            <div class="layui-form-mid layui-word-aux">活动开始时间</div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">结束时间：</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="info[endtime]" autocomplete="off" value="{$info.endtime}" lay-verify="required" lay-verType="tips" class="layui-input" id="endtime">
+                            </div>
+                            <div class="layui-form-mid layui-word-aux">活动结束时间</div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">序号：</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="info[sort]" value="{$info.sort}" class="layui-input">
+                            </div>
+                            <div class="layui-form-mid layui-word-aux">用于排序,越大越靠前</div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label"></label>
+                            <div class="layui-input-block">
+                                <button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+  </div>
+    {include file="public/js"/}
+    <script>
+    layui.form.on('radio(group_status)',function(data){
+        if(data.value == 1){
+            $('.group_status1').show();
+        }else{
+            $('.group_status1').hide();
+        }
+    })
+    layui.form.on('radio(fwtype)',function(data){
+        if(data.value==1){
+            $('.fwtype1').show();
+            $('.fwtype2').hide();
+            $('.fwtype3').hide();
+
+        }else if(data.value==2){
+            $('.fwtype1').hide();
+            $('.fwtype2').show();
+            $('.fwtype3').hide();
+        }else if(data.value==3){
+            $('.fwtype1').hide();
+            $('.fwtype2').hide();
+            $('.fwtype3').show();
+        }else{
+            $('.fwtype1').hide();
+            $('.fwtype2').hide();
+            $('.fwtype3').hide();
+        }
+    })
+    layui.form.on('radio(iscycle)',function(data){
+        if(data.value == 1){
+            $('#iscycleset').show();
+        }else{
+            $('#iscycleset').hide();
+        }
+    })
+
+    layui.laydate.render({
+        elem: '#starttime'
+        ,type: 'datetime'
+        ,range: false,
+        trigger: 'click'
+    });
+    layui.laydate.render({
+        elem: '#endtime'
+        ,type: 'datetime'
+        ,range: false,
+        trigger: 'click'
+    });
+
+    layui.form.on('submit(formsubmit)', function(obj){
+        console.log(obj)
+        var field = obj.field
+        var index = layer.load();
+        $.post("{:url('save')}",field,function(data){
+            layer.close(index);
+            dialog(data.msg,data.status);
+            if(data.status == 1){
+                setTimeout(function(){
+                    parent.layer.closeAll();
+                    parent.tableIns.reload()
+                },1000)
+            }
+        })
+    })
+  </script>
+    {include file="public/copyright"/}
+</body>
+</html>

@@ -1,0 +1,1 @@
+import{y as n}from"./index.da73f42b.js";const a=n({id:"userInfo",state:()=>({userInfo:{color1:"",color1rgb:{red:"",green:"",blue:""}}}),actions:{setuserInfo(r){this.userInfo=r}}});var c=(r,o)=>{const e=r.__vccOpts||r;for(const[t,s]of o)e[t]=s;return e};export{c as _,a as u};

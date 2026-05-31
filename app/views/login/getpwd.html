@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{$webname}-找回密码</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <link rel="stylesheet" href="__STATIC__/admin/layui/css/layui.css" media="all">
+  <link rel="stylesheet" href="__STATIC__/admin/css/login.css" media="all">
+</head>
+<body>
+	<!-- #03152A #2E241B #50314F #344058 #20222A  -->
+  <div class="layadmin-user-login layadmin-user-display-show" id="LAY-user-login" style="background:linear-gradient(#d8ddda, #ffffff);" >
+    <div class="layadmin-user-login-main" bgimg>
+      <div class="layadmin-user-login-box layadmin-user-login-header" style="padding-bottom:0">
+        <h2>找回密码</h2>
+        <!-- <p>{$setdata.adminregsubtitle}</p> -->
+      </div>
+      <div class="layadmin-user-login-box layadmin-user-login-body layui-form">
+        <div class="layui-form-item">
+          <label class="layadmin-user-login-icon layui-icon layui-icon-username" for="LAY-user-login-username"></label>
+          <input type="text" name="usertel" id="LAY-user-login-username" lay-verify="required" placeholder="手机号码" class="layui-input" value="">
+        </div>
+        <div class="layui-form-item">
+          <div class="layui-row">
+            <div class="layui-col-xs7">
+              <label class="layadmin-user-login-icon layui-icon layui-icon-vercode" for="LAY-user-login-vercode"></label>
+              <input type="text" name="smscode" id="LAY-user-login-vercode" lay-verify="required" placeholder="短信验证码" class="layui-input">
+            </div>
+            <div class="layui-col-xs5">
+              <div style="margin-left:30px;">
+                <button class="layui-btn layui-btn-primary" onclick="sendsms(this)">获取验证码</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layadmin-user-login-icon layui-icon layui-icon-password" for="LAY-user-login-password"></label>
+          <input type="password" name="password" id="LAY-user-login-password" lay-verify="pass" placeholder="新密码" class="layui-input" value="">
+        </div>
+        <div class="layui-form-item">
+          <label class="layadmin-user-login-icon layui-icon layui-icon-password" for="LAY-user-login-repassword"></label>
+          <input type="password" name="repassword" id="LAY-user-login-repassword" lay-verify="pass" placeholder="确认密码" class="layui-input" value="">
+        </div>
+        <div class="layui-form-item" style="margin-bottom: 20px;">
+          <!-- <a href="login.php" class="layadmin-user-jump-change layadmin-link" style="margin-top: 7px;color:#888">前去登录</a> -->
+          <a href="{:url('reg')}" class="layadmin-user-jump-change layadmin-link" style="margin-top: 7px;">没有账号？</a>
+        </div>
+        <div class="layui-form-item">
+          <button class="layui-btn layui-btn-fluid layui-btn-normal" lay-submit lay-filter="LAY-user-login-submit">立即重置</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="layui-trans layadmin-user-login-footer" id="slideTest1">{:config('copyright')}</div>
+  </div>
+ 
+	{include file="public/js"/}
+  <script>
+	var form = layui.form
+	form.verify({
+		pass: [/^[\S]{6,12}$/,'密码必须6到12位，且不能出现空格']
+	})
+	layui.form.on('submit(LAY-user-login-submit)', function(obj){
+		$.post('',obj.field,function(data){
+			dialog(data.msg,data.status,data.url)
+		})
+	})
+	var hqing = 0;
+	function sendsms(obj){
+		var tel = $("input[name=usertel]").val();
+		if(!tel || !(/^1[0-9]{10}$/.test(tel))){
+			dialog('请输入正确的手机号');return;
+		}
+		if(hqing) return;
+		hqing = 1;
+		$.post("",{ op:'sendsms',tel: tel},function(data){
+			if(data.status!=1){
+				dialog(data.msg);	
+			}
+		});
+		var time = 120;
+		var t = setInterval(function() {
+			time--;
+			if (time < 0) {
+				$(obj).html("重新获取");
+				hqing = 0;
+				clearInterval(t);
+			} else if (time >= 0) {
+				$(obj).html(time + "秒");
+			}
+		}, 1000);
+	}
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

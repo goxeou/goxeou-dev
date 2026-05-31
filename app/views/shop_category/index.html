@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>商品分类</title>
+	<meta name="renderer" content="webkit">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport"
+		content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	{include file="public/css"/}
+	<style>
+		.layui-table-body .layui-table .layui-table-cell {
+			height: auto;
+			line-height: auto
+		}
+	</style>
+	<link rel="stylesheet" type="text/css" href="__STATIC__/admin/layui/lay/modules/treetable-lay/treetable.css"
+		media="all">
+</head>
+
+<body>
+	<div class="layui-fluid">
+		<div class="layui-row layui-col-space15">
+			<div class="layui-card layui-col-md12">
+				<div class="layui-card-header">商品分类</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-col-md8" style="padding-bottom:10px">
+						<a class="layui-btn layuiadmin-btn-list" href="javascript:void(0)"
+							onclick="openmax('{:url('edit')}')">添加</a>
+						<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="datadel(0)">删除</button>
+						<button class="layui-btn layuiadmin-btn-list" id="btn-expand">全部展开</button>
+						<button class="layui-btn layuiadmin-btn-list" id="btn-fold">全部折叠</button>
+						<button class="layui-btn layuiadmin-btn-list" id="btn-refresh">刷新</button>
+					</div>
+					<!-- <div class="layui-form layui-col-md8 layui-form-search">
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">分类名称</label>
+								<div class="layui-input-inline">
+									<input type="text" name="name" autocomplete="off" class="layui-input" value="">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label">状态</label>
+								<div class="layui-input-inline">
+									<select name="status">
+										<option value="">全部</option>
+										<option value="1">显示</option>
+										<option value="0">隐藏</option>
+									</select>
+								</div>
+							</div>
+							<div class="layui-inline">
+								<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+									<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+								</button>
+							</div>
+						</div> -->
+					<div class="xm-d2-hang2">
+						<table id="tabledata" class="layui-table" lay-filter="tabledata"></table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	{include file="public/js"/}
+	<script>
+		var renderTable = '';
+		var table = layui.table;
+		layui.config({
+			base: "__STATIC__/admin/layui/lay/modules/"
+		}).extend({
+			treetable: "treetable-lay/treetable"
+		}).use(['layer', 'table', 'treetable'], function () {
+			var $ = layui.jquery;
+			var layer = layui.layer;
+			var treetable = layui.treetable;
+			// 渲染表格
+			renderTable = function () {
+				layer.load(2);
+				var tableIns = treetable.render({
+					treeColIndex: 2,//树形图标显示在第几列
+					treeSpid: 0,//最上级的父级id
+					treeIdName: 'id',//id字段的名称
+					treePidName: 'pid',//pid字段的名称
+					treeDefaultClose: false,//是否默认折叠
+					treeLinkage: true,//父级展开时是否自动展开所有子级
+					elem: '#tabledata',
+					url: "{$Request.url}",
+					page: false,
+					cols: [[ //表头
+						{ type: "checkbox" },
+						{ field: 'id', title: 'ID', width: 120 },
+						{ field: 'name', title: '名称' },
+						{ field: 'pic', title: '图片', templet: '<div>{{# if(d.pic){ }}<img src="{{d.pic}}" style="height:50px"/>{{# } }}</div>' },
+						{ field: 'sort', title: '序号', width: 80 },
+						//{field: 'createtime', title: '创建时间',templet:function(d){ return date('Y-m-d H:i',d.createtime)},width:150},
+						
+						{ field: 'status', title: '状态', templet: function (d) { return d.status == 1 ? '<span style="color:green">显示</span>' : '<span style="color:red">隐藏</span>' }, width: 80 },
+						{
+							field: 'operation', title: '操作', templet: function (d) {
+								var html = '';
+								html += '<button class="table-btn" onclick="openmax(\'{:url('edit')}/id/' + d.id + '\')">编辑</button>';
+								html += '<button class="table-btn" onclick="datadel(' + d.id + ')">删除</button>';
+								if (d.deep == 0 || d.deep == 1) {
+									html += '<button class="table-btn" onclick="openmax(\'{:url('edit')}/pid/' + d.id + '\')">添加子分类</button>';
+								}
+								return html;
+							}, width: 250
+						}
+					]],
+					done: function () {
+						layer.closeAll('loading');
+					}
+				});
+			};
+			renderTable();
+			//触发三个button按钮
+			$('#btn-expand').click(function () {
+				treetable.expandAll('#tabledata');
+			});
+			$('#btn-fold').click(function () {
+				treetable.foldAll('#tabledata');
+			});
+			$('#btn-refresh').click(function () {
+				renderTable();
+			});
+			//排序
+			table.on('sort(tabledata)', function (obj) {
+				datawhere.field = obj.field;
+				datawhere.order = obj.type;
+				renderTable();
+			});
+			//检索
+			layui.form.on('submit(LAY-app-forumreply-search)', function (obj) {
+				var field = obj.field
+				var olddatawhere = datawhere
+				datawhere = field
+				datawhere.field = olddatawhere.field
+				datawhere.order = olddatawhere.order
+				renderTable();
+			})
+		})
+		//删除
+		function datadel(id) {
+			var ids = [];
+			if (id == 0) {
+				var checkStatus = table.checkStatus('tabledata')
+				var checkData = checkStatus.data; //得到选中的数据
+				if (checkData.length === 0) {
+					return layer.msg('请选择数据');
+				}
+				var ids = [];
+				for (var i = 0; i < checkData.length; i++) {
+					ids.push(checkData[i]['id']);
+				}
+			} else {
+				ids.push(id)
+			}
+			layer.confirm('确定要删除吗？删除后无法恢复！', { icon: 7, title: '操作确认' }, function (index) {
+				//do something
+				layer.close(index);
+				var index = layer.load();
+				$.post("{:url('del')}", { ids: ids }, function (data) {
+					layer.close(index);
+					dialog(data.msg, data.status);
+					renderTable();
+				})
+			});
+		}
+	</script>
+	{include file="public/copyright"/}
+</body>
+
+</html>

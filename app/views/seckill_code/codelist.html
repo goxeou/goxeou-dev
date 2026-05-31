@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>卡密数据</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header">
+						<i class="fa fa-list"></i> 卡密数据
+						{if input('param.isopen')==1}<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>{/if}
+					</div>
+          <div class="layui-card-body" pad15>
+						<div class="layui-col-md3" style="padding-bottom:10px">
+							<button class="layui-btn  layuiadmin-btn-list" onclick="daoru()">导入卡密</button>
+							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="makecode()">生成卡密</button>
+							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="datadel(0)">删除</button>
+							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="location.href='{:url('codelistexcel')}/proid/{$Request.param.proid}'+urlEncode(datawhere)">导出</button>
+						</div>
+						<div class="layui-form layui-col-md9 layui-form-search">
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">卡密信息</label>
+								<div class="layui-input-inline">
+									<input type="text" name="content" autocomplete="off" class="layui-input" value="">
+								</div>
+							</div>
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">订单号</label>
+								<div class="layui-input-inline">
+									<input type="text" name="ordernum" autocomplete="off" class="layui-input" value="">
+								</div>
+							</div>
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">昵称</label>
+								<div class="layui-input-inline">
+									<input type="text" name="nickname" autocomplete="off" class="layui-input" value="">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label">状态</label>
+								<div class="layui-input-inline">
+									<select name="status">
+										<option value="">全部</option>
+										<option value="1">已售出</option>
+										<option value="0">未售出</option>
+									</select>
+								</div>
+							</div>
+							<div class="layui-inline">
+								<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+									<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+								</button>
+							</div>
+						</div>
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.laydate.render({ 
+		elem: '#ctime',
+		trigger: 'click',
+		range: '~' //或 range: '~' 来自定义分割字符
+	});
+  var table = layui.table;
+	var datawhere = {};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{$Request.url}" //数据接口
+    ,page: true //开启分页
+    ,cols: [[ //表头
+			{type:"checkbox"},
+      {field: 'content', title: '卡密',templet:function(d){
+				return '<pre>'+d.content+'</pre>';
+      },width:500},
+      {field: 'ordernum', title: '订单号'},
+      {field: 'nickname', title: '用户信息',templet:function(d){
+				if(d.status==1){
+					return '<img src="'+d.headimg+'" style="width:50px"> ' + d.nickname;
+				}else{
+					return '';
+				}
+      }},
+      {field: 'buytime', title: '购买时间',sort:true,templet:function(d){ 
+				if(d.status==1) return date('Y-m-d H:i',d.buytime);
+				return '';
+			}},
+      {field: 'status', title: '状态',templet:function(d){
+				if(d.status==0) return '<span style="color:#333">未售出</span>'
+				if(d.status==1) return '<span style="color:green">已售出</span>'
+				return '';
+			}},
+      //{field: 'remark', title: '备注'},
+      {field: 'op', title: '操作',templet:'<div><button class="table-btn" onclick="datadel({{d.id}})">删除</button></div>'}
+    ]]
+  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	//删除
+	function datadel(id){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			var ids = [];
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id)
+		}
+		layer.confirm('确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('codelistdel')}",{ids:ids},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	//生成卡密
+	function makecode(){
+		var html = '<div style="margin:20px auto;">';
+		html+='<div class="layui-form form-label-w8" lay-filter="">';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">生成数量：</label>';
+		html+='		<div class="layui-input-inline" style="width:300px">';
+		html+='			<input type="text" name="makecount" value="100" class="layui-input">';
+		html+='		</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">卡密位数：</label>';
+		html+='		<div class="layui-input-inline" style="width:300px">';
+		html+='			<input type="text" name="codelength" value="8" class="layui-input">';
+		html+='		</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">卡密类型：</label>';
+		html+='		<div class="layui-input-inline" style="width:300px">';
+		html+='			<input type="radio" name="codetype" value="1" title="纯数字" checked>';
+		html+='			<input type="radio" name="codetype" value="2" title="大小写字母">';
+		html+='			<input type="radio" name="codetype" value="3" title="小写字母">';
+		html+='			<input type="radio" name="codetype" value="4" title="大写字母">';
+		html+='			<input type="radio" name="codetype" value="5" title="数字+小写字母">';
+		html+='			<input type="radio" name="codetype" value="6" title="数字+大写字母">';
+		html+='		</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item" style="margin-top:30px">';
+		html+='		<label class="layui-form-label"></label>';
+		html+='		<div class="layui-input-inline">';
+		html+='			<button class="layui-btn layui-btn-normal" lay-submit lay-filter="submit_excel">生 成</button>';
+		html+='		</div>';
+		html+='	</div>';
+		html+='</div>';
+		html+='</div>'
+		var makelayer = layer.open({type:1,area: ['600px', '360px'],title:'生成卡密',content:html,shadeClose:true})
+		layui.form.render();
+		layui.form.on('submit(submit_excel)', function(obj){
+			var field = obj.field;
+			field.proid = '{$Request.param.proid}'
+			var index= layer.load();
+			$.post("{:url('makecode')}",field,function(data){
+				layer.close(index);
+				layer.close(makelayer)
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		})
+	}
+	//导入
+	function daoru(){
+		var html = '<div style="margin:20px auto;">';
+		html+='<div class="layui-form form-label-w8" lay-filter="">';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label">上传EXCEL文件：</label>';
+		html+='		<div class="layui-input-inline" style="width:300px">';
+		html+='			<input type="text" name="upload_file" id="upload_file" class="layui-input">';
+		html+='		</div>';
+		html+='		<button style="float:left;" type="button" class="layui-btn layui-btn-primary uploadexcel" upload-input="upload_file" upload-preview="certPreview">上传</button>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label"></label>';
+		html+='		<div class="layui-form-mid" style="color:red;">请按照导入格式进行导入</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item">';
+		html+='		<label class="layui-form-label"></label>';
+		html+='		<div class="layui-form-mid"> <a href="__STATIC__/demo_kami.xls">点击下载查看导入格式</a></div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item" style="margin-top:30px">';
+		html+='		<label class="layui-form-label"></label>';
+		html+='		<div class="layui-input-inline">';
+		html+='			<button class="layui-btn layui-btn-normal" lay-submit lay-filter="submit_excel">确定导入</button>';
+		html+='		</div>';
+		html+='	</div>';
+		html+='</div>';
+		html+='</div>'
+		var daorulayer = layer.open({type:1,area: ['600px', '360px'],title:'导入卡密信息',content:html,shadeClose:true})
+		layui.form.render();
+		//文件上传
+		layui.upload.render({
+			elem: '.uploadexcel',
+			accept:'file',
+			url:"{:url('upload/index')}",
+			done: function(res){
+				if(res.status==0){
+					dialog(res.msg,0);
+				}else{
+					var item = this.item;
+					var inputid = $(this.item).attr('upload-input');
+					if(inputid){
+						$('#'+inputid).val(res.url);
+						$('#'+inputid).change();
+					}
+				}
+			}
+		});
+		layui.form.on('submit(submit_excel)', function(obj){
+			var field = obj.field;
+			field.proid = '{$Request.param.proid}'
+			console.log(field);
+			var index= layer.load();
+			$.post("{:url('importexcel')}",field,function(data){
+				layer.close(index);
+				layer.close(daorulayer);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		})
+	}
+	</script>
+	{include file="public/copyright"/}
+</body>
+</html>

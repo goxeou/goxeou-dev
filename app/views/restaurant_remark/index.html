@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>备注预置</title>
+	<meta name="renderer" content="webkit">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	{include file="public/css"/}
+	<style>
+		.product{width:100%; padding:5px;background: #FFF;margin-top:5px;}
+		.product .content{display:flex;padding: 10px 20px}
+		.product .box{position:relative;width: 100%; padding:5px 0px;border-bottom: 1px #e5e5e5 dashed;position:relative}
+		.product .content{display:flex;position:relative;}
+		.product .box:last-child{ border-bottom: 0; }
+		.product .content img{ width: 70px; height: 70px;}
+		.product .content .detail{display:flex;flex-direction:column;margin-left:7px;flex:1}
+		.product .content .detail .t1{height: 30px;line-height: 15px;color: #000;}
+		.product .content .detail .t2{height: 23px;line-height: 23px;color: #999;overflow: hidden;font-size:13px;}
+		.product .content .detail .t3{display:flex;height:15px;line-height:15px;color: #ff4246;}
+		.product .content .detail .x1{ flex:1}
+		.product .content .detail .x2{ width:50px;font-size:16px;text-align:right;margin-right:4px}
+
+		.orderinfo{ width:100%;margin-top:5px;padding: 5px;background: #FFF;}
+
+		.orderinfo .item .t1{width:100px;flex-shrink:0}
+		.orderinfo .item .t2{flex:1;text-align:right;}
+
+		.logistics .item .f1 img{ width: 15px; height: 100%;}
+
+		.logistics .item .f2 .t1{font-size: 15px;}
+		.logistics .item .f2 .t1{font-size: 13px;}
+
+		.layui-table-view .layui-table td .table-imgbox img{max-width:60px;max-height:60px;float:left;}
+	</style>
+</head>
+<body>
+<div class="layui-fluid">
+	<div class="layui-row layui-col-space15">
+		<div class="layui-card layui-col-md12">
+			<div class="layui-card-header">
+				<i class="fa fa-reorder"></i> 备注预置
+				{if $Request.param.isopen==1}
+				<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				{/if}
+			</div>
+			<div class="layui-card-body" pad15>
+				<div style="display: flex;justify-content: space-between;">
+					<div style="padding-bottom:10px">
+						<button class="layui-btn layui-btn-primary" onclick="openmax('{:url('edit')}/isopen/1')">添加</button>
+					</div>
+					<div class="layui-form layui-form-search">
+						<div class="layui-inline layuiadmin-input-useradmin">
+							<div class="layui-input-inline">
+								<input type="text" name="keyword" placeholder="备注内容" autocomplete="off" class="layui-input" value="">
+							</div>
+						</div>
+						<div class="layui-inline">
+							<div class="layui-input-inline" style="width:300px">
+								<input type="text" placeholder="创建时间" name="ctime" id="ctime" autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-inline">
+							<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+								<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+							</button>
+						</div>
+					</div>
+				</div>
+				<div class="layui-col-md12">
+					<table id="tabledata" lay-filter="tabledata"></table>
+				</div>
+
+			</div>
+		</div>
+	</div>
+</div>
+{include file="public/js"/}
+<script id="refundtpl" type="text/html">
+	<div class="orderdetail">
+		<div class="product">
+
+			{{#  layui.each(d.prolist, function(index, item){ }}
+			<div class="content">
+				<div>
+					<img src="{{item.pic}}"/>
+				</div>
+				<div class="detail">
+					<span class="t1">{{item.name}}</span>
+					<span class="t2">{{item.ggname}}</span>
+					<div class="t3"><span class="x1 flex1">￥{{item.sell_price}}×{{item.num}}</span><span style="color: #999;font-size: 12px;">最多可退{{item.canRefundNum}}件</span>
+						<div class="layui-form-item">
+							<div class="layui-input-inline" style="width:50px">
+								<input type="number" name="refundNum[]" min="0" max="{{item.canRefundNum}}" data-ogid="{{item.id}}" data-order="{{d.detail.id}}" value="{{item.canRefundNum}}" class="layui-input refundNum" onchange="refundChange(this)" style="height: 28px; margin-top: -8px; margin-left: 2px;"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			{{# }); }}
+		</div>
+
+		<div class="orderinfo">
+			<div class="layui-form-item">
+				<label class="layui-form-label" style="width:90px">退款原因</label>
+				<div class="layui-input-inline" style="width:300px">
+					<textarea type="text" id="tuireason" class="layui-textarea"></textarea>
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label" style="width:90px">退款金额</label>
+				<div class="layui-input-inline" style="width:300px">
+					<input type="number" name="money" id="refund_money" min="0" max="{{d.detail.returnTotalprice}}" value="{{d.detail.returnTotalprice}}" class="layui-input">
+				</div>
+			</div>
+		</div>
+	</div>
+
+</script>
+<script>
+	var isopen = {$Request.param.isopen|default=0};
+	var table = layui.table;
+	var datawhere = {};
+	//数据表
+	var tableIns = table.render({
+		elem: '#tabledata'
+		,url: "{$Request.url}" //数据接口
+		,page: true //开启分页
+		,cols: [[ //表头
+			{type:"checkbox"},
+			{field: 'id', title: 'ID',  width:60},
+			{field: 'name', title: '备注内容',minWidth: 200},
+			{field: 'sort', title: '排序'},
+			{field: 'createtime', title: '创建时间',templet:function(d){ return date('Y-m-d H:i',d.createtime)}},
+			{field: 'operation', title: '操作',minWidth:160,templet:function(d){
+				var html = '';
+				html += '<button class="table-btn" onclick="datadel('+d.id+')">删除</button>';
+				return html;
+			}}
+		]]
+	});
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+
+	//日期范围选择
+	layui.laydate.render({
+		elem: '#ctime',
+		trigger: 'click',
+		type:'datetime',
+		range: '~' //或 range: '~' 来自定义分割字符
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+
+	//删除
+	function datadel(id){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				return layer.msg('请选择数据');
+			}
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id);
+		}
+		layer.confirm('确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('del')}",{ids:ids},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				if(data.status==1){
+					tableIns.reload()
+				}
+			})
+		});
+	}
+	function remarkAdd(){
+		var html = '<div class="layui-form">';
+		html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+		html+='		<label class="layui-form-label" style="font-weight: bold">备注内容：</label>';
+		html+='		<div class="layui-input-inline" style="width:260px">';
+		html+='		<textarea class="layui-textarea" id="remarkT"></textarea>';
+		html+='		</div>';
+		html+='	</div>';
+		html+='	</div>';
+		var layerOpen1 = layer.open({type:1,area:['400px','260px'],title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+			yes:function(){
+				var info = {};
+				var remark = $('#remarkT').val();
+				if(remark==''){
+					layer.msg('请输入备注内容');
+					return;
+				}
+				info['name'] = remark;
+				$.post("{:url('save')}",{info:info},function(res){
+					if(res.status==1){
+						layer.msg(res.msg,{icon:1});
+						layer.close(layerOpen1);
+						//刷新当前列表
+						tableIns.reload()
+					}else{
+						layer.msg(res.msg);
+					}
+				})
+			}
+		})
+	}
+</script>
+{include file="public/copyright"/}
+</body>
+</html>

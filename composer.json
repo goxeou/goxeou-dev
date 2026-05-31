@@ -1,0 +1,71 @@
+{
+    "name": "topthink/think",
+    "description": "the new thinkphp framework",
+    "type": "project",
+    "keywords": [
+        "framework",
+        "thinkphp",
+        "ORM"
+    ],
+    "homepage": "http://thinkphp.cn/",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "liu21st",
+            "email": "liu21st@gmail.com"
+        },
+        {
+            "name": "yunwuxin",
+            "email": "448901948@qq.com"
+        }        
+    ],
+    "require": {
+        "php": ">=7.1.0",
+        "topthink/framework": "^6.0.0",
+        "topthink/think-orm": "^2.0",
+        "topthink/think-view": "^1.0",
+        "topthink/think-captcha": "^3.0",
+        "topthink/think-image": "^1.0",
+        "qcloud/cos-sdk-v5": "^2.1",
+        "aliyuncs/oss-sdk-php": "^2.4",
+        "qiniu/php-sdk": "^7.3",
+		"phpoffice/phpspreadsheet":"1.8.2",
+        "alibabacloud/client": "^1.5",
+        "tencentcloud/tencentcloud-sdk-php": "^3.0",
+        "endroid/qrcode": "^3.5",
+        "topthink/think-worker": "^3.0",
+        "topthink/think-queue": "^3.0",
+        "baidu/aip-sdk": "^2.2",
+        "paypal/rest-api-sdk-php": "*",
+        "jaeger/querylist": "^4.2",
+        "mpdf/mpdf": "^8.1",
+        "tencentcloud/ocr": "^3.0",
+        "huifurepo/dg-php-sdk": "^2.0",
+        "phpoffice/phpword": "^1.2"
+    },
+    "require-dev": {
+        "symfony/var-dumper": "^4.2",
+        "topthink/think-trace":"^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "app\\": "app"
+        },
+        "psr-0": {
+            "": "extend/"
+        },
+        "classmap":[
+            "vendors/AdapaySdk",
+            "vendors/AdapayCore"
+        ]
+    },
+    "config": {
+        "preferred-install": "dist"
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "@php think service:discover",
+            "@php think vendors:publish"
+        ]
+    }
+}

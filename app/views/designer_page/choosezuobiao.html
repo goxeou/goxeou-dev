@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>选择坐标</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <!-- <div class="layui-card-header"><i class="fa fa-list"></i> 表单列表</div> -->
+          <div class="layui-card-body" pad15>
+			<div class="layui-form-item">
+				<label class="layui-form-label" style="width:50px">地址</label>
+				<div class="layui-input-inline" style="width:500px">
+					<input type="text" id="address" lay-verify="required" lay-verType="tips" class="layui-input" value="{$Request.param.address}">
+				</div>
+				<button class="layui-btn layui-btn-primary" id="searchbtn">搜索</button>
+			</div>
+			<div class="layui-form-item" style="margin-bottom:0">
+				<label class="layui-form-label" style="width:50px"></label>
+				<div id="l-map" style="width:600px;height:340px">地图加载中...</div>
+				<div style="margin-left:110px">
+					<input type="hidden" id="mapjd" value="{if input('param.jd')}{$Request.param.jd}{else}116.397827{/if}"/>
+					<input type="hidden" id="mapwd" value="{if input('param.wd')}{$Request.param.wd}{else}39.90374{/if}"/>
+				</div>
+			</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script charset="utf-8" src="https://map.qq.com/api/js?v=2.exp&key={$sysset_webinfo.map_key_qq}"></script>
+	<script>
+	
+	var searchService, map,markers = [],marker = null;
+	var jd = $('#mapjd').val();
+	var wd = $('#mapwd').val();
+	window.onload=function(){
+		function init(){
+			var center = new qq.maps.LatLng(wd,jd);
+			map = new qq.maps.Map(document.getElementById("l-map"), {
+				center: center,      // 地图的中心地理坐标。
+				zoom:15              // 地图的中心地理坐标。
+			});	
+			var marker = new qq.maps.Marker({ position:center, map: map});
+			markers.push(marker);
+			 //绑定单击事件添加参数
+			qq.maps.event.addListener(map, 'click', function(event) {
+				clearOverlays(markers);
+				$("#mapjd").val(event.latLng.getLng());
+				$("#mapwd").val(event.latLng.getLat());
+				var marker = new qq.maps.Marker({ position: new qq.maps.LatLng(event.latLng.getLat(), event.latLng.getLng()) , map: map
+				});
+				markers.push(marker);
+			});
+		}
+		init();
+	}
+	//清除地图上的marker
+    function clearOverlays(overlays) {
+        var overlay;
+        while (overlay = overlays.pop()) {
+            overlay.setMap(null);
+        }
+    }
+
+	//搜索地图
+	function searchService(address) {
+		$.post("{:url('searchFormMap')}", {keywords:address,lat:wd,lng:jd},function(results){
+			if(results.status == 1) {
+				var pois = results.data;
+				if(pois.length == 0){
+					layer.msg("未找到相关地址！");
+					return ;
+				}
+				var infoWin = new qq.maps.InfoWindow({
+					map: map
+				});
+				var latlngBounds = new qq.maps.LatLngBounds();
+				for (var i = 0, l = pois.length; i < l; i++) {
+					var poi = pois[i];
+					//扩展边界范围，用来包含搜索到的Poi点
+					var location = new qq.maps.LatLng(poi.location.lat, poi.location.lng)
+					latlngBounds.extend(location);
+					(function(n) {
+						var LatLng = new qq.maps.LatLng(pois[n].location.lat,pois[n].location.lng)
+						var marker = new qq.maps.Marker({
+							map: map,
+							position: LatLng
+						});
+						marker.setTitle(i + 1);
+						markers.push(marker);
+						qq.maps.event.addListener(marker, 'click', function() {
+							$("#mapjd").val(pois[n].location.lng);
+							$("#mapwd").val(pois[n].location.lat);
+							infoWin.setPosition(LatLng);
+						});
+					})(i);
+				}
+				//调整地图视野
+				map.fitBounds(latlngBounds);
+			}else{
+				dialog(results.msg);
+			}
+		})
+	}
+	$("#searchbtn").click(function(){
+		var address = $("#address").val();
+		if(address == ""){
+			dialog("请输地址！");
+			return ;
+		}
+		clearOverlays(markers);
+		//根据输入的关键字在搜索范围内检索
+		searchService(address);
+	});
+	</script>
+</body>
+</html>

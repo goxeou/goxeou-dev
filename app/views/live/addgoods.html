@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>添加商品</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+	.layui-form-label{width:110px}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加商品{else}<i class="fa fa-pencil"></i> 编辑商品{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form">
+						<input type="hidden" name="info[id]" value="{$info.id}"/>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>商品名称：</label>
+							<div class="layui-input-inline" style="width:300px">
+								<input type="text" name="info[name]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.name}">
+							</div>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">最短3个汉字，最长17个汉字</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>商品图片：</label>
+							<input type="hidden" name="info[coverImgUrl]" id="coverImgUrl" class="layui-input" value="{$info.coverImgUrl}">
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" maxwidth="200" maxheight="200" upload-input="coverImgUrl" upload-preview="coverImgPreview" onclick="uploader(this)">上传图片</button>
+							<div class="layui-form-mid layui-word-aux" style="margin-left:10px;">建议尺寸：200像素 * 200像素，图片大小不得超过80K</div>
+							<div id="coverImgPreview" style="float:left;padding-top:10px;padding-left:140px;clear: both;">
+								<div class="layui-imgbox" style="width:100px;"><div class="layui-imgbox-img"><img src="{$info.coverImgUrl}"/></div></div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>商品链接：</label>
+							<div class="layui-input-inline" style="width:250px">
+								<input type="text" name="info[url]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.url}">
+							</div>
+							<button style="float:left;" type="button" class="layui-btn layui-btn-primary" onclick="chooseUrl()">选择链接</button>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>价格形式：</label>
+							<div class="layui-input-inline" style="width:600px">
+								<input type="radio" name="info[priceType]" value="1" title="一口价" {if !$info['id'] || $info['priceType']==1}checked{/if} lay-filter="priceType">
+								<input type="radio" name="info[priceType]" value="2" title="价格区间" {if $info['id'] && $info['priceType']==2}checked{/if} lay-filter="priceType">
+								<input type="radio" name="info[priceType]" value="3" title="显示折扣价" {if $info['id'] && $info['priceType']==3}checked{/if} lay-filter="priceType">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><span class="redstar">*</span>价格设置：</label>
+							<div class="layui-form-mid priceType3" {if $info['priceType']!=3}style="display:none"{/if}>原价</div>
+							<div class="layui-input-inline" style="width:120px">
+								<input type="text" name="info[price]" lay-verify="required" lay-verType="tips" class="layui-input" value="{$info.price}">
+							</div>
+							<div class="layui-form-mid">元 </div>
+							<div class="layui-form-mid priceType2" {if $info['priceType']!=2}style="display:none"{/if}> ~ </div>
+							<div class="layui-form-mid priceType3" {if $info['priceType']!=3}style="display:none"{/if}>现价</div>
+							<div class="layui-input-inline priceType23" style="width:120px;{if $info['priceType']!=2 && $info['priceType']!=3}display:none{/if}">
+								<input type="text" name="info[price2]" class="layui-input" value="{$info.price2}">
+							</div>
+							<div class="layui-form-mid priceType23" {if $info['priceType']!=2 && $info['priceType']!=3}style="display:none"{/if}>元 </div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn layui-btn-danger" lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	//日期时间选择器
+	layui.laydate.render({ 
+		elem: '#starttime',
+		type: 'datetime',
+		trigger: 'click'
+	});
+	layui.laydate.render({ 
+		elem: '#endtime',
+		type: 'datetime',
+		trigger: 'click'
+	});
+	layui.form.on('radio(priceType)',function(data){
+		if(data.value==1){
+			$('.priceType1').show();
+			$('.priceType2').hide();
+			$('.priceType3').hide();
+			$('.priceType23').hide();
+		}else if(data.value==2){
+			$('.priceType1').hide();
+			$('.priceType2').show();
+			$('.priceType23').show();
+			$('.priceType3').hide();
+		}else{
+			$('.priceType1').hide();
+			$('.priceType2').hide();
+			$('.priceType3').show();
+			$('.priceType23').show();
+		}
+	});
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		if(field.cover_img_url==''){
+			dialog('商品图必传');return;
+		}
+		//console.log(field);return;
+		var index = layer.load();
+		$.post("",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status == 1){
+				setTimeout(function(){
+					parent.layer.close(parent.layer.getFrameIndex(window.name));
+					parent.tableIns.reload()
+				},1000)
+			}
+		})
+	})
+	//选择链接
+	function chooseUrl(){
+		layer.open({type:2,shadeClose:true,area:['1200px', '650px'],'title':'选择链接',content:"{:url('DesignerPage/chooseurl')}"})
+	}
+	function chooseLink(urlname,url){
+		$("input[name='info[url]']").val(url.substr(1));
+	}
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

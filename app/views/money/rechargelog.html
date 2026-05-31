@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>充值记录</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+		.orderdetail{background:#f7f7f8;width: 94%;box-sizing:border-box;margin:0 10px;display:flex;flex-direction:column;}
+		.orderdetail *{box-sizing:border-box;}
+		.orderinfo{ width:100%;margin-top:5px;padding: 5px;background: #FFF;}
+		.orderinfo .item{display:flex;width:100%;padding:10px 0;border-bottom:1px dashed #ededed;overflow:hidden}
+		.orderinfo .item:last-child{ border-bottom: 0;}
+		.orderinfo .item .t1{width:100px;flex-shrink:0}
+		.orderinfo .item .t2{flex:1;text-align:right;}
+		.orderinfo .item .red{color:red}
+
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header"><i class="fa fa-list"></i> 充值记录
+					{if input('param.isopen')==1}<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>{/if}
+					</div>
+          			<div class="layui-card-body" pad15>
+						
+						<div class="layui-col-md12" style="padding-bottom:10px">
+							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="datadel(0)">删除</button>
+							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" data-form-export="{:url('rechargelogexcel')}">导出EXCEL</button>
+						</div>
+						<div class="layui-form layui-col-md12 layui-form-search">
+							
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">{:t('会员')}ID</label>
+								<div class="layui-input-inline">
+									<input type="text" name="mid" autocomplete="off" class="layui-input" value="{$Request.param.mid}">
+								</div>
+							</div>
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">昵称</label>
+								<div class="layui-input-inline">
+									<input type="text" name="nickname" autocomplete="off" class="layui-input" value="{$Request.param.nickname}">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label">充值时间</label>
+								<div class="layui-input-inline" style="width:180px">
+									<input type="text" name="ctime" id="ctime" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<!-- <div class="layui-inline">-->
+							<!--	<label class="layui-form-label">充值类型</label>-->
+							<!--	<div class="layui-input-inline">-->
+							<!--		<select name="paytype">-->
+							<!--			<option value="">全部</option>-->
+							<!--			<option value="1">后台充值</option>-->
+							<!--			<option value="0">会员充值</option>-->
+							<!--		</select>-->
+							<!--	</div>-->
+							<!--</div> -->
+							<div class="layui-inline">
+								<label class="layui-form-label">支付方式</label>
+								<div class="layui-input-inline">
+									<select name="paytype">
+										<option value="">全部</option>
+											<option value="wxpay">微信</option>
+                    						<option value="alipay">支付宝</option>
+                    						<option value="cash">现金</option>
+                    						<option value="bank">银行卡</option>
+									</select>
+								</div>
+							</div>
+								<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">备注</label>
+								<div class="layui-input-inline">
+									<input type="text" name="remark" autocomplete="off" class="layui-input" value="">
+								</div>
+							</div>
+							<!--<div class="layui-inline layuiadmin-input-useradmin">-->
+							<!--	<label class="layui-form-label">充值类型</label>-->
+							<!--	<div class="layui-input-inline">-->
+							<!--		<input type="text" name="paytype" autocomplete="off" class="layui-input" value="{$Request.param.paytype}">-->
+							<!--	</div>-->
+							<!--</div>-->
+							<div class="layui-inline">
+								<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+									<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+								</button>
+							</div>
+						</div>
+						<div class="layui-col-md12" style="padding-bottom:10px;text-align: right">
+							<div class="layui-inline " >
+								<label class="layui-form-label" style="width: auto">小计充值金额：</label>
+								<div class="layui-input-inline" style="line-height: 38px;font-weight: bold" id="totalmoney"></div>
+							</div>
+							
+						</div>
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.laydate.render({ 
+		elem: '#ctime',
+		trigger: 'click',
+		range: '~' //或 range: '~' 来自定义分割字符
+	});
+  var table = layui.table;
+	var datawhere = {};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{$Request.url}" //数据接口
+    ,page: true //开启分页
+    ,cols: [[ //表头
+			{type:"checkbox"},
+      //{field: 'id', title: 'ID',sort:true,width:80},
+      {field: 'mid', title: '{:t('会员')}ID',width:80},
+      {field: 'nickname', title: '{:t('会员')}信息',templet:'<div>{{# if(d.nickname){ }}<img src="{{d.headimg}}" style="width:50px"> {{d.nickname}}{{# } }}</div>'},
+      {field: 'money', title: '充值金额',sort:true,width:120},
+		  
+      {field: 'createtime', title: '充值时间',sort:true,templet:function(d){ return date('Y-m-d H:i',d.createtime)}},
+	
+	 {field: 'paytype', title: '支付方式',templet:function(d){
+      		if(d.paytype=='wxpay') return '微信';
+			if(d.paytype=='alipay') return '支付宝';
+			if(d.paytype=='cash') return '现金';
+			if(d.paytype=='bank') return '银行卡';
+			 return d.paytype;
+			
+	  }},	
+			
+			
+
+			
+			
+			
+			
+			
+			
+			
+      {field: 'paynum', title: '订单号/付款单号',templet:function(d){
+      	var html ='';
+      	html+='<div>订 单 号：'+d.ordernum+'</div>';
+		html+='<div>付款单号：'+d.paynum+'</div>';
+		return html;
+	  },width:210},
+      {field: 'paytime', title: '付款时间',templet:function(d){ if(d.paytime) return date('Y-m-d H:i',d.paytime);else return ''}},
+      {field: 'status', title: '状态',width:120,templet:function(d){ 
+				if(d.status==0) return '<span style="color:#888">充值失败</span>';
+				if(d.status==1) return '<span style="color:green">充值成功</span>';
+			}},
+			  {field: 'remark', title: '备注'},
+    
+      // {field: 'op', title: '操作',width:100,templet:'<div><button class="table-btn" onclick="datadel({{d.id}})">删除</button></div>'},
+		  {field: 'op', title: '操作',templet:function(d){
+			var html='<div>'
+				  
+				  
+			html+='<button class="table-btn" onclick="datadel('+d.id+')">删除</button>';
+		  	html +='</div>';
+			return html;
+		  }}
+    ]] 	,done:function(res, curr, count){
+		  if(curr == 1){
+			  $('#totalmoney').html('￥'+res.tdata.total_money);
+		  }
+	  }
+  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	layui.laydate.render({
+		elem: '#ctime',
+		trigger: 'click',
+		range: '~' //或 range: '~' 来自定义分割字符
+	});
+	function wifiprint(id){
+		layer.confirm('确定要打印小票吗?',{icon: 7, title:'操作确认'}, function(index){
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('rechargeprint')}",{id:id},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+			})
+		})
+	}
+	//删除
+	function datadel(id){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			var ids = [];
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id)
+		}
+		layer.confirm('确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('rechargelogdel')}",{ids:ids},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	</script>
+	{include file="public/copyright"/}
+</body>
+</html>

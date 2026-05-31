@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>专家管理</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header">专家管理{if input('param.isopen')==1}<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>{/if}</div>
+          <div class="layui-card-body" pad15>
+			 
+						<div class="layui-col-md4" style="padding-bottom:10px">
+							<a class="layui-btn layuiadmin-btn-list" href="javascript:void(0)" onclick="openmax('{:url('edit')}')">添加</a>
+							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="datadel(0)">删除</button>
+						
+						</div>
+						<div class="layui-form layui-col-md8 layui-form-search">
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">名称</label>
+								<div class="layui-input-inline">
+									<input type="text" name="name" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							{if $clist}
+							<div class="layui-inline">
+								<label class="layui-form-label">标签</label>
+								<div class="layui-input-inline">
+									<select name="cid" lay-search>
+										<option value="">全部</option>
+										{foreach $clist as $cv}
+										<option value="{$cv['id']}">{$cv['name']}</option>
+										{/foreach}
+									</select>
+								</div>
+							</div>
+							{/if}
+							<div class="layui-inline">
+								<label class="layui-form-label">状态</label>
+								<div class="layui-input-inline">
+									<select name="status">
+										<option value="">全部</option>
+										<option value="0">待审核</option>
+										<option value="1">已通过</option>
+										<option value="2">已驳回</option>
+										<option value="-1">已过期</option>
+									</select>
+								</div>
+							</div>
+						
+							<div class="layui-inline">
+								<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+									<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+								</button>
+							</div>
+						</div>
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	<div id="rechargeModel" style="width:500px;display:none;margin-top:30px">
+		<div class="layui-form" lay-filter="">
+			<input type="hidden" name="rechargemid" id="rechargemid"/>
+			<div class="layui-form-item">
+				<label class="layui-form-label">充值金额</label>
+				<div class="layui-input-inline">
+					<input type="text" name="rechargemoney" required lay-verify="required" placeholder="" autocomplete="off" class="layui-input">
+				</div>
+				<div class="layui-form-mid layui-word-aux">输入负值表示扣除金额</div>
+			</div>
+			<div class="layui-form-item">
+				<div class="layui-input-block">
+					<button class="layui-btn layui-btn-normal" lay-submit lay-filter="formRecharge">确定充值</button>
+				</div>
+			</div>
+		</div>
+	</div>
+  <div id="depositModel" style="width:500px;display:none;margin-top:30px">
+	  <div class="layui-form" lay-filter="">
+		  <input type="hidden" name="depositmid" id="depositmid"/>
+		  <div class="layui-form-item">
+			  <label class="layui-form-label">充值金额</label>
+			  <div class="layui-input-inline">
+				  <input type="text" name="depositmoney" required lay-verify="required" placeholder="" autocomplete="off" class="layui-input">
+			  </div>
+			  <div class="layui-form-mid layui-word-aux">输入负值表示扣除金额</div>
+		  </div>
+		  <div class="layui-form-item">
+			  <label class="layui-form-label">备注</label>
+			  <div class="layui-input-inline">
+				  <input type="text" name="depositremark" lay-verify="required" placeholder="" autocomplete="off" class="layui-input">
+			  </div>
+			  <div class="layui-form-mid layui-word-aux"></div>
+		  </div>
+		  <div class="layui-form-item">
+			  <div class="layui-input-block">
+				  <button class="layui-btn layui-btn-normal" lay-submit lay-filter="formdeposit">确定充值</button>
+			  </div>
+		  </div>
+	  </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	var shopsel = false;
+	var restaurantsel = false;
+  var table = layui.table;
+	var datawhere = {};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: "{$Request.url}" //数据接口
+    ,page: true //开启分页
+	  ,autoSort:false
+    ,cols: [[ //表头
+			{type:"checkbox"},
+      {field: 'id', title: 'ID',  sort: true,width:80},
+      {field: 'name', title: '专家名称'},
+      {field: 'logo', title: '专家图片',templet:function(d){return '<img src="'+d.logo+'" style="width:40px;"/>';},width: 100},
+   
+      {field: 'nickname',width: 180, title: '头像昵称',templet:function(d){
+				if(!d.nickname) return '';
+				return '<img src="'+d.headimg+'" style="width:40px;height:40px"/> '+d.nickname+ '【' +d.mid +'】';
+      }},
+      {field: 'linkman', title: '联系人',templet:function(d){ return d.linkman + '('+d.linktel+')' }},
+	  {field: 'money', title: "{:t('保证金')}",templet:function(d){
+			  return '<a href="javascript:void(0)" onclick="openmax(\'{:url('ExpertMoney/depositlog')}&isopen=1&bid='+d.id+'\')">'+d.deposit+'</a>';
+		  },sort:true},
+	
+	
+	{field: 'work', title: '从业年限'},
+    	 {field: 'cname',width:250, title: '专家标签'},
+        {field: 'createtime',width:160, title: '创建时间',templet:function(d){ return date('Y-m-d H:i',d.createtime)},sort:true},
+        {field: 'status', title: '状态',templet:function(d){ 
+				if(d.status==0){
+					return '<span style="color:red">待审核</span>';
+				}else if(d.status==1){
+					return '<span style="color:green">已通过</span>';
+				}else if(d.status==2){
+					return '<span style="color:red">已驳回</span>';
+				}else if(d.status==-1){
+					return '<span style="color:red">已过期</span>';
+				}
+			}},
+            {field: 'operation', title: '操作',templet: function(d){
+				var html = '';
+				html += '<button class="table-btn" onclick="openmax(\'{:url('edit')}/id/'+d.id+'\')">编辑</button>';
+				html += '<button class="table-btn" onclick="datadel('+d.id+')">删除</button>';
+				if(d.status == 0 || d.status == 2){
+					html += '<button class="table-btn" onclick="setcheckst(\''+d.id+'\',1)">通过</button>';
+				}
+				if(d.status == 0 || d.status == 1){
+					html += '<button class="table-btn" onclick="setcheckst(\''+d.id+'\',2)">驳回</button>';
+				}
+				html += '<button class="table-btn" onclick="openmax(\'{:url('ExpertComment/index')}&isopen=1&bid='+d.id+'\')">问答</button>';
+				return html;
+      },width:250}
+    ]]
+  });
+	var rechargelayer
+	function recharge(id){
+		$('#rechargemid').val(id);
+		rechargelayer = layer.open({type:1,area: ['500px', '200px'],title:"{:t('余额')}充值",content:$('#rechargeModel'),shadeClose:true})
+	}
+	
+	function showChooseRestaurantProduct(bid){
+		{if getcustom('restaurant_product_import')}
+		layer.open({type:2,title:'选择商品',content:"{:url('RestaurantProduct/chooseproduct')}/is_import/1/bid/"+bid,area:['1000px','600px'],shadeClose:true});
+		{/if}
+	}
+	function addscore(id){
+		var html = '';
+		html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+		html+='		<label class="layui-form-label" style="width:80px">增加数量：</label>';
+		html+='		<div class="layui-input-inline" style="width:200px">';
+		html+='			<input type="text" id="addscorescore" class="layui-input"/>';
+		html+='		</div>';
+		html+='		<div class="layui-form-mid layui-word-aux">输入负值表示扣除{:t('积分')}</div>';
+		html+='	</div>';
+		html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+		html+='		<label class="layui-form-label" style="width:80px">备注信息：</label>';
+		html+='		<div class="layui-input-inline" style="width:350px">';
+		html+='			<input type="text" id="addscoreremark" class="layui-input"/>';
+		html+='		</div>';
+		html+='	</div>';
+		var addscoreLayer = layer.open({type:1,area:['500px','300px'],title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+			yes:function(){
+				var index = layer.load();
+				$.post("{:url('addscore')}",{id:id,score:$('#addscorescore').val(),remark:$('#addscoreremark').val()},function(res){
+					layer.close(index);
+					dialog(res.msg,res.status);
+					layer.close(addscoreLayer);
+					tableIns.reload()
+				})
+			}
+		})
+	}
+
+	function blogin(id){
+		window.open("{:url('blogin')}/id/"+id);
+	}
+	//充值提交
+  layui.form.on('submit(formRecharge)', function(obj){
+		var index= layer.load();
+    $.post("{:url('recharge')}",obj.field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status,data.url);
+			if(data.status==1){
+				tableIns.reload({
+					where: datawhere
+				});
+			}
+			layer.close(rechargelayer);
+		})
+  });
+			  var depositlayer
+			  function adddeposit(id){
+				  $('#depositmid').val(id);
+				  depositlayer = layer.open({type:1,area: ['500px', '300px'],title:"保证金充值",content:$('#depositModel'),shadeClose:true})
+			  }
+
+			  //充值提交
+			  layui.form.on('submit(formdeposit)', function(obj){
+				  var index= layer.load();
+				  $.post("{:url('deposit')}",obj.field,function(data){
+					  layer.close(index);
+					  dialog(data.msg,data.status,data.url);
+					  if(data.status==1){
+						  tableIns.reload({
+							  where: datawhere
+						  });
+					  }
+					  layer.close(depositlayer);
+				  })
+			  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	
+	//审核
+	function setcheckst(id,st){
+		if(st == 2){
+			var html = '';
+			html+='	<div class="layui-form-item" style="margin-top:40px;margin-right:20px;">';
+			html+='		<label class="layui-form-label" style="width:80px">驳回原因</label>';
+			html+='		<div class="layui-input-inline" style="width:350px">';
+			html+='			<textarea type="text" id="check_reason" class="layui-textarea"></textarea>';
+			html+='		</div>';
+			html+='	</div>';
+			var checkLayer = layer.open({type:1,area:['500px','250px'],title:false,content:html,shadeClose:true,btn: ['确定', '取消'],
+				yes:function(){
+					var index = layer.load();
+					$.post("{:url('setcheckst')}",{id:id,st:st,reason:$('#check_reason').val()},function(res){
+						layer.close(index);
+						dialog(res.msg,res.status);
+						layer.close(checkLayer);
+						tableIns.reload()
+					})
+				}
+			})
+		}else{
+			layer.confirm('确定要审核通过吗?',{icon: 7, title:'操作确认'}, function(index){
+				layer.close(index);
+				var index = layer.load();
+				$.post("{:url('setcheckst')}",{id:id,st:st},function(data){
+					layer.close(index);
+					dialog(data.msg,data.status);
+					tableIns.reload()
+				})
+			});
+		}
+	}
+	//删除
+	function datadel(id){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id);
+		}
+		layer.confirm('删除专家后，该专家下的商品、订单等会一并删除，确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('del')}",{ids:ids},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	//上下架
+	function setst(id,st){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id);
+		}
+		layer.confirm('确定要'+(st==0?'关闭':'开启')+'吗?',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('setst')}",{ids:ids,st:st},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	function showHexiaoLoginQr(){
+		layer.open({type:1,area:['500px','450px'],content:'<div style="margin-top:40px;text-align:center"><div style="margin:20px 110px;text-align:center" id="hexiaologinqr"></div><div style="font-size:30px;color:#e94745"><span style="font-size:24px"></span></div><div style="font-size:14px;text-align:center;margin:10px 20px">手机端：{:m_url('admin/index/index')}</div><div style="font-size:14px;text-align:center;margin:10px 20px">电脑端：{$Think.const.PRE_URL}</div></div>',title:false,shadeClose:true});
+		var qrcode = new QRCode('hexiaologinqr', {
+			text: 'your content',
+			width: 280,
+			height: 280,
+			colorDark : '#000000',
+			colorLight : '#ffffff',
+			correctLevel : QRCode.CorrectLevel.H
+		});
+		qrcode.clear();
+		qrcode.makeCode("{:m_url('admin/index/index')}");
+	}
+
+	//复制数据
+	function copydata(id){
+		var html = '';
+		html ='<div style="margin:20px auto;">';
+		html+='	<blockquote class="layui-elem-quote" style="margin:10px">复制操作会对复制到的专家的数据产生较大影响，请提前做好备份</blockquote>';
+		html+='	<div class="layui-form" lay-filter="">';
+		html+='		<div class="layui-form-item">';
+		html+='			<label class="layui-form-label" style="width:130px">复制到的专家ID：</label>';
+		html+='			<div class="layui-input-inline">';
+		html+='				<input type="text" name="info[toid]" value="'+id+'" required lay-verify="required" placeholder="" autocomplete="off" class="layui-input">';
+		html+='			</div>';
+		html+='		</div>';
+		html+='		<div class="layui-form-item">';
+		html+='			<label class="layui-form-label" style="width:130px">要复制的数据：</label>';
+		html+='			<div class="layui-input-block" style="margin-left:150px;">';
+		html+='				<div style="margin-top:10px;color:#303030; font-size:14px; font-weight:600; ">';
+		html+='					<input type="checkbox" title="全部选择" lay-skin="primary" lay-filter="checkall_all"/>';
+		html+='				</div>';
+		html+='				<div style="float:left;margin-left:0">';
+		html+='					<div style="margin-left:10px">';
+		{if $auth_data=='all' || in_array('ShopProduct/*',$auth_data)}
+		html+='						<div style="min-width:100px;float: left;">';
+		html+='							<input type="checkbox" value="商城商品" name="module_data[]"  title="商城商品" lay-skin="primary" lay-filter="shopset"/>';
+		html+='						</div>';
+		{/if}
+		{if $auth_data=='all' || in_array('CollageProduct/*',$auth_data)}
+		html+='						<div style="min-width:100px;float: left;">';
+		html+='							<input type="checkbox" value="拼团商品" name="module_data[]"  title="拼团商品" lay-skin="primary"/>';
+		html+='						</div>';
+		{/if}
+		{if $auth_data=='all' || in_array('KanjiaProduct/*',$auth_data)}
+		html+='						<div style="min-width:100px;float: left;">';
+		html+='							<input type="checkbox" value="砍价商品" name="module_data[]"  title="砍价商品" lay-skin="primary"/>';
+		html+='						</div>';
+		{/if}
+		{if $auth_data=='all' || in_array('SeckillProduct/*',$auth_data)}
+		html+='						<div style="min-width:100px;float: left;">';
+		html+='							<input type="checkbox" value="秒杀商品" name="module_data[]"  title="秒杀商品" lay-skin="primary"/>';
+		html+='						</div>';
+		{/if}
+		{if $auth_data=='all' || in_array('TuangouProduct/*',$auth_data)}
+		html+='						<div style="min-width:100px;float: left;">';
+		html+='							<input type="checkbox" value="团购商品" name="module_data[]"  title="团购商品" lay-skin="primary"/>';
+		html+='						</div>';
+		{/if}
+		{if $auth_data=='all' || in_array('LuckyCollageProduct/*',$auth_data)}
+		html+='						<div style="min-width:100px;float: left;">';
+		html+='							<input type="checkbox" value="幸运拼团商品" name="module_data[]"  title="幸运拼团商品" lay-skin="primary"/>';
+		html+='						</div>';
+		{/if}
+		{if $auth_data=='all' || in_array('Shortvideo/*',$auth_data)}
+		html+='						<div style="min-width:100px;float: left;">';
+		html+='							<input type="checkbox" value="短视频" name="module_data[]"  title="短视频" lay-skin="primary"/>';
+		html+='						</div>';
+		{/if}
+		{if $auth_data=='all' || in_array('Article/*',$auth_data)}
+		html+='						<div style="min-width:100px;float: left;">';
+		html+='							<input type="checkbox" value="文章列表" name="module_data[]"  title="文章列表" lay-skin="primary"/>';
+		html+='						</div>';
+		{/if}
+		{if $auth_data=='all' || in_array('Yuyue/*',$auth_data)}
+		html+='						<div style="min-width:100px;float: left;">';
+		html+='							<input type="checkbox" value="预约服务商品" name="module_data[]"  title="预约服务商品" lay-skin="primary"/>';
+		html+='						</div>';
+		{/if}
+		{if $auth_data=='all' || in_array('KechengList/*',$auth_data)}
+		html+='						<div style="min-width:100px;float: left;">';
+		html+='							<input type="checkbox" value="知识付费课程" name="module_data[]"  title="知识付费课程" lay-skin="primary"/>';
+		html+='						</div>';
+		{/if}
+		{if $auth_data=='all' || in_array('Restaurant/*',$auth_data)}
+		html+='						<div style="min-width:100px;float: left;">';
+		html+='							<input type="checkbox" value="餐饮菜品" name="module_data[]"  title="餐饮菜品" lay-skin="primary" lay-filter="restaurantset"/>';
+		html+='						</div>';
+		{/if}
+		{if $auth_data=='all' || in_array('ShopCategory/*',$auth_data)}
+		html+='						<div style="min-width:100px;float: left;">';
+		html+='							<input type="checkbox" value="商城商品分类" name="module_data[]"  title="商城商品分类" lay-skin="primary"/>';
+		html+='						</div>';
+		{/if}
+		{if $auth_data=='all' || in_array('Coupon/*',$auth_data)}
+		html+='						<div style="min-width:100px;float: left;">';
+		html+='							<input type="checkbox" value="优惠券" name="module_data[]"  title="优惠券" lay-skin="primary"/>';
+		html+='						</div>';
+		{/if}
+		{if getcustom('form_copy')}
+			{if $auth_data=='all' || in_array('Form/*',$auth_data)}
+			html+='						<div style="min-width:100px;float: left;">';
+			html+='							<input type="checkbox" value="自定义表单" name="module_data[]"  title="自定义表单" lay-skin="primary"/>';
+			html+='						</div>';
+			{/if}
+		{/if}
+		{if getcustom('extend_gift_bag')}
+			{if $auth_data=='all' || in_array('GiftBag/*',$auth_data)}
+			html+='						<div style="min-width:100px;float: left;">';
+			html+='							<input type="checkbox" value="礼包" name="module_data[]"  title="礼包" lay-skin="primary"/>';
+			html+='						</div>';
+			{/if}
+		{/if}
+		//html+='						<div style="min-width:100px;float: left;">';
+		//html+='							<input type="checkbox" value="设计页面" name="module_data[]"  title="设计页面" lay-skin="primary"/>';
+		//html+='						</div>';
+		html+='					</div>';
+		html+='				</div>';
+		html+='			</div>';
+		html+='		</div>';
+		{if getcustom('business_copy_shopcategory')}
+			{if $auth_data=='all' || in_array('ShopCategory/*',$auth_data)}
+			html+='<div class="layui-form-item" style="display:none;margin-top:50px" id="shopcat">';
+			html+='	<label class="layui-form-label" style="width:130px">商品分类：</label>';
+			html+='	<div class="layui-input-inline" style="width:400px">';
+			html+='		<select name="info[shopcids]" id="cid" xm-select="selectShopCid" xm-select-max="" xm-select-search >';
+			html+='			<option value="">--全部--</option>';
+									{foreach $shopclist as $cv}
+			html+='			<option value="{$cv['id']}" >{$cv['name']}</option>';
+										{foreach $cv['child'] as $k=>$v}
+											{if $k < count($cv['child'])-1}
+			html+='					<option value="{$v['id']}" >&nbsp;&nbsp;&nbsp;&nbsp;├ {$v['name']}</option>';
+											{else}
+			html+='					<option value="{$v['id']}" >&nbsp;&nbsp;&nbsp;&nbsp;└ {$v['name']}</option>';
+											{/if}
+											{foreach $v['child'] as $k2=>$v2}
+												{if $k2 < count($v['child'])-1}
+			html+='						<option value="{$v2['id']}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├ {$v2['name']}</option>';
+												{else}
+			html+='						<option value="{$v2['id']}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└ {$v2['name']}</option>';
+												{/if}
+											{/foreach}
+										{/foreach}
+									{/foreach}
+			html+='		</select>';
+			html+='	</div>';
+			html+='	<div class="layui-form-mid layui-word-aux">不选择默认全部</div>';
+			html+='</div>';
+			{/if}
+		{/if}
+		{if getcustom('business_copy_restaurantcategory')}
+			{if $auth_data=='all' || in_array('RestaurantProductCategory/*',$auth_data)}
+			html+='<div class="layui-form-item" style="display:none;margin-top:50px" id="restaurantcat">';
+			html+='	<label class="layui-form-label" style="width:130px">餐饮分类：</label>';
+			html+='	<div class="layui-input-inline" style="width:400px">';
+			html+='		<select name="info[restaurantcids]" id="cid" xm-select="selectRestauranCid" xm-select-max="" xm-select-search >';
+			html+='			<option value="">--全部--</option>';
+									{foreach $restaurantclist as $rv}
+			html+='			<option value="{$rv['id']}" >{$rv['name']}</option>';
+										{foreach $rv['child'] as $k=>$v}
+											{if $k < count($rv['child'])-1}
+			html+='					<option value="{$v['id']}" >&nbsp;&nbsp;&nbsp;&nbsp;├ {$v['name']}</option>';
+											{else}
+			html+='					<option value="{$v['id']}" >&nbsp;&nbsp;&nbsp;&nbsp;└ {$v['name']}</option>';
+											{/if}
+											{foreach $v['child'] as $k2=>$v2}
+												{if $k2 < count($v['child'])-1}
+			html+='						<option value="{$v2['id']}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├ {$v2['name']}</option>';
+												{else}
+			html+='						<option value="{$v2['id']}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└ {$v2['name']}</option>';
+												{/if}
+											{/foreach}
+										{/foreach}
+									{/foreach}
+			html+='		</select>';
+			html+='	</div>';
+			html+='	<div class="layui-form-mid layui-word-aux">不选择默认全部</div>';
+			html+='</div>';
+			{/if}
+		{/if}
+		html+='		<div class="layui-form-item">';
+		html+='			<label class="layui-form-label" style="width:130px">删除原有数据：</label>';
+		html+='			<div class="layui-input-inline">';
+		html+='				<input type="radio" name="info[delold]" value="0" title="否" checked>';
+		html+='				<input type="radio" name="info[delold]" value="1" title="是">';
+		html+='			</div>';
+		html+='			<div class="layui-form-mid layui-word-aux">是否删除掉要复制到的专家的原来的数据</div>';
+		html+='		</div>';
+		html+='		<div class="layui-form-item" style="margin-top:40px">';
+		html+='			<label class="layui-form-label" style="width:130px"></label>';
+		html+='			<div class="layui-input-block">';
+		html+='				<button class="layui-btn layui-btn-normal" lay-submit lay-filter="formCopydata">确定复制</button>';
+		html+='			</div>';
+		html+='		</div>';
+		html+='	</div>';
+		html+='</div>';
+		{if getcustom('business_copy_shopcategory')}
+			shopsel = false;
+			$('#shopcat').hide();
+		{/if}
+		{if getcustom('business_copy_restaurantcategory')}
+			restaurantsel = false;
+			$('#restaurantcat').hide();
+		{/if}
+		var copydatalayer = layer.open({type:1,area:['800px','800px'],content:html,title:'平台数据复制到专家',shadeClose:true});
+		layui.formSelects.render();
+		layui.form.render();
+		layui.form.on('submit(formCopydata)', function(obj){
+			var field = obj.field;
+			console.log(field);
+			var index= layer.load();
+			$.post("{:url('copydata')}",field,function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				if(data.status == 1){
+					{if getcustom('business_copy_shopcategory')}
+						shopsel = false;
+						$('#shopcat').hide();
+					{/if}
+					{if getcustom('business_copy_restaurantcategory')}
+						restaurantsel = false;
+						$('#restaurantcat').hide();
+					{/if}
+					layer.close(copydatalayer);
+				}
+			})
+		})
+		layui.form.on('checkbox(checkall_all)',function(data){
+			if(data.elem.checked){
+				$(data.elem).parent().parent().find('input[type=checkbox]').prop('checked',true);
+				{if getcustom('business_copy_shopcategory')}
+					shopsel = true;
+					$('#shopcat').show();
+				{/if}
+				{if getcustom('business_copy_restaurantcategory')}
+					restaurantsel = true;
+					$('#restaurantcat').show();
+				{/if}
+			}else{
+				$(data.elem).parent().parent().find('input[type=checkbox]').prop('checked',false);
+				{if getcustom('business_copy_shopcategory')}
+					shopsel = false;
+					$('#shopcat').hide();
+				{/if}
+				{if getcustom('business_copy_restaurantcategory')}
+					restaurantsel = false;
+					$('#restaurantcat').hide();
+				{/if}
+			}
+
+			layui.form.render('checkbox'); 
+		});
+		layui.form.on('checkbox(checkall)',function(data){
+			if(data.elem.checked){
+				$(data.elem).parent().parent().find('input[type=checkbox]').prop('checked',true);
+			}else{
+				$(data.elem).parent().parent().find('input[type=checkbox]').prop('checked',false);
+			}
+			layui.form.render('checkbox'); 
+		})
+	}
+
+	{if getcustom('zhaopin')}
+		function openZhaopin(bid){
+			$.post("{:url('zhaopin/openZhaopin')}",{bid:bid},function(data){
+				dialog(data.msg,data.status);
+				if(data.status == 1){
+					layer.close(copydatalayer);
+				}
+			})
+		}
+	{/if}
+	{if getcustom('business_copy_shopcategory')}
+			layui.form.on('checkbox(shopset)',function(data){
+				shopsel = !shopsel;
+				if(shopsel){
+					$('#shopcat').show();
+				}else{
+					$('#shopcat').hide();
+				}
+			})
+	{/if}
+	{if getcustom('business_copy_restaurantcategory')}
+			layui.form.on('checkbox(restaurantset)',function(data){
+				restaurantsel = !restaurantsel;
+				if(restaurantsel){
+					$('#restaurantcat').show();
+				}else{
+					$('#restaurantcat').hide();
+				}
+			})
+	{/if}
+	</script>
+</body>
+</html>

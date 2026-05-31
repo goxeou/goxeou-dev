@@ -1,0 +1,378 @@
+<!DOCTYPE html><!--custom_file(express_maiyatian)-->
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>麦芽田配送设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+{if !$bid}
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+                <div class="layui-card-header"><i class="fa fa-cog"></i> 麦芽田配送设置</div>
+                <div class="layui-card-body" pad15>
+                    <div class="layui-form" lay-filter="">
+                        <blockquote class="layui-elem-quote">用于对接麦芽田配送，不需要对接不用配置，开启后则使用麦芽田配送进行配送，不再使用本系统自带的同城配送模块<br></blockquote>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">状态：</label>
+                            <div class="layui-input-inline" style="width: 300px">
+                                <input type="radio" name="info[myt_status]" value="1" {if $info['myt_status']==1}checked{/if} title="开启"/>
+                                <input type="radio" name="info[myt_status]" value="0" {if $info['myt_status']==0}checked{/if} title="关闭"/>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">AppKey：</label>
+                            <div class="layui-input-inline" style="width: 300px">
+                                <input type="text" class="layui-input" name="info[myt_appkey]" value="{$info['myt_appkey']}" lay-verify="required"/>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">AppSecret：</label>
+                            <div class="layui-input-inline" style="width: 300px">
+                                <input type="text" class="layui-input" name="info[myt_appsecret]" value="{$info['myt_appsecret']}" lay-verify="required"/>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">发单模式：</label>
+                            <div class="layui-input-inline" style="width: 300px">
+                                <select name="info[myt_dispatchmode]" lay-verify="required">
+                                    <option value="1" {if $info['myt_dispatchmode']==1}selected{/if}>省钱</option>
+                                    <option value="2" {if $info['myt_dispatchmode']==2}selected{/if}>最快</option>
+                                    <option value="3" {if $info['myt_dispatchmode']==3}selected{/if}>指派</option>
+                                    <option value="4" {if $info['myt_dispatchmode']==4}selected{/if}>价格从低到高依次呼叫</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">指派模式：</label>
+                            <div class="layui-input-inline" style="width:300px">
+                                <select name="info[myt_logistic]" xm-select="selectCid"  xm-select-search>
+                                    <option value="">--非必选--</option>
+                                    <option value="mtps" {if in_array('mtps',$info['myt_logistic'])}selected{/if}>美团配送</option>
+                                    <option value="fengka" {if in_array('fengka',$info['myt_logistic'])}selected{/if}>蜂鸟配送</option>
+                                    <option value="dada" {if in_array('dada',$info['myt_logistic'])}selected{/if}>达达</option>
+                                    <option value="shunfeng" {if in_array('shunfeng',$info['myt_logistic'])}selected{/if}>顺丰</option>
+                                    <option value="bingex" {if in_array('bingex',$info['myt_logistic'])}selected{/if}>闪送</option>
+                                    <option value="uupt" {if in_array('uupt',$info['myt_logistic'])}selected{/if}>UU跑腿</option>
+                                    <option value="ipaotui" {if in_array('ipaotui',$info['myt_logistic'])}selected{/if}>爱跑腿</option>
+                                    <option value="fuwu" {if in_array('fuwu',$info['myt_logistic'])}selected{/if}>快服务</option>
+                                    <option value="guoxiaodi" {if in_array('guoxiaodi',$info['myt_logistic'])}selected{/if}>裹小递</option>
+                                    <option value="caosong" {if in_array('caosong',$info['myt_logistic'])}selected{/if}>曹操送</option>
+                                </select>
+                            </div>
+                            <div class="layui-form-mid layui-word-aux">只有发单模式为指派模式时此项才起效，其他发单模式不起效</div>
+                        </div>
+                        <!-- <div class="layui-form-item">
+                            <label class="layui-form-label">是否预约单：</label>
+                            <div class="layui-input-inline" style="width: 300px">
+                                <input type="radio" name="info[myt_issubscribe]" value="0" {if !$info['myt_issubscribe'] || $info['myt_issubscribe']==0}checked{/if} title="否"/>
+                                <input type="radio" name="info[myt_issubscribe]" value="1" {if $info['myt_issubscribe']==1}checked{/if} title="是"/>
+                            </div>
+                        </div> -->
+                        <!-- <div class="layui-form-item">
+                            <label class="layui-form-label">订单回调地址：</label>
+                            <div class="layui-input-inline" style="width: 300px">
+                                <input type="text" class="layui-input" name="info[myt_callbackurl]" value="{$info['myt_callbackurl']}"/>
+                            </div>
+                        </div> -->
+                        <div class="layui-form-item">
+							<label class="layui-form-label"></label>
+                            <div class="layui-input-block">
+                                <button class="layui-btn" lay-submit lay-filter="formsubmit">提 交</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+  </div>
+  <div class="layui-fluid">
+      <div class="layui-row layui-col-space15">
+          <div class="layui-card layui-col-md12">
+                <div class="layui-card-header">
+                    <i class="fa fa-list"></i>
+                    余额
+                    <button class="table-btn" onclick="getBalance()">刷新</button>
+                </div>
+                <div class="layui-card-body" pad15>
+                    <div class="layui-form" lay-filter="">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label" style="width: 50px;padding-left: 8px">余额：</label>
+                            <div class="layui-input-inline" >
+                                <input type="text" class="layui-input" id="myt_balance" value="{$info['myt_balance']}"/>
+                            </div>
+                            <div class="layui-form-mid layui-word-aux">请先填写上方配置</div>
+                        </div>
+                    </div>
+                </div>
+          </div>
+      </div>
+  </div>
+{/if}
+    {if getcustom('express_maiyatian_autopush')}
+    <div class="layui-fluid">
+       <div class="layui-row layui-col-space15">
+          <div class="layui-card layui-col-md12">
+                <div class="layui-card-body" pad15>
+                    <div class="layui-form" lay-filter="">
+                        <div class="layui-form-item" >
+                            <label class="layui-form-label" style="width:160px">同城配送订单自动推送：</label>
+                            <div class="layui-input-inline">
+                                <input type="radio" name="info2[autopush_status]" value="1" {if $info2['autopush_status']==1}checked{/if} title="开启"/>
+                                <input type="radio" name="info2[autopush_status]" value="0" {if $info2['autopush_status']==0}checked{/if} title="关闭"/>
+                            </div>
+                            <div class="layui-form-mid layui-word-aux">用户下单成功后选择同城配送的订单将自动推送到麦芽田，若推送失败不会再次发起推送，需要手动自行推送</div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label"  style="width:160px">推送场景：</label>
+                            <div class="layui-input-inline" style="width:460px">
+                                {if $auth_data=='all' || in_array('ShopOrder/*',$auth_data)}
+                                <input type="checkbox" name="info2[autopush_scenes][]" value="shop_order" {if in_array('shop_order',$autopush_scenes)}checked{/if} title="商城"/>
+                                {/if}
+                                {if $auth_data=='all' || in_array('ScoreshopOrder/*',$auth_data)}
+                                <input type="checkbox" name="info2[autopush_scenes][]" value="scoreshop_order" {if in_array('scoreshop_order',$autopush_scenes)}checked{/if} title="{:t('积分')}兑换"/>
+                                {/if}
+                                {if $auth_data=='all' || in_array('CollageOrder/*',$auth_data)}
+                                <input type="checkbox" name="info2[autopush_scenes][]" value="collage_order" {if in_array('collage_order',$autopush_scenes)}checked{/if} title="拼团"/>
+                                {/if}
+                                {if $auth_data=='all' || in_array('KanjiaOrder/*',$auth_data)}
+                                <input type="checkbox" name="info2[autopush_scenes][]" value="kanjia_order" {if in_array('kanjia_order',$autopush_scenes)}checked{/if} title="砍价"/>
+                                {/if}
+                                {if $auth_data=='all' || in_array('SeckillOrder/*',$auth_data)}
+                                <input type="checkbox" name="info2[autopush_scenes][]" value="seckill_order" {if in_array('seckill_order',$autopush_scenes)}checked{/if} title="秒杀"/>
+                                {/if}
+                                {if $auth_data=='all' || in_array('TuangouOrder/*',$auth_data)}
+                                <input type="checkbox" name="info2[autopush_scenes][]" value="tuangou_order" {if in_array('tuangou_order',$autopush_scenes)}checked{/if} title="团购"/>
+                                {/if}
+                                {if $auth_data=='all' || in_array('LuckyCollageOrder/*',$auth_data)}
+                                <input type="checkbox" name="info2[autopush_scenes][]" value="lucky_collage_order" {if in_array('lucky_collage_order',$autopush_scenes)}checked{/if} title="幸运拼团"/>
+                                {/if}
+                                <!-- 暂不支持 -->
+                                <!-- {if $auth_data=='all' || in_array('CycleOrder/*',$auth_data)}
+                                <input type="checkbox" name="info2[autopush_scenes][]" value="cycle_order_stage" {if in_array('cycle_order_stage',$autopush_scenes)}checked{/if} title="周期购"/>
+                                {/if} -->
+                            </div>
+                            <div class="layui-form-mid layui-word-aux">推送场景不勾选则此场景的订单不自动推送</div>
+                        </div>
+                        <div id="timeset_div">
+                            {php} $autopush_timedata = json_decode($info2['autopush_timedata'],true);{/php}
+                            {if $autopush_timedata}
+                            {foreach $autopush_timedata as $k=>$time}
+                            <div class="layui-form-item">
+                                <label class="layui-form-label" style="width:160px">{if $k==0}推送订单时间：{/if}</label>
+                                <div class="layui-form-mid"></div>
+                                <div class="layui-input-inline" style="width:80px"><input type="text" name="autopush_start[]" value="{$time.start_hour}" id="autopush_start_hours_old{$k}" class="layui-input autopush_hours"></div>
+                                <div class="layui-form-mid"> ~ </div>
+                                <div class="layui-input-inline" style="width:80px"><input type="text" name="autopush_end[]" value="{$time.end_hour}" id="autopush_end_hours_old{$k}" class="layui-input autopush_hours"></div>
+                                {if $k==0}
+                                <button type="button" class="layui-btn layui-btn-primary" onclick="adddata(this)" num="0">新增</button>
+                                {else}
+                                <button type="button" class="layui-btn layui-btn-primary" onclick="deldata(this)">删除</button>
+                                {/if}
+                            </div>
+                            {/foreach}
+                            {else}
+                            <div class="layui-form-item">
+                                <label class="layui-form-label" style="width:160px">推送订单时间：</label>
+                                <div class="layui-form-mid"></div>
+                                <div class="layui-input-inline" style="width:80px"><input type="text" name="autopush_start[]" value="" id="autopush_start_hours_old0" class="layui-input autopush_hours"></div>
+                                <div class="layui-form-mid"> ~ </div>
+                                <div class="layui-input-inline" style="width:80px"><input type="text" name="autopush_end[]" value="" id="autopush_end_hours_old0" class="layui-input autopush_hours"></div>
+                                <button type="button" class="layui-btn layui-btn-primary" onclick="adddata(this)" num="0">新增</button>
+                            </div>
+                            {/if}
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label" style="width:160px"></label>
+                            <div class="layui-form-mid layui-word-aux">
+                                几点到几点内产生的同城配送订单自动推送<br>
+                                若结束时间和开始时间相同，则全天产生的同城配送订单都自动推送<br>
+                                若结束时间大于开始时间，则自动推送订单时间范围就是：开始时间到结束时间<br>
+                                若结束时间小于开始时间，则自动推送订单时间范围就是：0点到结束时间，开始时间到0点
+                            </div>
+                        </div>
+                        <script>
+                        function adddata(e){
+                            var num = $(e).attr('num');
+                            if(num){
+                                num = parseInt(num);
+                            }else{
+                                num = 0;
+                            }
+                            num++;
+
+                            var html = '';
+                            html+='<div class="layui-form-item">';
+                            html+=' <label class="layui-form-label" style="width:160px"></label>';
+                            html+=' <div class="layui-form-mid"></div>';
+                            html+=' <div class="layui-input-inline" style="width:80px"><input type="text" name="autopush_start[]" value="" id="autopush_start_hours_new'+num+'" class="layui-input autopush_hours_new"></div>';
+                            html+=' <div class="layui-form-mid"> ~ </div>';
+                            html+=' <div class="layui-input-inline" style="width:80px"><input type="text" name="autopush_end[]" value="" id="autopush_end_hours_new'+num+'" class="layui-input autopush_hours_new"></div>';
+                            html+=' <button type="button" class="layui-btn layui-btn-primary" onclick="deldata(this)">删除</button>';
+                            html+='</div>';
+                            $('#timeset_div').append(html);
+                            $(e).attr('num',num);
+                            $('.autopush_hours_new').each(function (e){
+                                var objId = $(this).attr('id');
+                                layui.laydate.render({
+                                    elem: "#"+objId,
+                                    type: 'time',
+                                    format:'HH:mm:ss',
+                                    trigger: 'click'
+                                })
+                            })
+                        }
+                        function deldata(obj){
+                            $(obj).parent().remove();
+                        }
+                        </script>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label"></label>
+                            <div class="layui-input-block">
+                                <button class="layui-btn" lay-submit lay-filter="formsubmit2">提 交</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+          </div>
+       </div>
+    </div>
+    {/if}
+  <div class="layui-fluid">
+      <div class="layui-row layui-col-space15">
+          <div class="layui-card layui-col-md12">
+              <div class="layui-card-header">
+                <i class="fa fa-list"></i>
+                门店
+                <button class="table-btn" onclick="openmax('{:url('mytshopedit')}')">操作</button>
+              </div>
+              <div class="layui-card-body" pad15>
+                  <div class="layui-col-md12">
+                      <table id="tabledata" lay-filter="tabledata"></table>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+    {include file="public/js"/}
+    <script>
+    var table = layui.table;
+    var datawhere = {};
+    //数据表
+    var tableIns = table.render({
+        elem: '#tabledata'
+        ,url: "{$Request.url}" //数据接口
+        ,page: false//开启分页
+        ,cols: [[ //表头
+            {field: 'id', title: '门店ID'},
+            {field: 'shop_id', title: '麦芽田门店ID'},
+            {field: 'name', title: '门店名称'},
+            {field: 'city_name', title: '城市'},
+            {field: 'status', title: '状态',templet:function(d){
+                if(d.status==0){
+                    return '<div><span style="color:red;float:left;">异常</span><span style="overflow:hidden;" onclick="tishi()"><i class="layui-icon" style="float:left;margin-top:2px;margin-left:10px">&#xe60b;</i><span></div>';
+                }
+                if(d.status==1){
+                    return '<span style="color:green">正常</span>';
+                }
+            }},
+            {field: 'createtime', title: '创建时间',templet:function(d){ return date('Y-m-d H:i',d.createtime)}},
+            {field: 'op', title: '操作',templet:function(d){
+                var html = '';
+                html += '<button class="table-btn" onclick="openmax(\'{:url('mytshopedit')}\')">编辑</button>';
+                return html;
+            },width:100}
+        ]]
+    });
+    //排序
+    table.on('sort(tabledata)', function(obj){
+        datawhere.field = obj.field;
+        datawhere.order = obj.type;
+        tableIns.reload({
+            initSort: obj,
+            where: datawhere
+        });
+    });
+    //检索
+    layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+        var field = obj.field
+        var olddatawhere = datawhere
+        datawhere = field
+        datawhere.field = olddatawhere.field
+        datawhere.order = olddatawhere.order
+        tableIns.reload({
+            where: datawhere,
+            page: {curr: 1}
+        });
+    })
+
+    layui.form.on('submit(formsubmit)', function(obj){
+        var field = obj.field
+        $.post("{:url('mytsave')}",field,function(data){
+            dialog(data.msg,data.status,data.url);
+        })
+    })
+    function sel(id){
+        layer.confirm('确定要选择此方式为默认配送方式吗?',{icon: 7, title:'操作确认'}, function(index){
+            //do something
+            layer.close(index);
+            var index = layer.load();
+            $.post("{:url('wx_set_status')}",{id:id},function(data){
+                layer.close(index);
+                dialog(data.msg,data.status);
+                tableIns.reload();
+            })
+        });
+    }
+    function getBalance(){
+        layer.close(index);
+            var index = layer.load();
+        $.post("{:url('get_balance')}",{id:0},function(data){
+            layer.close(index);
+            dialog(data.msg,data.status);
+            if(data.status == 1){
+                $("#myt_balance").val(data.balance);
+            }
+        })
+    }
+    function tishi(){
+        layer.open({
+            type:1,
+            area:'400px',
+            content:'<div style="margin:auto auto;text-align:center;padding: 20px 50px;">AppKey发生改变或门店创建失败，请重新操作提交信息</div>',
+            btn: ['关闭'],
+            btnAlign: 'c', //按钮居中
+            title: '异常提示',
+            shadeClose:true,
+            yes: function(){
+              layer.closeAll();
+            }
+        })
+    }
+
+    {if getcustom('express_maiyatian_autopush')}
+    //所有的日期控件
+    $('.autopush_hours').each(function (e){
+        var objId = $(this).attr('id');
+        layui.laydate.render({
+            elem: "#"+objId,
+            type: 'time',
+            format:'HH:mm:ss',
+            trigger: 'click'
+        })
+    })
+    layui.form.on('submit(formsubmit2)', function(obj){
+        var field = obj.field
+        $.post("{:url('mytsave2')}",field,function(data){
+            dialog(data.msg,data.status,data.url);
+        })
+    })
+    {/if}
+  </script>
+    {include file="public/copyright"/}
+</body>
+</html>

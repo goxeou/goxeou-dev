@@ -1,0 +1,121 @@
+<!DOCTYPE html><!--custom_file(weight_template)-->
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>重量模板</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<script src="__STATIC__/admin/js/address3.js?v=1"></script>
+	<style>
+	#ggtable .layui-input{ display:inline;height:30px}
+	#ggtable .layui-btn{ margin-top:-3px;margin-left:1px}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-card layui-col-md12">
+				<div class="layui-card-header">
+					{if !$info['id']}<i class="fa fa-plus"></i> 添加重量模板{else}<i class="fa fa-pencil"></i> 编辑重量模板{/if}
+					<i class="layui-icon layui-icon-close" style="font-size:18px;font-weight:bold;cursor:pointer" onclick="closeself()"></i>
+				</div>
+				<div class="layui-card-body" pad15>
+					<div class="layui-form form-label-w6" lay-filter="">
+						<input type="hidden" name="info[id]" value="{$info['id']}">
+				
+						<div class="layui-form-item">
+							<label class="layui-form-label">显示名称：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[name]"  value="{if !$info['id']}包装费{else}{$info['name']}{/if}" lay-verify="required" lay-verType="tips" autocomplete="off" class="layui-input">
+							</div>
+						</div>
+
+						<div id="pstype0_div" >
+			
+							<div class="layui-form-item" id="setgg">
+								<label class="layui-form-label">重量及价格：</label>
+								<div class="layui-input-inline" style="width:auto">
+									<table id="ggnamediv"  class="layui-table" style="width:900px">
+										<thead>
+										<tr>
+											<th>首重重量(克)</th>
+											<th>首重费用(元)</th>
+											<th>续重重量(克)</th>
+											<th>续重费用(元)</th>
+										</tr>
+										</thead>
+										{php} $pricedata = json_decode($info['pricedata'],true);{/php}
+										{if $pricedata}
+										{foreach $pricedata as $k=>$gg}
+										<tr>
+											<td><input type="text" class="layui-input" name="fristweight" value="{$gg.fristweight}" style="width:80px"/></td>
+											<td><input type="text" class="layui-input" name="fristprice" value="{$gg.fristprice}" style="width:80px"/></td>
+											<td><input type="text" class="layui-input" name="secondweight" value="{$gg.secondweight}" style="width:80px"/></td>
+											<td><input type="text" class="layui-input" name="secondprice" value="{$gg.secondprice}" style="width:80px"/></td>
+										
+										</tr>
+										{/foreach}
+										{else}
+										<tr>
+											<td><input type="text" class="layui-input" name="fristweight" value="1000" style="width:80px"/></td>
+											<td><input type="text" class="layui-input" name="fristprice" value="0" style="width:80px"/></td>
+											<td><input type="text" class="layui-input" name="secondweight" value="1000" style="width:80px"/></td>
+											<td><input type="text" class="layui-input" name="secondprice" value="0" style="width:80px"/></td>
+										</tr>
+										{/if}
+									</table>
+									<div class="layui-word-aux">根据重量来计算运费，当物品不足《首重重量》时，按照《首重费用》计算，超过部分按照《续重重量》和《续重费用》乘积来计算，首重续重为空时默认按照1000计算</div>
+								</div>
+							</div>
+						</div>
+
+						
+						<div class="layui-form-item">
+							<label class="layui-form-label">序号：</label>
+							<div class="layui-input-inline">
+								<input type="text" name="info[sort]"   value="{$info.sort|default=0}" class="layui-input">
+							</div>
+							<div class="layui-form-mid layui-word-aux">用于排序,越大越靠前</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">状态：</label>
+							<div class="layui-input-inline">
+								<input type="radio" name="info[status]"   value="1" title="开启" {if !$info['id'] || $info['status']==1}checked{/if}>
+								<input type="radio" name="info[status]"   value="0" title="关闭" {if $info['id'] && $info['status']==0}checked{/if}>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"></label>
+							<div class="layui-input-block">
+								<button class="layui-btn"   lay-submit lay-filter="formsubmit">提 交</button>
+							</div>
+						</div>
+					</div>
+					
+				</div>
+			</div>
+		</div>
+  </div>
+	{include file="public/js"/}
+	<script>
+
+	layui.form.on('submit(formsubmit)', function(obj){
+		var field = obj.field
+		var index = layer.load();
+		$.post("{:url('save')}",field,function(data){
+			layer.close(index);
+			dialog(data.msg,data.status);
+			if(data.status==1){
+				setTimeout(function(){
+					parent.layer.closeAll();
+					parent.tableIns.reload();
+				},1000)
+			}
+		})
+	})
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

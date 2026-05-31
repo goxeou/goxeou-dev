@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>聚合收款码</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+	<style>
+		.layui-imgbox .layui-imgbox-close{z-index: 6;}
+	</style>
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+		<div class="layui-card layui-col-md12">
+			<div class="layui-card-header"><i class="fa fa-cog"></i> 聚合收款码</div>
+			<div class="layui-card-body" pad15>
+				<div class="layui-form form-label-w8" lay-filter="">
+					{if in_array('wx',$platform_arr)}
+					<div class="layui-form-item">
+						<label class="layui-form-label">微信设置：</label>
+						<div class="layui-form-mid" style="width: 500px;">
+							开发管理->开发设置->扫普通链接二维码打开小程序
+							<a href="https://developers.weixin.qq.com/miniprogram/introduction/qrcode.html" target="_blank">点击查看配置规则</a>
+							<br/>
+							协议类型：<span class="layui-default-link">https</span> <br/>
+							选择大小写：<span class="layui-default-link">小写</span> <br/>
+							二维码规则：<span class="layui-default-link">{$Think.const.PRE_URL2}/h5/{$aid}.html#/pagesA/maidan/pay
+							<button class="layui-btn layui-btn-xs layui-btn-primary" onclick="copyText('{$Think.const.PRE_URL2}/h5/{$aid}.html#/pagesA/maidan/pay')">复制</button></span><br/>
+							{if $auth_data=='all' || in_array('Business/index',$auth_data)}
+							前缀占用规则：<span class="layui-default-link">开启多商户使用选择 “不占用”</span> 平台开启此功能，多商户的收款码即支持聚合码<br/>
+							{/if}
+							小程序功能页面：<span class="layui-default-link">pagesA/maidan/pay
+							<button class="layui-btn layui-btn-xs layui-btn-primary" onclick="copyText('pagesA/maidan/pay')">复制</button></span><br/>
+						</div>
+					</div>
+					{/if}
+					{if in_array('alipay',$platform_arr)}
+					<div class="layui-form-item">
+						<label class="layui-form-label">支付宝设置：</label>
+						<div class="layui-form-mid" style="width: 500px;">
+							选择应用->审核&发布->小程序码->关联普通链接二维码
+							<a href="https://opendocs.alipay.com/b/04ne6i" target="_blank">点击查看配置规则</a>
+							<br/>
+							{if $auth_data=='all' || in_array('Business/index',$auth_data)}
+							关联模式：<span class="layui-default-link">开启多商户使用选择 “模糊匹配”</span>平台开启此功能，多商户的收款码即支持聚合码 <br/>
+							{/if}
+							二维码地址 ：<span class="layui-default-link">{$Think.const.PRE_URL2}/h5/{$aid}.html#/pagesA/maidan/pay
+							<button class="layui-btn layui-btn-xs layui-btn-primary" onclick="copyText('{$Think.const.PRE_URL2}/h5/{$aid}.html#/pagesA/maidan/pay')">复制</button></span><br/>
+							小程序功能页：<span class="layui-default-link">pagesA/maidan/pay
+							<button class="layui-btn layui-btn-xs layui-btn-primary" onclick="copyText('pagesA/maidan/pay')">复制</button></span><br/>
+						</div>
+					</div>
+					{/if}
+					<div class="layui-form-item">
+						<label class="layui-form-label">二维码：</label>
+						<div class="layui-input-inline">
+							<div style="width:100%;margin:10px 0" id="urlqr"></div>
+							<div style="width:100%;text-align:center"><button class="layui-btn layui-btn-sm layui-btn-primary" onclick="showwxqrcode('pagesA/maidan/pay')">查看小程序码</button></div>
+						</div>
+						<div class="layui-form-mid"></div>
+					</div>
+					
+
+					<div class="layui-form-item">
+						<label class="layui-form-label">链接地址：</label>
+						<div class="layui-form-mid" style="width: 500px;">
+							{$Think.const.PRE_URL2}/h5/{$aid}.html#/pagesA/maidan/pay
+							<button class="layui-btn layui-btn-xs layui-btn-primary" onclick="copyText('{$Think.const.PRE_URL2}/h5/{$aid}.html#/pagesA/maidan/pay')">复制</button>
+						</div>
+						<div class="layui-form-mid"></div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label">页面路径：</label>
+						<div class="layui-form-mid" style="width: 500px;">
+							pagesA/maidan/pay
+							<button class="layui-btn layui-btn-xs layui-btn-primary" onclick="copyText('pagesA/maidan/pay')">复制</button>
+						</div>
+						<div class="layui-form-mid"></div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label">收款强制登录：</label>
+						<div class="layui-input-inline" style="width: 500px;">
+							<input type="radio"  name="maidan_login" {if $admin['maidan_login']==1}checked{/if} value="1" title="是" lay-filter="maidan_login" />
+							<input type="radio"  name="maidan_login" {if $admin['maidan_login']==0}checked{/if} value="0" title="否" lay-filter="maidan_login" />
+						</div>
+						<div class="layui-form-mid layui-word-aux layui-clear">选择是：扫码进入买单页面后跳转登录页，会员登录后才能买单付款</div>
+					</div>
+					
+					<div class="layui-form-item">
+						<label class="layui-form-label">支付后跳转：</label>
+						<div class="layui-input-inline" style="width:300px">
+							<input type="text" name="maidan_payaftertourl" class="layui-input" value="{$admin.maidan_payaftertourl}" id="maidan_payaftertourl">
+						</div>
+						<div class="layui-btn layui-btn-primary" style="float:left" onclick="chooseUrl2('maidan_payaftertourl')">选择链接</div>
+						<div class="layui-form-mid layui-word-aux"></div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label">开启定位：</label>
+						<div class="layui-input-inline" style="width: 500px;">
+							<input type="radio"  name="maidan_getlocation" {if $admin['maidan_getlocation']==1}checked{/if} value="1" title="开启" />
+							<input type="radio"  name="maidan_getlocation" {if $admin['maidan_getlocation']==0}checked{/if} value="0" title="关闭" />
+						</div>
+						<div class="layui-form-mid"></div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label"></label>
+						<div class="layui-input-block">
+							<button class="layui-btn" lay-submit lay-filter="maidanedit">保存</button>
+							<button class="layui-btn layui-btn-primary" type="button" id="uploadjstxt">上传域名校验文件</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+		url = '{$Think.const.PRE_URL2}/h5/{$aid}.html#/pages/maidan/pay';
+		var qrcode = new QRCode('urlqr', {
+			text: 'your content',
+			width: 200,
+			height: 200,
+			colorDark : '#000000',
+			colorLight : '#ffffff',
+			correctLevel : QRCode.CorrectLevel.L
+		});
+		qrcode.clear();
+		qrcode.makeCode(url);
+
+		layui.form.on('submit(maidanedit)', function(obj){
+			var field = obj.field
+			$.post("{:url('save')}",obj.field,function(data){
+				dialog(data.msg,data.status);
+
+			})
+		})
+		layui.upload.render({
+			elem: '#uploadjstxt', //绑定元素
+			url: "{:url('uploadjstxt')}", //上传接口
+			exts:'txt|html',
+			accept:'file',
+			done: function(res){
+				//上传完毕回调
+				console.log(res)
+				dialog(res)
+			},
+			error: function(){
+				//请求异常回调
+			}
+		});
+		layui.form.on('radio(maidan_login)', function(data){
+			if(data.value=='1'){
+				$('#auto_reg').hide();
+			}else{
+				$('#auto_reg').show();
+			}
+		})
+		var chooseUrlField = '';
+		function chooseUrl2(field){
+			chooseUrlField = field;
+			layer.open({type:2,shadeClose:true,area:['1200px', '650px'],'title':'选择链接',content:"{:url('DesignerPage/chooseurl')}&callback=chooseLink2"})
+		}
+		function chooseLink2(urlname,url){
+			$("#"+chooseUrlField).val(url);
+		}
+  </script>
+	{include file="public/copyright"/}
+</body>
+</html>

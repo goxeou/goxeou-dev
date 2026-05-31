@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>表单列表</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  {include file="public/css"/}
+</head>
+<body>
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card layui-col-md12">
+          <div class="layui-card-header"><i class="fa fa-list"></i> 表单列表</div>
+          <div class="layui-card-body" pad15>
+						<blockquote class="layui-elem-quote">添加完表单之后需要在[设计]-[页面设计]中调用,可以新建页面然后选择表单组件进行调用</blockquote>
+						<div class="layui-col-md4" style="padding-bottom:10px">
+							{if input('param.showtype')!=2}<a class="layui-btn layuiadmin-btn-list" href="javascript:void(0)" onclick="openmax('{:url('edit')}')">添加</a>{/if}
+							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="datadel(0)">删除</button>
+							
+							
+						</div>
+						<div class="layui-form layui-col-md8 layui-form-search">
+							{if input('param.showtype')==2}
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">所属商户</label>
+								<div class="layui-input-inline">
+									<select name="bid" >
+										<option value="">全部</option>
+										{foreach $blist as $b}
+										<option value="{$b.id}">{$b.name}</option>
+										{/foreach}
+									</select>
+								</div>
+							</div>
+							{/if}
+							<div class="layui-inline layuiadmin-input-useradmin">
+								<label class="layui-form-label">表单名称</label>
+								<div class="layui-input-inline">
+									<input type="text" name="name" autocomplete="off" class="layui-input" value="">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<button class="layui-btn layuiadmin-btn-replys" lay-submit="" lay-filter="LAY-app-forumreply-search">
+									<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+								</button>
+							</div>
+						</div>
+						<div class="layui-col-md12">
+							<table id="tabledata" lay-filter="tabledata"></table>
+						</div>
+          </div>
+        </div>
+    </div>
+  </div>
+	{include file="public/js"/}
+	<script>
+	layui.laydate.render({ 
+		elem: '#ctime',
+		trigger: 'click',
+		range: '~' //或 range: '~' 来自定义分割字符
+	});
+  var table = layui.table;
+	var datawhere = {};
+  //数据表
+  var tableIns = table.render({
+    elem: '#tabledata'
+    ,url: '{$Request.url}' //数据接口
+    ,page: true //开启分页
+    ,cols: [[ //表头
+			{type:"checkbox"},
+      {field: 'id', title: 'ID',  width:80},
+			{if input('param.showtype')==2}
+      {field: 'bname', title: '所属商户',width:160},
+			{/if}
+      {field: 'name', title: '名称'},
+      {field: 'ctime', title: '有效时间',templet: '<div>{{d.starttime}} ~ {{d.endtime}}</div>'},
+      {field: 'createtime', title: '创建时间',templet:function(d){ return date('Y-m-d H:i',d.createtime)},width:150},
+		  {field: 'sort', title: '排序',width:100,sort:true},
+      {field: 'status', title: '状态',width:100},
+      {field: 'operation', title: '操作',templet: function(d){
+				var html = '';
+				if(d.st0count > 0){
+					html += '<button class="table-btn" onclick="openmax(\'{:url('record')}/formid/'+d.id+'\',\'查看表单数据\')" style="position:relative">数据<span style="display:flex;align-items:center;justify-content:center;min-width:16px;height:16px;text-align:center;border-radius:8px;position:absolute;top:-6px;right:-6px;z-index:2;font-size:12px;color:#fff;background:#f55">'+d.st0count+'</span></button>';	
+				}else{
+					html += '<button class="table-btn" onclick="openmax(\'{:url('record')}/formid/'+d.id+'\',\'查看表单数据\')">数据</button>';
+				}
+                
+				html += '<button class="table-btn" onclick="openmax(\'{:url('edit')}/id/'+d.id+'\',\'编辑表单\')">编辑</button>';
+				html += '<button class="table-btn" onclick="datadel('+d.id+')">删除</button>';
+				{if getcustom('businessindex_showfw') || getcustom('form_copy')}
+				html += '<button class="table-btn" onclick="copyform('+d.id+')">复制</button>';
+				{/if}
+					
+				return html;
+      },width:250}
+    ]]
+  });
+	//排序
+	table.on('sort(tabledata)', function(obj){
+		datawhere.field = obj.field;
+		datawhere.order = obj.type;
+		tableIns.reload({
+			initSort: obj,
+			where: datawhere
+		});
+	});
+	//检索
+	layui.form.on('submit(LAY-app-forumreply-search)', function(obj){
+		var field = obj.field
+		var olddatawhere = datawhere
+		datawhere = field
+		datawhere.field = olddatawhere.field
+		datawhere.order = olddatawhere.order
+		tableIns.reload({
+			where: datawhere,
+			page: {curr: 1}
+		});
+	})
+	//删除
+	function datadel(id){
+		var ids = [];
+		if(id==0){
+			var checkStatus = table.checkStatus('tabledata')
+			var checkData = checkStatus.data; //得到选中的数据
+			if(checkData.length === 0){
+				 return layer.msg('请选择数据');
+			}
+			var ids = [];
+			for(var i=0;i<checkData.length;i++){
+				ids.push(checkData[i]['id']);
+			}
+		}else{
+			ids.push(id)
+		}
+		layer.confirm('确定要删除吗？删除后无法恢复！',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('del')}",{ids:ids},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	
+	//复制
+	function copyform(id){
+		layer.confirm('确定要复制该表单吗?',{icon: 7, title:'操作确认'}, function(index){
+			//do something
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('copyform')}",{id:id},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+    function showurl(id,type){
+        var pagepath = 'pagesA/form/formlog2?id='+id;
+		viewLink(pagepath);
+    }
+
+	</script>
+	{include file="public/copyright"/}
+    <div id="NewsToolBox"></div>
+</body>
+</html>
