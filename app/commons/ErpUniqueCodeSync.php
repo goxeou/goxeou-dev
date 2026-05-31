@@ -98,7 +98,13 @@ AND ROWNUM <= 10000;\" | docker exec -i oracle-xe sqlplus -S SHUZAO/shuzao123@xe
             }
 
             if (!empty($batchData)) {
-                Db::name('shop_unique_code')->insertAll($batchData);
+                // 使用 INSERT IGNORE 避免重复唯一码冲突
+                $sql = "INSERT IGNORE INTO ddwx_shop_unique_code (aid,bid,unique_code,sku_code,erp_depot_id,status,createtime) VALUES ";
+                $rows = [];
+                foreach ($batchData as $r) {
+                    $rows[] = "({$r['aid']},{$r['bid']}," . var_export($r['unique_code'], true) . "," . var_export($r['sku_code'], true) . "," . var_export($r['erp_depot_id'], true) . ",{$r['status']},{$r['createtime']})";
+                }
+                Db::execute($sql . implode(',', $rows));
                 $inserted += count($batchData);
             }
 
