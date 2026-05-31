@@ -26,25 +26,6 @@ class ErpUniqueCodeSync
 
         $depotId = $business['erp_depot_id'];
 
-        // 查询该商户的所有商品(from_id 对应 ERP 产品ID)
-        $products = Db::name('shop_product')
-            ->where('aid', $aid)
-            ->where('bid', $bid)
-            ->whereNotNull('from_id')
-            ->where('from_id', '<>', '')
-            ->column('id', 'from_id');
-
-        if (empty($products)) {
-            return ['status' => 0, 'msg' => '该商户没有关联ERP的商品(from_id为空)'];
-        }
-
-        // 查询该商户的所有规格及其barcode
-        $proIds = array_values($products);
-        $guiges = Db::name('shop_guige')
-            ->where('aid', $aid)
-            ->whereIn('proid', $proIds)
-            ->column('id', 'proid');
-
         // 从ERP查询该仓库的唯一码
         // 使用docker exec调用sqlplus
         $total = 0;
