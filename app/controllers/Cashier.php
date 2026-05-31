@@ -436,26 +436,73 @@ class Cashier extends Common
         }
         //如果是扫码获得的条形码信息
         if($barcode){
-            //因guige中没有bid，先查出aid所有规格中符合编码的所有产品ID，再确定该商户中是哪个产品ID,确定后再以产品ID和编码确定规格信息
-            $proids = Db::name('shop_guige')->where('aid',aid)->where('barcode',$barcode)->column('proid');
-            if(empty($proids)){
-                $shopproduct = Db::name('shop_product')->where('aid',aid)->where('bid',bid)->where('procode',$barcode)->find();
-                if(empty($shopproduct))return $this->json(0, '未查询到相关商品');
-                $proid = $shopproduct['id'];
-                $ggid = Db::name('shop_guige')->where('aid',aid)->where('proid', $proid)->value('id');
-            } else{
-                $shopproduct = Db::name('shop_product')->where('aid',aid)->where('bid',bid)->where('id','in',$proids)->find();
-                if($shopproduct){
-                    $ggid = Db::name('shop_guige')->where('aid',aid)->where('proid', $shopproduct['id'])->where('barcode',$barcode)->value('id');
-                    $proid = $shopproduct['id'];
-                }else{
+            // 1) 先查唯一码表（ERP唯一码）
+            $uniqueCode = Db::name('shop_unique_code')
+                ->where('unique_code', $barcode)
+                ->where('status', 0)
+                ->find();
+            
+            if($uniqueCode){
+                // 通过SKU_CODE匹配规格
+                $guigeMatch = Db::name('shop_guige')
+                    ->alias('g')
+                    ->join('shop_product p', 'g.proid = p.id')
+                    ->where('p.aid', aid)
+                    ->where('p.bid', bid)
+                    ->where('g.barcode', $uniqueCode['sku_code'])
+                    ->find();
+                
+                if($guigeMatch){
+                    $proid = $guigeMatch['proid'];
+                    $ggid = $guigeMatch['id'];
+                    $num = 1;
+                } else {
+                    // 尝试模糊匹配SKU_CODE最后一段（尺码）
+                    $skuParts = explode('-', $uniqueCode['sku_code']);
+                    $sizeCode = end($skuParts);
+                    $guiges = Db::name('shop_guige')
+                        ->alias('g')
+                        ->join('shop_product p', 'g.proid = p.id')
+                        ->where('p.aid', aid)
+                        ->where('p.bid', bid)
+                        ->select();
+                    foreach($guiges as $g){
+                        if(strpos($g['name'], $sizeCode) !== false){
+                            $proid = $g['proid'];
+                            $ggid = $g['id'];
+                            $num = 1;
+                            break;
+                        }
+                    }
+                    if(!isset($proid)){
+                        return $this->json(0, '唯一码商品未匹配到本店商品');
+                    }
+                }
+                // 标记order_goods记录唯一码
+                $bindUniqueCode = $barcode;
+            } else {
+                // 2) 原逻辑：查规格条码
+                $proids = Db::name('shop_guige')->where('aid',aid)->where('barcode',$barcode)->column('proid');
+                if(empty($proids)){
                     $shopproduct = Db::name('shop_product')->where('aid',aid)->where('bid',bid)->where('procode',$barcode)->find();
                     if(empty($shopproduct))return $this->json(0, '未查询到相关商品');
                     $proid = $shopproduct['id'];
                     $ggid = Db::name('shop_guige')->where('aid',aid)->where('proid', $proid)->value('id');
+                } else{
+                    $shopproduct = Db::name('shop_product')->where('aid',aid)->where('bid',bid)->where('id','in',$proids)->find();
+                    if($shopproduct){
+                        $ggid = Db::name('shop_guige')->where('aid',aid)->where('proid', $shopproduct['id'])->where('barcode',$barcode)->value('id');
+                        $proid = $shopproduct['id'];
+                    }else{
+                        $shopproduct = Db::name('shop_product')->where('aid',aid)->where('bid',bid)->where('procode',$barcode)->find();
+                        if(empty($shopproduct))return $this->json(0, '未查询到相关商品');
+                        $proid = $shopproduct['id'];
+                        $ggid = Db::name('shop_guige')->where('aid',aid)->where('proid', $proid)->value('id');
+                    }
                 }
+                $num = 1;
+                $bindUniqueCode = '';
             }
-            $num = 1;
         }
     
         if (empty($proid)) {
@@ -532,6 +579,7 @@ class Cashier extends Common
         $goodsData['ggid'] = $guige['id'] ?? 0;
         $goodsData['ggname'] = $guige['name'] ?? '';
         $goodsData['barcode'] = $guige['barcode'] ?? '';
+        $goodsData['unique_code'] = $bindUniqueCode ?? '';
         $goodsData['propic'] = $guige['pic'] ? $guige['pic'] : $product['pic'];
         $goodsData['sell_price'] = $guige['sell_price'] ? $guige['sell_price'] : $product['sell_price'];
 		$goodsData['cost_price'] = $guige['cost_price'] ? $guige['cost_price'] : $product['cost_price'];
@@ -1644,6 +1692,9 @@ class Cashier extends Common
                 \app\commons\Member::addstaffcommission(aid,bid,$order['staffid'],$order['staff_commission'],'收银成功发放: '.$order['ordernum'],$staffparams);
             }
         }
+
+        // 付款后：更新唯一码状态 + ERP扣库存
+        \app\commons\ErpUniqueCodeSync::afterOrderPaid(aid, bid, $order['id']);
         //计算使用优惠券后的比例
          $goodslist  = Db::name('cashier_order_goods')->where('aid',$order['aid'])->where('orderid',$orderid)->select()->toArray();
         foreach($goodslist as $key=>$val){

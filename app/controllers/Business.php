@@ -1225,4 +1225,25 @@ class Business extends Common
         $result = \app\commons\ShopSync::syncCategoriesToStores();
         return json($result);
     }
+
+    /**
+     * 从ERP同步唯一码到本地
+     */
+    public function syncuniquecodes()
+    {
+        if(bid > 0) return json(['status'=>0,'msg'=>'无操作权限']);
+        if($this->auth_data != 'all' && !in_array('Business/syncuniquecodes',$this->auth_data) && !in_array('Business/*',$this->auth_data)){
+            return json(['status'=>0,'msg'=>'无操作权限']);
+        }
+
+        $bid = input('param.bid/d');
+        if(empty($bid)){
+            return json(['status'=>0,'msg'=>'请指定要同步的商户ID']);
+        }
+
+        set_time_limit(300);
+        $result = \app\commons\ErpUniqueCodeSync::syncForBusiness(aid, $bid);
+        \app\commons\System::plog('手动同步ERP唯一码，商户ID：'.$bid.'，'.$result['msg']);
+        return json($result);
+    }
 }

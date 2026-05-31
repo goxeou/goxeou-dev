@@ -18,6 +18,7 @@
 							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="location.href='{:url('index')}'">返回商户列表</button>
 							<button class="layui-btn layuiadmin-btn-list" onclick="synctostores()"><i class="layui-icon layui-icon-refresh"></i> 手动同步商品</button>
 							<button class="layui-btn layui-btn-normal layuiadmin-btn-list" onclick="synccategories()"><i class="layui-icon layui-icon-refresh"></i> 同步分类</button>
+							<button class="layui-btn layui-btn-warm layuiadmin-btn-list" onclick="syncuniquecodes()"><i class="layui-icon layui-icon-refresh"></i> 同步唯一码 (ERP)</button>
 						</div>
 						<div class="layui-form layui-col-md8 layui-form-search">
 							<div class="layui-inline layuiadmin-input-useradmin">
@@ -66,6 +67,7 @@
       {field: 'name', title: '店铺名称'},
       {field: 'price_adjust_percent_display', title: '调价百分比', width: 120},
       {field: 'product_count', title: '商品数', width: 90, sort: true},
+      {field: 'erp_depot_id', title: 'ERP仓库ID', width: 100},
       {field: 'status_text', title: '状态', width: 100},
       {field: 'operation', title: '操作', templet: function(d){
 				var html = '';
@@ -120,6 +122,25 @@
 			layer.close(index);
 			var index = layer.load();
 			$.post("{:url('synccategories')}",{},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+
+	//同步ERP唯一码（需要选中一行）
+	function syncuniquecodes(){
+		var checkStatus = table.checkStatus('tabledata');
+		if(checkStatus.data.length === 0){
+			layer.msg('请先勾选要同步唯一码的直营店', {icon: 5});
+			return;
+		}
+		var bid = checkStatus.data[0].id;
+		layer.confirm('确定要同步该直营店的ERP唯一码吗？将拉取ERP仓库中的库存唯一码到本地。',{icon: 7, title:'操作确认'}, function(index){
+			layer.close(index);
+			var index = layer.load(2);
+			$.post("{:url('syncuniquecodes')}",{bid:bid},function(data){
 				layer.close(index);
 				dialog(data.msg,data.status);
 				tableIns.reload()
