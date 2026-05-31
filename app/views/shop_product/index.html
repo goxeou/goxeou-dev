@@ -395,7 +395,7 @@
 						html += '<button class="table-btn" onclick="checklock('+d.islock+',function(){setcheckst(\''+d.id+'\',2)})">驳回</button>';
 					}
 				}
-				html += '<button class="table-btn" onclick="checklock('+d.islock+',function(){changeprice('+d.id+')})">改价</button>';
+				if(!('{$bid}'!=0 && d.is_store_mapped)){ html += '<button class="table-btn" onclick="checklock('+d.islock+',function(){changeprice('+d.id+')})">改价</button>'; }
 				{if getcustom('guige_split')}
 				html += '<button class="table-btn" onclick="checklock('+d.islock+',function(){guige_split('+d.id+')})">规格拆分</button>';
 				{/if}
