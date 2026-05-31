@@ -1105,6 +1105,10 @@ class Business extends Common
                 $mappedCount = Db::name('shop_product_store')->where('bid',$v['id'])->count();
                 $selfCount = Db::name('shop_product')->where('aid',aid)->where('bid',$v['id'])->whereNull('sync_from_bid')->count();
                 $data[$k]['product_count'] = $mappedCount + $selfCount;
+                // 唯一码统计
+                $ucTotal = Db::name('shop_unique_code')->where('bid',$v['id'])->count();
+                $ucSold = Db::name('shop_unique_code')->where('bid',$v['id'])->where('status',1)->count();
+                $data[$k]['unique_code_count'] = $ucTotal > 0 ? ($ucTotal - $ucSold) . '/' . $ucTotal : '-';
                 // 调价百分比显示
                 $data[$k]['price_adjust_percent_display'] = $v['price_adjust_percent'] ? $v['price_adjust_percent'].'%' : '0%';
                 // 状态文字
