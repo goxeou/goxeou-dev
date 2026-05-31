@@ -17,6 +17,7 @@
 						<div class="layui-col-md4" style="padding-bottom:10px">
 							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="location.href='{:url('index')}'">返回商户列表</button>
 							<button class="layui-btn layuiadmin-btn-list" onclick="synctostores()"><i class="layui-icon layui-icon-refresh"></i> 手动同步商品</button>
+							<button class="layui-btn layui-btn-normal layuiadmin-btn-list" onclick="synccategories()"><i class="layui-icon layui-icon-refresh"></i> 同步分类</button>
 						</div>
 						<div class="layui-form layui-col-md8 layui-form-search">
 							<div class="layui-inline layuiadmin-input-useradmin">
@@ -106,6 +107,19 @@
 			layer.close(index);
 			var index = layer.load();
 			$.post("{:url('synctostores')}",{},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+
+	//手动同步分类
+	function synccategories(){
+		layer.confirm('确定要同步总店商品分类到所有直营店吗？',{icon: 7, title:'操作确认'}, function(index){
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('synccategories')}",{},function(data){
 				layer.close(index);
 				dialog(data.msg,data.status);
 				tableIns.reload()

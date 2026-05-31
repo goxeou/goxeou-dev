@@ -1211,4 +1211,18 @@ class Business extends Common
             'msg' => '同步完成，成功同步商品数：'.$successCount.'，跳过/失败数：'.$failCount
         ]);
     }
+
+    /**
+     * 手动同步总店商品分类到所有直营店
+     */
+    public function synccategories()
+    {
+        if(bid > 0) return json(['status'=>0,'msg'=>'无操作权限']);
+        if($this->auth_data != 'all' && !in_array('Business/synccategories',$this->auth_data) && !in_array('Business/*',$this->auth_data)){
+            return json(['status'=>0,'msg'=>'无操作权限']);
+        }
+
+        $result = \app\commons\ShopSync::syncCategoriesToStores();
+        return json($result);
+    }
 }

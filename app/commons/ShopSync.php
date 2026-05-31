@@ -92,6 +92,136 @@ class ShopSync
     }
 
     /**
+     * 同步总店商品分类到所有直营店
+     * 将总店（MAIN_STORE_BID）的 shop_category2 分类复制到各直营店的 shop_category2
+     */
+    public static function syncCategoriesToStores()
+    {
+        // 获取总店所有分类（按父级排序，先父后子）
+        $hqCategories = Db::name('shop_category2')
+            ->where('aid', self::MAIN_STORE_BID)  // aid=20 管理后台总店
+            ->where('bid', self::MAIN_STORE_BID)
+            ->order('pid asc, sort desc, id asc')
+            ->select()
+            ->toArray();
+
+        if (empty($hqCategories)) {
+            return ['status' => 0, 'msg' => '总店暂无分类数据'];
+        }
+
+        // 查找所有启用的直营店
+        $stores = Db::name('business')
+            ->where('type', 1)
+            ->where('head_bid', self::MAIN_STORE_BID)
+            ->where('status', 1)
+            ->field('id')
+            ->select()
+            ->toArray();
+
+        if (empty($stores)) {
+            return ['status' => 0, 'msg' => '暂无启用中的直营店'];
+        }
+
+        $totalSynced = 0;
+        $now = time();
+
+        foreach ($stores as $store) {
+            $storeBid = $store['id'];
+
+            // 获取该直营店已有的分类 fromid 列表
+            $existingFromIds = Db::name('shop_category2')
+                ->where('aid', self::MAIN_STORE_BID)
+                ->where('bid', $storeBid)
+                ->where('fromid', '>', 0)
+                ->column('id', 'fromid');
+
+            // old_id → new_id 映射（用于处理子分类 pid）
+            $idMap = [];
+
+            // 第一遍：处理根分类 (pid=0)
+            $rootCategories = array_filter($hqCategories, function($c) {
+                return $c['pid'] == 0;
+            });
+            foreach ($rootCategories as $cat) {
+                $fromId = $cat['id'];
+                if (isset($existingFromIds[$fromId])) {
+                    // 已存在，更新
+                    $newId = $existingFromIds[$fromId];
+                    Db::name('shop_category2')
+                        ->where('id', $newId)
+                        ->update([
+                            'name' => $cat['name'],
+                            'pic' => $cat['pic'],
+                            'status' => $cat['status'],
+                            'sort' => $cat['sort'],
+                        ]);
+                    $idMap[$fromId] = $newId;
+                } else {
+                    // 新增
+                    $newId = Db::name('shop_category2')->insertGetId([
+                        'aid' => self::MAIN_STORE_BID,
+                        'bid' => $storeBid,
+                        'pid' => 0,
+                        'name' => $cat['name'],
+                        'pic' => $cat['pic'],
+                        'status' => $cat['status'],
+                        'sort' => $cat['sort'],
+                        'fromid' => $fromId,
+                        'createtime' => $now,
+                    ]);
+                    $idMap[$fromId] = $newId;
+                    $totalSynced++;
+                }
+            }
+
+            // 第二遍：处理子分类 (pid>0)
+            $childCategories = array_filter($hqCategories, function($c) {
+                return $c['pid'] > 0;
+            });
+            foreach ($childCategories as $cat) {
+                $fromId = $cat['id'];
+                // 父分类必须已映射，否则跳过
+                if (!isset($idMap[$cat['pid']])) {
+                    continue;
+                }
+                $newPid = $idMap[$cat['pid']];
+
+                if (isset($existingFromIds[$fromId])) {
+                    // 已存在，更新
+                    $newId = $existingFromIds[$fromId];
+                    Db::name('shop_category2')
+                        ->where('id', $newId)
+                        ->update([
+                            'pid' => $newPid,
+                            'name' => $cat['name'],
+                            'pic' => $cat['pic'],
+                            'status' => $cat['status'],
+                            'sort' => $cat['sort'],
+                        ]);
+                    $idMap[$fromId] = $newId;
+                } else {
+                    // 新增
+                    $newId = Db::name('shop_category2')->insertGetId([
+                        'aid' => self::MAIN_STORE_BID,
+                        'bid' => $storeBid,
+                        'pid' => $newPid,
+                        'name' => $cat['name'],
+                        'pic' => $cat['pic'],
+                        'status' => $cat['status'],
+                        'sort' => $cat['sort'],
+                        'fromid' => $fromId,
+                        'createtime' => $now,
+                    ]);
+                    $idMap[$fromId] = $newId;
+                    $totalSynced++;
+                }
+            }
+        }
+
+        return ['status' => 1, 'msg' => '同步完成，共处理 ' . $totalSynced . ' 条分类记录'];
+    }
+
+    /**
      * 获取直营店显示价格
      *
      * 用法1（新签名）：ShopSync::getDisplayPrice($storeBid, $proid)
