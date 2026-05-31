@@ -184,6 +184,19 @@ class ShopProduct extends Common
             }
 
             if($isDirectStore && $storeHeadBid > 0){
+                // 直营店：ORDER BY 字段加上别名避免 JOIN 歧义
+                $storeOrder = $order;
+                if(strpos($storeOrder, '.') === false){
+                    $parts = preg_split('/\s+/', $storeOrder);
+                    $qualified = [];
+                    for($i = 0; $i < count($parts); $i += 2){
+                        $field = $parts[$i];
+                        $dir = isset($parts[$i+1]) ? $parts[$i+1] : '';
+                        $qualified[] = 'sp.' . $field . ($dir ? ' ' . $dir : '');
+                    }
+                    $storeOrder = implode(', ', $qualified);
+                }
+
                 // 直营店：移除原有的 bid 筛选条件
                 $whereNoBid = [];
                 foreach($where as $w){
@@ -210,7 +223,7 @@ class ShopProduct extends Common
                         ->field('sp.*, sps.override_price, sps.store_status as store_status, sps.stock as store_stock, sps.sort as store_sort')
                         ->join('shop_product_store sps', 'sp.id = sps.proid AND sps.bid = ' . bid)
                         ->where($whereStore)
-                        ->order($order)
+                        ->order($storeOrder)
                         ->select()->toArray();
                 }
 
@@ -225,7 +238,7 @@ class ShopProduct extends Common
                     $data2 = Db::name('shop_product')->alias('sp')
                         ->field('sp.*, NULL as override_price, NULL as store_status, NULL as store_stock, NULL as store_sort')
                         ->where($whereSelf)
-                        ->order($order)
+                        ->order($storeOrder)
                         ->select()->toArray();
                 }
 
