@@ -17,6 +17,7 @@
 			  {if $business_num_limit > 0}<blockquote class="layui-elem-quote">商户数量上限：{$business_num_limit}</blockquote>{/if}
 						<div class="layui-col-md4" style="padding-bottom:10px">
 							<a class="layui-btn layuiadmin-btn-list" href="javascript:void(0)" onclick="openmax('{:url('edit')}')">添加</a>
+							<a class="layui-btn layuiadmin-btn-list" href="javascript:void(0)" onclick="openmax('{:url('storelist')}')">直营店管理</a>
 							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="datadel(0)">删除</button>
 							<!-- <button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="setst(0,1)">开启</button>
 							<button class="layui-btn layui-btn-primary layuiadmin-btn-list" onclick="setst(0,0)">关闭</button> -->
@@ -235,13 +236,18 @@ html+='<div><a href="javascript:void(0)" onclick="checkdepositrefund('+d.deposit
 				html += '<button class="table-btn" onclick="openmax(\'{:url('PlugBusinessqrPay/index')}&bid='+d.id+'\')">快捷支付</button>';
 				{/if}
 				{if getcustom('restaurant_product_import')}	
-					{if $isadminlogin}
-						if(d.restaurant_auth){
-						html += '<button class="table-btn" onclick="showChooseRestaurantProduct(\''+d.id+'\')">导入菜品</button>';
-						}
+						{if $isadminlogin}
+							if(d.restaurant_auth){
+							html += '<button class="table-btn" onclick="showChooseRestaurantProduct(\''+d.id+'\')">导入菜品</button>';
+							}
+						{/if}
 					{/if}
-				{/if}
-				return html;
+					if(d.type != 1){
+						html += '<button class="table-btn" onclick="setstoretype('+d.id+',1)">标记直营</button>';
+					}else{
+						html += '<button class="table-btn" onclick="openmax(\'{:url('storelist')}\')">直营管理</button>';
+					}
+					return html;
       },width:250}
     ]]
   });
@@ -422,6 +428,17 @@ html+='<div><a href="javascript:void(0)" onclick="checkdepositrefund('+d.deposit
 			layer.close(index);
 			var index = layer.load();
 			$.post("{:url('setst')}",{ids:ids,st:st},function(data){
+				layer.close(index);
+				dialog(data.msg,data.status);
+				tableIns.reload()
+			})
+		});
+	}
+	function setstoretype(id, type){
+		layer.confirm(type==1?'确定要标记该商户为直营店吗？':'确定要取消直营店标记吗？',{icon: 7, title:'操作确认'}, function(index){
+			layer.close(index);
+			var index = layer.load();
+			$.post("{:url('setstoretype')}",{id:id,type:type},function(data){
 				layer.close(index);
 				dialog(data.msg,data.status);
 				tableIns.reload()

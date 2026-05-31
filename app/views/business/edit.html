@@ -82,6 +82,15 @@
 							</div>
 							<div class="layui-form-mid" style="margin-left:10px;">%，平台收取的佣金比例，如设置10%，平台抽成10%，商家得90%</div>
 						</div>
+						{if $info['type']==1}
+						<div class="layui-form-item">
+							<label class="layui-form-label">整店调价%：</label>
+							<div class="layui-input-inline" style="width:200px">
+								<input type="text" name="info[price_adjust_percent]" class="layui-input" value="{$info.price_adjust_percent}">
+							</div>
+							<div class="layui-form-mid" style="margin-left:10px;">%，直营店商品售价在此百分比基础上调整，如设置10%，总店商品售价100元则直营店售价110元</div>
+						</div>
+						{/if}
 						<div class="layui-form-item">
 							<label class="layui-form-label">数造商户ID：</label>
 							<div class="layui-input-inline" style="width:400px">

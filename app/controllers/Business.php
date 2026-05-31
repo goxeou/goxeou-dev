@@ -237,6 +237,16 @@ class Business extends Common
             }
         }
 
+        // 处理直营店调价百分比
+        if(isset($info['price_adjust_percent'])){
+            $info['price_adjust_percent'] = floatval($info['price_adjust_percent']);
+        }
+        // 处理 type 和 head_bid（仅总店管理员可操作）
+        if(bid == 0){
+            if(isset($info['type'])) $info['type'] = intval($info['type']);
+            if(isset($info['head_bid'])) $info['head_bid'] = intval($info['head_bid']);
+        }
+
         if($info['id']){
 			$bid = $info['id'];
             $where = [];
@@ -1055,4 +1065,144 @@ class Business extends Common
 
     public function setdepositrefund(){
 	    }
+
+    // ========== 直营店管理 ==========
+
+    /**
+     * 直营店列表页面
+     * 只对总店(bid=0且总店管理员)显示
+     */
+    public function storelist(){
+        // 权限检查：仅总店管理员可访问
+        if(bid > 0) showmsg('无操作权限');
+        if($this->auth_data != 'all' && !in_array('Business/storelist',$this->auth_data) && !in_array('Business/*',$this->auth_data)){
+            if(request()->isAjax()){
+                return json(['code'=>0,'msg'=>'无操作权限','count'=>0,'data'=>[]]);
+            }
+            showmsg('无操作权限');
+        }
+
+        if(request()->isAjax()){
+            $page = input('param.page');
+            $limit = input('param.limit');
+            $order = 'id desc';
+
+            $where = array();
+            $where[] = ['aid','=',aid];
+            $where[] = ['type','=',1];
+            $where[] = ['head_bid','=',\app\commons\ShopSync::MAIN_STORE_BID];
+
+            if(input('param.name')) $where[] = ['name','like','%'.input('param.name').'%'];
+            if(input('?param.status') && input('param.status')!==''){
+                $where[] = ['status','=',input('param.status')];
+            }
+
+            $count = 0 + Db::name('business')->where($where)->count();
+            $data = Db::name('business')->where($where)->page($page,$limit)->order($order)->select()->toArray();
+
+            foreach($data as $k=>$v){
+                // 商品数
+                $productCount = Db::name('shop_product')->where('aid',aid)->where('bid',$v['id'])->count();
+                $data[$k]['product_count'] = $productCount;
+                // 调价百分比显示
+                $data[$k]['price_adjust_percent_display'] = $v['price_adjust_percent'] ? $v['price_adjust_percent'].'%' : '0%';
+                // 状态文字
+                if($v['status']==0){
+                    $data[$k]['status_text'] = '<span style="color:red">待审核</span>';
+                }elseif($v['status']==1){
+                    $data[$k]['status_text'] = '<span style="color:green">已通过</span>';
+                }elseif($v['status']==2){
+                    $data[$k]['status_text'] = '<span style="color:red">已驳回</span>';
+                }elseif($v['status']==-1){
+                    $data[$k]['status_text'] = '<span style="color:red">已过期</span>';
+                }else{
+                    $data[$k]['status_text'] = $v['status'];
+                }
+            }
+
+            return json(['code'=>0,'msg'=>'查询成功','count'=>$count,'data'=>$data]);
+        }
+
+        return View::fetch();
+    }
+
+    /**
+     * 标记/取消直营店
+     * 将普通商户标记为直营店，或将直营店降级为普通商户
+     */
+    public function setstoretype(){
+        if(bid > 0) return json(['status'=>0,'msg'=>'无操作权限']);
+        if($this->auth_data != 'all' && !in_array('Business/setstoretype',$this->auth_data) && !in_array('Business/*',$this->auth_data)){
+            return json(['status'=>0,'msg'=>'无操作权限']);
+        }
+
+        $id = input('post.id/d');
+        $type = input('post.type/d'); // 1=标记为直营店, 0=取消直营店
+
+        $business = Db::name('business')->where('aid',aid)->where('id',$id)->find();
+        if(!$business){
+            return json(['status'=>0,'msg'=>'商户不存在']);
+        }
+
+        if($type == 1){
+            // 标记为直营店
+            $update = [
+                'type' => 1,
+                'head_bid' => \app\commons\ShopSync::MAIN_STORE_BID,
+            ];
+            Db::name('business')->where('aid',aid)->where('id',$id)->update($update);
+            \app\commons\System::plog('标记商户'.$id.'为直营店');
+            return json(['status'=>1,'msg'=>'已设置为直营店']);
+        }else{
+            // 取消直营店，降级为普通商户
+            $update = [
+                'type' => 0,
+                'head_bid' => null,
+            ];
+            Db::name('business')->where('aid',aid)->where('id',$id)->update($update);
+            \app\commons\System::plog('取消商户'.$id.'直营店标记');
+            return json(['status'=>1,'msg'=>'已取消直营店标记']);
+        }
+    }
+
+    /**
+     * 手动同步总店商品到所有直营店
+     * 遍历所有直营店，调用 ShopSync::syncNewProductToStores 同步所有总店商品
+     */
+    public function synctostores(){
+        if(bid > 0) return json(['status'=>0,'msg'=>'无操作权限']);
+        if($this->auth_data != 'all' && !in_array('Business/synctostores',$this->auth_data) && !in_array('Business/*',$this->auth_data)){
+            return json(['status'=>0,'msg'=>'无操作权限']);
+        }
+
+        set_time_limit(0);
+        ini_set("memory_limit", "-1");
+
+        // 获取总店所有商品
+        $products = Db::name('shop_product')
+            ->where('aid', aid)
+            ->where('bid', \app\commons\ShopSync::MAIN_STORE_BID)
+            ->field('id')
+            ->select()
+            ->toArray();
+
+        $successCount = 0;
+        $failCount = 0;
+
+        foreach($products as $product){
+            $result = \app\commons\ShopSync::syncNewProductToStores($product['id']);
+            if($result){
+                $successCount++;
+            }else{
+                $failCount++;
+            }
+        }
+
+        \app\commons\System::plog('手动同步总店商品到直营店，成功：'.$successCount.'，失败：'.$failCount);
+
+        return json([
+            'status' => 1,
+            'msg' => '同步完成，成功同步商品数：'.$successCount.'，跳过/失败数：'.$failCount
+        ]);
+    }
 }

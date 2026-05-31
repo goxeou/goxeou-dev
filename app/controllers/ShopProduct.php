@@ -1545,6 +1545,7 @@ class ShopProduct extends Common
             }
 			$proid = $product['id'];
 			\app\commons\System::plog('商城商品编辑'.$proid);
+			\app\commons\ShopSync::syncProductUpdate($proid);
 		}else{
 			$data['aid'] = aid;
 			$data['bid'] = bid;
@@ -1554,6 +1555,7 @@ class ShopProduct extends Common
 			}
 			$proid = Db::name('shop_product')->insertGetId($data);
 			\app\commons\System::plog('商城商品编辑'.$proid);
+			\app\commons\ShopSync::syncNewProductToStores($proid);
 		}
 
 		if(getcustom('product_mendian_hexiao_givemoney')){
@@ -1976,6 +1978,9 @@ class ShopProduct extends Common
                 Db::name('shop_guige')->where('proid',$pro['id'])->delete();
             }
         }
+		foreach($ids as $delId) {
+		    \app\commons\ShopSync::syncProductDelete($delId);
+		}
 		\app\commons\System::plog('商城商品删除'.implode(',',$ids));
 		return json(['status'=>1,'msg'=>'删除成功']);
 	}

@@ -6,6 +6,7 @@
 // +----------------------------------------------------------------------
 namespace app\controllers;
 use think\facade\Db;
+use app\commons\ShopSync;
 class ApiCommon extends ApiBase
 {
 	public $sysset;
@@ -601,6 +602,10 @@ class ApiCommon extends ApiBase
                 } else {
                     }
                 }
+            //直营店价格计算：sync_from_bid不为空时，用ShopSync重算售价
+            if(!empty($v['sync_from_bid'])){
+                $datalist[$k]['sell_price'] = ShopSync::getDisplayPrice($v, $this->bid);
+            }
             $fwnames = [];
             if($v['fwid']){
                 $fwid = explode(',',$v['fwid']);
@@ -664,8 +669,12 @@ class ApiCommon extends ApiBase
 				$product['sell_price'] = $lvprice_data[$this->member['levelid']];
                 }
 		}else{
-            }
-        return $product;
+		    }
+		//直营店价格计算
+		if(!empty($product['sync_from_bid'])){
+		    $product['sell_price'] = ShopSync::getDisplayPrice($product, $this->bid);
+		}
+		return $product;
 	}
     //商品数据会员价处理
     public function formatScoreProduct($product){

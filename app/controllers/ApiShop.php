@@ -247,7 +247,7 @@ class ApiShop extends ApiCommon{
 		$pernum = 10;
 		$pagenum = input('post.pagenum');
 		if(!$pagenum) $pagenum = 1;
-        $field = 'a.id,a.bid,a.pic,a.name,a.sales,a.market_price,a.sell_price,a.lvprice,a.lvprice_data,a.sellpoint,a.fuwupoint,a.price_type,a.stock,a.sellpoint,a.product_type,a.guigedata';
+        $field = 'a.id,a.bid,a.pic,a.name,a.sales,a.market_price,a.sell_price,a.lvprice,a.lvprice_data,a.sellpoint,a.fuwupoint,a.price_type,a.stock,a.sellpoint,a.product_type,a.guigedata,a.sync_from_bid,a.source_pid,a.override_price,a.min_price';
         if(getcustom('plug_tengrui')) {
             $field .= ',a.house_status,a.group_status,a.group_ids,a.is_rzh,a.relation_type';
         }
@@ -2432,7 +2432,7 @@ class ApiShop extends ApiCommon{
 		$where = [];
 		$where[] = ['aid','=',aid];
 		$where[] = ['id','=',$proid];
-        $field = "bid,id,pic,name,sales,market_price,sell_price,lvprice,lvprice_data,sellpoint,fuwupoint,guigedata,status,ischecked,freighttype,freightdata,start_time,end_time,start_hours,end_hours,balance,limit_start,perlimitdan,commissionset,commissiondata1,commissiondata2,commissiondata3,commissionset4,price_type,product_type,weight";
+        $field = "bid,id,pic,name,sales,market_price,sell_price,lvprice,lvprice_data,sellpoint,fuwupoint,guigedata,status,ischecked,freighttype,freightdata,start_time,end_time,start_hours,end_hours,balance,limit_start,perlimitdan,commissionset,commissiondata1,commissiondata2,commissiondata3,commissionset4,price_type,product_type,weight,sync_from_bid,source_pid,override_price,min_price";
         if(getcustom('plug_tengrui')) {
             $field .= ',house_status,group_status,group_ids,is_rzh,relation_type';
         }
