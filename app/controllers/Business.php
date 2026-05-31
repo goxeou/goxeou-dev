@@ -1243,7 +1243,11 @@ class Business extends Common
 
         set_time_limit(300);
         $result = \app\commons\ErpUniqueCodeSync::syncForBusiness(aid, $bid);
+        $stats = \app\commons\ErpUniqueCodeSync::getUniqueCodeStats(aid, $bid);
         \app\commons\System::plog('手动同步ERP唯一码，商户ID：'.$bid.'，'.$result['msg']);
-        return json($result);
+        return json([
+            'status' => $result['status'],
+            'msg' => $result['msg'] . '；' . $stats
+        ]);
     }
 }

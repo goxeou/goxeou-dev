@@ -129,6 +129,31 @@ AND ROWNUM <= 10000;\" | docker exec -i oracle-xe sqlplus -S SHUZAO/shuzao123@xe
     }
 
     /**
+     * 查询商户唯一码统计
+     */
+    public static function getUniqueCodeStats($aid, $bid)
+    {
+        $total = Db::name('shop_unique_code')
+            ->where('aid', $aid)
+            ->where('bid', $bid)
+            ->count();
+
+        $sold = Db::name('shop_unique_code')
+            ->where('aid', $aid)
+            ->where('bid', $bid)
+            ->where('status', 1)
+            ->count();
+
+        $available = Db::name('shop_unique_code')
+            ->where('aid', $aid)
+            ->where('bid', $bid)
+            ->where('status', 0)
+            ->count();
+
+        return "当前总 {$total} 个唯一码，在库 {$available} 个，已售 {$sold} 个";
+    }
+
+    /**
      * 付款后处理：更新唯一码状态 + ERP扣库存
      * @param int $aid 站点ID
      * @param int $bid 商户ID
