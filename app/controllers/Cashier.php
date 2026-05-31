@@ -278,22 +278,89 @@ class Cashier extends Common
                         $whereCid[] = "find_in_set({$c2},{$sx_cid})";
                     }
                     $where[] = Db::raw(implode(' or ',$whereCid));
-//                $where[] = ['p.cid', 'in', $cids];
             } else {
                 //无分类内容
                 $where[] = Db::raw("find_in_set(".$cid.",{$sx_cid})");
-//                $where[] = ['p.cid', '=', '-1'];
             }
         }
-       
-//        $count = 0 + Db::name('shop_product')->where($where)->count();
-        $data = Db::name('shop_product')->alias('p')->join('shop_guige g','p.id=g.proid')->group('p.id')->field('p.*')->where($where)->page($page, $limit)->order('sort desc,id desc')->select()->toArray();
+
+        // ===== 直营店引用模式处理 =====
+        $isDirectStore = false;
+        $storeHeadBid = 0;
+        if(bid > 0){
+            $storeBiz = Db::name('business')->where('id', bid)->find();
+            if($storeBiz && $storeBiz['type'] == 1){
+                $isDirectStore = true;
+                $storeHeadBid = intval($storeBiz['head_bid']);
+            }
+        }
+
+        if($isDirectStore && $storeHeadBid > 0){
+            // 直营店：移除 bid 筛选条件
+            $whereNoBid = [];
+            foreach($where as $w){
+                if(is_array($w) && isset($w[0]) && $w[0] == 'p.bid') continue;
+                $whereNoBid[] = $w;
+            }
+
+            // 获取映射的总店商品ID
+            $storeProids = Db::name('shop_product_store')->where('bid', bid)->column('proid');
+            if(!$storeProids) $storeProids = [0];
+
+            // 1) 总店映射商品
+            $whereStore = $whereNoBid;
+            $whereStore[] = ['p.bid', '=', $storeHeadBid];
+            $whereStore[] = ['p.id', 'in', $storeProids];
+            $data1 = Db::name('shop_product')->alias('p')
+                ->join('shop_guige g', 'p.id=g.proid')
+                ->group('p.id')
+                ->field('p.*')
+                ->where($whereStore)
+                ->page($page, $limit)
+                ->order('sort desc,id desc')
+                ->select()->toArray();
+
+            // 2) 直营店自营商品
+            $whereSelf = $whereNoBid;
+            $whereSelf[] = ['p.bid', '=', bid];
+            $whereSelf[] = ['p.sync_from_bid', '=', null];
+            $data2 = Db::name('shop_product')->alias('p')
+                ->join('shop_guige g', 'p.id=g.proid')
+                ->group('p.id')
+                ->field('p.*')
+                ->where($whereSelf)
+                ->page($page, $limit)
+                ->order('sort desc,id desc')
+                ->select()->toArray();
+
+            $data = array_merge($data1, $data2);
+
+            // 按 sort desc, id desc 排序
+            usort($data, function($a, $b){
+                $sa = intval($a['sort']);
+                $sb = intval($b['sort']);
+                if($sa != $sb) return $sb - $sa;
+                return intval($b['id']) - intval($a['id']);
+            });
+
+            // 分页截取（因为用了 array_merge 需要手动分页）
+            $offset = ($page - 1) * $limit;
+            $data = array_slice($data, $offset, $limit);
+        } else {
+            $data = Db::name('shop_product')->alias('p')->join('shop_guige g','p.id=g.proid')->group('p.id')->field('p.*')->where($where)->page($page, $limit)->order('sort desc,id desc')->select()->toArray();
+        }
         $cdata = Db::name('shop_category')->where('aid', aid)->column('name', 'id');
         if (bid > 0) {
             $cdata2 = Db::name('shop_category2')->Field('id,name')->where('aid', aid)->where('bid', bid)->order('sort desc,id')->column('name', 'id');
         }
         if (empty($data)) $data = [];
         foreach ($data as $k => $v) {
+            // 直营店映射商品：使用直营店售价
+            if($isDirectStore && $storeHeadBid > 0 && $v['bid'] == $storeHeadBid){
+                $data[$k]['sell_price'] = \app\commons\ShopSync::getDisplayPrice(bid, $v['id']);
+                // 标记来源
+                $data[$k]['source_type'] = 'mapped';
+            }
             $v['cid'] = explode(',', $v['cid']);
             $data[$k]['cname'] = null;
             if ($v['cid']) {
