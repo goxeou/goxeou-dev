@@ -443,14 +443,30 @@ class Cashier extends Common
                 ->find();
             
             if($uniqueCode){
+                // 直营店引用模式：获取映射的总店商品ID
+                $matchBid = bid;
+                $storeProidsMatch = [];
+                if(bid > 0){
+                    $storeBiz = Db::name('business')->where('id', bid)->find();
+                    if($storeBiz && $storeBiz['type'] == 1 && $storeBiz['head_bid']){
+                        $storeProidsMatch = Db::name('shop_product_store')->where('bid', bid)->column('proid');
+                        $matchBid = intval($storeBiz['head_bid']);
+                    }
+                }
+
                 // 通过SKU_CODE匹配规格
-                $guigeMatch = Db::name('shop_guige')
+                $guigeQuery = Db::name('shop_guige')
                     ->alias('g')
                     ->join('shop_product p', 'g.proid = p.id')
                     ->where('p.aid', aid)
-                    ->where('p.bid', bid)
-                    ->where('g.barcode', $uniqueCode['sku_code'])
-                    ->find();
+                    ->where('p.bid', $matchBid)
+                    ->where('g.barcode', $uniqueCode['sku_code']);
+
+                if(!empty($storeProidsMatch)){
+                    $guigeQuery->whereIn('p.id', $storeProidsMatch);
+                }
+
+                $guigeMatch = $guigeQuery->find();
                 
                 if($guigeMatch){
                     $proid = $guigeMatch['proid'];
@@ -460,12 +476,15 @@ class Cashier extends Common
                     // 尝试模糊匹配SKU_CODE最后一段（尺码）
                     $skuParts = explode('-', $uniqueCode['sku_code']);
                     $sizeCode = end($skuParts);
-                    $guiges = Db::name('shop_guige')
+                    $guigeQuery2 = Db::name('shop_guige')
                         ->alias('g')
                         ->join('shop_product p', 'g.proid = p.id')
                         ->where('p.aid', aid)
-                        ->where('p.bid', bid)
-                        ->select();
+                        ->where('p.bid', $matchBid);
+                    if(!empty($storeProidsMatch)){
+                        $guigeQuery2->whereIn('p.id', $storeProidsMatch);
+                    }
+                    $guiges = $guigeQuery2->select();
                     foreach($guiges as $g){
                         if(strpos($g['name'], $sizeCode) !== false){
                             $proid = $g['proid'];
