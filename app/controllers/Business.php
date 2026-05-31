@@ -1145,6 +1145,11 @@ class Business extends Common
             return json(['status'=>0,'msg'=>'商户不存在']);
         }
 
+        // 总店不可改为直营店
+        if($business['type'] == 2){
+            return json(['status'=>0,'msg'=>'总店不可修改为直营店']);
+        }
+
         if($type == 1){
             // 标记为直营店
             $update = [

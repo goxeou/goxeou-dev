@@ -138,6 +138,11 @@
     ,cols: [[ //表头
 			{type:"checkbox"},
       {field: 'id', title: 'ID',  sort: true,width:80},
+      {field: 'type_text', title: '类型',width:90,templet:function(d){
+        if(d.type==2) return '<span style="color:#FFB800;font-weight:bold">总店</span>';
+        if(d.type==1) return '<span style="color:#5FB878">直营店</span>';
+        return '<span style="color:#999">普通商户</span>';
+      }},
       {field: 'cname', title: '商家分类'},
       {field: 'name', title: '商家名称'},
       {field: 'logo', title: '商家图片',templet:function(d){return '<img src="'+d.logo+'" style="width:80px;"/>';},width: 100},
@@ -242,7 +247,9 @@ html+='<div><a href="javascript:void(0)" onclick="checkdepositrefund('+d.deposit
 							}
 						{/if}
 					{/if}
-					if(d.type != 1){
+					if(d.type == 2){
+						html += '<span style="color:#FFB800;font-weight:bold;margin-right:5px">[总店]</span>';
+					}else if(d.type != 1){
 						html += '<button class="table-btn" onclick="setstoretype('+d.id+',1)">标记直营</button>';
 					}else{
 						html += '<button class="table-btn" onclick="openmax(\'{:url('storelist')}\')">直营管理</button>';
