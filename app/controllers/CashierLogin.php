@@ -13,6 +13,7 @@ class CashierLogin extends BaseController
 {
 	public $webinfo;
     public function initialize(){
+		defined('aid') or define('aid', 0);
 		$request = request();
 		$this->webinfo = Db::name('sysset')->where(['name'=>'webinfo'])->value('value');
 		$this->webinfo = json_decode($this->webinfo,true);
