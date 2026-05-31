@@ -41,8 +41,9 @@ class ApiShop extends ApiCommon{
 		}else{
 			$order = 'a.sort desc,a.id desc';
 		}
-		if(input('param.bid')){
-			$where[] = ['a.bid','=',input('param.bid/d')];
+		$requestedBid = input('param.bid/d');
+		if($requestedBid){
+			$this->applyDirectStoreBid($where, $requestedBid, 'a.bid', 'a.id');
 		}else{
 			$business_sysset = Db::name('business_sysset')->where('aid',aid)->find();
 			if(!$business_sysset || $business_sysset['status']==0 || $business_sysset['product_isshow']==0){
@@ -731,8 +732,9 @@ class ApiShop extends ApiCommon{
             } else {
                 $order = 'a.sort desc,a.id desc';
             }
-            if (input('param.bid')) {
-                $where[] = ['a.bid', '=', input('param.bid/d')];
+            $requestedBid = input('param.bid/d');
+            if ($requestedBid) {
+                $this->applyDirectStoreBid($where, $requestedBid, 'a.bid', 'a.id');
             } else {
                 $business_sysset = Db::name('business_sysset')->where('aid', aid)->find();
                 if (!$business_sysset || $business_sysset['status'] == 0 || $business_sysset['product_isshow'] == 0) {
@@ -9062,8 +9064,9 @@ $userinfo['creditdkmaxmoney'] = round($creditdkmaxmoney,2);
             $nowhm = date('H:i');
             $where[] = Db::raw("`status`=1 or (`status`=2 and unix_timestamp(start_time)<=$nowtime and unix_timestamp(end_time)>=$nowtime) or (`status`=3 and ((start_hours<end_hours and start_hours<='$nowhm' and end_hours>='$nowhm') or (start_hours>=end_hours and (start_hours<='$nowhm' or end_hours>='$nowhm'))) )");
 
-            if (input('param.bid')) {
-                $where[] = ['bid', '=', input('param.bid/d')];
+            $requestedBid = input('param.bid/d');
+            if ($requestedBid) {
+                $this->applyDirectStoreBid($where, $requestedBid, 'bid', 'id');
             } else {
                 $image_search_business = Db::name('baidu_set')->where('aid',aid)->where('bid',0)->value('image_search_business');
                 if($image_search_business){
@@ -9258,8 +9261,9 @@ $userinfo['creditdkmaxmoney'] = round($creditdkmaxmoney,2);
         $nowhm = date('H:i');
         $where[] = Db::raw("`status`=1 or (`status`=2 and unix_timestamp(start_time)<=$nowtime and unix_timestamp(end_time)>=$nowtime) or (`status`=3 and ((start_hours<end_hours and start_hours<='$nowhm' and end_hours>='$nowhm') or (start_hours>=end_hours and (start_hours<='$nowhm' or end_hours>='$nowhm'))) )");
 
-        if(input('param.bid')){
-            $where[] = ['bid','=',input('param.bid/d')];
+        $requestedBid = input('param.bid/d');
+        if($requestedBid){
+            $this->applyDirectStoreBid($where, $requestedBid, 'bid', 'id');
         }else{
             $business_sysset = Db::name('business_sysset')->where('aid',aid)->find();
             if(!$business_sysset || $business_sysset['status']==0 || $business_sysset['product_isshow']==0){

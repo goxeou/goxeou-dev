@@ -754,5 +754,42 @@ class ApiCommon extends ApiBase
             }
         }
         return $guige;
-	}
+    }
+
+    /**
+     * 处理直营店bid查询：当查询指定bid的商品时，如果该商户是直营店(type=1, head_bid>0)，
+     * 自动将筛选条件改为包含总店映射商品 + 自营商品（sync_from_bid IS NULL）
+     * @param array $where 查询条件数组（引用）
+     * @param int $requestedBid 请求的商户ID
+     * @param string $bidField bid字段名，如 'a.bid' 或 'bid'
+     * @param string $idField id字段名，如 'a.id' 或 'id'
+     */
+    protected function applyDirectStoreBid(&$where, $requestedBid, $bidField = 'bid', $idField = 'id') {
+        if(!$requestedBid) return;
+
+        $storeBiz = Db::name('business')->where('id', $requestedBid)->find();
+        if(!$storeBiz || $storeBiz['type'] != 1 || intval($storeBiz['head_bid']) <= 0){
+            return;
+        }
+
+        $headBid = intval($storeBiz['head_bid']);
+        // 获取映射的总店商品ID
+        $storeProids = Db::name('shop_product_store')->where('bid', $requestedBid)->column('proid');
+        if(!$storeProids) $storeProids = [0];
+        $proidsStr = implode(',', $storeProids);
+
+        // 移除原有的 bid 筛选条件
+        foreach($where as $k => $w){
+            if(is_array($w) && isset($w[0]) && $w[0] == $bidField){
+                unset($where[$k]);
+            }
+        }
+        $where = array_values($where);
+
+        // 获取 sync_from_bid 字段名（与 bidField 使用相同的前缀）
+        $syncField = (strpos($bidField, '.') !== false) ? substr($bidField, 0, strpos($bidField, '.')) . '.sync_from_bid' : 'sync_from_bid';
+
+        // 添加组合条件：总店映射商品 OR 直营店自营商品
+        $where[] = Db::raw("({$bidField}={$headBid} AND {$idField} IN ({$proidsStr})) OR ({$bidField}={$requestedBid} AND {$syncField} IS NULL)");
+    }
 }
