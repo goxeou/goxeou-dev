@@ -187,12 +187,18 @@ class ShopProduct extends Common
                 // 直营店：ORDER BY 字段加上别名避免 JOIN 歧义
                 $storeOrder = $order;
                 if(strpos($storeOrder, '.') === false){
-                    $parts = preg_split('/\s+/', $storeOrder);
+                    $clauses = explode(',', $storeOrder);
                     $qualified = [];
-                    for($i = 0; $i < count($parts); $i += 2){
-                        $field = $parts[$i];
-                        $dir = isset($parts[$i+1]) ? $parts[$i+1] : '';
-                        $qualified[] = 'sp.' . $field . ($dir ? ' ' . $dir : '');
+                    foreach($clauses as $clause){
+                        $clause = trim($clause);
+                        if(strpos($clause, '.') === false){
+                            $parts = preg_split('/\s+/', $clause);
+                            $field = $parts[0];
+                            $dir = isset($parts[1]) ? ' ' . $parts[1] : '';
+                            $qualified[] = 'sp.' . trim($field) . $dir;
+                        }else{
+                            $qualified[] = $clause;
+                        }
                     }
                     $storeOrder = implode(', ', $qualified);
                 }
@@ -203,6 +209,12 @@ class ShopProduct extends Common
                     if(is_array($w) && isset($w[0]) && $w[0] == 'bid'){
                         continue;
                     }
+                    // 带 JOIN 的查询，字段加上别名避免歧义
+                    if(is_array($w) && isset($w[0]) && is_string($w[0]) && strpos($w[0], '.') === false && strpos($w[0], 'raw') === false){
+                        if(!($w[0] instanceof \think\db\Raw)){
+                            $w[0] = 'sp.' . $w[0];
+                        }
+                    }
                     $whereNoBid[] = $w;
                 }
 
@@ -212,8 +224,8 @@ class ShopProduct extends Common
 
                 // 1) 总店映射商品（通过 shop_product_store 关联）
                 $whereStore = $whereNoBid;
-                $whereStore[] = ['shop_product.bid', '=', $storeHeadBid];
-                $whereStore[] = ['shop_product.id', 'in', $storeProids];
+                $whereStore[] = ['sp.bid', '=', $storeHeadBid];
+                $whereStore[] = ['sp.id', 'in', $storeProids];
                 $count1 = Db::name('shop_product')->alias('sp')
                     ->join('shop_product_store sps', 'sp.id = sps.proid AND sps.bid = ' . bid)
                     ->where($whereStore)->count();
@@ -229,8 +241,8 @@ class ShopProduct extends Common
 
                 // 2) 直营店自营商品（sync_from_bid IS NULL，排除旧复制数据）
                 $whereSelf = $whereNoBid;
-                $whereSelf[] = ['shop_product.bid', '=', bid];
-                $whereSelf[] = ['shop_product.sync_from_bid', '=', null];
+                $whereSelf[] = ['sp.bid', '=', bid];
+                $whereSelf[] = ['sp.sync_from_bid', '=', null];
                 $count2 = Db::name('shop_product')->alias('sp')
                     ->where($whereSelf)->count();
                 $data2 = [];
