@@ -278,7 +278,7 @@
 				var html = '';
 				html += '<div class="table-imgbox"><img lay-src="'+d.pic+'" src="__STATIC__/admin/layui/css/modules/layer/default/loading-2.gif"/></div>';
 				html += '<div style="float: left;width:200px;margin-left: 10px;white-space:normal;line-height:20px;">';
-				html += '	<div style="width:100%;">'+(d.cid!=0?'<span style="color:red">['+d.cname+']'+(d.cname2?'['+d.cname2+']':'')+'</span>':'')+d.name+'</div>';
+				html += '	<div style="width:100%;">'+(d.cid!=0?'<span style="color:red">['+d.cname+']'+(d.cname2?'['+d.cname2+']':'')+'</span>':'')+d.name+(d.sync_from_bid?' <span style="color:#fff;background:#5FB878;padding:1px 6px;border-radius:3px;font-size:12px">总部</span>':'')+'</div>';
 				{if getcustom('price_dollar')}
 					if(d.usdprice>0){
 						html += '	<div style="padding-top:5px;color:#f60;float:left;margin-right:10px">$'+d.usdprice+'</div>';	
@@ -366,7 +366,7 @@
 				html += '<button class="table-btn" onclick="checklock('+d.islock+',function(){showqr('+d.id+')})">查看链接</button>';
 				html += '<button class="table-btn" onclick="checklock('+d.islock+',function(){procopy('+d.id+')})">复制</button>';
 				html += '<button class="table-btn" onclick="checklock('+d.islock+',function(){openmax(\'{:url('edit')}/id/'+d.id+'{if $fromwxvideo==1}&fromwxvideo=1{/if}\')})">编辑</button>';
-				html += '<button class="table-btn" onclick="checklock('+d.islock+',function(){datadel('+d.id+')})">删除</button>';
+				if('{$bid}'==0 || !d.sync_from_bid){ html += '<button class="table-btn" onclick="checklock('+d.islock+',function(){datadel('+d.id+')})">删除</button>'; }
 				if(d.status == 0){
 					html += '<button class="table-btn" onclick="checklock('+d.islock+',function(){setst('+d.id+',1)})">上架</button>';
 				}else{

@@ -1944,6 +1944,23 @@ class ShopProduct extends Common
 	public function del(){
 		$ids = input('post.ids/a');
 		if(!$ids) $ids = array(input('post.id/d'));
+		
+		// 直营店不能删除总部同步商品
+		if(bid > 0){
+		    $business = Db::name('business')->where('id',bid)->find();
+		    if($business && $business['type'] == 1){
+		        $syncedCount = Db::name('shop_product')
+		            ->where('aid',aid)
+		            ->where('bid',bid)
+		            ->where('id','in',$ids)
+		            ->whereNotNull('sync_from_bid')
+		            ->count();
+		        if($syncedCount > 0){
+		            return json(['status'=>0,'msg'=>'直营店不能删除总部同步商品']);
+		        }
+		    }
+		}
+		
 		$where = [];
 		$where[] = ['aid','=',aid];
 		$where[] = ['id','in',$ids];
